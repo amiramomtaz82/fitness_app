@@ -78,7 +78,7 @@ abstract final class AppTheme {
 
       outlinedButtonTheme: OutlinedButtonThemeData(
         style: OutlinedButton.styleFrom(
-          foregroundColor: colors.textPrimary,
+          foregroundColor: colors.grey,
           minimumSize: const Size(double.infinity, 54),
           side: BorderSide(color: colors.border, width: 1.5),
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(28)),
