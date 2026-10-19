@@ -160,9 +160,13 @@
     "email_required": "البريد الإلكتروني مطلوب.",
     "invalid_email": "يرجى إدخال بريد إلكتروني صحيح.",
     "password_required": "كلمة المرور مطلوبة.",
-    "password_too_short": "يجب ألا تقل كلمة المرور عن 6 أحرف.",
+    "password_too_short": "يجب ألا تقل كلمة المرور عن 8 أحرف.",
+    "password_missing_number": "يجب أن تحتوي كلمة المرور على رقم واحد على الأقل.",
     "passwords_dont_match": "كلمات المرور غير متطابقة.",
-    "field_required": "هذا الحقل مطلوب."
+    "field_required": "هذا الحقل مطلوب.",
+    "not_a_number": "يرجى إدخال قيمة رقمية صحيحة.",
+    "value_below_minimum": "القيمة المدخلة أقل من الحد الأدنى.",
+    "value_above_maximum": "القيمة المدخلة تتجاوز الحد الأقصى."
   },
   "errors": {
     "something_went_wrong": "حدث خطأ ما. يرجى المحاولة مرة أخرى.",

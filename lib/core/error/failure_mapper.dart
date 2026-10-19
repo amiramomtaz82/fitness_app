@@ -1,6 +1,7 @@
 import 'package:easy_localization/easy_localization.dart';
 import '../../generated/locale_keys.g.dart';
 import '../base/ui_events.dart';
+import '../go_routes/routes_names.dart';
 import 'failures.dart';
 
 class FailureMapper {
@@ -23,10 +24,11 @@ class FailureMapper {
     };
   }
 
+
   /// Maps any Failure to your existing UiEvent system
-  static UiEvent mapToUiEvent(Failure failure) {
+  static BaseUiEvent mapToUiEvent(Failure failure) {
     return switch (failure) {
-      UnauthorizedFailure() => const NavigateReplacementEvent('/login'),
+      UnauthorizedFailure() => const NavigateReplacementEvent(AppRoutes.login),
       _ => ShowSnackBarEvent(
         message: mapToMessage(failure),
         isError: true,

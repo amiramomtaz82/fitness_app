@@ -1,39 +1,60 @@
-sealed class UiEvent {
-  const UiEvent();
+/// Super class for all UI events in the app (common and custom).
+abstract class BaseUiEvent {
+  const BaseUiEvent();
 }
-class ShowSnackBarEvent extends UiEvent {
+
+/// Backwards compatibility alias
+typedef UiEvent = BaseUiEvent;
+
+/// Sealed class for universal/common events handled across the app.
+sealed class CommonUiEvent extends BaseUiEvent {
+  const CommonUiEvent();
+}
+
+class ShowSnackBarEvent extends CommonUiEvent {
   final String message;
   final bool isError;
+
   const ShowSnackBarEvent({
     required this.message,
     this.isError = false,
   });
 }
-class NavigateEvent extends UiEvent {
+
+class NavigateEvent extends CommonUiEvent {
   final String route;
   final Object? arguments;
+
   const NavigateEvent(
-      this.route, {
-        this.arguments,
-      });
+    this.route, {
+    this.arguments,
+  });
 }
-class NavigateReplacementEvent extends UiEvent {
+
+class NavigateReplacementEvent extends CommonUiEvent {
   final String route;
   final Object? arguments;
+
   const NavigateReplacementEvent(
-      this.route, {
-        this.arguments,
-      });
+    this.route, {
+    this.arguments,
+  });
 }
-class PopEvent extends UiEvent {
+
+class PopEvent extends CommonUiEvent {
   final Object? result;
+
   const PopEvent([this.result]);
 }
-class ShowDialogEvent extends UiEvent {
+
+class ShowDialogEvent extends CommonUiEvent {
   final String title;
   final String message;
+  final String? actionText;
+
   const ShowDialogEvent({
     required this.title,
     required this.message,
+    this.actionText,
   });
 }

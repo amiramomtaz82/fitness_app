@@ -160,9 +160,13 @@
     "email_required": "Email is required.",
     "invalid_email": "Please enter a valid email address.",
     "password_required": "Password is required.",
-    "password_too_short": "Password must be at least 6 characters.",
+    "password_too_short": "Password must be at least 8 characters.",
+    "password_missing_number": "Password must contain at least one digit.",
     "passwords_dont_match": "Passwords do not match.",
-    "field_required": "This field is required."
+    "field_required": "This field is required.",
+    "not_a_number": "Please enter a valid numeric value.",
+    "value_below_minimum": "Entered value is too low.",
+    "value_above_maximum": "Entered value exceeds maximum limit."
   },
   "errors": {
     "something_went_wrong": "Something went wrong. Please try again.",

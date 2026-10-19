@@ -1,36 +1,19 @@
-// lib/core/utils/validation_mapper.dart
-
-
-import 'package:fitness_app/core/validation/validation_errors.dart';
+import 'package:easy_localization/easy_localization.dart';
+import '../../generated/locale_keys.g.dart';
+import 'validation_errors.dart';
 
 extension ValidationErrorMapper on ValidationError {
-  /// Maps enum to user-facing string.
-  /// (If you use localization, you can pass BuildContext: `toMessage(BuildContext context)`)
+  /// Maps enum to user-facing localized string.
   String toMessage() {
     return switch (this) {
-      ValidationError.empty =>
-      'This field is required.',
-
-      ValidationError.invalidEmail =>
-      'Please enter a valid email address.',
-
-      ValidationError.passwordTooShort =>
-      'Password must be at least 8 characters long.',
-
-      ValidationError.passwordMissingNumber =>
-      'Password must contain at least one digit.',
-
-      ValidationError.passwordsDoNotMatch =>
-      'Passwords do not match.',
-
-      ValidationError.notANumber =>
-      'Please enter a valid numeric value.',
-
-      ValidationError.valueBelowMinimum =>
-      'Entered value is too low.',
-
-      ValidationError.valueAboveMaximum =>
-      'Entered value exceeds maximum limit.',
+      ValidationError.empty => LocaleKeys.validation_field_required.tr(),
+      ValidationError.invalidEmail => LocaleKeys.validation_invalid_email.tr(),
+      ValidationError.passwordTooShort => LocaleKeys.validation_password_too_short.tr(),
+      ValidationError.passwordMissingNumber => LocaleKeys.validation_password_missing_number.tr(),
+      ValidationError.passwordsDoNotMatch => LocaleKeys.validation_passwords_dont_match.tr(),
+      ValidationError.notANumber => LocaleKeys.validation_not_a_number.tr(),
+      ValidationError.valueBelowMinimum => LocaleKeys.validation_value_below_minimum.tr(),
+      ValidationError.valueAboveMaximum => LocaleKeys.validation_value_above_maximum.tr(),
     };
   }
 }
