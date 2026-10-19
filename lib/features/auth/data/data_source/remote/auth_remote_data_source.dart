@@ -1,5 +1,1 @@
-abstract class AuthRemoteDataSource {
-
-
-
-}
+abstract class AuthRemoteDataSource {}
