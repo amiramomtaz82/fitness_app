@@ -18,9 +18,18 @@ class ErrorHandler {
           final serverMessage = _extractBackendMessage(error.response?.data);
 
           return switch (statusCode) {
-            401 => UnauthorizedFailure(serverMessage: serverMessage, statusCode: statusCode),
-            403 => ForbiddenFailure(serverMessage: serverMessage, statusCode: statusCode),
-            404 => NotFoundFailure(serverMessage: serverMessage, statusCode: statusCode),
+            401 => UnauthorizedFailure(
+              serverMessage: serverMessage,
+              statusCode: statusCode,
+            ),
+            403 => ForbiddenFailure(
+              serverMessage: serverMessage,
+              statusCode: statusCode,
+            ),
+            404 => NotFoundFailure(
+              serverMessage: serverMessage,
+              statusCode: statusCode,
+            ),
             422 => ValidationFailure(
               serverMessage: serverMessage,
               errors: error.response?.data is Map<String, dynamic>
@@ -28,7 +37,10 @@ class ErrorHandler {
                   : null,
               statusCode: statusCode,
             ),
-            _ => ServerFailure(serverMessage: serverMessage, statusCode: statusCode),
+            _ => ServerFailure(
+              serverMessage: serverMessage,
+              statusCode: statusCode,
+            ),
           };
 
         default:
@@ -40,7 +52,8 @@ class ErrorHandler {
   }
 
   // Backward-compatible helpers
-  static String extractErrorMessage(Object error) => handle(error).serverMessage ?? 'Something went wrong';
+  static String extractErrorMessage(Object error) =>
+      handle(error).serverMessage ?? 'Something went wrong';
   static int? extractStatusCode(Object error) => handle(error).statusCode;
 
   static String? _extractBackendMessage(dynamic data) {

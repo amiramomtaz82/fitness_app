@@ -1,6 +1,7 @@
 import 'package:dio/dio.dart';
 import 'package:injectable/injectable.dart';
 import '../local/local_service.dart';
+
 @injectable
 class LocaleInterceptor extends Interceptor {
   LocaleInterceptor(this._localeService);

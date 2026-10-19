@@ -50,3 +50,6 @@ app.*.map.json
 .env
 **/*.mocks.dart
 **/build/
+test-results.json
+test-report*.json
+reports/

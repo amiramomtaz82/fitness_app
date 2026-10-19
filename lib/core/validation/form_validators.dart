@@ -1,6 +1,5 @@
 // lib/core/validation/form_validators.dart
 
-
 import 'package:fitness_app/core/validation/validation_errors.dart';
 
 class FormValidators {
@@ -39,7 +38,10 @@ class FormValidators {
   }
 
   /// Validates password confirmation
-  static ValidationError? validateConfirmPassword(String? password, String? confirmPassword) {
+  static ValidationError? validateConfirmPassword(
+    String? password,
+    String? confirmPassword,
+  ) {
     if (confirmPassword == null || confirmPassword.trim().isEmpty) {
       return ValidationError.empty;
     }

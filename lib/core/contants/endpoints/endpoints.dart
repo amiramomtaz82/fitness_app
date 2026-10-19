@@ -25,5 +25,6 @@ class Endpoints {
   // Exercises
   static const String exercises = '/exercises';
   static const String exercisesRandom = '/exercises/random';
-  static const String exercisesByMuscleDifficulty = '/exercises/by-muscle-difficulty';
+  static const String exercisesByMuscleDifficulty =
+      '/exercises/by-muscle-difficulty';
 }

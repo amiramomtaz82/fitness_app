@@ -19,6 +19,7 @@ class AuthInterceptor extends Interceptor {
     }
     handler.next(options);
   }
+
   @override
   Future<void> onError(
     DioException err,

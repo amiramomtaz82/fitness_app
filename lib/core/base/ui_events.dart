@@ -15,30 +15,21 @@ class ShowSnackBarEvent extends CommonUiEvent {
   final String message;
   final bool isError;
 
-  const ShowSnackBarEvent({
-    required this.message,
-    this.isError = false,
-  });
+  const ShowSnackBarEvent({required this.message, this.isError = false});
 }
 
 class NavigateEvent extends CommonUiEvent {
   final String route;
   final Object? arguments;
 
-  const NavigateEvent(
-    this.route, {
-    this.arguments,
-  });
+  const NavigateEvent(this.route, {this.arguments});
 }
 
 class NavigateReplacementEvent extends CommonUiEvent {
   final String route;
   final Object? arguments;
 
-  const NavigateReplacementEvent(
-    this.route, {
-    this.arguments,
-  });
+  const NavigateReplacementEvent(this.route, {this.arguments});
 }
 
 class PopEvent extends CommonUiEvent {

@@ -9,25 +9,15 @@ class SecureStorage {
   // 2. Inject it via constructor
   const SecureStorage(this._storage);
 
-  Future<void> write({
-    required String key,
-    required String value,
-  }) async {
-    await _storage.write(
-      key: key,
-      value: value,
-    );
+  Future<void> write({required String key, required String value}) async {
+    await _storage.write(key: key, value: value);
   }
 
-  Future<String?> read({
-    required String key,
-  }) async {
+  Future<String?> read({required String key}) async {
     return _storage.read(key: key);
   }
 
-  Future<void> delete({
-    required String key,
-  }) async {
+  Future<void> delete({required String key}) async {
     await _storage.delete(key: key);
   }
 

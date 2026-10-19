@@ -19,18 +19,20 @@ class ErrorResponse<T> extends BaseResponse<T> {
     String? errMessage,
     Failure? failure,
     int? statusCode,
-  }) : failure = failure ??
-      (error is Failure
-          ? error
-          : (error != null
-          ? ErrorHandler.handle(error)
-          : UnknownFailure(
-        serverMessage: errMessage,
-        statusCode: statusCode,
-      )));
+  }) : failure =
+           failure ??
+           (error is Failure
+               ? error
+               : (error != null
+                     ? ErrorHandler.handle(error)
+                     : UnknownFailure(
+                         serverMessage: errMessage,
+                         statusCode: statusCode,
+                       )));
 
   // Backward-compatible getters
   String get errMessage => failure.serverMessage ?? 'Something went wrong';
   int? get statusCode => failure.statusCode;
-  bool get isUnauthorized => failure is UnauthorizedFailure || statusCode == 401;
+  bool get isUnauthorized =>
+      failure is UnauthorizedFailure || statusCode == 401;
 }

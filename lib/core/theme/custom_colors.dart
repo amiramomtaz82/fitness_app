@@ -69,7 +69,7 @@ class CustomColors extends ThemeExtension<CustomColors> {
     Color? textSecondary,
     Color? border,
     Color? inputFill,
-  Color? inputFillTranslucent,
+    Color? inputFillTranslucent,
     Color? hint,
     Color? grey,
     Color? darkGrey,
@@ -98,7 +98,10 @@ class CustomColors extends ThemeExtension<CustomColors> {
   }
 
   @override
-  ThemeExtension<CustomColors> lerp(covariant ThemeExtension<CustomColors>? other, double t) {
+  ThemeExtension<CustomColors> lerp(
+    covariant ThemeExtension<CustomColors>? other,
+    double t,
+  ) {
     if (other is! CustomColors) return this;
     return CustomColors(
       primary: Color.lerp(primary, other.primary, t)!,
@@ -110,7 +113,11 @@ class CustomColors extends ThemeExtension<CustomColors> {
       textSecondary: Color.lerp(textSecondary, other.textSecondary, t)!,
       border: Color.lerp(border, other.border, t)!,
       inputFill: Color.lerp(inputFill, other.inputFill, t)!,
-      inputFillTranslucent: Color.lerp(inputFillTranslucent, other.inputFillTranslucent, t)!,
+      inputFillTranslucent: Color.lerp(
+        inputFillTranslucent,
+        other.inputFillTranslucent,
+        t,
+      )!,
       hint: Color.lerp(hint, other.hint, t)!,
       grey: Color.lerp(grey, other.grey, t)!,
       darkGrey: Color.lerp(darkGrey, other.darkGrey, t)!,

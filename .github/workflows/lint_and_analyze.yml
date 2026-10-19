@@ -1,0 +1,66 @@
+name: Lint & Static Analysis
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+
+permissions:
+  contents: read
+
+jobs:
+  lint-and-analyze:
+    name: Code Formatting & Analysis
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Set up Flutter SDK
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.44.8'
+          channel: 'stable'
+          cache: true
+          cache-key: 'flutter-:os:-:channel:-:version:-:arch:-:hash:'
+
+      - name: Install Dependencies
+        run: flutter pub get
+
+      - name: Run Build Runner (Generate Code)
+        run: dart run build_runner build --delete-conflicting-outputs
+
+      - name: Verify Code Formatting
+        id: format_check
+        run: |
+          echo "================================================================================"
+          echo "Checking Dart Code Formatting..."
+          echo "================================================================================"
+          if ! dart format --output=none --set-exit-if-changed .; then
+            echo "::error::Dart formatting violations found! Run 'dart format .' locally to fix."
+            echo "### ❌ Dart Formatting Check Failed" >> $GITHUB_STEP_SUMMARY
+            echo "Files in this PR violate the standard Dart formatting rules." >> $GITHUB_STEP_SUMMARY
+            echo "Run \`dart format .\` locally, commit, and push your changes." >> $GITHUB_STEP_SUMMARY
+            exit 1
+          else
+            echo "✅ All Dart files are formatted correctly."
+            echo "### ✅ Dart Formatting Check Passed" >> $GITHUB_STEP_SUMMARY
+            echo "All Dart files follow the standard code style." >> $GITHUB_STEP_SUMMARY
+          fi
+
+      - name: Run Static Analysis (flutter analyze)
+        id: analyze_check
+        run: |
+          echo "================================================================================"
+          echo "Running Flutter Static Analysis..."
+          echo "================================================================================"
+          if ! flutter analyze --fatal-infos --fatal-warnings; then
+            echo "::error::Flutter analyze identified warnings or errors!"
+            echo "### ❌ Flutter Static Analysis Failed" >> $GITHUB_STEP_SUMMARY
+            echo "Analyzer warnings or errors were detected. Review the logs above to resolve them." >> $GITHUB_STEP_SUMMARY
+            exit 1
+          else
+            echo "✅ Flutter static analysis passed with zero warnings or errors."
+            echo "### ✅ Flutter Static Analysis Passed" >> $GITHUB_STEP_SUMMARY
+            echo "Zero analyzer issues found against configured \`analysis_options.yaml\` rules." >> $GITHUB_STEP_SUMMARY
+          fi

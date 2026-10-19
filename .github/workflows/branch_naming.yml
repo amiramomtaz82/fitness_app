@@ -1,0 +1,75 @@
+name: Branch Naming Check
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+
+permissions:
+  contents: read
+  pull-requests: read
+
+jobs:
+  check-branch-name:
+    name: Verify Branch Naming Convention
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Validate Branch Name Pattern
+        run: |
+          BRANCH_NAME="${{ github.head_ref }}"
+          echo "================================================================================"
+          echo "Checking branch name: '$BRANCH_NAME'"
+          echo "================================================================================"
+
+          # Allowed prefixes: feature/, bugfix/, hotfix/, release/, chore/, refactor/, docs/, test/, ci/
+          # Followed by lowercase/numbers/hyphens/underscores (e.g., feature/auth-register, bugfix/fix-login-error)
+          PATTERN="^(feature|bugfix|hotfix|release|chore|refactor|docs|test|ci)\/[a-zA-Z0-9._-]+$"
+
+          if [[ "$BRANCH_NAME" =~ $PATTERN ]]; then
+            echo "✅ Branch '$BRANCH_NAME' matches the team naming convention."
+            echo "### ✅ Branch Naming Check Passed" >> $GITHUB_STEP_SUMMARY
+            echo "Branch \`$BRANCH_NAME\` adheres to the repository branching strategy." >> $GITHUB_STEP_SUMMARY
+          else
+            echo "================================================================================"
+            echo "❌ INVALID BRANCH NAME: '$BRANCH_NAME'"
+            echo "================================================================================"
+            echo "Branches targeting pull requests must follow the team conventions:"
+            echo "  • feature/<description>   (e.g., feature/auth-register)"
+            echo "  • bugfix/<description>    (e.g., bugfix/fix-token-expiry)"
+            echo "  • hotfix/<description>    (e.g., hotfix/critical-login-crash)"
+            echo "  • release/<version>       (e.g., release/v1.0.0)"
+            echo "  • chore/<description>     (e.g., chore/update-deps)"
+            echo "  • refactor/<description>  (e.g., refactor/clean-architecture)"
+            echo "  • docs/<description>      (e.g., docs/api-guide)"
+            echo "  • test/<description>      (e.g., test/form-validators)"
+            echo "  • ci/<description>        (e.g., ci/github-workflows)"
+            echo ""
+            echo "How to fix your branch name:"
+            echo "  1. Rename your local branch:"
+            echo "     git branch -m <new-valid-branch-name>"
+            echo "  2. Push the newly named branch to GitHub:"
+            echo "     git push origin -u <new-valid-branch-name>"
+            echo "  3. Open a Pull Request from the new branch."
+            echo "  4. (Optional) Delete the old remote branch:"
+            echo "     git push origin --delete $BRANCH_NAME"
+            echo "================================================================================"
+
+            echo "### ❌ Branch Naming Check Failed" >> $GITHUB_STEP_SUMMARY
+            echo "Branch \`$BRANCH_NAME\` does not match the repository branch naming pattern." >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "| Allowed Prefix | Example | Description |" >> $GITHUB_STEP_SUMMARY
+            echo "| :--- | :--- | :--- |" >> $GITHUB_STEP_SUMMARY
+            echo "| \`feature/*\` | \`feature/auth-register\` | New features or UI work |" >> $GITHUB_STEP_SUMMARY
+            echo "| \`bugfix/*\` | \`bugfix/fix-token-expiry\` | Non-critical bug fixes |" >> $GITHUB_STEP_SUMMARY
+            echo "| \`hotfix/*\` | \`hotfix/crash-fix\` | Urgent production fixes |" >> $GITHUB_STEP_SUMMARY
+            echo "| \`release/*\` | \`release/v1.0.0\` | Release candidate branches |" >> $GITHUB_STEP_SUMMARY
+            echo "| \`chore/*\` | \`chore/update-deps\` | Maintenance / dependencies |" >> $GITHUB_STEP_SUMMARY
+            echo "| \`refactor/*\` | \`refactor/theme-constants\` | Code refactoring |" >> $GITHUB_STEP_SUMMARY
+            echo "| \`docs/*\` | \`docs/api-guide\` | Documentation changes |" >> $GITHUB_STEP_SUMMARY
+            echo "| \`test/*\` | \`test/validation-tests\` | Adding or updating tests |" >> $GITHUB_STEP_SUMMARY
+            echo "| \`ci/*\` | \`ci/github-workflows\` | CI/CD pipeline changes |" >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "**Action Required:** Rename your branch following the conventions above." >> $GITHUB_STEP_SUMMARY
+
+            exit 1
+          fi

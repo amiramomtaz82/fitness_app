@@ -1,5 +1,6 @@
 import 'package:flutter/foundation.dart';
 import 'package:injectable/injectable.dart';
+
 @lazySingleton
 class LocaleService {
   final ValueNotifier<String> _languageCode = ValueNotifier<String>('en');

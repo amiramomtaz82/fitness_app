@@ -10,21 +10,21 @@ class Resource<E> extends Equatable {
   const Resource(this.status, this.data, this.errorMessage);
 
   const Resource.loading({this.data})
-      : status = ApiStatus.loading,
-        errorMessage = null;
+    : status = ApiStatus.loading,
+      errorMessage = null;
 
   const Resource.success(this.data)
-      : status = ApiStatus.success,
-        errorMessage = null;
+    : status = ApiStatus.success,
+      errorMessage = null;
 
   const Resource.error(String error, {this.data})
-      : status = ApiStatus.error,
-        errorMessage = error;
+    : status = ApiStatus.error,
+      errorMessage = error;
 
   const Resource.initial()
-      : status = ApiStatus.initial,
-        data = null,
-        errorMessage = null;
+    : status = ApiStatus.initial,
+      data = null,
+      errorMessage = null;
 
   bool get isSuccess => status == ApiStatus.success;
   bool get isLoading => status == ApiStatus.loading;
