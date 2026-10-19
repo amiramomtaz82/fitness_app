@@ -9,7 +9,10 @@ import '../interceptors/local_interceptor.dart';
 @module
 abstract class DioModule {
   @singleton
-  Dio dio(AuthInterceptor authInterceptor, LocaleInterceptor localeInterceptor) {
+  Dio dio(
+    AuthInterceptor authInterceptor,
+    LocaleInterceptor localeInterceptor,
+  ) {
     final dioInstance = Dio(
       BaseOptions(
         baseUrl: Endpoints.baseUrl,

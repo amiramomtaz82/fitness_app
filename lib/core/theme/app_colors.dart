@@ -4,24 +4,26 @@ abstract final class AppColors {
   AppColors._();
 
   // Fitness Orange Accents (From Figma)
-  static const Color orange = Color(0xFFFF4100);       // Figma Primary CTA
-  static const Color darkOrange = Color(0xFFFF6A00);   // Figma Secondary / Gradient
+  static const Color orange = Color(0xFFFF4100); // Figma Primary CTA
+  static const Color darkOrange = Color(
+    0xFFFF6A00,
+  ); // Figma Secondary / Gradient
   static const Color lightOrange = Color(0xFFFF8E63);
 
   // Background & Surfaces (From Figma)
   // Background & Surfaces
   static const Color inputFill = Color(0xFF181A1C);
 
-// Opacity variants for inputs & selector tiles:
+  // Opacity variants for inputs & selector tiles:
   static const Color inputTransparent = Colors.transparent;
   static const Color inputTranslucent = Color(0x801C1C1E);
 
   static const Color black = Color(0xFF000000);
-  static const Color background = Color(0xFF000000);   // Figma Pitch Black Canvas
-  static const Color surface = Color(0xFF1C1C1E);      // Bottom Nav / Containers
-  static const Color card = Color(0xFF1E1E22);         // Workout cards
-    // Input fields
-  static const Color border = Color(0xFFD9D9D9);       // Borders & dividers
+  static const Color background = Color(0xFF000000); // Figma Pitch Black Canvas
+  static const Color surface = Color(0xFF1C1C1E); // Bottom Nav / Containers
+  static const Color card = Color(0xFF1E1E22); // Workout cards
+  // Input fields
+  static const Color border = Color(0xFFD9D9D9); // Borders & dividers
 
   // Typography & Utility
   static const Color white = Color(0xFFFFFFFF);

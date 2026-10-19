@@ -11,6 +11,5 @@ final GoRouter appRouter = GoRouter(
       name: AppRoutes.home,
       builder: (context, state) => const HomeView(),
     ),
-
-    ]
+  ],
 );

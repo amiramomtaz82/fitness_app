@@ -6,19 +6,15 @@ import '../../generated/locale_keys.g.dart';
 import '../base/base_cubit.dart';
 import '../base/ui_events.dart';
 
-mixin UiEventMixin<
-W extends StatefulWidget,
-S,
-E extends BaseUiEvent> on State<W> {
+mixin UiEventMixin<W extends StatefulWidget, S, E extends BaseUiEvent>
+    on State<W> {
   BaseCubit<S, E> get cubit;
   StreamSubscription<E>? _subscription;
 
   @override
   void initState() {
     super.initState();
-    _subscription = cubit.eventStream.listen(
-      _handleUiEvent,
-    );
+    _subscription = cubit.eventStream.listen(_handleUiEvent);
   }
 
   void _handleUiEvent(E event) {
@@ -36,11 +32,9 @@ E extends BaseUiEvent> on State<W> {
   void handleCommonEvents(CommonUiEvent event) {
     switch (event) {
       case ShowSnackBarEvent():
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(event.message.tr()),
-          ),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text(event.message.tr())));
       case NavigateEvent():
         context.push(event.route, extra: event.arguments);
       case NavigateReplacementEvent():
@@ -79,7 +73,7 @@ E extends BaseUiEvent> on State<W> {
       default:
         throw Exception(
           'Unhandled custom event: ${event.runtimeType}. '
-              'Override handleCustomEvents in your State class to handle it.',
+          'Override handleCustomEvents in your State class to handle it.',
         );
     }
   }

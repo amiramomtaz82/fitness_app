@@ -30,7 +30,10 @@ abstract class BaseCubit<State, E extends BaseUiEvent> extends Cubit<State> {
 
   /// Helper to emit a custom string message
   void emitSuccessMessage(String message) {
-    final BaseUiEvent event = ShowSnackBarEvent(message: message, isError: false);
+    final BaseUiEvent event = ShowSnackBarEvent(
+      message: message,
+      isError: false,
+    );
     if (event is E) {
       emitEvent(event);
     }

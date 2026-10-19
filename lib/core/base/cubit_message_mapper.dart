@@ -21,20 +21,15 @@ class CubitMessageMapper {
 
   /// 2. Maps a CubitMessage to a BaseUiEvent (e.g. ShowSnackBarEvent)
   static BaseUiEvent mapToUiEvent(CubitMessage message) {
-    final String text = message.customMessage ??
+    final String text =
+        message.customMessage ??
         (message.type != null ? mapToMessage(message.type!) : '');
 
-    return ShowSnackBarEvent(
-      message: text,
-      isError: message.isError,
-    );
+    return ShowSnackBarEvent(message: text, isError: message.isError);
   }
 
   /// 3. Helper to directly create a success event from a CubitMessageType
   static BaseUiEvent successEvent(CubitMessageType type) {
-    return ShowSnackBarEvent(
-      message: mapToMessage(type),
-      isError: false,
-    );
+    return ShowSnackBarEvent(message: mapToMessage(type), isError: false);
   }
 }

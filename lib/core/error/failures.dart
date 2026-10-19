@@ -30,7 +30,11 @@ class NotFoundFailure extends Failure {
 
 class ValidationFailure extends Failure {
   final Map<String, dynamic>? errors;
-  const ValidationFailure({super.serverMessage, this.errors, super.statusCode = 422});
+  const ValidationFailure({
+    super.serverMessage,
+    this.errors,
+    super.statusCode = 422,
+  });
 }
 
 class UnknownFailure extends Failure {

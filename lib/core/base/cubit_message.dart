@@ -22,10 +22,8 @@ class CubitMessage {
   final String? customMessage;
   final bool isError;
 
-  const CubitMessage.success(this.type)
-      : customMessage = null,
-        isError = false;
+  const CubitMessage.success(this.type) : customMessage = null, isError = false;
 
   const CubitMessage.custom(this.customMessage, {this.isError = false})
-      : type = null;
+    : type = null;
 }

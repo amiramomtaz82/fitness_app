@@ -24,15 +24,11 @@ class FailureMapper {
     };
   }
 
-
   /// Maps any Failure to your existing UiEvent system
   static BaseUiEvent mapToUiEvent(Failure failure) {
     return switch (failure) {
       UnauthorizedFailure() => const NavigateReplacementEvent(AppRoutes.login),
-      _ => ShowSnackBarEvent(
-        message: mapToMessage(failure),
-        isError: true,
-      ),
+      _ => ShowSnackBarEvent(message: mapToMessage(failure), isError: true),
     };
   }
 }
