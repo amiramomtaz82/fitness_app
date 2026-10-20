@@ -1,12 +1,15 @@
 import 'package:injectable/injectable.dart';
+import '../../../../core/base_response/base_response.dart';
+import '../../../../core/base_response/safe_call.dart';
+import '../../domain/entities/register_parameters.dart';
 import '../../domain/entities/user_entity.dart';
 import '../../domain/repo/auth_repo.dart';
 import '../data_source/local/local_data_source.dart';
 import '../data_source/remote/auth_remote_data_source.dart';
+import '../models/register_request_dto.dart';
 
 @Injectable(as: AuthRepo)
 class AuthRepoImp implements AuthRepo {
-  // ignore: unused_field
   final AuthRemoteDataSource _remoteDataSource;
   final LocalDataSource _localDataSource;
 
@@ -25,5 +28,15 @@ class AuthRepoImp implements AuthRepo {
   Future<void> logout() async {
     await _localDataSource.deleteToken();
     await _localDataSource.deleteUser();
+  }
+
+  @override
+  Future<BaseResponse<UserEntity>> register(RegisterParameters params) {
+    return safeCall<UserEntity>(() async {
+      final request = params.toDto();
+      final response = await _remoteDataSource.register(request);
+      final entity = response.user?.toEntity();
+      return entity ?? const UserEntity();
+    });
   }
 }

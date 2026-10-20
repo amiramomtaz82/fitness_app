@@ -7,4 +7,6 @@ class AppRoutes {
   static const String forgotPassword = '/forgot-password';
   static const String forgetPassword = '/forgot-password';
   static const String home = '/home';
+            // Step 1 (You)
+  static const String multiStepRegistration = '/multi-step-registration';
 }
