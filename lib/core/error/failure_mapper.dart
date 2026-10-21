@@ -1,7 +1,7 @@
 import 'package:easy_localization/easy_localization.dart';
 import '../../generated/locale_keys.g.dart';
 import '../base/ui_events.dart';
-import '../go_routes/routes_names.dart';
+import '../../app/app_routes.dart';
 import 'failures.dart';
 
 class FailureMapper {

@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'core/di/di.dart';
-import 'core/go_routes/app_routes.dart';
+import 'app/app_router.dart';
 import 'core/theme/app_theme.dart';
 
 void main() async {
