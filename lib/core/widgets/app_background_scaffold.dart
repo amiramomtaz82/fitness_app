@@ -41,8 +41,10 @@ class AppBackgroundScaffold extends StatelessWidget {
       appBar: appBar,
       resizeToAvoidBottomInset: resizeToAvoidBottomInset,
       bottomNavigationBar: bottomNavigationBar,
-      body: Stack(
-        children: [
+      body: SizedBox.expand(
+        child: Stack(
+          fit: StackFit.expand,
+          children: [
           // 1. Background image
           Positioned.fill(
             child: Image.asset(
@@ -82,7 +84,7 @@ class AppBackgroundScaffold extends StatelessWidget {
                         }
                         return Expanded(
                           child: Container(
-                            color: (gridColor ?? Colors.red).withValues(alpha: 0.08),
+                            color: (gridColor ?? Colors.red).withValues(alpha:.09),
                           ),
                         );
                       },
@@ -92,6 +94,7 @@ class AppBackgroundScaffold extends StatelessWidget {
               ),
             ),
         ],
+        ),
       ),
     );
   }

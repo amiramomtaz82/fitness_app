@@ -1,4 +1,5 @@
 import 'package:easy_localization/easy_localization.dart';
+import 'package:fitness_app/core/theme/app_colors.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import '../../../../../../../core/go_routes/routes_names.dart';
@@ -23,7 +24,9 @@ class RegisterFooter extends StatelessWidget {
           onTap: () => context.go(AppRoutes.login),
           child: Text(
             LocaleKeys.auth_login.tr(),
-            style: AppTextStyles.darkOrange14Bold.copyWith(decoration:TextDecoration.underline),
+            style: AppTextStyles.darkOrange14Bold.copyWith(
+                decoration:TextDecoration.underline,
+          color: AppColors.orange),
           ),
         ),
       ],

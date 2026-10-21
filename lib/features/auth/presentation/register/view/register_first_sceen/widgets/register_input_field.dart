@@ -39,7 +39,7 @@ class RegisterInputField extends StatelessWidget {
         hintStyle: AppTextStyles.grey12regular,
         filled: true,
         fillColor: AppColors.inputFill.withValues(alpha: 0.6),
-        contentPadding: EdgeInsetsDirectional.symmetric(horizontal: 16.w, vertical: 14.h),
+        contentPadding: EdgeInsetsDirectional.symmetric(horizontal: 16.w, vertical: 12.h),
         prefixIcon: Padding(
           padding: EdgeInsetsDirectional.all(12.r),
           child: Image.asset(iconAsset, width: 20.r, height: 20.r, color: AppColors.hintGrey),

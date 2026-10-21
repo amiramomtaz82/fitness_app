@@ -78,21 +78,21 @@ class _RegisterCardState extends State<RegisterCard> {
               mainAxisSize: MainAxisSize.min,
               children: [
                 Text(LocaleKeys.auth_register.tr(), style: AppTextStyles.white20bold),
-                SizedBox(height: 20.h),
+                SizedBox(height:15.h),
                 RegisterInputField(
                   controller: _firstNameController,
                   hintText: LocaleKeys.auth_first_name.tr(),
                   iconAsset: AppAssets.user,
                   validator: (v) => FormValidators.validateRequired(v)?.toMessage(),
                 ),
-                SizedBox(height: 12.h),
+                SizedBox(height: 10.h),
                 RegisterInputField(
                   controller: _lastNameController,
                   hintText: LocaleKeys.auth_last_name.tr(),
                   iconAsset: AppAssets.user,
                   validator: (v) => FormValidators.validateRequired(v)?.toMessage(),
                 ),
-                SizedBox(height: 12.h),
+                SizedBox(height: 10.h),
                 RegisterInputField(
                   controller: _emailController,
                   hintText: LocaleKeys.auth_email.tr(),
@@ -100,7 +100,7 @@ class _RegisterCardState extends State<RegisterCard> {
                   keyboardType: TextInputType.emailAddress,
                   validator: (v) => FormValidators.validateEmail(v)?.toMessage(),
                 ),
-                SizedBox(height: 12.h),
+                SizedBox(height: 10.h),
                 BlocBuilder<RegisterCubit, RegisterState>(
                   buildWhen: (p, c) => p.isPasswordObscured != c.isPasswordObscured,
                   builder: (context, state) {
@@ -117,7 +117,7 @@ class _RegisterCardState extends State<RegisterCard> {
                     );
                   },
                 ),
-                SizedBox(height: 16.h),
+                SizedBox(height: 15.h),
                 Row(
                   children: [
                     const Expanded(child: Divider(color: AppColors.darkGrey)),
@@ -128,11 +128,11 @@ class _RegisterCardState extends State<RegisterCard> {
                     const Expanded(child: Divider(color: AppColors.darkGrey)),
                   ],
                 ),
-                SizedBox(height: 14.h),
+                SizedBox(height: 15.h),
                 const RegisterSocialButtons(),
-                SizedBox(height: 20.h),
+                SizedBox(height:15.h),
                 RegisterNextButton(onPressed: _onNext),
-                SizedBox(height: 16.h),
+                SizedBox(height: 10.h),
                 const RegisterFooter(),
               ],
             ),
