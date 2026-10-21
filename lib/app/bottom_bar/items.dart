@@ -10,6 +10,7 @@ class Items extends StatelessWidget {
   final VoidCallback onTap;
 
   const Items({
+    super.key,
     required this.item,
     required this.isSelected,
     required this.onTap,
@@ -25,7 +26,6 @@ class Items extends StatelessWidget {
           height: 50.h,
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
-            mainAxisSize: MainAxisSize.max,
             children: [
               AnimatedScale(
                 scale: isSelected ? 1.08 : 1.0,
@@ -60,6 +60,8 @@ class Items extends StatelessWidget {
                           padding: EdgeInsets.only(top: 4.h),
                           child: Text(
                             item.label,
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
                             style: AppTextStyles.orange12regular.copyWith(
                               fontWeight: FontWeight.w500,
                               fontSize: 12.sp,
