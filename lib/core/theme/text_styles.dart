@@ -27,17 +27,17 @@ abstract final class AppTextStyles {
   );
   static const TextStyle white18regular = TextStyle(
     fontSize: 18,
-    fontWeight: FontWeight.w700,
+    fontWeight: FontWeight.w300,
     color: AppColors.white,
   );
   static const TextStyle grey16regular = TextStyle(
     fontSize: 24,
-    fontWeight: FontWeight.w400,
+    fontWeight: FontWeight.w300,
     color: AppColors.grey,
   );
   static const TextStyle grey12regular = TextStyle(
     fontSize: 12,
-    fontWeight: FontWeight.w400,
+    fontWeight: FontWeight.w300,
     color: AppColors.grey,
   );
   static const TextStyle grey14bold = TextStyle(
@@ -48,7 +48,7 @@ abstract final class AppTextStyles {
 
   static const TextStyle orange12regular = TextStyle(
     fontSize: 12,
-    fontWeight: FontWeight.w400,
+    fontWeight: FontWeight.w300,
     color: AppColors.orange,
   );
   static const TextStyle orange20med = TextStyle(
