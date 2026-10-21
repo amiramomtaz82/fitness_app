@@ -17,11 +17,37 @@ class RegisterCubit extends BaseCubit<RegisterState, BaseUiEvent> {
     switch (intent) {
       case TogglePasswordVisibilityIntent():
         _togglePasswordVisibility();
+      case SubmitAccountCredentialsIntent(
+          :final firstName,
+          :final lastName,
+          :final email,
+          :final password,
+      ):
+        _submitAccountCredentials(
+          firstName: firstName,
+          lastName: lastName,
+          email: email,
+          password: password,
+        );
     }
   }
   void _togglePasswordVisibility() {
     emit(state.copyWith(isPasswordObscured: !state.isPasswordObscured));
   }
 
-
+  void _submitAccountCredentials({
+    required String firstName,
+    required String lastName,
+    required String email,
+    required String password,
+  }) {
+    emit(state.copyWith(
+      params: state.params.copyWith(
+        firstName: firstName,
+        lastName: lastName,
+        email: email,
+        password: password,
+      ),
+    ));
+  }
 }
