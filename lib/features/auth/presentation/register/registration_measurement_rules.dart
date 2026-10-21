@@ -1,7 +1,6 @@
 import '../../../../core/validation/form_validators.dart';
 import '../../domain/entities/register_parameters.dart';
 
-/// Approved profile-measurement bounds and one-time defaults.
 abstract final class RegistrationMeasurementRules {
   static const int minimumAge = 16;
   static const int maximumAge = 100;

@@ -46,14 +46,14 @@ void main() {
     );
   }
 
-  test('missing gender explains why next stays put', () async {
+  test('next without gender stays on the step', () async {
     final cubit = open();
     await _expectNextBlocked(cubit, LocaleKeys.validation_field_required);
     expect(cubit.state.currentStep, 0);
     verifyNever(() => useCase.call(any()));
   });
 
-  test('missing goal and activity explain why next stays put', () async {
+  test('next without a goal or activity stays on that step', () async {
     final cubit = open();
     _reachGoal(cubit);
     await _expectNextBlocked(cubit, LocaleKeys.validation_field_required);
@@ -64,7 +64,7 @@ void main() {
     verifyNever(() => useCase.call(any()));
   });
 
-  test('a finished profile next stays quiet', () async {
+  test('next on the last step does not emit an event', () async {
     final cubit = open();
     _reachGoal(cubit);
     _selectGoal(cubit);
@@ -80,12 +80,12 @@ void main() {
   });
 
   blocks(
-    'stored invalid gender explains the block',
+    'invalid gender stays on the step',
     const RegisterState(params: RegisterParameters(gender: 'other')),
     LocaleKeys.validation_invalid_gender,
   );
   blocks(
-    'age below the minimum explains the block',
+    'age below the minimum stays on the step',
     const RegisterState(
       currentStep: 1,
       params: RegisterParameters(gender: 'male', age: 10),
@@ -93,7 +93,7 @@ void main() {
     LocaleKeys.validation_value_below_minimum,
   );
   blocks(
-    'unset weight explains the block',
+    'unset weight stays on the step',
     const RegisterState(
       currentStep: 2,
       params: RegisterParameters(gender: 'male', age: 25),
@@ -101,7 +101,7 @@ void main() {
     LocaleKeys.validation_field_required,
   );
   blocks(
-    'weight above the maximum explains the block',
+    'weight above the maximum stays on the step',
     const RegisterState(
       currentStep: 2,
       params: RegisterParameters(gender: 'male', age: 25, weight: 400),
@@ -109,7 +109,7 @@ void main() {
     LocaleKeys.validation_value_above_maximum,
   );
   blocks(
-    'height above the maximum explains the block',
+    'height above the maximum stays on the step',
     const RegisterState(
       currentStep: 3,
       params: RegisterParameters(

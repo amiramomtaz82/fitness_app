@@ -15,7 +15,7 @@ void main() {
 
   setUp(() => useCase = MockRegisterUseCase());
 
-  test('a finished profile does not submit account data', () {
+  test('filled steps do not call register', () {
     final cubit = RegisterCubit(useCase);
     addTearDown(cubit.close);
     _fillProfile(cubit);

@@ -192,7 +192,7 @@ class RegisterCubit extends BaseCubit<RegisterState, BaseUiEvent> {
     if (!_canLeave(state) || !_credentialsAreValid(state.params)) {
       return false;
     }
-    return _hasApprovedPayload(state);
+    return _hasGoalAndActivity(state);
   }
 
   bool _canLeave(RegisterState current) => _blockedMessage(current) == null;
@@ -284,7 +284,7 @@ class RegisterCubit extends BaseCubit<RegisterState, BaseUiEvent> {
     return FormValidators.validatePassword(params.password) == null;
   }
 
-  bool _hasApprovedPayload(RegisterState current) {
+  bool _hasGoalAndActivity(RegisterState current) {
     final params = current.params;
     return params.goal.trim().isNotEmpty &&
         params.activityLevel.trim().isNotEmpty;

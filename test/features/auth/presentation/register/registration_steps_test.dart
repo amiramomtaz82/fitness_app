@@ -55,7 +55,7 @@ void main() {
     expect(find.text('Year'), findsOneWidget);
   });
 
-  testWidgets('next explains a missing gender', (tester) async {
+  testWidgets('next without a gender shows the required message', (tester) async {
     final cubit = RegisterCubit(MockRegisterUseCase());
     addTearDown(cubit.close);
     await _pump(tester, cubit);
