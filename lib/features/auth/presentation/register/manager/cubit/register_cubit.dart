@@ -7,6 +7,7 @@ import '../../../../../../core/base/ui_events.dart';
 import '../../../../../../core/base_response/base_response.dart';
 import '../../../../../../core/resource/resource.dart';
 import '../../../../../../core/validation/form_validators.dart';
+import '../../../../../../core/validation/validation_errors.dart';
 import '../../../../../../generated/locale_keys.g.dart';
 import '../../../../domain/entities/register_parameters.dart';
 import '../../../../domain/entities/user_entity.dart';
@@ -120,13 +121,22 @@ class RegisterCubit extends BaseCubit<RegisterState, BaseUiEvent> {
   }
 
   void _nextStep() {
-    const lastStep = RegistrationMeasurementRules.lastStepIndex;
-    if (state.currentStep >= lastStep) {
+    final message = _blockedMessage(state);
+    if (message != null) {
+      _rejectStep(message);
       return;
     }
-    if (!_canLeave(state)) {
+    if (state.currentStep >= RegistrationMeasurementRules.lastStepIndex) {
       return;
     }
+    _advanceStep();
+  }
+
+  void _rejectStep(String message) {
+    emitEvent(ShowSnackBarEvent(message: message, isError: true));
+  }
+
+  void _advanceStep() {
     final nextStep = state.currentStep + 1;
     final params = RegistrationMeasurementRules.withStepDefaults(
       nextStep,
@@ -185,16 +195,79 @@ class RegisterCubit extends BaseCubit<RegisterState, BaseUiEvent> {
     return _hasApprovedPayload(state);
   }
 
-  bool _canLeave(RegisterState current) {
+  bool _canLeave(RegisterState current) => _blockedMessage(current) == null;
+
+  String? _blockedMessage(RegisterState current) {
     final params = current.params;
     return switch (current.currentStep) {
-      0 => FormValidators.validateGender(params.gender) == null,
-      1 => RegistrationMeasurementRules.isValidAge(params.age),
-      2 => RegistrationMeasurementRules.isValidWeight(params.weight),
-      3 => RegistrationMeasurementRules.isValidHeight(params.height),
-      4 => current.selectedGoal != null,
-      5 => current.selectedActivity != null,
-      _ => false,
+      0 => _genderMessage(params.gender),
+      1 => _ageMessage(params.age),
+      2 => _weightMessage(params.weight),
+      3 => _heightMessage(params.height),
+      4 => _choiceMessage(current.selectedGoal != null),
+      5 => _choiceMessage(current.selectedActivity != null),
+      _ => LocaleKeys.validation_field_required,
+    };
+  }
+
+  String? _choiceMessage(bool selected) {
+    if (selected) return null;
+    return LocaleKeys.validation_field_required;
+  }
+
+  String? _genderMessage(String gender) {
+    final error = FormValidators.validateGender(gender);
+    if (error == null) return null;
+    return _validationKey(error);
+  }
+
+  String? _ageMessage(int age) {
+    if (RegistrationMeasurementRules.isValidAge(age)) return null;
+    if (RegistrationMeasurementRules.isAgeUnset(age)) {
+      return LocaleKeys.validation_field_required;
+    }
+    if (age < RegistrationMeasurementRules.minimumAge) {
+      return LocaleKeys.validation_value_below_minimum;
+    }
+    return LocaleKeys.validation_value_above_maximum;
+  }
+
+  String? _weightMessage(num weight) {
+    if (RegistrationMeasurementRules.isValidWeight(weight)) return null;
+    if (RegistrationMeasurementRules.isWeightUnset(weight)) {
+      return LocaleKeys.validation_field_required;
+    }
+    final error = FormValidators.validateWeight('$weight');
+    return _validationKey(error ?? ValidationError.empty);
+  }
+
+  String? _heightMessage(num height) {
+    if (RegistrationMeasurementRules.isValidHeight(height)) return null;
+    if (RegistrationMeasurementRules.isHeightUnset(height)) {
+      return LocaleKeys.validation_field_required;
+    }
+    if (height < RegistrationMeasurementRules.minimumHeightCm) {
+      return LocaleKeys.validation_value_below_minimum;
+    }
+    return LocaleKeys.validation_value_above_maximum;
+  }
+
+  String _validationKey(ValidationError error) {
+    return switch (error) {
+      ValidationError.empty => LocaleKeys.validation_field_required,
+      ValidationError.invalidGender => LocaleKeys.validation_invalid_gender,
+      ValidationError.notANumber => LocaleKeys.validation_not_a_number,
+      ValidationError.valueBelowMinimum =>
+        LocaleKeys.validation_value_below_minimum,
+      ValidationError.valueAboveMaximum =>
+        LocaleKeys.validation_value_above_maximum,
+      ValidationError.invalidEmail ||
+      ValidationError.passwordTooShort ||
+      ValidationError.passwordMissingNumber ||
+      ValidationError.passwordMissingUppercase ||
+      ValidationError.passwordsDoNotMatch ||
+      ValidationError.invalidPhoneNumber =>
+        LocaleKeys.validation_field_required,
     };
   }
 

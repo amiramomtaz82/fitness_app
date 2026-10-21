@@ -41,8 +41,7 @@ void main() {
     addTearDown(cubit.close);
     await _pump(tester, cubit);
 
-    await tester.tap(find.text('Next'));
-    await tester.pumpAndSettle();
+    await _rejectNext(tester);
     expect(cubit.state.currentStep, 0);
 
     await tester.tap(find.text('Male'));
@@ -54,6 +53,18 @@ void main() {
     expect(cubit.state.currentStep, 1);
     expect(cubit.state.params.age, 25);
     expect(find.text('Year'), findsOneWidget);
+  });
+
+  testWidgets('next explains a missing gender', (tester) async {
+    final cubit = RegisterCubit(MockRegisterUseCase());
+    addTearDown(cubit.close);
+    await _pump(tester, cubit);
+    await tester.tap(find.widgetWithText(ElevatedButton, 'Next'));
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 400));
+    expect(find.text('This field is required.'), findsOneWidget);
+    expect(cubit.state.currentStep, 0);
+    await tester.pumpAndSettle();
   });
 
   testWidgets('page swiping stays disabled', (tester) async {
@@ -128,6 +139,19 @@ const _activityLabels = [
   'Advance',
   'True Beast',
 ];
+
+Future<void> _rejectNext(WidgetTester tester) async {
+  await tester.tap(find.text('Next'));
+  await tester.pump();
+  await tester.pump(const Duration(milliseconds: 400));
+  _hideSnackBar(tester);
+  await tester.pumpAndSettle();
+}
+
+void _hideSnackBar(WidgetTester tester) {
+  final context = tester.element(find.byType(ElevatedButton));
+  ScaffoldMessenger.of(context).hideCurrentSnackBar();
+}
 
 Future<void> _chooseEach(
   WidgetTester tester,
