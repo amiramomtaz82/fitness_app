@@ -8,7 +8,7 @@ import '../../features/home/presentation/view/home_view.dart';
 import 'routes_names.dart';
 
 final GoRouter appRouter = GoRouter(
-  initialLocation: AppRoutes.home,
+  initialLocation: AppRoutes.multiStepRegistration,
   routes: [
     GoRoute(
       path: AppRoutes.home,
