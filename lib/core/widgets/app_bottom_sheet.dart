@@ -35,10 +35,7 @@ class AppBottomSheet extends StatelessWidget {
       isScrollControlled: isScrollControlled,
       backgroundColor: Colors.transparent,
       barrierColor: barrierColor ?? Colors.black.withValues(alpha: 0.6),
-      builder: (context) => AppBottomSheet(
-        title: title,
-        child: child,
-      ),
+      builder: (context) => AppBottomSheet(title: title, child: child),
     );
   }
 
@@ -47,11 +44,10 @@ class AppBottomSheet extends StatelessWidget {
     return Container(
       decoration: BoxDecoration(
         color: AppColors.surface,
-        borderRadius: BorderRadius.vertical(
-          top: Radius.circular(28.r),
-        ),
+        borderRadius: BorderRadius.vertical(top: Radius.circular(28.r)),
       ),
-      padding: padding ?? EdgeInsets.symmetric(horizontal: 20.w, vertical: 12.h),
+      padding:
+          padding ?? EdgeInsets.symmetric(horizontal: 20.w, vertical: 12.h),
       child: SafeArea(
         top: false,
         child: Column(

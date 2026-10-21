@@ -12,9 +12,7 @@ final GoRouter appRouter = GoRouter(
   routes: [
     StatefulShellRoute.indexedStack(
       builder: (context, state, navigationShell) {
-        return AppBottomNavigationBar(
-          navigationShell: navigationShell,
-        );
+        return AppBottomNavigationBar(navigationShell: navigationShell);
       },
       branches: [
         StatefulShellBranch(

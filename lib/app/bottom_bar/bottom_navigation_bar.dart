@@ -6,10 +6,7 @@ import 'package:go_router/go_router.dart';
 class AppBottomNavigationBar extends StatelessWidget {
   final StatefulNavigationShell navigationShell;
 
-  const AppBottomNavigationBar({
-    super.key,
-    required this.navigationShell,
-  });  
+  const AppBottomNavigationBar({super.key, required this.navigationShell});
   @override
   Widget build(BuildContext context) {
     final selectedIndex = navigationShell.currentIndex;

@@ -1,5 +1,3 @@
-
-
 import 'package:fitness_app/app/bottom_bar/bottom_item.dart';
 import 'package:fitness_app/core/theme/app_colors.dart';
 import 'package:fitness_app/core/theme/text_styles.dart';
