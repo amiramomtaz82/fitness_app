@@ -1,5 +1,5 @@
+import 'package:fitness_app/app/bottom_bar/bottom_bar_items.dart';
 import 'package:fitness_app/app/bottom_bar/bottom_item.dart';
-import 'package:fitness_app/app/bottom_bar/items.dart';
 import 'package:fitness_app/core/theme/app_colors.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -43,7 +43,7 @@ class FloatingBottomBar extends StatelessWidget {
         child: Row(
           children: List.generate(
             items.length,
-            (index) => Items(
+            (index) => BottomBarItems(
               item: items[index],
               isSelected: selectedIndex == index,
               onTap: () => onTap(index),

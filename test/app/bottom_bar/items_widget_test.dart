@@ -1,5 +1,5 @@
+import 'package:fitness_app/app/bottom_bar/bottom_bar_items.dart';
 import 'package:fitness_app/app/bottom_bar/bottom_item.dart';
-import 'package:fitness_app/app/bottom_bar/items.dart';
 import 'package:fitness_app/core/contants/app_assets.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -42,7 +42,7 @@ void main() {
 
       await tester.pumpWidget(
         createItemsTestWidget(
-          child: Items(
+          child: BottomBarItems(
             item: testItem,
             isSelected: false,
             onTap: () => tapped = true,
@@ -54,7 +54,7 @@ void main() {
       expect(find.byType(Image), findsOneWidget);
       expect(find.text('Explore'), findsNothing);
 
-      await tester.tap(find.byType(Items));
+      await tester.tap(find.byType(BottomBarItems));
       expect(tapped, isTrue);
     });
 
@@ -70,7 +70,7 @@ void main() {
 
       await tester.pumpWidget(
         createItemsTestWidget(
-          child: Items(
+          child: BottomBarItems(
             item: testItem,
             isSelected: true,
             onTap: () => tapped = true,
@@ -82,7 +82,7 @@ void main() {
       expect(find.byType(Image), findsOneWidget);
       expect(find.text('Explore'), findsOneWidget);
 
-      await tester.tap(find.byType(Items));
+      await tester.tap(find.byType(BottomBarItems));
       expect(tapped, isTrue);
     });
 
@@ -101,7 +101,7 @@ void main() {
         StatefulBuilder(
           builder: (context, setState) {
             return createItemsTestWidget(
-              child: Items(
+              child: BottomBarItems(
                 item: testItem,
                 isSelected: isSelected,
                 onTap: () {
@@ -119,7 +119,7 @@ void main() {
       expect(find.text('Explore'), findsNothing);
 
       // Tap to select
-      await tester.tap(find.byType(Items));
+      await tester.tap(find.byType(BottomBarItems));
       await tester.pumpAndSettle();
 
       expect(find.text('Explore'), findsOneWidget);

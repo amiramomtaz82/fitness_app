@@ -1,6 +1,6 @@
+import 'package:fitness_app/app/bottom_bar/bottom_bar_items.dart';
 import 'package:fitness_app/app/bottom_bar/bottom_item.dart';
 import 'package:fitness_app/app/bottom_bar/floating_bottom_bar.dart';
-import 'package:fitness_app/app/bottom_bar/items.dart';
 import 'package:fitness_app/core/contants/app_assets.dart';
 import 'package:fitness_app/core/theme/app_colors.dart';
 import 'package:flutter/material.dart';
@@ -55,7 +55,7 @@ void main() {
       await tester.pumpAndSettle();
 
       expect(find.byType(FloatingBottomBar), findsOneWidget);
-      expect(find.byType(Items), findsNWidgets(4));
+      expect(find.byType(BottomBarItems), findsNWidgets(4));
 
       // Explore is selected (index 0)
       expect(find.text('Explore'), findsOneWidget);
@@ -86,19 +86,19 @@ void main() {
       await tester.pumpAndSettle();
 
       // Tap Chat (index 1)
-      await tester.tap(find.byType(Items).at(1));
+      await tester.tap(find.byType(BottomBarItems).at(1));
       await tester.pumpAndSettle();
 
       // Tap Workouts (index 2)
-      await tester.tap(find.byType(Items).at(2));
+      await tester.tap(find.byType(BottomBarItems).at(2));
       await tester.pumpAndSettle();
 
       // Tap Profile (index 3)
-      await tester.tap(find.byType(Items).at(3));
+      await tester.tap(find.byType(BottomBarItems).at(3));
       await tester.pumpAndSettle();
 
       // Tap Explore (index 0)
-      await tester.tap(find.byType(Items).at(0));
+      await tester.tap(find.byType(BottomBarItems).at(0));
       await tester.pumpAndSettle();
 
       expect(tappedIndices, equals([1, 2, 3, 0]));
@@ -137,7 +137,7 @@ void main() {
       expect(find.text('Workouts'), findsNothing);
 
       // Tap Workouts (index 2)
-      await tester.tap(find.byType(Items).at(2));
+      await tester.tap(find.byType(BottomBarItems).at(2));
       await tester.pumpAndSettle();
 
       expect(find.text('Explore'), findsNothing);
@@ -265,7 +265,7 @@ void main() {
       );
       await tester.pumpAndSettle();
 
-      expect(find.byType(Items), findsNWidgets(2));
+      expect(find.byType(BottomBarItems), findsNWidgets(2));
       expect(find.text('Custom 2'), findsOneWidget);
       expect(find.text('Custom 1'), findsNothing);
     });

@@ -4,12 +4,12 @@ import 'package:fitness_app/core/theme/text_styles.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
-class Items extends StatelessWidget {
-  final BottomItem item;
-  final bool isSelected;
+  class BottomBarItems extends StatelessWidget {
+    final BottomItem item;
+    final bool isSelected;
   final VoidCallback onTap;
 
-  const Items({
+  const BottomBarItems({
     super.key,
     required this.item,
     required this.isSelected,

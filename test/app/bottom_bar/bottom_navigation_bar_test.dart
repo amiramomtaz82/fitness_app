@@ -1,6 +1,6 @@
+import 'package:fitness_app/app/bottom_bar/bottom_bar_items.dart';
 import 'package:fitness_app/app/bottom_bar/bottom_navigation_bar.dart';
 import 'package:fitness_app/app/bottom_bar/floating_bottom_bar.dart';
-import 'package:fitness_app/app/bottom_bar/items.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -83,7 +83,7 @@ void main() {
       expect(find.text('Chat'), findsNothing);
 
       // Tap on second tab (Chat, index 1)
-      await tester.tap(find.byType(Items).at(1));
+      await tester.tap(find.byType(BottomBarItems).at(1));
       await tester.pumpAndSettle();
 
       expect(find.text('Screen Two'), findsOneWidget);
@@ -91,7 +91,7 @@ void main() {
       expect(find.text('Explore'), findsNothing);
 
       // Tap on third tab (Workouts, index 2)
-      await tester.tap(find.byType(Items).at(2));
+      await tester.tap(find.byType(BottomBarItems).at(2));
       await tester.pumpAndSettle();
 
       expect(find.text('Screen Three'), findsOneWidget);
@@ -99,7 +99,7 @@ void main() {
       expect(find.text('Chat'), findsNothing);
 
       // Tap on fourth tab (Profile, index 3)
-      await tester.tap(find.byType(Items).at(3));
+      await tester.tap(find.byType(BottomBarItems).at(3));
       await tester.pumpAndSettle();
 
       expect(find.text('Screen Four'), findsOneWidget);
@@ -107,7 +107,7 @@ void main() {
       expect(find.text('Workouts'), findsNothing);
 
       // Tap back to first tab (Explore, index 0)
-      await tester.tap(find.byType(Items).at(0));
+      await tester.tap(find.byType(BottomBarItems).at(0));
       await tester.pumpAndSettle();
 
       expect(find.text('Screen One'), findsOneWidget);
@@ -189,7 +189,7 @@ void main() {
       expect(find.text('Nested Detail Screen'), findsOneWidget);
 
       // Tap tab 0 (which is already active)
-      await tester.tap(find.byType(Items).at(0));
+      await tester.tap(find.byType(BottomBarItems).at(0));
       await tester.pumpAndSettle();
 
       // Because initialLocation: (index == selectedIndex) is true, it navigates back to root

@@ -18,7 +18,7 @@ final GoRouter appRouter = GoRouter(
         StatefulShellBranch(
           routes: [
             GoRoute(
-              path: '/home',
+              path: AppRoutes.home,
               name: AppRoutes.home,
               builder: (context, state) => const HomeScreen(),
             ),
@@ -27,7 +27,7 @@ final GoRouter appRouter = GoRouter(
         StatefulShellBranch(
           routes: [
             GoRoute(
-              path: '/smart-coach',
+              path: AppRoutes.smartCoach,
               name: AppRoutes.smartCoach,
               builder: (context, state) => const SmartCoachScreen(),
             ),
@@ -36,7 +36,7 @@ final GoRouter appRouter = GoRouter(
         StatefulShellBranch(
           routes: [
             GoRoute(
-              path: '/workouts',
+              path: AppRoutes.workouts,
               name: AppRoutes.workouts,
               builder: (context, state) => const WorkOutsScreen(),
             ),
@@ -45,7 +45,7 @@ final GoRouter appRouter = GoRouter(
         StatefulShellBranch(
           routes: [
             GoRoute(
-              path: '/profile',
+              path: AppRoutes.profile,
               name: AppRoutes.profile,
               builder: (context, state) => const ProfileScreen(),
             ),
