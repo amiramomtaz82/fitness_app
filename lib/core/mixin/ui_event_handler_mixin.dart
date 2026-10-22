@@ -4,7 +4,9 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import '../../generated/locale_keys.g.dart';
 import '../base/base_cubit.dart';
+import '../base/cubit_message.dart';
 import '../base/ui_events.dart';
+import '../error/failures.dart'; // ✅ Added to recognize Failure types
 
 mixin UiEventMixin<W extends StatefulWidget, S, E extends BaseUiEvent>
     on State<W> {
@@ -17,6 +19,7 @@ mixin UiEventMixin<W extends StatefulWidget, S, E extends BaseUiEvent>
     _subscription = cubit.eventStream.listen(_handleUiEvent);
   }
 
+  // ✅ 1. Restored: The method that listens to stream events
   void _handleUiEvent(E event) {
     if (!mounted) return;
 
@@ -28,46 +31,72 @@ mixin UiEventMixin<W extends StatefulWidget, S, E extends BaseUiEvent>
     }
   }
 
-  /// 1. Function to handle common UI events
+  /// 2. Function to handle common UI events
   void handleCommonEvents(CommonUiEvent event) {
     switch (event) {
-      case ShowSnackBarEvent():
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(SnackBar(content: Text(event.message.tr())));
+      // ✅ Success Event: Maps Enum -> Localized String
+      case ShowSuccessSnackBarEvent(:final type):
+        final message = _mapSuccessTypeToMessage(type);
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(message), backgroundColor: Colors.green),
+        );
+
+      // ✅ Error Event: Maps Failure -> Localized String
+      case ShowErrorSnackBarEvent(:final failure):
+        final message = _mapFailureToMessage(failure);
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(message),
+            backgroundColor: Theme.of(context).colorScheme.error,
+          ),
+        );
+
       case NavigateEvent():
         context.push(event.route, extra: event.arguments);
+
       case NavigateReplacementEvent():
         context.go(event.route, extra: event.arguments);
+
       case PopEvent():
         if (context.canPop()) {
           context.pop(event.result);
         }
-      case ShowDialogEvent():
-        showDialog<void>(
-          context: context,
-          builder: (_) {
-            return AlertDialog(
-              title: Text(event.title.tr()),
-              content: Text(event.message.tr()),
-              actions: [
-                TextButton(
-                  onPressed: () {
-                    Navigator.of(context).pop();
-                  },
-                  child: Text(
-                    event.actionText?.tr() ?? LocaleKeys.common_confirm.tr(),
-                  ),
-                ),
-              ],
-            );
-          },
-        );
     }
   }
 
-  /// 2. Function to handle custom UI events
-  /// Screens can override this method if they have custom events.
+  /// ✅ 3. Added: Switch-case mapping Failure -> User-facing localized string in UI
+  String _mapFailureToMessage(Failure failure) {
+    if (failure.serverMessage != null && failure.serverMessage!.isNotEmpty) {
+      return failure.serverMessage!;
+    }
+
+    return switch (failure) {
+      NetworkFailure() => LocaleKeys.errors_no_internet_connection.tr(),
+      UnauthorizedFailure() => LocaleKeys.errors_session_expired.tr(),
+      ForbiddenFailure() => LocaleKeys.errors_no_permission.tr(),
+      NotFoundFailure() => LocaleKeys.errors_data_not_found.tr(),
+      ValidationFailure() => LocaleKeys.errors_invalid_fields.tr(),
+      ServerFailure() => LocaleKeys.errors_internal_server_error.tr(),
+      UnknownFailure() => LocaleKeys.errors_something_went_wrong.tr(),
+    };
+  }
+
+  /// ✅ 4. Switch-case mapping Enum -> User-facing localized string in UI
+  String _mapSuccessTypeToMessage(CubitMessageType type) {
+    return switch (type) {
+      CubitMessageType.loginSuccess => LocaleKeys.auth_welcome_back.tr(),
+      CubitMessageType.registerSuccess => LocaleKeys.auth_done.tr(),
+      CubitMessageType.otpSent => LocaleKeys.auth_sent_otp.tr(),
+      CubitMessageType.passwordChanged => LocaleKeys.auth_done.tr(),
+      CubitMessageType.logoutSuccess => LocaleKeys.common_done.tr(),
+      CubitMessageType.profileUpdated => LocaleKeys.common_save.tr(),
+      CubitMessageType.planCreated => LocaleKeys.common_done.tr(),
+      CubitMessageType.operationSuccess => LocaleKeys.common_done.tr(),
+      CubitMessageType.changesSaved => LocaleKeys.common_save.tr(),
+    };
+  }
+
+  /// 5. Function to handle custom UI events
   void handleCustomEvents(E event) {
     switch (event) {
       default:
