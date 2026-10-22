@@ -3,6 +3,7 @@ import '../../../../../../core/base/base_cubit.dart';
 import '../../../../../../core/base/cubit_message.dart';
 import '../../../../../../core/base/ui_events.dart';
 import '../../../../../../core/base_response/base_response.dart';
+import '../../../../../../core/error/failures.dart';
 import '../../../../../../core/go_routes/routes_names.dart';
 import '../../../../../../core/resource/resource.dart';
 import '../../../../data/data_source/remote/firestore_user_data_source.dart';
@@ -117,8 +118,7 @@ class RegisterCubit extends BaseCubit<RegisterState, BaseUiEvent> {
         emitEvent(const NavigateReplacementEvent(AppRoutes.login));
 
       case ErrorResponse(:final failure):
-        final errorMsg = failure.serverMessage ?? 'Registration failed';
-        emit(state.copyWith(registerResource: Resource.error(errorMsg)));
+        emit(state.copyWith(registerResource: Resource.error(failure)));
         emitFailure(failure);
     }
   }
@@ -128,44 +128,50 @@ class RegisterCubit extends BaseCubit<RegisterState, BaseUiEvent> {
   // ==========================================
   Future<void> _signInWithGoogle() async {
     emit(state.copyWith(registerResource: const Resource.loading()));
-    final googleUser = await _socialAuthService.signInWithGoogle();
-    if (googleUser == null) {
-      // User cancelled Google picker
-      emit(state.copyWith(registerResource: const Resource.initial()));
-      return;
-    }
-
-    // 1. Get the unified Google provider password
-    final providerPassword = await _firestoreUserService.getProviderPassword(
-      'google',
-    );
-
-    // 2. 👇 SAVE USER IN FIRESTORE FOR FORGOT PASSWORD CHECK
     try {
-      await _firestoreUserService.saveUser(
-        email: googleUser.email,
-        provider: 'google',
-        firstName: googleUser.firstName,
-        lastName: googleUser.lastName,
-      );
-    } catch (_) {
-      // Ignored: Best-effort save for forgot-password verification
-    }
+      final googleUser = await _socialAuthService.signInWithGoogle();
+      if (googleUser == null) {
+        // User cancelled Google picker
+        emit(state.copyWith(registerResource: const Resource.initial()));
+        return;
+      }
 
-    // 3. Pre-fill credentials into state
-    emit(
-      state.copyWith(
-        registerResource: const Resource.initial(),
-        params: state.params.copyWith(
+      // 1. Get the unified Google provider password
+      final providerPassword = await _firestoreUserService.getProviderPassword(
+        'google',
+      );
+
+      // 2. 👇 SAVE USER IN FIRESTORE FOR FORGOT PASSWORD CHECK
+      try {
+        await _firestoreUserService.saveUser(
+          email: googleUser.email,
+          provider: 'google',
           firstName: googleUser.firstName,
           lastName: googleUser.lastName,
-          email: googleUser.email,
-          password: providerPassword,
-        ),
-      ),
-    );
+        );
+      } catch (_) {
+        // Ignored: Best-effort save for forgot-password verification
+      }
 
-    // 4. Navigate directly to Screen 2 (Select Gender) to continue the wizard
-    emitEvent(const NavigateEvent(AppRoutes.multiStepRegistration));
+      // 3. Pre-fill credentials into state
+      emit(
+        state.copyWith(
+          registerResource: const Resource.initial(),
+          params: state.params.copyWith(
+            firstName: googleUser.firstName,
+            lastName: googleUser.lastName,
+            email: googleUser.email,
+            password: providerPassword,
+          ),
+        ),
+      );
+
+      // 4. Navigate directly to Screen 2 (Select Gender) to continue the wizard
+      emitEvent(const NavigateEvent(AppRoutes.multiStepRegistration));
+    } catch (e) {
+      final failure = UnknownFailure(serverMessage: e.toString());
+      emit(state.copyWith(registerResource: Resource.error(failure)));
+      emitFailure(failure);
+    }
   }
 }

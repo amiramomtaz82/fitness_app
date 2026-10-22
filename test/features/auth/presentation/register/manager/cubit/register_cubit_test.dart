@@ -1,4 +1,5 @@
 import 'package:bloc_test/bloc_test.dart';
+import 'package:fitness_app/core/base/cubit_message.dart';
 import 'package:fitness_app/core/base/ui_events.dart';
 import 'package:fitness_app/core/base_response/base_response.dart';
 import 'package:fitness_app/core/error/failures.dart';
@@ -232,7 +233,11 @@ void main() {
           await Future.delayed(Duration.zero);
 
           expect(events, hasLength(2));
-          expect(events[0], isA<ShowSnackBarEvent>());
+          expect(events[0], isA<ShowSuccessSnackBarEvent>());
+          expect(
+            (events[0] as ShowSuccessSnackBarEvent).type,
+            equals(CubitMessageType.registerSuccess),
+          );
           expect(events[1], isA<NavigateReplacementEvent>());
           expect(
             (events[1] as NavigateReplacementEvent).route,
@@ -243,16 +248,16 @@ void main() {
         },
       );
 
+      const tFailure = ServerFailure(
+        serverMessage: 'User already exists',
+        statusCode: 409,
+      );
+
       blocTest<RegisterCubit, RegisterState>(
         'emits [loading, error] when registerUseCase fails',
         setUp: () {
           when(() => mockRegisterUseCase(any())).thenAnswer(
-            (_) async => ErrorResponse<UserEntity>(
-              failure: const ServerFailure(
-                serverMessage: 'User already exists',
-                statusCode: 409,
-              ),
-            ),
+            (_) async => ErrorResponse<UserEntity>(failure: tFailure),
           );
         },
         build: () => registerCubit,
@@ -265,7 +270,7 @@ void main() {
           ),
           const RegisterState(
             params: RegisterParameters(activityLevel: tActivity),
-            registerResource: Resource.error('User already exists'),
+            registerResource: Resource.error(tFailure),
           ),
         ],
         verify: (_) {
@@ -274,14 +279,9 @@ void main() {
       );
 
       test('triggers failure UI event on registration error', () async {
-        when(() => mockRegisterUseCase(any())).thenAnswer(
-          (_) async => ErrorResponse<UserEntity>(
-            failure: const ServerFailure(
-              serverMessage: 'User already exists',
-              statusCode: 409,
-            ),
-          ),
-        );
+        when(
+          () => mockRegisterUseCase(any()),
+        ).thenAnswer((_) async => ErrorResponse<UserEntity>(failure: tFailure));
 
         final events = <BaseUiEvent>[];
         final subscription = registerCubit.eventStream.listen(events.add);
@@ -290,10 +290,9 @@ void main() {
         await Future.delayed(Duration.zero);
 
         expect(events, hasLength(1));
-        expect(events.first, isA<ShowSnackBarEvent>());
-        final snackBarEvent = events.first as ShowSnackBarEvent;
-        expect(snackBarEvent.isError, isTrue);
-        expect(snackBarEvent.message, equals('User already exists'));
+        expect(events.first, isA<ShowErrorSnackBarEvent>());
+        final errorEvent = events.first as ShowErrorSnackBarEvent;
+        expect(errorEvent.failure, equals(tFailure));
 
         await subscription.cancel();
       });

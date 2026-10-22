@@ -68,23 +68,23 @@ class AppBackgroundScaffold extends StatelessWidget {
             // 3. Screen content
             SafeArea(child: child),
 
-          // 4. Feature-Specific Layout Guide Overlay (Visible only in debug if enabled)
-          if (kDebugMode && showLayoutGrid)
-            Positioned.fill(
-              child: IgnorePointer(
-                child: Padding(
-                  padding: EdgeInsetsDirectional.symmetric(horizontal: 8.w),
-                  child: Row(
-                    children: List.generate(
-                      gridColumns * 2 - 1,
-                          (index) {
+            // 4. Feature-Specific Layout Guide Overlay (Visible only in debug if enabled)
+            if (kDebugMode && showLayoutGrid)
+              Positioned.fill(
+                child: IgnorePointer(
+                  child: Padding(
+                    padding: EdgeInsetsDirectional.symmetric(horizontal: 8.w),
+                    child: Row(
+                      children: List.generate(gridColumns * 2 - 1, (index) {
                         // Alternate between column and gutter gap
                         if (index.isOdd) {
                           return SizedBox(width: 16.w);
                         }
                         return Expanded(
                           child: Container(
-                            color: (gridColor ?? Colors.red).withValues(alpha: 0.08),
+                            color: (gridColor ?? Colors.red).withValues(
+                              alpha: 0.08,
+                            ),
                           ),
                         );
                       }),
