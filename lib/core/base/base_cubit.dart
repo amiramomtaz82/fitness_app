@@ -18,17 +18,14 @@ abstract class BaseCubit<State, E extends BaseUiEvent> extends Cubit<State> {
     _uiEventStreamController.add(event);
   }
 
-
-
-
-
-// ✅ Directly emits the failure event without mapping to a string!
+  // ✅ Directly emits the failure event without mapping to a string!
   void emitFailure(Failure failure) {
     final BaseUiEvent event = ShowErrorSnackBarEvent(failure);
     if (event is E) {
       emitEvent(event);
     }
   }
+
   /// ✅ Directly emits the success enum without mapping to a string!
   void emitSuccess(CubitMessageType type) {
     final BaseUiEvent event = ShowSuccessSnackBarEvent(type);

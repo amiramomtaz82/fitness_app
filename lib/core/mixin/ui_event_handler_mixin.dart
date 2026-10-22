@@ -9,7 +9,7 @@ import '../base/ui_events.dart';
 import '../error/failures.dart'; // ✅ Added to recognize Failure types
 
 mixin UiEventMixin<W extends StatefulWidget, S, E extends BaseUiEvent>
-on State<W> {
+    on State<W> {
   BaseCubit<S, E> get cubit;
   StreamSubscription<E>? _subscription;
 
@@ -34,17 +34,14 @@ on State<W> {
   /// 2. Function to handle common UI events
   void handleCommonEvents(CommonUiEvent event) {
     switch (event) {
-    // ✅ Success Event: Maps Enum -> Localized String
+      // ✅ Success Event: Maps Enum -> Localized String
       case ShowSuccessSnackBarEvent(:final type):
         final message = _mapSuccessTypeToMessage(type);
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(message),
-            backgroundColor: Colors.green,
-          ),
+          SnackBar(content: Text(message), backgroundColor: Colors.green),
         );
 
-    // ✅ Error Event: Maps Failure -> Localized String
+      // ✅ Error Event: Maps Failure -> Localized String
       case ShowErrorSnackBarEvent(:final failure):
         final message = _mapFailureToMessage(failure);
         ScaffoldMessenger.of(context).showSnackBar(
@@ -105,7 +102,7 @@ on State<W> {
       default:
         throw Exception(
           'Unhandled custom event: ${event.runtimeType}. '
-              'Override handleCustomEvents in your State class to handle it.',
+          'Override handleCustomEvents in your State class to handle it.',
         );
     }
   }
