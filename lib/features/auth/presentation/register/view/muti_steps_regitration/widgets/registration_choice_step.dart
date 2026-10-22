@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
+import '../../../../../../../core/theme/app_colors.dart';
 import '../../../../../../../core/theme/context.extension.dart';
 import '../../../manager/cubit/register_cubit.dart';
 import '../../../manager/cubit/register_intent.dart';
@@ -65,7 +66,7 @@ class RegistrationChoiceList extends StatelessWidget {
       padding: EdgeInsets.zero,
       itemCount: choices.length,
       separatorBuilder: (_, _) => SizedBox(height: 12.h),
-      itemBuilder: (_, index) => _ChoiceTile(choice: choices[index]),
+      itemBuilder: (_, index) => RegistrationChoiceTile(choice: choices[index]),
     );
   }
 }
@@ -82,26 +83,26 @@ class RegistrationChoice {
   final VoidCallback onTap;
 }
 
-class _ChoiceTile extends StatelessWidget {
-  const _ChoiceTile({required this.choice});
+class RegistrationChoiceTile extends StatelessWidget {
+  const RegistrationChoiceTile({super.key, required this.choice});
 
   final RegistrationChoice choice;
 
   @override
   Widget build(BuildContext context) {
     return Material(
-      color: Colors.transparent,
+      color: AppColors.inputTransparent,
       child: InkWell(
         onTap: choice.onTap,
         borderRadius: BorderRadius.circular(20.r),
-        child: _ChoiceSurface(choice: choice),
+        child: RegistrationChoiceSurface(choice: choice),
       ),
     );
   }
 }
 
-class _ChoiceSurface extends StatelessWidget {
-  const _ChoiceSurface({required this.choice});
+class RegistrationChoiceSurface extends StatelessWidget {
+  const RegistrationChoiceSurface({super.key, required this.choice});
 
   final RegistrationChoice choice;
 
@@ -109,7 +110,10 @@ class _ChoiceSurface extends StatelessWidget {
   Widget build(BuildContext context) {
     return Ink(
       decoration: _decoration(context),
-      child: _ChoiceLabel(label: choice.label, selected: choice.selected),
+      child: RegistrationChoiceLabel(
+        label: choice.label,
+        selected: choice.selected,
+      ),
     );
   }
 
@@ -126,8 +130,12 @@ class _ChoiceSurface extends StatelessWidget {
   }
 }
 
-class _ChoiceLabel extends StatelessWidget {
-  const _ChoiceLabel({required this.label, required this.selected});
+class RegistrationChoiceLabel extends StatelessWidget {
+  const RegistrationChoiceLabel({
+    super.key,
+    required this.label,
+    required this.selected,
+  });
 
   final String label;
   final bool selected;

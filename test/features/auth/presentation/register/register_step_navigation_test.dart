@@ -12,15 +12,25 @@ class MockRegisterUseCase extends Mock implements RegisterUseCase {}
 
 void main() {
   setUpAll(() => registerFallbackValue(const RegisterParameters()));
+  stepNavigationTests();
+}
 
-  RegisterCubit open() {
-    final cubit = RegisterCubit(MockRegisterUseCase());
-    addTearDown(cubit.close);
-    return cubit;
-  }
+void stepNavigationTests() {
+  nextLocksPaging();
+  releasePagingEnablesStep();
+  releasePagingWhileIdle();
+  backKeepsProfile();
+}
 
+RegisterCubit openCubit() {
+  final cubit = RegisterCubit(MockRegisterUseCase());
+  addTearDown(cubit.close);
+  return cubit;
+}
+
+void nextLocksPaging() {
   test('next locks paging and emits the destination step', () async {
-    final cubit = open();
+    final cubit = openCubit();
     final events = await _capture(cubit, () {
       cubit.doIntent(const SelectGenderIntent('male'));
       cubit.doIntent(const NextStepIntent());
@@ -30,9 +40,11 @@ void main() {
     expect(cubit.state.params.age, 25);
     expect(_step(events), 1);
   });
+}
 
+void releasePagingEnablesStep() {
   test('release paging enables the step without moving it', () async {
-    final cubit = open();
+    final cubit = openCubit();
     cubit.doIntent(const SelectGenderIntent('male'));
     cubit.doIntent(const NextStepIntent());
     cubit.doIntent(const ReleasePagingIntent());
@@ -40,15 +52,19 @@ void main() {
     expect(cubit.state.currentStep, 1);
     expect(cubit.state.params.gender, 'male');
   });
+}
 
+void releasePagingWhileIdle() {
   test('release paging does nothing while the step is idle', () {
-    final cubit = open();
+    final cubit = openCubit();
     cubit.doIntent(const ReleasePagingIntent());
     expect(cubit.state, const RegisterState());
   });
+}
 
+void backKeepsProfile() {
   test('back from a later step locks paging and keeps the profile', () async {
-    final cubit = open();
+    final cubit = openCubit();
     cubit.doIntent(const SelectGenderIntent('male'));
     cubit.doIntent(const NextStepIntent());
     cubit.doIntent(const ReleasePagingIntent());

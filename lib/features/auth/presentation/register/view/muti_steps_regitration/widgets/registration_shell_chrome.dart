@@ -34,13 +34,13 @@ class RegistrationShellBody extends StatelessWidget {
         padding: EdgeInsets.fromLTRB(16.w, 8.h, 16.w, 16.h),
         child: Column(
           children: [
-            const _RegistrationLogo(),
+            const RegistrationLogo(),
             SizedBox(height: 12.h),
-            _RegistrationHeader(onBack: onBack),
+            RegistrationHeader(onBack: onBack),
             SizedBox(height: 16.h),
-            _RegistrationPanel(pageController: pageController),
+            RegistrationPanel(pageController: pageController),
             SizedBox(height: 16.h),
-            _RegistrationNextButton(onNext: onNext),
+            RegistrationNextButton(onNext: onNext),
           ],
         ),
       ),
@@ -48,8 +48,8 @@ class RegistrationShellBody extends StatelessWidget {
   }
 }
 
-class _RegistrationLogo extends StatelessWidget {
-  const _RegistrationLogo();
+class RegistrationLogo extends StatelessWidget {
+  const RegistrationLogo({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -57,8 +57,8 @@ class _RegistrationLogo extends StatelessWidget {
   }
 }
 
-class _RegistrationHeader extends StatelessWidget {
-  const _RegistrationHeader({required this.onBack});
+class RegistrationHeader extends StatelessWidget {
+  const RegistrationHeader({super.key, required this.onBack});
 
   final VoidCallback onBack;
 
@@ -81,22 +81,22 @@ class _RegistrationHeader extends StatelessWidget {
   }
 }
 
-class _RegistrationPanel extends StatelessWidget {
-  const _RegistrationPanel({required this.pageController});
+class RegistrationPanel extends StatelessWidget {
+  const RegistrationPanel({super.key, required this.pageController});
 
   final PageController pageController;
 
   @override
   Widget build(BuildContext context) {
     return Expanded(
-      child: _BlurredPanel(
+      child: RegistrationBlurredPanel(
         child: Padding(
           padding: EdgeInsets.all(16.r),
           child: Column(
             children: [
-              const _RegistrationTitles(),
+              const RegistrationTitles(),
               SizedBox(height: 16.h),
-              Expanded(child: _RegistrationPages(controller: pageController)),
+              Expanded(child: RegistrationPages(controller: pageController)),
             ],
           ),
         ),
@@ -105,8 +105,8 @@ class _RegistrationPanel extends StatelessWidget {
   }
 }
 
-class _BlurredPanel extends StatelessWidget {
-  const _BlurredPanel({required this.child});
+class RegistrationBlurredPanel extends StatelessWidget {
+  const RegistrationBlurredPanel({super.key, required this.child});
 
   final Widget child;
 
@@ -129,8 +129,8 @@ class _BlurredPanel extends StatelessWidget {
   }
 }
 
-class _RegistrationTitles extends StatelessWidget {
-  const _RegistrationTitles();
+class RegistrationTitles extends StatelessWidget {
+  const RegistrationTitles({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -138,31 +138,57 @@ class _RegistrationTitles extends StatelessWidget {
       (cubit) => cubit.state.currentStep,
     );
     final copy = _copyFor(step);
+    return RegistrationStepCopy(title: copy.$1, subtitle: copy.$2);
+  }
+}
+
+class RegistrationStepCopy extends StatelessWidget {
+  const RegistrationStepCopy({
+    super.key,
+    required this.title,
+    required this.subtitle,
+  });
+
+  final String title;
+  final String subtitle;
+
+  @override
+  Widget build(BuildContext context) {
     final theme = context.textTheme;
     return Column(
       children: [
-        Text(
-          copy.$1,
-          textAlign: TextAlign.center,
-          maxLines: 3,
-          overflow: TextOverflow.ellipsis,
-          style: theme.headlineLarge,
-        ),
+        RegistrationStepLine(text: title, style: theme.headlineLarge),
         SizedBox(height: 8.h),
-        Text(
-          copy.$2,
-          textAlign: TextAlign.center,
-          maxLines: 3,
-          overflow: TextOverflow.ellipsis,
-          style: theme.bodyMedium?.copyWith(color: context.colors.grey),
-        ),
+        RegistrationStepLine(text: subtitle, style: _subtitleStyle(context)),
       ],
+    );
+  }
+
+  TextStyle? _subtitleStyle(BuildContext context) {
+    return context.textTheme.bodyMedium?.copyWith(color: context.colors.grey);
+  }
+}
+
+class RegistrationStepLine extends StatelessWidget {
+  const RegistrationStepLine({super.key, required this.text, this.style});
+
+  final String text;
+  final TextStyle? style;
+
+  @override
+  Widget build(BuildContext context) {
+    return Text(
+      text,
+      textAlign: TextAlign.center,
+      maxLines: 3,
+      overflow: TextOverflow.ellipsis,
+      style: style,
     );
   }
 }
 
-class _RegistrationPages extends StatelessWidget {
-  const _RegistrationPages({required this.controller});
+class RegistrationPages extends StatelessWidget {
+  const RegistrationPages({super.key, required this.controller});
 
   final PageController controller;
 
@@ -178,8 +204,8 @@ class _RegistrationPages extends StatelessWidget {
   }
 }
 
-class _RegistrationNextButton extends StatelessWidget {
-  const _RegistrationNextButton({required this.onNext});
+class RegistrationNextButton extends StatelessWidget {
+  const RegistrationNextButton({super.key, required this.onNext});
 
   final VoidCallback onNext;
 

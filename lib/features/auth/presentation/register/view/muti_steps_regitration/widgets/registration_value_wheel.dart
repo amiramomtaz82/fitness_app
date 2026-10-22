@@ -19,10 +19,10 @@ class RegistrationValueWheel extends StatefulWidget {
   final ValueChanged<int> onChanged;
 
   @override
-  State<RegistrationValueWheel> createState() => _RegistrationValueWheelState();
+  State<RegistrationValueWheel> createState() => RegistrationValueWheelState();
 }
 
-class _RegistrationValueWheelState extends State<RegistrationValueWheel> {
+class RegistrationValueWheelState extends State<RegistrationValueWheel> {
   late final FixedExtentScrollController _controller;
   bool _handleScroll = false;
 
@@ -66,16 +66,16 @@ class _RegistrationValueWheelState extends State<RegistrationValueWheel> {
       children: [
         Text(widget.unit, style: context.textTheme.bodyMedium),
         SizedBox(height: 8.h),
-        Expanded(child: _WheelList(state: this)),
+        Expanded(child: RegistrationWheelList(state: this)),
       ],
     );
   }
 }
 
-class _WheelList extends StatelessWidget {
-  const _WheelList({required this.state});
+class RegistrationWheelList extends StatelessWidget {
+  const RegistrationWheelList({super.key, required this.state});
 
-  final _RegistrationValueWheelState state;
+  final RegistrationValueWheelState state;
 
   @override
   Widget build(BuildContext context) {
@@ -92,7 +92,7 @@ class _WheelList extends StatelessWidget {
           childDelegate: ListWheelChildBuilderDelegate(
             childCount: state.widget.labels.length,
             builder: (context, index) =>
-                _WheelLabel(state: state, index: index),
+                RegistrationWheelLabel(state: state, index: index),
           ),
         ),
       ),
@@ -100,10 +100,14 @@ class _WheelList extends StatelessWidget {
   }
 }
 
-class _WheelLabel extends StatelessWidget {
-  const _WheelLabel({required this.state, required this.index});
+class RegistrationWheelLabel extends StatelessWidget {
+  const RegistrationWheelLabel({
+    super.key,
+    required this.state,
+    required this.index,
+  });
 
-  final _RegistrationValueWheelState state;
+  final RegistrationValueWheelState state;
   final int index;
 
   @override
@@ -124,7 +128,7 @@ class _WheelLabel extends StatelessWidget {
   }
 }
 
-extension on _RegistrationValueWheelState {
+extension RegistrationValueWheelSelection on RegistrationValueWheelState {
   bool _onUserScroll(UserScrollNotification notification) {
     _handleScroll = notification.direction != ScrollDirection.idle;
     return false;

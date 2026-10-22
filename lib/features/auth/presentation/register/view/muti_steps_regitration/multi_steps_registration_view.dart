@@ -19,21 +19,21 @@ class MultiStepsRegistrationView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return _RegistrationShell(pageController: pageController);
+    return RegistrationShell(pageController: pageController);
   }
 }
 
-class _RegistrationShell extends StatefulWidget {
-  const _RegistrationShell({this.pageController});
+class RegistrationShell extends StatefulWidget {
+  const RegistrationShell({super.key, this.pageController});
 
   final PageController? pageController;
 
   @override
-  State<_RegistrationShell> createState() => _RegistrationShellState();
+  State<RegistrationShell> createState() => RegistrationShellState();
 }
 
-class _RegistrationShellState extends State<_RegistrationShell>
-    with UiEventMixin<_RegistrationShell, RegisterState, BaseUiEvent> {
+class RegistrationShellState extends State<RegistrationShell>
+    with UiEventMixin<RegistrationShell, RegisterState, BaseUiEvent> {
   static const _pageMove = Duration(milliseconds: 250);
 
   late final PageController _pageController;

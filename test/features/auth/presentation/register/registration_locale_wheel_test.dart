@@ -16,8 +16,8 @@ import 'package:mocktail/mocktail.dart';
 
 class MockRegisterUseCase extends Mock implements RegisterUseCase {}
 
-class _CachedTranslationLoader extends AssetLoader {
-  const _CachedTranslationLoader(this.translations);
+class CachedTranslationLoader extends AssetLoader {
+  const CachedTranslationLoader(this.translations);
 
   final Map<String, Map<String, dynamic>> translations;
 
@@ -33,15 +33,24 @@ late final Map<String, Map<String, dynamic>> _translations;
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
+  setUpAll(loadRegistrationLocales);
+  localeWheelTests();
+}
 
-  setUpAll(() async {
-    registerFallbackValue(const RegisterParameters());
-    _translations = {
-      'en': await _loadLocale('en'),
-      'ar': await _loadLocale('ar'),
-    };
-  });
+Future<void> loadRegistrationLocales() async {
+  registerFallbackValue(const RegisterParameters());
+  _translations = {
+    'en': await _loadLocale('en'),
+    'ar': await _loadLocale('ar'),
+  };
+}
 
+void localeWheelTests() {
+  arabicValidationUsesRtl();
+  scrollingAgeWheelStoresNextAge();
+}
+
+void arabicValidationUsesRtl() {
   testWidgets('arabic uses rtl and an arabic validation message', (
     tester,
   ) async {
@@ -54,7 +63,9 @@ void main() {
     expect(cubit.state.currentStep, 0);
     await tester.pumpAndSettle();
   });
+}
 
+void scrollingAgeWheelStoresNextAge() {
   testWidgets('scrolling the age wheel stores the next age', (tester) async {
     final cubit = RegisterCubit(MockRegisterUseCase());
     addTearDown(cubit.close);
@@ -121,13 +132,13 @@ Widget _localizedApp(RegisterCubit cubit, Locale locale) {
     fallbackLocale: const Locale('en'),
     startLocale: locale,
     saveLocale: false,
-    assetLoader: _CachedTranslationLoader(_translations),
-    child: _RegistrationHarness(cubit: cubit),
+    assetLoader: CachedTranslationLoader(_translations),
+    child: RegistrationHarness(cubit: cubit),
   );
 }
 
-class _RegistrationHarness extends StatelessWidget {
-  const _RegistrationHarness({required this.cubit});
+class RegistrationHarness extends StatelessWidget {
+  const RegistrationHarness({super.key, required this.cubit});
 
   final RegisterCubit cubit;
 

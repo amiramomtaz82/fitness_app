@@ -19,7 +19,7 @@ class RegistrationProgress extends StatelessWidget {
       child: Stack(
         alignment: Alignment.center,
         children: [
-          _ProgressRing(value: visibleStep / stepCount),
+          RegistrationProgressRing(value: visibleStep / stepCount),
           Text('$visibleStep/$stepCount', style: context.textTheme.titleMedium),
         ],
       ),
@@ -27,8 +27,8 @@ class RegistrationProgress extends StatelessWidget {
   }
 }
 
-class _ProgressRing extends StatelessWidget {
-  const _ProgressRing({required this.value});
+class RegistrationProgressRing extends StatelessWidget {
+  const RegistrationProgressRing({super.key, required this.value});
 
   final double value;
 

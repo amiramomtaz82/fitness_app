@@ -11,65 +11,87 @@ import 'package:mocktail/mocktail.dart';
 
 class MockRegisterUseCase extends Mock implements RegisterUseCase {}
 
+late MockRegisterUseCase useCase;
+late List<BaseUiEvent> events;
+
 void main() {
-  late MockRegisterUseCase useCase;
-  late List<BaseUiEvent> events;
-
   setUpAll(() => registerFallbackValue(const RegisterParameters()));
-
   setUp(() => useCase = MockRegisterUseCase());
+  filledStepsDoNotRegister();
+  thrownRegistrationErrorIsStored();
+}
 
+void filledStepsDoNotRegister() {
   test('filled steps do not call register', () {
     final cubit = RegisterCubit(useCase);
     addTearDown(cubit.close);
     _fillProfile(cubit);
-
     cubit.doIntent(const SubmitRegistrationIntent());
-
-    expect(cubit.state.registerResource.isInitial, isTrue);
-    expect(cubit.state.params.firstName, isEmpty);
-    expect(cubit.state.params.lastName, isEmpty);
-    expect(cubit.state.params.email, isEmpty);
-    expect(cubit.state.params.password, isEmpty);
-    expect(cubit.state.params.goal, 'Lose Weight');
-    expect(cubit.state.params.activityLevel, 'Intermediate');
+    _expectUnsubmittedProfile(cubit);
     verifyNever(() => useCase.call(any()));
   });
+}
 
+void _expectUnsubmittedProfile(RegisterCubit cubit) {
+  expect(cubit.state.registerResource.isInitial, isTrue);
+  expect(cubit.state.params.firstName, isEmpty);
+  expect(cubit.state.params.lastName, isEmpty);
+  expect(cubit.state.params.email, isEmpty);
+  expect(cubit.state.params.password, isEmpty);
+  expect(cubit.state.params.goal, 'Lose Weight');
+  expect(cubit.state.params.activityLevel, 'Intermediate');
+}
+
+void thrownRegistrationErrorIsStored() {
   blocTest<RegisterCubit, RegisterState>(
     'a thrown registration error is stored instead of escaping',
-    setUp: () {
-      events = [];
-      when(() => useCase.call(any())).thenAnswer((_) async {
-        throw Exception('offline');
-      });
-    },
-    build: () {
-      final cubit = RegisterCubit(useCase);
-      cubit.eventStream.listen(events.add);
-      return cubit;
-    },
+    setUp: _throwOffline,
+    build: _listenToThrownRegistration,
     seed: _readyToSubmit,
     act: (cubit) => cubit.doIntent(const SubmitRegistrationIntent()),
     wait: Duration.zero,
-    expect: () => [
-      isA<RegisterState>().having(
-        (state) => state.registerResource.isLoading,
-        'loading',
-        isTrue,
-      ),
-      isA<RegisterState>().having(
-        (state) => state.registerResource.errorMessage,
-        'error',
-        'Exception: offline',
-      ),
-    ],
-    verify: (_) {
-      final event = events.single as ShowSnackBarEvent;
-      expect(event.isError, isTrue);
-      expect(event.message, 'Exception: offline');
-    },
+    expect: _offlineRegistrationStates,
+    verify: (_) => _expectOfflineSnackBar(),
   );
+}
+
+void _throwOffline() {
+  events = [];
+  when(() => useCase.call(any())).thenAnswer((_) async {
+    throw Exception('offline');
+  });
+}
+
+RegisterCubit _listenToThrownRegistration() {
+  final cubit = RegisterCubit(useCase);
+  cubit.eventStream.listen(events.add);
+  return cubit;
+}
+
+List<Matcher> _offlineRegistrationStates() {
+  return [_loadingRegistration(), _offlineRegistration()];
+}
+
+Matcher _loadingRegistration() {
+  return isA<RegisterState>().having(
+    (state) => state.registerResource.isLoading,
+    'loading',
+    isTrue,
+  );
+}
+
+Matcher _offlineRegistration() {
+  return isA<RegisterState>().having(
+    (state) => state.registerResource.errorMessage,
+    'error',
+    'Exception: offline',
+  );
+}
+
+void _expectOfflineSnackBar() {
+  final event = events.single as ShowSnackBarEvent;
+  expect(event.isError, isTrue);
+  expect(event.message, 'Exception: offline');
 }
 
 RegisterState _readyToSubmit() {

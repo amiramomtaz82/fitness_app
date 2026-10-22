@@ -16,7 +16,7 @@ class RegistrationAgeStep extends StatelessWidget {
     final age = context.select<RegisterCubit, int>(
       (cubit) => cubit.state.params.age,
     );
-    return _IntegerWheel(
+    return RegistrationIntegerWheel(
       minimum: RegistrationMeasurementRules.minimumAge,
       maximum: RegistrationMeasurementRules.maximumAge,
       current: RegistrationMeasurementRules.isValidAge(age)
@@ -36,7 +36,7 @@ class RegistrationWeightStep extends StatelessWidget {
     final weight = context.select<RegisterCubit, num>(
       (cubit) => cubit.state.params.weight,
     );
-    return _IntegerWheel(
+    return RegistrationIntegerWheel(
       minimum: RegistrationMeasurementRules.minimumWeightKg.round(),
       maximum: RegistrationMeasurementRules.maximumWeightKg.round(),
       current: _shownWeight(weight),
@@ -54,7 +54,7 @@ class RegistrationHeightStep extends StatelessWidget {
     final height = context.select<RegisterCubit, num>(
       (cubit) => cubit.state.params.height,
     );
-    return _IntegerWheel(
+    return RegistrationIntegerWheel(
       minimum: RegistrationMeasurementRules.minimumHeightCm.round(),
       maximum: RegistrationMeasurementRules.maximumHeightCm.round(),
       current: _shownHeight(height),
@@ -64,8 +64,9 @@ class RegistrationHeightStep extends StatelessWidget {
   }
 }
 
-class _IntegerWheel extends StatelessWidget {
-  const _IntegerWheel({
+class RegistrationIntegerWheel extends StatelessWidget {
+  const RegistrationIntegerWheel({
+    super.key,
     required this.minimum,
     required this.maximum,
     required this.current,

@@ -6,7 +6,16 @@ import 'package:flutter_test/flutter_test.dart';
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
+  wheelTests();
+}
 
+void wheelTests() {
+  ignoresInitialLayoutSelection();
+  horizontalDragReportsNewIndex();
+  externalIndexChangeIsNotAScroll();
+}
+
+void ignoresInitialLayoutSelection() {
   testWidgets('shows the unit and ignores the initial layout selection', (
     tester,
   ) async {
@@ -16,7 +25,9 @@ void main() {
     expect(find.text('17'), findsOneWidget);
     expect(changes, isEmpty);
   });
+}
 
+void horizontalDragReportsNewIndex() {
   testWidgets('a horizontal drag reports a new index', (tester) async {
     final changes = <int>[];
     await _pumpWheel(tester, selectedIndex: 1, onChanged: changes.add);
@@ -26,12 +37,14 @@ void main() {
     expect(changes.last, isNot(1));
     expect(changes.last, inInclusiveRange(0, 4));
   });
+}
 
+void externalIndexChangeIsNotAScroll() {
   testWidgets('an external index change does not count as a user scroll', (
     tester,
   ) async {
-    final probe = _WheelProbe();
-    await _pump(tester, _ControlledWheel(probe: probe));
+    final probe = WheelProbe();
+    await _pump(tester, ControlledWheel(probe: probe));
     probe.select(3);
     await tester.pumpAndSettle();
     expect(probe.calls, 0);
@@ -39,21 +52,21 @@ void main() {
   });
 }
 
-class _WheelProbe {
+class WheelProbe {
   int calls = 0;
   late ValueChanged<int> select;
 }
 
-class _ControlledWheel extends StatefulWidget {
-  const _ControlledWheel({required this.probe});
+class ControlledWheel extends StatefulWidget {
+  const ControlledWheel({super.key, required this.probe});
 
-  final _WheelProbe probe;
+  final WheelProbe probe;
 
   @override
-  State<_ControlledWheel> createState() => _ControlledWheelState();
+  State<ControlledWheel> createState() => ControlledWheelState();
 }
 
-class _ControlledWheelState extends State<_ControlledWheel> {
+class ControlledWheelState extends State<ControlledWheel> {
   int _index = 1;
 
   @override

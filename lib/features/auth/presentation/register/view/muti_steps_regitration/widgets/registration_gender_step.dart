@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 import '../../../../../../../core/contants/app_assets.dart';
+import '../../../../../../../core/theme/app_colors.dart';
 import '../../../../../../../core/theme/context.extension.dart';
 import '../../../../../../../core/theme/custom_colors.dart';
 import '../../../manager/cubit/register_cubit.dart';
@@ -17,30 +18,58 @@ class RegistrationGenderStep extends StatelessWidget {
     final gender = context.select<RegisterCubit, String>(
       (cubit) => cubit.state.params.gender,
     );
-    const male = RegistrationGender.male;
-    const female = RegistrationGender.female;
+    return RegistrationGenderChoices(selectedName: gender);
+  }
+}
+
+class RegistrationGenderChoices extends StatelessWidget {
+  const RegistrationGenderChoices({super.key, required this.selectedName});
+
+  final String selectedName;
+
+  @override
+  Widget build(BuildContext context) {
     return Align(
       alignment: Alignment.topCenter,
       child: Row(
         children: [
-          Expanded(
-            child: _GenderChoice(
-              label: male.displayText,
-              asset: AppAssets.male,
-              selected: gender == male.name,
-              onTap: () => _select(context, male.name),
-            ),
+          RegistrationGenderOption(
+            option: RegistrationGender.male,
+            asset: AppAssets.male,
+            selectedName: selectedName,
           ),
           SizedBox(width: 12.w),
-          Expanded(
-            child: _GenderChoice(
-              label: female.displayText,
-              asset: AppAssets.female,
-              selected: gender == female.name,
-              onTap: () => _select(context, female.name),
-            ),
+          RegistrationGenderOption(
+            option: RegistrationGender.female,
+            asset: AppAssets.female,
+            selectedName: selectedName,
           ),
         ],
+      ),
+    );
+  }
+}
+
+class RegistrationGenderOption extends StatelessWidget {
+  const RegistrationGenderOption({
+    super.key,
+    required this.option,
+    required this.asset,
+    required this.selectedName,
+  });
+
+  final RegistrationGender option;
+  final String asset;
+  final String selectedName;
+
+  @override
+  Widget build(BuildContext context) {
+    return Expanded(
+      child: RegistrationGenderChoice(
+        label: option.displayText,
+        asset: asset,
+        selected: selectedName == option.name,
+        onTap: () => _select(context, option.name),
       ),
     );
   }
@@ -50,8 +79,9 @@ void _select(BuildContext context, String gender) {
   context.read<RegisterCubit>().doIntent(SelectGenderIntent(gender));
 }
 
-class _GenderChoice extends StatelessWidget {
-  const _GenderChoice({
+class RegistrationGenderChoice extends StatelessWidget {
+  const RegistrationGenderChoice({
+    super.key,
     required this.label,
     required this.asset,
     required this.selected,
@@ -66,18 +96,23 @@ class _GenderChoice extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Material(
-      color: Colors.transparent,
+      color: AppColors.inputTransparent,
       child: InkWell(
         onTap: onTap,
         borderRadius: BorderRadius.circular(24.r),
-        child: _GenderCard(label: label, asset: asset, selected: selected),
+        child: RegistrationGenderCard(
+          label: label,
+          asset: asset,
+          selected: selected,
+        ),
       ),
     );
   }
 }
 
-class _GenderCard extends StatelessWidget {
-  const _GenderCard({
+class RegistrationGenderCard extends StatelessWidget {
+  const RegistrationGenderCard({
+    super.key,
     required this.label,
     required this.asset,
     required this.selected,
@@ -93,7 +128,7 @@ class _GenderCard extends StatelessWidget {
       decoration: _decoration(context.colors),
       child: Padding(
         padding: EdgeInsets.symmetric(vertical: 16.h, horizontal: 8.w),
-        child: _GenderBody(label: label, asset: asset),
+        child: RegistrationGenderBody(label: label, asset: asset),
       ),
     );
   }
@@ -110,8 +145,12 @@ class _GenderCard extends StatelessWidget {
   }
 }
 
-class _GenderBody extends StatelessWidget {
-  const _GenderBody({required this.label, required this.asset});
+class RegistrationGenderBody extends StatelessWidget {
+  const RegistrationGenderBody({
+    super.key,
+    required this.label,
+    required this.asset,
+  });
 
   final String label;
   final String asset;
