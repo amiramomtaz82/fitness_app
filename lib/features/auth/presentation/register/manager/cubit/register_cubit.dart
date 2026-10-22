@@ -18,10 +18,10 @@ class RegisterCubit extends BaseCubit<RegisterState, BaseUiEvent> {
   final FirestoreUserService _firestoreUserService;
 
   RegisterCubit(
-      this._registerUseCase,
-      this._socialAuthService,
-      this._firestoreUserService,
-      ) : super(const RegisterState());
+    this._registerUseCase,
+    this._socialAuthService,
+    this._firestoreUserService,
+  ) : super(const RegisterState());
 
   void doIntent(RegisterIntent intent) {
     switch (intent) {
@@ -31,11 +31,11 @@ class RegisterCubit extends BaseCubit<RegisterState, BaseUiEvent> {
       case TogglePasswordVisibilityIntent():
         _togglePasswordVisibility();
       case SubmitAccountCredentialsIntent(
-          :final firstName,
-          :final lastName,
-          :final email,
-          :final password,
-        ):
+        :final firstName,
+        :final lastName,
+        :final email,
+        :final password,
+      ):
         _submitAccountCredentials(
           firstName: firstName,
           lastName: lastName,
@@ -67,14 +67,16 @@ class RegisterCubit extends BaseCubit<RegisterState, BaseUiEvent> {
     required String email,
     required String password,
   }) {
-    emit(state.copyWith(
-      params: state.params.copyWith(
-        firstName: firstName,
-        lastName: lastName,
-        email: email,
-        password: password,
+    emit(
+      state.copyWith(
+        params: state.params.copyWith(
+          firstName: firstName,
+          lastName: lastName,
+          email: email,
+          password: password,
+        ),
       ),
-    ));
+    );
   }
 
   void _updateGender(String gender) {
@@ -99,10 +101,12 @@ class RegisterCubit extends BaseCubit<RegisterState, BaseUiEvent> {
 
   Future<void> _submitFullRegistration(String activityLevel) async {
     final fullParams = state.params.copyWith(activityLevel: activityLevel);
-    emit(state.copyWith(
-      params: fullParams,
-      registerResource: const Resource.loading(),
-    ));
+    emit(
+      state.copyWith(
+        params: fullParams,
+        registerResource: const Resource.loading(),
+      ),
+    );
 
     final response = await _registerUseCase(fullParams);
 
@@ -114,9 +118,7 @@ class RegisterCubit extends BaseCubit<RegisterState, BaseUiEvent> {
 
       case ErrorResponse(:final failure):
         final errorMsg = failure.serverMessage ?? 'Registration failed';
-        emit(state.copyWith(
-          registerResource: Resource.error(errorMsg),
-        ));
+        emit(state.copyWith(registerResource: Resource.error(errorMsg)));
         emitFailure(failure);
     }
   }
@@ -134,7 +136,9 @@ class RegisterCubit extends BaseCubit<RegisterState, BaseUiEvent> {
     }
 
     // 1. Get the unified Google provider password
-    final providerPassword = await _firestoreUserService.getProviderPassword('google');
+    final providerPassword = await _firestoreUserService.getProviderPassword(
+      'google',
+    );
 
     // 2. 👇 SAVE USER IN FIRESTORE FOR FORGOT PASSWORD CHECK
     try {
@@ -144,20 +148,22 @@ class RegisterCubit extends BaseCubit<RegisterState, BaseUiEvent> {
         firstName: googleUser.firstName,
         lastName: googleUser.lastName,
       );
-    } catch (e) {
-
+    } catch (_) {
+      // Ignored: Best-effort save for forgot-password verification
     }
 
     // 3. Pre-fill credentials into state
-    emit(state.copyWith(
-      registerResource: const Resource.initial(),
-      params: state.params.copyWith(
-        firstName: googleUser.firstName,
-        lastName: googleUser.lastName,
-        email: googleUser.email,
-        password: providerPassword,
+    emit(
+      state.copyWith(
+        registerResource: const Resource.initial(),
+        params: state.params.copyWith(
+          firstName: googleUser.firstName,
+          lastName: googleUser.lastName,
+          email: googleUser.email,
+          password: providerPassword,
+        ),
       ),
-    ));
+    );
 
     // 4. Navigate directly to Screen 2 (Select Gender) to continue the wizard
     emitEvent(const NavigateEvent(AppRoutes.multiStepRegistration));

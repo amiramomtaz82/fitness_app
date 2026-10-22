@@ -4,6 +4,9 @@ import 'dart:io';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:fitness_app/core/di/di.dart';
 import 'package:fitness_app/core/go_routes/routes_names.dart';
+import 'package:fitness_app/features/auth/data/data_source/remote/firestore_user_data_source.dart';
+import 'package:fitness_app/features/auth/data/data_source/remote/social_auth_data_source.dart';
+import 'package:fitness_app/features/auth/domain/entities/social_auth_user.dart';
 import 'package:fitness_app/features/auth/domain/entities/register_parameters.dart';
 import 'package:fitness_app/features/auth/domain/use_cases/register_use_case.dart';
 import 'package:fitness_app/features/auth/presentation/register/manager/cubit/register_cubit.dart';
@@ -24,6 +27,10 @@ import 'package:mocktail/mocktail.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class MockRegisterUseCase extends Mock implements RegisterUseCase {}
+
+class MockSocialAuthService extends Mock implements SocialAuthService {}
+
+class MockFirestoreUserService extends Mock implements FirestoreUserService {}
 
 class InMemoryAssetLoader extends AssetLoader {
   final Map<String, dynamic> data;
@@ -69,21 +76,29 @@ Widget createTestApp({required GoRouter router}) {
 
 void main() {
   late MockRegisterUseCase mockRegisterUseCase;
+  late MockSocialAuthService mockSocialAuthService;
+  late MockFirestoreUserService mockFirestoreUserService;
   late RegisterCubit registerCubit;
 
   setUpAll(() async {
     TestWidgetsFlutterBinding.ensureInitialized();
     SharedPreferences.setMockInitialValues({});
-    enTranslations = jsonDecode(
-      File('assets/translations/en.json').readAsStringSync(),
-    ) as Map<String, dynamic>;
+    enTranslations =
+        jsonDecode(File('assets/translations/en.json').readAsStringSync())
+            as Map<String, dynamic>;
     await EasyLocalization.ensureInitialized();
     registerFallbackValue(const RegisterParameters());
   });
 
   setUp(() {
     mockRegisterUseCase = MockRegisterUseCase();
-    registerCubit = RegisterCubit(mockRegisterUseCase);
+    mockSocialAuthService = MockSocialAuthService();
+    mockFirestoreUserService = MockFirestoreUserService();
+    registerCubit = RegisterCubit(
+      mockRegisterUseCase,
+      mockSocialAuthService,
+      mockFirestoreUserService,
+    );
 
     if (getIt.isRegistered<RegisterCubit>()) {
       getIt.unregister<RegisterCubit>();
@@ -108,15 +123,13 @@ void main() {
         ),
         GoRoute(
           path: AppRoutes.multiStepRegistration,
-          builder: (context, state) => const Scaffold(
-            body: Text('Multi-Step Screen Destination'),
-          ),
+          builder: (context, state) =>
+              const Scaffold(body: Text('Multi-Step Screen Destination')),
         ),
         GoRoute(
           path: AppRoutes.login,
-          builder: (context, state) => const Scaffold(
-            body: Text('Login Screen Destination'),
-          ),
+          builder: (context, state) =>
+              const Scaffold(body: Text('Login Screen Destination')),
         ),
       ],
     );
@@ -137,7 +150,9 @@ void main() {
   }
 
   group('RegisterView Widget Tests', () {
-    testWidgets('renders all core UI widgets and fields properly', (tester) async {
+    testWidgets('renders all core UI widgets and fields properly', (
+      tester,
+    ) async {
       final router = createRouter();
       await pumpRegisterView(tester, router);
 
@@ -163,25 +178,30 @@ void main() {
       expect(find.text(LocaleKeys.common_next.tr()), findsOneWidget);
     });
 
-    testWidgets('shows validation errors when Next button is pressed with empty fields', (tester) async {
-      final router = createRouter();
-      await pumpRegisterView(tester, router);
+    testWidgets(
+      'shows validation errors when Next button is pressed with empty fields',
+      (tester) async {
+        final router = createRouter();
+        await pumpRegisterView(tester, router);
 
-      // Scroll to Next button and tap it
-      final nextButtonFinder = find.byType(RegisterNextButton);
-      await tester.ensureVisible(nextButtonFinder);
-      await tester.tap(nextButtonFinder);
-      await tester.pumpAndSettle();
+        // Scroll to Next button and tap it
+        final nextButtonFinder = find.byType(RegisterNextButton);
+        await tester.ensureVisible(nextButtonFinder);
+        await tester.tap(nextButtonFinder);
+        await tester.pumpAndSettle();
 
-      // Field is required error message should appear for empty fields
-      final requiredError = LocaleKeys.validation_field_required.tr();
-      expect(find.text(requiredError), findsNWidgets(4));
+        // Field is required error message should appear for empty fields
+        final requiredError = LocaleKeys.validation_field_required.tr();
+        expect(find.text(requiredError), findsNWidgets(4));
 
-      // Ensure navigation to next screen did NOT happen
-      expect(find.text('Multi-Step Screen Destination'), findsNothing);
-    });
+        // Ensure navigation to next screen did NOT happen
+        expect(find.text('Multi-Step Screen Destination'), findsNothing);
+      },
+    );
 
-    testWidgets('shows validation error when an invalid email is entered', (tester) async {
+    testWidgets('shows validation error when an invalid email is entered', (
+      tester,
+    ) async {
       final router = createRouter();
       await pumpRegisterView(tester, router);
 
@@ -196,30 +216,41 @@ void main() {
       await tester.tap(nextButtonFinder);
       await tester.pumpAndSettle();
 
-      expect(find.text(LocaleKeys.validation_invalid_email.tr()), findsOneWidget);
+      expect(
+        find.text(LocaleKeys.validation_invalid_email.tr()),
+        findsOneWidget,
+      );
       expect(find.text('Multi-Step Screen Destination'), findsNothing);
     });
 
-    testWidgets('shows validation error when password is too short or missing uppercase/number', (tester) async {
-      final router = createRouter();
-      await pumpRegisterView(tester, router);
+    testWidgets(
+      'shows validation error when password is too short or missing uppercase/number',
+      (tester) async {
+        final router = createRouter();
+        await pumpRegisterView(tester, router);
 
-      final textFields = find.byType(TextFormField);
-      await tester.enterText(textFields.at(0), 'Ahmed');
-      await tester.enterText(textFields.at(1), 'Ali');
-      await tester.enterText(textFields.at(2), 'ahmed@example.com');
-      await tester.enterText(textFields.at(3), '123'); // too short
+        final textFields = find.byType(TextFormField);
+        await tester.enterText(textFields.at(0), 'Ahmed');
+        await tester.enterText(textFields.at(1), 'Ali');
+        await tester.enterText(textFields.at(2), 'ahmed@example.com');
+        await tester.enterText(textFields.at(3), '123'); // too short
 
-      final nextButtonFinder = find.byType(RegisterNextButton);
-      await tester.ensureVisible(nextButtonFinder);
-      await tester.tap(nextButtonFinder);
-      await tester.pumpAndSettle();
+        final nextButtonFinder = find.byType(RegisterNextButton);
+        await tester.ensureVisible(nextButtonFinder);
+        await tester.tap(nextButtonFinder);
+        await tester.pumpAndSettle();
 
-      expect(find.text(LocaleKeys.validation_password_too_short.tr()), findsOneWidget);
-      expect(find.text('Multi-Step Screen Destination'), findsNothing);
-    });
+        expect(
+          find.text(LocaleKeys.validation_password_too_short.tr()),
+          findsOneWidget,
+        );
+        expect(find.text('Multi-Step Screen Destination'), findsNothing);
+      },
+    );
 
-    testWidgets('toggles password visibility when visibility icon is pressed', (tester) async {
+    testWidgets('toggles password visibility when visibility icon is pressed', (
+      tester,
+    ) async {
       final router = createRouter();
       await pumpRegisterView(tester, router);
 
@@ -246,33 +277,38 @@ void main() {
       expect(find.byIcon(Icons.visibility_off_outlined), findsOneWidget);
     });
 
-    testWidgets('submits account credentials to cubit and navigates to multiStepRegistration on valid input', (tester) async {
-      final router = createRouter();
-      await pumpRegisterView(tester, router);
+    testWidgets(
+      'submits account credentials to cubit and navigates to multiStepRegistration on valid input',
+      (tester) async {
+        final router = createRouter();
+        await pumpRegisterView(tester, router);
 
-      final textFields = find.byType(TextFormField);
-      await tester.enterText(textFields.at(0), 'Ahmed');
-      await tester.enterText(textFields.at(1), 'Ali');
-      await tester.enterText(textFields.at(2), 'ahmed@example.com');
-      await tester.enterText(textFields.at(3), 'Password123');
+        final textFields = find.byType(TextFormField);
+        await tester.enterText(textFields.at(0), 'Ahmed');
+        await tester.enterText(textFields.at(1), 'Ali');
+        await tester.enterText(textFields.at(2), 'ahmed@example.com');
+        await tester.enterText(textFields.at(3), 'Password123');
 
-      final nextButtonFinder = find.byType(RegisterNextButton);
-      await tester.ensureVisible(nextButtonFinder);
-      await tester.tap(nextButtonFinder);
-      await tester.pumpAndSettle();
+        final nextButtonFinder = find.byType(RegisterNextButton);
+        await tester.ensureVisible(nextButtonFinder);
+        await tester.tap(nextButtonFinder);
+        await tester.pumpAndSettle();
 
-      // Check that cubit state was updated with credentials
-      expect(registerCubit.state.params.firstName, equals('Ahmed'));
-      expect(registerCubit.state.params.lastName, equals('Ali'));
-      expect(registerCubit.state.params.email, equals('ahmed@example.com'));
-      expect(registerCubit.state.params.password, equals('Password123'));
+        // Check that cubit state was updated with credentials
+        expect(registerCubit.state.params.firstName, equals('Ahmed'));
+        expect(registerCubit.state.params.lastName, equals('Ali'));
+        expect(registerCubit.state.params.email, equals('ahmed@example.com'));
+        expect(registerCubit.state.params.password, equals('Password123'));
 
-      // Check navigation occurred
-      expect(find.text('Multi-Step Screen Destination'), findsOneWidget);
-      expect(find.byType(RegisterView), findsNothing);
-    });
+        // Check navigation occurred
+        expect(find.text('Multi-Step Screen Destination'), findsOneWidget);
+        expect(find.byType(RegisterView), findsNothing);
+      },
+    );
 
-    testWidgets('navigates to login screen when footer login link is tapped', (tester) async {
+    testWidgets('navigates to login screen when footer login link is tapped', (
+      tester,
+    ) async {
       final router = createRouter();
       await pumpRegisterView(tester, router);
 
@@ -284,5 +320,49 @@ void main() {
       expect(find.text('Login Screen Destination'), findsOneWidget);
       expect(find.byType(RegisterView), findsNothing);
     });
+
+    testWidgets(
+      'triggers Google sign-in and navigates when Google button is tapped',
+      (tester) async {
+        when(() => mockSocialAuthService.signInWithGoogle()).thenAnswer(
+          (_) async => const SocialAuthUser(
+            email: 'googleuser@gmail.com',
+            firstName: 'Google',
+            lastName: 'User',
+            provider: 'google',
+          ),
+        );
+        when(
+          () => mockFirestoreUserService.getProviderPassword('google'),
+        ).thenAnswer((_) async => 'GoogleAuth@ElevateFitness2026#');
+        when(
+          () => mockFirestoreUserService.saveUser(
+            email: any(named: 'email'),
+            provider: any(named: 'provider'),
+            firstName: any(named: 'firstName'),
+            lastName: any(named: 'lastName'),
+          ),
+        ).thenAnswer((_) async {});
+
+        final router = createRouter();
+        await pumpRegisterView(tester, router);
+
+        final socialButtons = find.byType(SocialButton);
+        expect(socialButtons, findsNWidgets(3));
+
+        await tester.ensureVisible(socialButtons.at(1));
+        await tester.tap(socialButtons.at(1));
+        await tester.pumpAndSettle();
+
+        verify(() => mockSocialAuthService.signInWithGoogle()).called(1);
+        expect(
+          registerCubit.state.params.email,
+          equals('googleuser@gmail.com'),
+        );
+        expect(registerCubit.state.params.firstName, equals('Google'));
+
+        expect(find.text('Multi-Step Screen Destination'), findsOneWidget);
+      },
+    );
   });
 }

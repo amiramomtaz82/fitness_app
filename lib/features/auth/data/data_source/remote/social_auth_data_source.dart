@@ -6,10 +6,9 @@ import '../../../domain/entities/social_auth_user.dart';
 
 @lazySingleton
 class SocialAuthService {
-  final GoogleSignIn _googleSignIn = GoogleSignIn(
-    scopes: ['email', 'profile'],
-  );
-  final FirebaseAuth _firebaseAuth = FirebaseAuth.instance; // 👈 2. FIREBASE AUTH INSTANCE
+  final GoogleSignIn _googleSignIn = GoogleSignIn(scopes: ['email', 'profile']);
+  final FirebaseAuth _firebaseAuth =
+      FirebaseAuth.instance; // 👈 2. FIREBASE AUTH INSTANCE
 
   /// Signs in with Google and registers in Firebase Auth + returns parsed user details
   Future<SocialAuthUser?> signInWithGoogle() async {
@@ -21,7 +20,8 @@ class SocialAuthService {
       }
 
       // 👇 3. ADD THIS BLOCK HERE (Registers user in Firebase Authentication table)
-      final GoogleSignInAuthentication googleAuth = await account.authentication;
+      final GoogleSignInAuthentication googleAuth =
+          await account.authentication;
       final AuthCredential credential = GoogleAuthProvider.credential(
         accessToken: googleAuth.accessToken,
         idToken: googleAuth.idToken,
@@ -32,7 +32,9 @@ class SocialAuthService {
       final fullName = account.displayName?.trim() ?? 'User';
       final nameParts = fullName.split(' ');
       final firstName = nameParts.isNotEmpty ? nameParts.first : 'User';
-      final lastName = nameParts.length > 1 ? nameParts.sublist(1).join(' ') : 'Fitness';
+      final lastName = nameParts.length > 1
+          ? nameParts.sublist(1).join(' ')
+          : 'Fitness';
 
       return SocialAuthUser(
         email: account.email.trim().toLowerCase(),

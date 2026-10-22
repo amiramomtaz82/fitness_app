@@ -7,7 +7,6 @@ import '../../../../../../../core/go_routes/routes_names.dart';
 import '../../../../../../../core/theme/text_styles.dart';
 import '../../../../../../../generated/locale_keys.g.dart';
 
-
 class RegisterFooter extends StatelessWidget {
   const RegisterFooter({super.key});
 
@@ -26,8 +25,9 @@ class RegisterFooter extends StatelessWidget {
           child: Text(
             LocaleKeys.auth_login.tr(),
             style: AppTextStyles.darkOrange14Bold.copyWith(
-                decoration:TextDecoration.underline,
-          color: AppColors.orange),
+              decoration: TextDecoration.underline,
+              color: AppColors.orange,
+            ),
           ),
         ),
       ],

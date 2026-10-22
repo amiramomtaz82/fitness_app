@@ -44,7 +44,6 @@ class _RegisterCardState extends State<RegisterCard> {
 
   void _onNext() {
     if (_formKey.currentState?.validate() ?? false) {
-
       context.read<RegisterCubit>().doIntent(
         SubmitAccountCredentialsIntent(
           firstName: _firstNameController.text.trim(),
@@ -53,7 +52,6 @@ class _RegisterCardState extends State<RegisterCard> {
           password: _passwordController.text,
         ),
       );
-
 
       context.push(AppRoutes.multiStepRegistration);
     }
@@ -66,7 +64,10 @@ class _RegisterCardState extends State<RegisterCard> {
       child: BackdropFilter(
         filter: ImageFilter.blur(sigmaX: 15, sigmaY: 15),
         child: Container(
-          padding: EdgeInsetsDirectional.symmetric(horizontal: 20.w, vertical: 28.h),
+          padding: EdgeInsetsDirectional.symmetric(
+            horizontal: 20.w,
+            vertical: 28.h,
+          ),
           decoration: BoxDecoration(
             color: const Color(0xFF242424).withValues(alpha: 0.10),
             borderRadius: BorderRadius.circular(50.r),
@@ -77,20 +78,25 @@ class _RegisterCardState extends State<RegisterCard> {
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                Text(LocaleKeys.auth_register.tr(), style: AppTextStyles.white20bold),
-                SizedBox(height:15.h),
+                Text(
+                  LocaleKeys.auth_register.tr(),
+                  style: AppTextStyles.white20bold,
+                ),
+                SizedBox(height: 15.h),
                 RegisterInputField(
                   controller: _firstNameController,
                   hintText: LocaleKeys.auth_first_name.tr(),
                   iconAsset: AppAssets.user,
-                  validator: (v) => FormValidators.validateRequired(v)?.toMessage(),
+                  validator: (v) =>
+                      FormValidators.validateRequired(v)?.toMessage(),
                 ),
                 SizedBox(height: 10.h),
                 RegisterInputField(
                   controller: _lastNameController,
                   hintText: LocaleKeys.auth_last_name.tr(),
                   iconAsset: AppAssets.user,
-                  validator: (v) => FormValidators.validateRequired(v)?.toMessage(),
+                  validator: (v) =>
+                      FormValidators.validateRequired(v)?.toMessage(),
                 ),
                 SizedBox(height: 10.h),
                 RegisterInputField(
@@ -98,11 +104,13 @@ class _RegisterCardState extends State<RegisterCard> {
                   hintText: LocaleKeys.auth_email.tr(),
                   iconAsset: AppAssets.mail,
                   keyboardType: TextInputType.emailAddress,
-                  validator: (v) => FormValidators.validateEmail(v)?.toMessage(),
+                  validator: (v) =>
+                      FormValidators.validateEmail(v)?.toMessage(),
                 ),
                 SizedBox(height: 10.h),
                 BlocBuilder<RegisterCubit, RegisterState>(
-                  buildWhen: (p, c) => p.isPasswordObscured != c.isPasswordObscured,
+                  buildWhen: (p, c) =>
+                      p.isPasswordObscured != c.isPasswordObscured,
                   builder: (context, state) {
                     return RegisterInputField(
                       controller: _passwordController,
@@ -113,7 +121,8 @@ class _RegisterCardState extends State<RegisterCard> {
                       onToggleObscure: () => context
                           .read<RegisterCubit>()
                           .doIntent(const TogglePasswordVisibilityIntent()),
-                      validator: (v) => FormValidators.validatePassword(v)?.toMessage(),
+                      validator: (v) =>
+                          FormValidators.validatePassword(v)?.toMessage(),
                     );
                   },
                 ),
@@ -122,15 +131,20 @@ class _RegisterCardState extends State<RegisterCard> {
                   children: [
                     const Expanded(child: Divider(color: AppColors.darkGrey)),
                     Padding(
-                      padding: EdgeInsetsDirectional.symmetric(horizontal: 10.w),
-                      child: Text(LocaleKeys.auth_or.tr(), style: AppTextStyles.grey12regular),
+                      padding: EdgeInsetsDirectional.symmetric(
+                        horizontal: 10.w,
+                      ),
+                      child: Text(
+                        LocaleKeys.auth_or.tr(),
+                        style: AppTextStyles.grey12regular,
+                      ),
                     ),
                     const Expanded(child: Divider(color: AppColors.darkGrey)),
                   ],
                 ),
                 SizedBox(height: 15.h),
                 const RegisterSocialButtons(),
-                SizedBox(height:15.h),
+                SizedBox(height: 15.h),
                 RegisterNextButton(onPressed: _onNext),
                 SizedBox(height: 10.h),
                 const RegisterFooter(),

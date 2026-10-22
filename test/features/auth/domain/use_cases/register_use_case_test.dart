@@ -8,6 +8,7 @@ import 'package:fitness_app/features/auth/domain/repo/auth_repo.dart';
 import 'package:fitness_app/features/auth/domain/use_cases/register_use_case.dart';
 
 class MockAuthRepo extends Mock implements AuthRepo {}
+
 class FakeRegisterParameters extends Fake implements RegisterParameters {}
 
 void main() {
@@ -50,25 +51,35 @@ void main() {
   );
 
   group('RegisterUseCase', () {
-    test('should return SuccessResponse<UserEntity> when repo succeeds', () async {
-      const expectedResponse = SuccessResponse<UserEntity>(testUser);
-      when(() => mockRepo.register(any())).thenAnswer((_) async => expectedResponse);
+    test(
+      'should return SuccessResponse<UserEntity> when repo succeeds',
+      () async {
+        const expectedResponse = SuccessResponse<UserEntity>(testUser);
+        when(
+          () => mockRepo.register(any()),
+        ).thenAnswer((_) async => expectedResponse);
 
-      final result = await useCase(testParams);
+        final result = await useCase(testParams);
 
-      expect(result, equals(expectedResponse));
-      expect(result, isA<SuccessResponse<UserEntity>>());
-      final success = result as SuccessResponse<UserEntity>;
-      expect(success.data, equals(testUser));
-      verify(() => mockRepo.register(testParams)).called(1);
-      verifyNoMoreInteractions(mockRepo);
-    });
+        expect(result, equals(expectedResponse));
+        expect(result, isA<SuccessResponse<UserEntity>>());
+        final success = result as SuccessResponse<UserEntity>;
+        expect(success.data, equals(testUser));
+        verify(() => mockRepo.register(testParams)).called(1);
+        verifyNoMoreInteractions(mockRepo);
+      },
+    );
 
     test('should return ErrorResponse<UserEntity> when repo fails', () async {
       final expectedResponse = ErrorResponse<UserEntity>(
-        failure: const ServerFailure(serverMessage: 'User already exists', statusCode: 409),
+        failure: const ServerFailure(
+          serverMessage: 'User already exists',
+          statusCode: 409,
+        ),
       );
-      when(() => mockRepo.register(any())).thenAnswer((_) async => expectedResponse);
+      when(
+        () => mockRepo.register(any()),
+      ).thenAnswer((_) async => expectedResponse);
 
       final result = await useCase(testParams);
 

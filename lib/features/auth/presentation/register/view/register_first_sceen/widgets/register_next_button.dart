@@ -6,14 +6,10 @@ import '../../../../../../../core/theme/app_colors.dart';
 import '../../../../../../../core/theme/text_styles.dart';
 import '../../../../../../../generated/locale_keys.g.dart';
 
-
 class RegisterNextButton extends StatelessWidget {
   final VoidCallback onPressed;
 
-  const RegisterNextButton({
-    super.key,
-    required this.onPressed,
-  });
+  const RegisterNextButton({super.key, required this.onPressed});
 
   @override
   Widget build(BuildContext context) {
@@ -23,7 +19,9 @@ class RegisterNextButton extends StatelessWidget {
       child: ElevatedButton(
         style: ElevatedButton.styleFrom(
           backgroundColor: AppColors.orange,
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24.r)),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(24.r),
+          ),
         ),
         onPressed: onPressed,
         child: Text(

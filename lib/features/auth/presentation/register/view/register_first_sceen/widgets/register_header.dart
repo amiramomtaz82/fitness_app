@@ -5,7 +5,6 @@ import '../../../../../../../core/contants/app_assets.dart';
 import '../../../../../../../core/theme/text_styles.dart';
 import '../../../../../../../generated/locale_keys.g.dart';
 
-
 class RegisterHeader extends StatelessWidget {
   const RegisterHeader({super.key});
 
@@ -22,7 +21,7 @@ class RegisterHeader extends StatelessWidget {
             children: [
               Text(
                 LocaleKeys.auth_hey_there.tr(),
-                style: AppTextStyles.white18regular
+                style: AppTextStyles.white18regular,
               ),
               SizedBox(height: 4.h),
               Text(

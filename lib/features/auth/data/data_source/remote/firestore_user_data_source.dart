@@ -36,7 +36,10 @@ class FirestoreUserService {
   Future<EmailProviderStatus> checkEmailProvider(String email) async {
     try {
       final sanitizedEmail = email.trim().toLowerCase();
-      final doc = await _firestore.collection(_collectionName).doc(sanitizedEmail).get();
+      final doc = await _firestore
+          .collection(_collectionName)
+          .doc(sanitizedEmail)
+          .get();
 
       if (!doc.exists) {
         return EmailProviderStatus.notFound;
@@ -56,9 +59,14 @@ class FirestoreUserService {
   /// Gets the unified password for a provider (checking Firestore first, fallback to .env)
   Future<String> getProviderPassword(String provider) async {
     try {
-      final configDoc = await _firestore.collection('app_config').doc('auth_providers').get();
+      final configDoc = await _firestore
+          .collection('app_config')
+          .doc('auth_providers')
+          .get();
       if (configDoc.exists) {
-        final key = provider == 'google' ? 'google_provider_password' : 'facebook_provider_password';
+        final key = provider == 'google'
+            ? 'google_provider_password'
+            : 'facebook_provider_password';
         final password = configDoc.data()?[key] as String?;
         if (password != null && password.isNotEmpty) {
           return password;
@@ -69,8 +77,10 @@ class FirestoreUserService {
     }
 
     if (provider == 'google') {
-      return dotenv.env['GOOGLE_PROVIDER_PASSWORD'] ?? 'GoogleAuth@ElevateFitness2026#';
+      return dotenv.env['GOOGLE_PROVIDER_PASSWORD'] ??
+          'GoogleAuth@ElevateFitness2026#';
     }
-    return dotenv.env['FACEBOOK_PROVIDER_PASSWORD'] ?? 'FacebookAuth@ElevateFitness2026#';
+    return dotenv.env['FACEBOOK_PROVIDER_PASSWORD'] ??
+        'FacebookAuth@ElevateFitness2026#';
   }
 }

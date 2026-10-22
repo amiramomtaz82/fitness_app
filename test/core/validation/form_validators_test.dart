@@ -49,9 +49,9 @@ void main() {
         expect(FormValidators.validatePassword(''), ValidationError.empty);
       });
 
-      test('returns passwordTooShort when less than 8 characters', () {
+      test('returns passwordTooShort when less than 6 characters', () {
         expect(
-          FormValidators.validatePassword('Short1'),
+          FormValidators.validatePassword('Pass1'),
           ValidationError.passwordTooShort,
         );
       });

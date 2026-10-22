@@ -5,6 +5,7 @@ sealed class RegisterIntent {
 final class TogglePasswordVisibilityIntent extends RegisterIntent {
   const TogglePasswordVisibilityIntent();
 }
+
 final class SubmitAccountCredentialsIntent extends RegisterIntent {
   final String firstName;
   final String lastName;
@@ -49,8 +50,8 @@ final class SubmitFullRegistrationIntent extends RegisterIntent {
   final String activityLevel;
   const SubmitFullRegistrationIntent(this.activityLevel);
 }
+
 // Screen 1: User Intents
 final class SignInWithGoogleIntent extends RegisterIntent {
   const SignInWithGoogleIntent();
 }
-

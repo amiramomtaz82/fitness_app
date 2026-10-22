@@ -13,7 +13,6 @@ import '../../../../../../core/widgets/app_background_scaffold.dart';
 import '../../manager/cubit/register_cubit.dart';
 import '../../manager/cubit/register_state.dart';
 
-
 class RegisterView extends StatefulWidget {
   const RegisterView({super.key});
 
@@ -42,12 +41,14 @@ class _RegisterViewState extends State<RegisterView>
         overlayColor: AppColors.black,
         overlayOpacity: 0.1,
         showLayoutGrid: true,
-        gridColor:
-        AppColors.orange,
+        gridColor: AppColors.orange,
         backgroundImage: AppAssets.authProfileBG,
 
         child: SingleChildScrollView(
-          padding: EdgeInsetsDirectional.symmetric(horizontal: 24.w, vertical: 16.h),
+          padding: EdgeInsetsDirectional.symmetric(
+            horizontal: 24.w,
+            vertical: 16.h,
+          ),
           child: Column(
             children: [
               const RegisterHeader(),
