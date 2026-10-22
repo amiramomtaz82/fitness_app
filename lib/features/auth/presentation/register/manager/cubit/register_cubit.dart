@@ -5,6 +5,8 @@ import '../../../../../../core/base/ui_events.dart';
 import '../../../../../../core/base_response/base_response.dart';
 import '../../../../../../core/go_routes/routes_names.dart';
 import '../../../../../../core/resource/resource.dart';
+import '../../../../data/data_source/remote/firestore_user_data_source.dart';
+import '../../../../data/data_source/remote/social_auth_data_source.dart';
 import '../../../../domain/use_cases/register_use_case.dart';
 import 'register_intent.dart';
 import 'register_state.dart';
@@ -12,11 +14,20 @@ import 'register_state.dart';
 @injectable
 class RegisterCubit extends BaseCubit<RegisterState, BaseUiEvent> {
   final RegisterUseCase _registerUseCase;
+  final SocialAuthService _socialAuthService;
+  final FirestoreUserService _firestoreUserService;
 
-  RegisterCubit(this._registerUseCase) : super(const RegisterState());
+  RegisterCubit(
+      this._registerUseCase,
+      this._socialAuthService,
+      this._firestoreUserService,
+      ) : super(const RegisterState());
 
   void doIntent(RegisterIntent intent) {
     switch (intent) {
+      case SignInWithGoogleIntent():
+        _signInWithGoogle();
+
       case TogglePasswordVisibilityIntent():
         _togglePasswordVisibility();
       case SubmitAccountCredentialsIntent(
@@ -108,5 +119,47 @@ class RegisterCubit extends BaseCubit<RegisterState, BaseUiEvent> {
         ));
         emitFailure(failure);
     }
+  }
+
+  // ==========================================
+  // GOOGLE SIGN-IN HANDLER
+  // ==========================================
+  Future<void> _signInWithGoogle() async {
+    emit(state.copyWith(registerResource: const Resource.loading()));
+    final googleUser = await _socialAuthService.signInWithGoogle();
+    if (googleUser == null) {
+      // User cancelled Google picker
+      emit(state.copyWith(registerResource: const Resource.initial()));
+      return;
+    }
+
+    // 1. Get the unified Google provider password
+    final providerPassword = await _firestoreUserService.getProviderPassword('google');
+
+    // 2. 👇 SAVE USER IN FIRESTORE FOR FORGOT PASSWORD CHECK
+    try {
+      await _firestoreUserService.saveUser(
+        email: googleUser.email,
+        provider: 'google',
+        firstName: googleUser.firstName,
+        lastName: googleUser.lastName,
+      );
+    } catch (e) {
+
+    }
+
+    // 3. Pre-fill credentials into state
+    emit(state.copyWith(
+      registerResource: const Resource.initial(),
+      params: state.params.copyWith(
+        firstName: googleUser.firstName,
+        lastName: googleUser.lastName,
+        email: googleUser.email,
+        password: providerPassword,
+      ),
+    ));
+
+    // 4. Navigate directly to Screen 2 (Select Gender) to continue the wizard
+    emitEvent(const NavigateEvent(AppRoutes.multiStepRegistration));
   }
 }

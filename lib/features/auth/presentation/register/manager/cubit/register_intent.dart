@@ -48,4 +48,9 @@ final class UpdateGoalIntent extends RegisterIntent {
 final class SubmitFullRegistrationIntent extends RegisterIntent {
   final String activityLevel;
   const SubmitFullRegistrationIntent(this.activityLevel);
-}
+}
+// Screen 1: User Intents
+final class SignInWithGoogleIntent extends RegisterIntent {
+  const SignInWithGoogleIntent();
+}
+
