@@ -2,7 +2,6 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import '../../../../../../../core/contants/app_assets.dart';
-import '../../../../../../../core/theme/app_colors.dart';
 import '../../../../../../../core/theme/text_styles.dart';
 import '../../../../../../../generated/locale_keys.g.dart';
 

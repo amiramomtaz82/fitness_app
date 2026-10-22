@@ -2,7 +2,6 @@ import 'package:fitness_app/features/auth/presentation/register/view/register_fi
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import '../../../../../../../core/contants/app_assets.dart';
-import '../../../../../../../core/theme/app_colors.dart';
 
 class RegisterSocialButtons extends StatelessWidget {
   const RegisterSocialButtons({super.key});

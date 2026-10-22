@@ -1,4 +1,3 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
@@ -9,7 +8,12 @@ class SocialButton extends StatelessWidget {
   final IconData? appleIcon;
   final VoidCallback onTap;
 
-SocialButton({this.icon, this.appleIcon, required this.onTap});
+  const SocialButton({
+    super.key,
+    this.icon,
+    this.appleIcon,
+    required this.onTap,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -19,10 +23,9 @@ SocialButton({this.icon, this.appleIcon, required this.onTap});
       child: Container(
         width: 40.r,
         height: 40.r,
-        decoration: BoxDecoration(
+        decoration: const BoxDecoration(
           color: AppColors.surface,
           shape: BoxShape.circle,
-
         ),
         alignment: Alignment.center,
         child: appleIcon != null

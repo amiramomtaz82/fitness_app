@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 class MultiStepsRegistrationView extends StatelessWidget {
-  const MultiStepsRegistrationView({Key? key}) : super(key: key);
+  const MultiStepsRegistrationView({super.key});
 
   @override
   Widget build(BuildContext context) {
