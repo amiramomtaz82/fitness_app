@@ -4,11 +4,14 @@ import '../../../../generated/locale_keys.g.dart';
 
 enum RegistrationGender { male, female }
 
+const _genderMaleKey = 'profile_setup.male';
+const _genderFemaleKey = 'profile_setup.female';
+
 extension RegistrationGenderLabel on RegistrationGender {
   String get displayText {
     return switch (this) {
-      RegistrationGender.male => LocaleKeys.profile_setup_male.tr(),
-      RegistrationGender.female => LocaleKeys.profile_setup_female.tr(),
+      RegistrationGender.male => _genderMaleKey.tr(),
+      RegistrationGender.female => _genderFemaleKey.tr(),
     };
   }
 }
