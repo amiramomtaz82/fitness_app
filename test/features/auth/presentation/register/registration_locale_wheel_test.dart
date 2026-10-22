@@ -1,13 +1,15 @@
 import 'dart:convert';
-import 'dart:io';
 import 'dart:ui' as ui;
 
 import 'package:easy_localization/easy_localization.dart';
 import 'package:fitness_app/features/auth/domain/entities/register_parameters.dart';
 import 'package:fitness_app/features/auth/domain/use_cases/register_use_case.dart';
 import 'package:fitness_app/features/auth/presentation/register/manager/cubit/register_cubit.dart';
+import 'package:fitness_app/features/auth/presentation/register/registration_measurement_rules.dart';
 import 'package:fitness_app/features/auth/presentation/register/view/muti_steps_regitration/multi_steps_registration_view.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
@@ -32,9 +34,12 @@ late final Map<String, Map<String, dynamic>> _translations;
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
-  setUpAll(() {
+  setUpAll(() async {
     registerFallbackValue(const RegisterParameters());
-    _translations = {'en': _loadLocale('en'), 'ar': _loadLocale('ar')};
+    _translations = {
+      'en': await _loadLocale('en'),
+      'ar': await _loadLocale('ar'),
+    };
   });
 
   testWidgets('arabic uses rtl and an arabic validation message', (
@@ -50,20 +55,21 @@ void main() {
     await tester.pumpAndSettle();
   });
 
-  testWidgets('scrolling the age wheel stores a new age', (tester) async {
+  testWidgets('scrolling the age wheel stores the next age', (tester) async {
     final cubit = RegisterCubit(MockRegisterUseCase());
     addTearDown(cubit.close);
     await _pump(tester, cubit, const Locale('en'));
     await _openAgeStep(tester, cubit);
-    await _dragVisibleWheel(tester);
-    expect(cubit.state.params.age, isNot(25));
-    expect(cubit.state.params.age, inInclusiveRange(16, 100));
+    final selected = await _dragOneItem(tester);
+    const age = 26;
+    expect(cubit.state.params.age, age);
+    expect(selected, age - RegistrationMeasurementRules.minimumAge);
     expect(cubit.state.params.gender, 'male');
   });
 }
 
-Map<String, dynamic> _loadLocale(String code) {
-  final raw = File('assets/translations/$code.json').readAsStringSync();
+Future<Map<String, dynamic>> _loadLocale(String code) async {
+  final raw = await rootBundle.loadString('assets/translations/$code.json');
   return json.decode(raw) as Map<String, dynamic>;
 }
 
@@ -88,10 +94,13 @@ Future<void> _openAgeStep(WidgetTester tester, RegisterCubit cubit) async {
   expect(cubit.state.params.age, 25);
 }
 
-Future<void> _dragVisibleWheel(WidgetTester tester) async {
-  final wheel = find.byType(ListWheelScrollView).hitTestable();
-  await tester.drag(wheel, const Offset(0, -160));
+Future<int> _dragOneItem(WidgetTester tester) async {
+  final finder = find.byType(ListWheelScrollView).hitTestable();
+  final wheel = tester.widget<ListWheelScrollView>(finder);
+  final controller = wheel.controller! as FixedExtentScrollController;
+  await tester.drag(finder, Offset(-wheel.itemExtent, 0));
   await tester.pumpAndSettle();
+  return controller.selectedItem;
 }
 
 Future<void> _pump(
@@ -130,7 +139,10 @@ class _RegistrationHarness extends StatelessWidget {
       supportedLocales: context.supportedLocales,
       home: ScreenUtilInit(
         designSize: const Size(375, 812),
-        builder: (_, _) => MultiStepsRegistrationView(cubit: cubit),
+        builder: (_, _) => BlocProvider.value(
+          value: cubit,
+          child: const MultiStepsRegistrationView(),
+        ),
       ),
     );
   }

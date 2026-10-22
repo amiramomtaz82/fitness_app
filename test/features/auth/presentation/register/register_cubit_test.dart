@@ -2,12 +2,14 @@ import 'package:bloc_test/bloc_test.dart';
 import 'package:fitness_app/core/base/ui_events.dart';
 import 'package:fitness_app/core/resource/resource.dart';
 import 'package:fitness_app/core/validation/form_validators.dart';
+import 'package:fitness_app/core/validation/validation_errors.dart';
 import 'package:fitness_app/features/auth/domain/entities/register_parameters.dart';
 import 'package:fitness_app/features/auth/domain/entities/user_entity.dart';
 import 'package:fitness_app/features/auth/domain/use_cases/register_use_case.dart';
 import 'package:fitness_app/features/auth/presentation/register/manager/cubit/register_cubit.dart';
 import 'package:fitness_app/features/auth/presentation/register/manager/cubit/register_intent.dart';
 import 'package:fitness_app/features/auth/presentation/register/manager/cubit/register_state.dart';
+import 'package:fitness_app/features/auth/presentation/register/manager/cubit/registration_validation_event.dart';
 import 'package:fitness_app/features/auth/presentation/register/registration_options.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
@@ -94,28 +96,39 @@ void main() {
     expect(FormValidators.validateWeight('70.5'), isNull);
   });
 
-  test('accepts age bounds and rejects values outside 16 to 100', () {
+  test('accepts age bounds and reports values outside 16 to 100', () async {
     final cubit = open();
-    cubit.doIntent(const SelectAgeIntent(15));
-    expect(cubit.state.params.age, 0);
+    await _expectRejectedAge(cubit, 15, ValidationError.valueBelowMinimum, 0);
     cubit.doIntent(const SelectAgeIntent(16));
     expect(cubit.state.params.age, 16);
     cubit.doIntent(const SelectAgeIntent(100));
     expect(cubit.state.params.age, 100);
-    cubit.doIntent(const SelectAgeIntent(101));
-    expect(cubit.state.params.age, 100);
+    await _expectRejectedAge(
+      cubit,
+      101,
+      ValidationError.valueAboveMaximum,
+      100,
+    );
   });
 
-  test('accepts weight bounds and keeps validator decimals', () {
+  test('accepts weight bounds and reports values outside 20 to 350', () async {
     final cubit = open();
-    cubit.doIntent(const SelectWeightIntent(19.9));
-    expect(cubit.state.params.weight, 0);
+    await _expectRejectedWeight(
+      cubit,
+      19.9,
+      ValidationError.valueBelowMinimum,
+      0,
+    );
     cubit.doIntent(const SelectWeightIntent(20));
     expect(cubit.state.params.weight, 20);
     cubit.doIntent(const SelectWeightIntent(350));
     expect(cubit.state.params.weight, 350);
-    cubit.doIntent(const SelectWeightIntent(350.1));
-    expect(cubit.state.params.weight, 350);
+    await _expectRejectedWeight(
+      cubit,
+      350.1,
+      ValidationError.valueAboveMaximum,
+      350,
+    );
     cubit.doIntent(const SelectWeightIntent(70.5));
     expect(cubit.state.params.weight, 70.5);
     expect(FormValidators.validateWeight('70.5'), isNull);
@@ -255,4 +268,36 @@ void main() {
     expect(cubit.state.isPasswordObscured, isTrue);
     verifyNever(() => useCase.call(any()));
   });
+}
+
+Future<void> _expectRejectedAge(
+  RegisterCubit cubit,
+  int age,
+  ValidationError error,
+  int kept,
+) async {
+  final events = <BaseUiEvent>[];
+  final subscription = cubit.eventStream.listen(events.add);
+  cubit.doIntent(SelectAgeIntent(age));
+  await Future<void>.value();
+  await subscription.cancel();
+  expect(cubit.state.params.age, kept);
+  final event = events.single as RegistrationValidationEvent;
+  expect(event.error, error);
+}
+
+Future<void> _expectRejectedWeight(
+  RegisterCubit cubit,
+  num weight,
+  ValidationError error,
+  num kept,
+) async {
+  final events = <BaseUiEvent>[];
+  final subscription = cubit.eventStream.listen(events.add);
+  cubit.doIntent(SelectWeightIntent(weight));
+  await Future<void>.value();
+  await subscription.cancel();
+  expect(cubit.state.params.weight, kept);
+  final event = events.single as RegistrationValidationEvent;
+  expect(event.error, error);
 }

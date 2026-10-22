@@ -1,50 +1,25 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:get_it/get_it.dart';
 
 import '../../../../../../core/base/ui_events.dart';
 import '../../../../../../core/mixin/ui_event_handler_mixin.dart';
+import '../../../../../../core/validation/validation_errors.dart';
 import '../../manager/cubit/register_cubit.dart';
 import '../../manager/cubit/register_intent.dart';
 import '../../manager/cubit/register_state.dart';
+import '../../manager/cubit/registration_validation_event.dart';
+import 'registration_validation_message.dart';
 import 'widgets/registration_shell_chrome.dart';
 
 class MultiStepsRegistrationView extends StatelessWidget {
-  const MultiStepsRegistrationView({
-    super.key,
-    this.cubit,
-    this.pageController,
-  });
+  const MultiStepsRegistrationView({super.key, this.pageController});
 
-  final RegisterCubit? cubit;
   final PageController? pageController;
 
   @override
   Widget build(BuildContext context) {
-    return _RegistrationScope(
-      cubit: cubit ?? _cubitFromTree(context),
-      child: _RegistrationShell(pageController: pageController),
-    );
-  }
-}
-
-class _RegistrationScope extends StatelessWidget {
-  const _RegistrationScope({required this.cubit, required this.child});
-
-  final RegisterCubit? cubit;
-  final Widget child;
-
-  @override
-  Widget build(BuildContext context) {
-    final existing = cubit;
-    if (existing == null) {
-      return BlocProvider(
-        lazy: false,
-        create: (_) => GetIt.instance<RegisterCubit>(),
-        child: child,
-      );
-    }
-    return BlocProvider.value(value: existing, child: child);
+    return _RegistrationShell(pageController: pageController);
   }
 }
 
@@ -62,7 +37,7 @@ class _RegistrationShellState extends State<_RegistrationShell>
   static const _pageMove = Duration(milliseconds: 250);
 
   late final PageController _pageController;
-  bool _isPaging = false;
+  bool _isAnimating = false;
 
   @override
   RegisterCubit get cubit => context.read<RegisterCubit>();
@@ -84,22 +59,29 @@ class _RegistrationShellState extends State<_RegistrationShell>
 
   @override
   Widget build(BuildContext context) {
-    return BlocConsumer<RegisterCubit, RegisterState>(
-      listener: _onState,
-      builder: (context, state) {
-        return RegistrationShellBody(
-          state: state,
-          pageController: _pageController,
-          isPaging: _isPaging,
-          onBack: _onBack,
-          onNext: _onNext,
-        );
-      },
+    return RegistrationShellBody(
+      pageController: _pageController,
+      onBack: _onBack,
+      onNext: _onNext,
     );
   }
 
-  void _onState(BuildContext context, RegisterState state) {
-    _syncPage(state.currentStep);
+  @override
+  void handleCustomEvents(BaseUiEvent event) {
+    switch (event) {
+      case RegistrationValidationEvent(:final error):
+        _showValidationError(error);
+      case RegistrationStepChangedEvent(:final step):
+        _syncPage(step);
+      default:
+        super.handleCustomEvents(event);
+    }
+  }
+
+  void _showValidationError(ValidationError error) {
+    ScaffoldMessenger.of(
+      context,
+    ).showSnackBar(SnackBar(content: Text(error.messageKey.tr())));
   }
 
   void _onBack() => _dispatch(const GoBackIntent());
@@ -107,36 +89,31 @@ class _RegistrationShellState extends State<_RegistrationShell>
   void _onNext() => _dispatch(const NextStepIntent());
 
   void _dispatch(RegisterIntent intent) {
-    if (_isPaging) return;
+    if (cubit.state.isPaging) return;
     cubit.doIntent(intent);
   }
 
   void _syncPage(int step) {
-    if (!mounted || !_pageController.hasClients || _isPaging) return;
+    if (!mounted || !_pageController.hasClients || _isAnimating) return;
     final current =
         _pageController.page?.round() ?? _pageController.initialPage;
-    if (current == step) return;
+    if (current == step) {
+      _releasePaging();
+      return;
+    }
     _animateTo(step);
   }
 
   void _animateTo(int step) {
-    _isPaging = true;
-    setState(() {});
+    _isAnimating = true;
     _pageController
         .animateToPage(step, duration: _pageMove, curve: Curves.easeOut)
-        .whenComplete(_finishPaging);
+        .whenComplete(_releasePaging);
   }
 
-  void _finishPaging() {
-    if (!mounted) return;
-    setState(() => _isPaging = false);
-  }
-}
-
-RegisterCubit? _cubitFromTree(BuildContext context) {
-  try {
-    return context.read<RegisterCubit>();
-  } on ProviderNotFoundException {
-    return null;
+  void _releasePaging() {
+    _isAnimating = false;
+    if (!mounted || cubit.isClosed) return;
+    cubit.doIntent(const ReleasePagingIntent());
   }
 }

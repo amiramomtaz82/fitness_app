@@ -24,7 +24,7 @@ class RegistrationValueWheel extends StatefulWidget {
 
 class _RegistrationValueWheelState extends State<RegistrationValueWheel> {
   late final FixedExtentScrollController _controller;
-  var _handleScroll = false;
+  bool _handleScroll = false;
 
   @override
   void initState() {
@@ -81,15 +81,19 @@ class _WheelList extends StatelessWidget {
   Widget build(BuildContext context) {
     return NotificationListener<UserScrollNotification>(
       onNotification: state._onUserScroll,
-      child: ListWheelScrollView.useDelegate(
-        controller: state._controller,
-        itemExtent: 48.h,
-        physics: const FixedExtentScrollPhysics(),
-        diameterRatio: 1.6,
-        onSelectedItemChanged: state._onSelected,
-        childDelegate: ListWheelChildBuilderDelegate(
-          childCount: state.widget.labels.length,
-          builder: (context, index) => _WheelLabel(state: state, index: index),
+      child: RotatedBox(
+        quarterTurns: 3,
+        child: ListWheelScrollView.useDelegate(
+          controller: state._controller,
+          itemExtent: 64.w,
+          physics: const FixedExtentScrollPhysics(),
+          diameterRatio: 1.6,
+          onSelectedItemChanged: state._onSelected,
+          childDelegate: ListWheelChildBuilderDelegate(
+            childCount: state.widget.labels.length,
+            builder: (context, index) =>
+                _WheelLabel(state: state, index: index),
+          ),
         ),
       ),
     );
@@ -106,11 +110,14 @@ class _WheelLabel extends StatelessWidget {
   Widget build(BuildContext context) {
     final colors = context.colors;
     final selected = index == state._index;
-    return Center(
-      child: Text(
-        state.widget.labels[index],
-        style: context.textTheme.headlineLarge?.copyWith(
-          color: selected ? colors.primary : colors.grey,
+    return RotatedBox(
+      quarterTurns: 1,
+      child: Center(
+        child: Text(
+          state.widget.labels[index],
+          style: context.textTheme.headlineLarge?.copyWith(
+            color: selected ? colors.primary : colors.grey,
+          ),
         ),
       ),
     );

@@ -15,12 +15,18 @@ class RegistrationGoalStep extends StatelessWidget {
     final selected = context.select<RegisterCubit, RegistrationGoal?>(
       (cubit) => cubit.state.selectedGoal,
     );
-    return RegistrationChoiceList(
-      choices: [
-        for (final goal in RegistrationGoal.values)
-          _goalChoice(context, goal, selected),
-      ],
-    );
+    final choices = <RegistrationChoice>[];
+    for (final goal in RegistrationGoal.values) {
+      final label = goal.displayText;
+      choices.add(
+        RegistrationChoice(
+          label: label,
+          selected: selected == goal,
+          onTap: () => _selectGoal(context, goal, label),
+        ),
+      );
+    }
+    return RegistrationChoiceList(choices: choices);
   }
 }
 
@@ -32,12 +38,18 @@ class RegistrationActivityStep extends StatelessWidget {
     final selected = context.select<RegisterCubit, RegistrationActivity?>(
       (cubit) => cubit.state.selectedActivity,
     );
-    return RegistrationChoiceList(
-      choices: [
-        for (final activity in RegistrationActivity.values)
-          _activityChoice(context, activity, selected),
-      ],
-    );
+    final choices = <RegistrationChoice>[];
+    for (final activity in RegistrationActivity.values) {
+      final label = activity.displayText;
+      choices.add(
+        RegistrationChoice(
+          label: label,
+          selected: selected == activity,
+          onTap: () => _selectActivity(context, activity, label),
+        ),
+      );
+    }
+    return RegistrationChoiceList(choices: choices);
   }
 }
 
@@ -136,34 +148,8 @@ class _ChoiceLabel extends StatelessWidget {
   }
 }
 
-RegistrationChoice _goalChoice(
-  BuildContext context,
-  RegistrationGoal goal,
-  RegistrationGoal? selected,
-) {
-  final label = goal.displayText;
-  return RegistrationChoice(
-    label: label,
-    selected: selected == goal,
-    onTap: () => _selectGoal(context, goal, label),
-  );
-}
-
 void _selectGoal(BuildContext context, RegistrationGoal goal, String label) {
   context.read<RegisterCubit>().doIntent(SelectGoalIntent(goal, label));
-}
-
-RegistrationChoice _activityChoice(
-  BuildContext context,
-  RegistrationActivity activity,
-  RegistrationActivity? selected,
-) {
-  final label = activity.displayText;
-  return RegistrationChoice(
-    label: label,
-    selected: selected == activity,
-    onTap: () => _selectActivity(context, activity, label),
-  );
 }
 
 void _selectActivity(

@@ -5,6 +5,7 @@ import 'package:injectable/injectable.dart';
 import '../../../../../../core/base/base_cubit.dart';
 import '../../../../../../core/base/ui_events.dart';
 import '../../../../../../core/base_response/base_response.dart';
+import '../../../../../../core/error/error_handler.dart';
 import '../../../../../../core/resource/resource.dart';
 import '../../../../../../core/validation/form_validators.dart';
 import '../../../../../../core/validation/validation_errors.dart';
@@ -16,6 +17,7 @@ import '../../registration_measurement_rules.dart';
 import '../../registration_options.dart';
 import 'register_intent.dart';
 import 'register_state.dart';
+import 'registration_validation_event.dart';
 
 @injectable
 class RegisterCubit extends BaseCubit<RegisterState, BaseUiEvent> {
@@ -31,6 +33,8 @@ class RegisterCubit extends BaseCubit<RegisterState, BaseUiEvent> {
         _nextStep();
       case GoBackIntent():
         _goBack();
+      case ReleasePagingIntent():
+        _releasePaging();
       case SubmitRegistrationIntent():
         _guardSubmission();
       case SelectGenderIntent():
@@ -82,14 +86,18 @@ class RegisterCubit extends BaseCubit<RegisterState, BaseUiEvent> {
   }
 
   void _selectAge(int age) {
-    if (!RegistrationMeasurementRules.isValidAge(age)) {
+    final error = _ageError(age);
+    if (error != null) {
+      emitEvent(RegistrationValidationEvent(error));
       return;
     }
     _emitParams(state.params.copyWith(age: age));
   }
 
   void _selectWeight(num weight) {
-    if (!RegistrationMeasurementRules.isValidWeight(weight)) {
+    final error = _weightError(weight);
+    if (error != null) {
+      emitEvent(RegistrationValidationEvent(error));
       return;
     }
     _emitParams(state.params.copyWith(weight: weight));
@@ -121,9 +129,9 @@ class RegisterCubit extends BaseCubit<RegisterState, BaseUiEvent> {
   }
 
   void _nextStep() {
-    final message = _blockedMessage(state);
-    if (message != null) {
-      _rejectStep(message);
+    final error = _stepError(state);
+    if (error != null) {
+      emitEvent(RegistrationValidationEvent(error));
       return;
     }
     if (state.currentStep >= RegistrationMeasurementRules.lastStepIndex) {
@@ -132,17 +140,14 @@ class RegisterCubit extends BaseCubit<RegisterState, BaseUiEvent> {
     _advanceStep();
   }
 
-  void _rejectStep(String message) {
-    emitEvent(ShowSnackBarEvent(message: message, isError: true));
-  }
-
   void _advanceStep() {
     final nextStep = state.currentStep + 1;
     final params = RegistrationMeasurementRules.withStepDefaults(
       nextStep,
       state.params,
     );
-    emit(state.copyWith(currentStep: nextStep, params: params));
+    emit(state.copyWith(currentStep: nextStep, params: params, isPaging: true));
+    emitEvent(RegistrationStepChangedEvent(nextStep));
   }
 
   void _goBack() {
@@ -150,7 +155,14 @@ class RegisterCubit extends BaseCubit<RegisterState, BaseUiEvent> {
       emitEvent(const PopEvent());
       return;
     }
-    emit(state.copyWith(currentStep: state.currentStep - 1));
+    final step = state.currentStep - 1;
+    emit(state.copyWith(currentStep: step, isPaging: true));
+    emitEvent(RegistrationStepChangedEvent(step));
+  }
+
+  void _releasePaging() {
+    if (!state.isPaging) return;
+    emit(state.copyWith(isPaging: false));
   }
 
   void _guardSubmission() {
@@ -162,8 +174,17 @@ class RegisterCubit extends BaseCubit<RegisterState, BaseUiEvent> {
   }
 
   Future<void> _register(RegisterParameters params) async {
-    final result = await _registerUseCase(params);
-    if (isClosed) return;
+    try {
+      final result = await _registerUseCase(params);
+      if (isClosed) return;
+      _publishRegistration(result);
+    } catch (error) {
+      if (isClosed) return;
+      _showFailure(ErrorHandler.extractErrorMessage(error));
+    }
+  }
+
+  void _publishRegistration(BaseResponse<UserEntity> result) {
     switch (result) {
       case SuccessResponse(:final data):
         _showSuccess(data);
@@ -195,80 +216,57 @@ class RegisterCubit extends BaseCubit<RegisterState, BaseUiEvent> {
     return _hasGoalAndActivity(state);
   }
 
-  bool _canLeave(RegisterState current) => _blockedMessage(current) == null;
+  bool _canLeave(RegisterState current) => _stepError(current) == null;
 
-  String? _blockedMessage(RegisterState current) {
+  ValidationError? _stepError(RegisterState current) {
     final params = current.params;
     return switch (current.currentStep) {
-      0 => _genderMessage(params.gender),
-      1 => _ageMessage(params.age),
-      2 => _weightMessage(params.weight),
-      3 => _heightMessage(params.height),
-      4 => _choiceMessage(current.selectedGoal != null),
-      5 => _choiceMessage(current.selectedActivity != null),
-      _ => LocaleKeys.validation_field_required,
+      0 => FormValidators.validateGender(params.gender),
+      1 => _ageError(params.age),
+      2 => _weightError(params.weight),
+      3 => _heightError(params.height),
+      4 => _choiceError(current.selectedGoal != null),
+      5 => _choiceError(current.selectedActivity != null),
+      _ => ValidationError.empty,
     };
   }
 
-  String? _choiceMessage(bool selected) {
+  ValidationError? _choiceError(bool selected) {
     if (selected) return null;
-    return LocaleKeys.validation_field_required;
+    return ValidationError.empty;
   }
 
-  String? _genderMessage(String gender) {
-    final error = FormValidators.validateGender(gender);
-    if (error == null) return null;
-    return _validationKey(error);
-  }
-
-  String? _ageMessage(int age) {
+  ValidationError? _ageError(int age) {
     if (RegistrationMeasurementRules.isValidAge(age)) return null;
     if (RegistrationMeasurementRules.isAgeUnset(age)) {
-      return LocaleKeys.validation_field_required;
+      return ValidationError.empty;
     }
     if (age < RegistrationMeasurementRules.minimumAge) {
-      return LocaleKeys.validation_value_below_minimum;
+      return ValidationError.valueBelowMinimum;
     }
-    return LocaleKeys.validation_value_above_maximum;
+    return ValidationError.valueAboveMaximum;
   }
 
-  String? _weightMessage(num weight) {
+  ValidationError? _weightError(num weight) {
     if (RegistrationMeasurementRules.isValidWeight(weight)) return null;
     if (RegistrationMeasurementRules.isWeightUnset(weight)) {
-      return LocaleKeys.validation_field_required;
+      return ValidationError.empty;
     }
-    final error = FormValidators.validateWeight('$weight');
-    return _validationKey(error ?? ValidationError.empty);
+    if (weight < RegistrationMeasurementRules.minimumWeightKg) {
+      return ValidationError.valueBelowMinimum;
+    }
+    return ValidationError.valueAboveMaximum;
   }
 
-  String? _heightMessage(num height) {
+  ValidationError? _heightError(num height) {
     if (RegistrationMeasurementRules.isValidHeight(height)) return null;
     if (RegistrationMeasurementRules.isHeightUnset(height)) {
-      return LocaleKeys.validation_field_required;
+      return ValidationError.empty;
     }
     if (height < RegistrationMeasurementRules.minimumHeightCm) {
-      return LocaleKeys.validation_value_below_minimum;
+      return ValidationError.valueBelowMinimum;
     }
-    return LocaleKeys.validation_value_above_maximum;
-  }
-
-  String _validationKey(ValidationError error) {
-    return switch (error) {
-      ValidationError.empty => LocaleKeys.validation_field_required,
-      ValidationError.invalidGender => LocaleKeys.validation_invalid_gender,
-      ValidationError.notANumber => LocaleKeys.validation_not_a_number,
-      ValidationError.valueBelowMinimum =>
-        LocaleKeys.validation_value_below_minimum,
-      ValidationError.valueAboveMaximum =>
-        LocaleKeys.validation_value_above_maximum,
-      ValidationError.invalidEmail ||
-      ValidationError.passwordTooShort ||
-      ValidationError.passwordMissingNumber ||
-      ValidationError.passwordMissingUppercase ||
-      ValidationError.passwordsDoNotMatch ||
-      ValidationError.invalidPhoneNumber =>
-        LocaleKeys.validation_field_required,
-    };
+    return ValidationError.valueAboveMaximum;
   }
 
   bool _credentialsAreValid(RegisterParameters params) {

@@ -2,6 +2,17 @@ import 'package:easy_localization/easy_localization.dart';
 
 import '../../../../generated/locale_keys.g.dart';
 
+enum RegistrationGender { male, female }
+
+extension RegistrationGenderLabel on RegistrationGender {
+  String get displayText {
+    return switch (this) {
+      RegistrationGender.male => LocaleKeys.profile_setup_male.tr(),
+      RegistrationGender.female => LocaleKeys.profile_setup_female.tr(),
+    };
+  }
+}
+
 enum RegistrationGoal {
   gainWeight,
   loseWeight,

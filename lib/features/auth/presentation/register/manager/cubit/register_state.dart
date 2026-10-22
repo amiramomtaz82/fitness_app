@@ -10,6 +10,7 @@ class RegisterState extends Equatable {
   final Resource<UserEntity> registerResource;
   final bool isPasswordObscured;
   final int currentStep;
+  final bool isPaging;
   final RegistrationGoal? selectedGoal;
   final RegistrationActivity? selectedActivity;
 
@@ -18,6 +19,7 @@ class RegisterState extends Equatable {
     this.registerResource = const Resource.initial(),
     this.isPasswordObscured = true,
     this.currentStep = 0,
+    this.isPaging = false,
     this.selectedGoal,
     this.selectedActivity,
   }) : assert(
@@ -30,6 +32,7 @@ class RegisterState extends Equatable {
     Resource<UserEntity>? registerResource,
     bool? isPasswordObscured,
     int? currentStep,
+    bool? isPaging,
     RegistrationGoal? selectedGoal,
     RegistrationActivity? selectedActivity,
   }) {
@@ -38,6 +41,7 @@ class RegisterState extends Equatable {
       registerResource: registerResource ?? this.registerResource,
       isPasswordObscured: isPasswordObscured ?? this.isPasswordObscured,
       currentStep: currentStep ?? this.currentStep,
+      isPaging: isPaging ?? this.isPaging,
       selectedGoal: selectedGoal ?? this.selectedGoal,
       selectedActivity: selectedActivity ?? this.selectedActivity,
     );
@@ -49,6 +53,7 @@ class RegisterState extends Equatable {
     registerResource,
     isPasswordObscured,
     currentStep,
+    isPaging,
     selectedGoal,
     selectedActivity,
   ];

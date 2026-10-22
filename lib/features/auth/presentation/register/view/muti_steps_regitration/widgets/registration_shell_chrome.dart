@@ -1,12 +1,15 @@
+import 'dart:ui';
+
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 import '../../../../../../../core/contants/app_assets.dart';
 import '../../../../../../../core/theme/context.extension.dart';
 import '../../../../../../../core/widgets/app_background_scaffold.dart';
 import '../../../../../../../generated/locale_keys.g.dart';
-import '../../../manager/cubit/register_state.dart';
+import '../../../manager/cubit/register_cubit.dart';
 import '../../../registration_measurement_rules.dart';
 import 'registration_progress.dart';
 import 'registration_step_page.dart';
@@ -14,16 +17,12 @@ import 'registration_step_page.dart';
 class RegistrationShellBody extends StatelessWidget {
   const RegistrationShellBody({
     super.key,
-    required this.state,
     required this.pageController,
-    required this.isPaging,
     required this.onBack,
     required this.onNext,
   });
 
-  final RegisterState state;
   final PageController pageController;
-  final bool isPaging;
   final VoidCallback onBack;
   final VoidCallback onNext;
 
@@ -37,17 +36,11 @@ class RegistrationShellBody extends StatelessWidget {
           children: [
             const _RegistrationLogo(),
             SizedBox(height: 12.h),
-            _RegistrationHeader(step: state.currentStep, onBack: onBack),
+            _RegistrationHeader(onBack: onBack),
             SizedBox(height: 16.h),
-            _RegistrationPanel(
-              step: state.currentStep,
-              pageController: pageController,
-            ),
+            _RegistrationPanel(pageController: pageController),
             SizedBox(height: 16.h),
-            _RegistrationNextButton(
-              isPaging: isPaging || state.registerResource.isLoading,
-              onNext: onNext,
-            ),
+            _RegistrationNextButton(onNext: onNext),
           ],
         ),
       ),
@@ -65,13 +58,15 @@ class _RegistrationLogo extends StatelessWidget {
 }
 
 class _RegistrationHeader extends StatelessWidget {
-  const _RegistrationHeader({required this.step, required this.onBack});
+  const _RegistrationHeader({required this.onBack});
 
-  final int step;
   final VoidCallback onBack;
 
   @override
   Widget build(BuildContext context) {
+    final step = context.select<RegisterCubit, int>(
+      (cubit) => cubit.state.currentStep,
+    );
     return Row(
       children: [
         IconButton(
@@ -87,24 +82,19 @@ class _RegistrationHeader extends StatelessWidget {
 }
 
 class _RegistrationPanel extends StatelessWidget {
-  const _RegistrationPanel({required this.step, required this.pageController});
+  const _RegistrationPanel({required this.pageController});
 
-  final int step;
   final PageController pageController;
 
   @override
   Widget build(BuildContext context) {
     return Expanded(
-      child: DecoratedBox(
-        decoration: BoxDecoration(
-          color: context.colors.inputFillTranslucent,
-          borderRadius: BorderRadius.circular(28.r),
-        ),
+      child: _BlurredPanel(
         child: Padding(
           padding: EdgeInsets.all(16.r),
           child: Column(
             children: [
-              _RegistrationTitles(step: step),
+              const _RegistrationTitles(),
               SizedBox(height: 16.h),
               Expanded(child: _RegistrationPages(controller: pageController)),
             ],
@@ -115,13 +105,38 @@ class _RegistrationPanel extends StatelessWidget {
   }
 }
 
-class _RegistrationTitles extends StatelessWidget {
-  const _RegistrationTitles({required this.step});
+class _BlurredPanel extends StatelessWidget {
+  const _BlurredPanel({required this.child});
 
-  final int step;
+  final Widget child;
 
   @override
   Widget build(BuildContext context) {
+    final radius = BorderRadius.circular(28.r);
+    return ClipRRect(
+      borderRadius: radius,
+      child: BackdropFilter(
+        filter: ImageFilter.blur(sigmaX: 16, sigmaY: 16),
+        child: DecoratedBox(
+          decoration: BoxDecoration(
+            color: context.colors.inputFillTranslucent,
+            borderRadius: radius,
+          ),
+          child: child,
+        ),
+      ),
+    );
+  }
+}
+
+class _RegistrationTitles extends StatelessWidget {
+  const _RegistrationTitles();
+
+  @override
+  Widget build(BuildContext context) {
+    final step = context.select<RegisterCubit, int>(
+      (cubit) => cubit.state.currentStep,
+    );
     final copy = _copyFor(step);
     final theme = context.textTheme;
     return Column(
@@ -164,18 +179,27 @@ class _RegistrationPages extends StatelessWidget {
 }
 
 class _RegistrationNextButton extends StatelessWidget {
-  const _RegistrationNextButton({required this.isPaging, required this.onNext});
+  const _RegistrationNextButton({required this.onNext});
 
-  final bool isPaging;
   final VoidCallback onNext;
 
   @override
   Widget build(BuildContext context) {
+    final enabled = context.select<RegisterCubit, bool>(_canPressNext);
     return ElevatedButton(
-      onPressed: isPaging ? null : onNext,
+      onPressed: enabled ? onNext : null,
       child: Text(LocaleKeys.common_next.tr()),
     );
   }
+}
+
+bool _canPressNext(RegisterCubit cubit) {
+  final state = cubit.state;
+  if (state.isPaging || state.registerResource.isLoading) return false;
+  final finished =
+      state.currentStep == RegistrationMeasurementRules.lastStepIndex &&
+      state.selectedActivity != null;
+  return !finished;
 }
 
 const _stepKeys = <(String, String)>[

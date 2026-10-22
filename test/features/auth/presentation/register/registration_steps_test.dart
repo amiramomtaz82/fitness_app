@@ -1,5 +1,4 @@
 import 'dart:convert';
-import 'dart:io';
 
 import 'package:easy_localization/easy_localization.dart';
 import 'package:fitness_app/features/auth/domain/entities/register_parameters.dart';
@@ -8,6 +7,8 @@ import 'package:fitness_app/features/auth/presentation/register/manager/cubit/re
 import 'package:fitness_app/features/auth/presentation/register/manager/cubit/register_intent.dart';
 import 'package:fitness_app/features/auth/presentation/register/view/muti_steps_regitration/multi_steps_registration_view.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
@@ -30,9 +31,9 @@ late final Map<String, dynamic> _english;
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
-  setUpAll(() {
+  setUpAll(() async {
     registerFallbackValue(const RegisterParameters());
-    final raw = File('assets/translations/en.json').readAsStringSync();
+    final raw = await rootBundle.loadString('assets/translations/en.json');
     _english = json.decode(raw) as Map<String, dynamic>;
   });
 
@@ -55,7 +56,9 @@ void main() {
     expect(find.text('Year'), findsOneWidget);
   });
 
-  testWidgets('next without a gender shows the required message', (tester) async {
+  testWidgets('next without a gender shows the required message', (
+    tester,
+  ) async {
     final cubit = RegisterCubit(MockRegisterUseCase());
     addTearDown(cubit.close);
     await _pump(tester, cubit);
@@ -65,6 +68,45 @@ void main() {
     expect(find.text('This field is required.'), findsOneWidget);
     expect(cubit.state.currentStep, 0);
     await tester.pumpAndSettle();
+  });
+
+  testWidgets('next stays disabled until the page finishes moving', (
+    tester,
+  ) async {
+    final cubit = RegisterCubit(MockRegisterUseCase());
+    addTearDown(cubit.close);
+    await _pump(tester, cubit);
+    await tester.tap(find.text('Male'));
+    await tester.pump();
+    await tester.tap(find.widgetWithText(ElevatedButton, 'Next'));
+    await tester.pump();
+    expect(cubit.state.isPaging, isTrue);
+    expect(_nextButton(tester).onPressed, isNull);
+    await tester.tap(find.widgetWithText(ElevatedButton, 'Next'));
+    await tester.pumpAndSettle();
+    expect(cubit.state.currentStep, 1);
+    expect(cubit.state.isPaging, isFalse);
+    expect(_nextButton(tester).onPressed, isNotNull);
+    expect(_page(tester), 1);
+  });
+
+  testWidgets('back returns to the previous step and keeps the selection', (
+    tester,
+  ) async {
+    final cubit = RegisterCubit(MockRegisterUseCase());
+    addTearDown(cubit.close);
+    await _pump(tester, cubit);
+    await tester.tap(find.text('Male'));
+    await tester.pump();
+    await tester.tap(find.widgetWithText(ElevatedButton, 'Next'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.byTooltip('Back'));
+    await tester.pumpAndSettle();
+    expect(cubit.state.currentStep, 0);
+    expect(cubit.state.params.gender, 'male');
+    expect(cubit.state.params.age, 25);
+    expect(cubit.state.isPaging, isFalse);
+    expect(find.text('Male'), findsOneWidget);
   });
 
   testWidgets('page swiping stays disabled', (tester) async {
@@ -110,8 +152,7 @@ void main() {
     await tester.ensureVisible(find.text('Beginner'));
     await tester.tap(find.text('Beginner'));
     await tester.pump();
-    await tester.tap(find.text('Next'));
-    await tester.pumpAndSettle();
+    expect(_nextButton(tester).onPressed, isNull);
 
     expect(cubit.state.params.firstName, isEmpty);
     expect(cubit.state.params.email, isEmpty);
@@ -146,6 +187,17 @@ Future<void> _rejectNext(WidgetTester tester) async {
   await tester.pump(const Duration(milliseconds: 400));
   _hideSnackBar(tester);
   await tester.pumpAndSettle();
+}
+
+ElevatedButton _nextButton(WidgetTester tester) {
+  return tester.widget<ElevatedButton>(
+    find.widgetWithText(ElevatedButton, 'Next'),
+  );
+}
+
+double _page(WidgetTester tester) {
+  final page = tester.widget<PageView>(find.byType(PageView)).controller?.page;
+  return page ?? 0;
 }
 
 void _hideSnackBar(WidgetTester tester) {
@@ -205,7 +257,10 @@ class _RegistrationHarness extends StatelessWidget {
       supportedLocales: context.supportedLocales,
       home: ScreenUtilInit(
         designSize: const Size(375, 812),
-        builder: (_, _) => MultiStepsRegistrationView(cubit: cubit),
+        builder: (_, _) => BlocProvider.value(
+          value: cubit,
+          child: const MultiStepsRegistrationView(),
+        ),
       ),
     );
   }

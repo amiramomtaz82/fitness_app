@@ -1,4 +1,3 @@
-import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -8,6 +7,7 @@ import '../../../../../../../core/theme/context.extension.dart';
 import '../../../../../../../core/theme/custom_colors.dart';
 import '../../../manager/cubit/register_cubit.dart';
 import '../../../manager/cubit/register_intent.dart';
+import '../../../registration_options.dart';
 
 class RegistrationGenderStep extends StatelessWidget {
   const RegistrationGenderStep({super.key});
@@ -17,35 +17,33 @@ class RegistrationGenderStep extends StatelessWidget {
     final gender = context.select<RegisterCubit, String>(
       (cubit) => cubit.state.params.gender,
     );
+    const male = RegistrationGender.male;
+    const female = RegistrationGender.female;
     return Align(
       alignment: Alignment.topCenter,
       child: Row(
         children: [
-          Expanded(child: _maleChoice(context, gender)),
+          Expanded(
+            child: _GenderChoice(
+              label: male.displayText,
+              asset: AppAssets.male,
+              selected: gender == male.name,
+              onTap: () => _select(context, male.name),
+            ),
+          ),
           SizedBox(width: 12.w),
-          Expanded(child: _femaleChoice(context, gender)),
+          Expanded(
+            child: _GenderChoice(
+              label: female.displayText,
+              asset: AppAssets.female,
+              selected: gender == female.name,
+              onTap: () => _select(context, female.name),
+            ),
+          ),
         ],
       ),
     );
   }
-}
-
-Widget _maleChoice(BuildContext context, String gender) {
-  return _GenderChoice(
-    label: 'profile_setup.male'.tr(),
-    asset: AppAssets.male,
-    selected: gender == 'male',
-    onTap: () => _select(context, 'male'),
-  );
-}
-
-Widget _femaleChoice(BuildContext context, String gender) {
-  return _GenderChoice(
-    label: 'profile_setup.female'.tr(),
-    asset: AppAssets.female,
-    selected: gender == 'female',
-    onTap: () => _select(context, 'female'),
-  );
 }
 
 void _select(BuildContext context, String gender) {

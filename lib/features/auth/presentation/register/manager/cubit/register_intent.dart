@@ -54,6 +54,10 @@ final class GoBackIntent extends RegisterIntent {
   const GoBackIntent();
 }
 
+final class ReleasePagingIntent extends RegisterIntent {
+  const ReleasePagingIntent();
+}
+
 final class SubmitRegistrationIntent extends RegisterIntent {
   const SubmitRegistrationIntent();
 }
