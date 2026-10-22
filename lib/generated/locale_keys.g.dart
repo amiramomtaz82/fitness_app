@@ -177,11 +177,6 @@ abstract class LocaleKeys {
       'validation.value_below_minimum';
   static const validation_value_above_maximum =
       'validation.value_above_maximum';
-  static const validation_invalid_phone_number =
-      'validation.invalid_phone_number';
-  static const validation_invalid_gender = 'validation.invalid_gender';
-  static const validation_password_missing_uppercase =
-      'validation.password_missing_uppercase';
   static const validation = 'validation';
   static const errors_something_went_wrong = 'errors.something_went_wrong';
   static const errors_connection_timeout = 'errors.connection_timeout';

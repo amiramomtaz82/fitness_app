@@ -33,7 +33,8 @@ jobs:
         run: touch .env
 
       - name: Generate Localization Keys
-        run: dart run easy_localization:generate -S assets/translations -f keys -o locale_keys.g.dart
+        run: |
+          dart run easy_localization:generate -S assets/translations -f keys -o locale_keys.g.dart
 
       - name: Run Build Runner (Generate Code)
         run: dart run build_runner build --delete-conflicting-outputs
