@@ -46,7 +46,7 @@ class AppBackgroundScaffold extends StatelessWidget {
           // 1. Background image
           Positioned.fill(
             child: Image.asset(
-              backgroundImage ??AppAssets.authProfileBG,
+              backgroundImage ?? AppAssets.authProfileBG,
               fit: BoxFit.cover,
             ),
           ),
@@ -73,20 +73,19 @@ class AppBackgroundScaffold extends StatelessWidget {
                 child: Padding(
                   padding: EdgeInsetsDirectional.symmetric(horizontal: 8.w),
                   child: Row(
-                    children: List.generate(
-                      gridColumns * 2 - 1,
-                          (index) {
-                        // Alternate between column and gutter gap
-                        if (index.isOdd) {
-                          return SizedBox(width: 16.w);
-                        }
-                        return Expanded(
-                          child: Container(
-                            color: (gridColor ?? Colors.red).withValues(alpha: 0.08),
+                    children: List.generate(gridColumns * 2 - 1, (index) {
+                      // Alternate between column and gutter gap
+                      if (index.isOdd) {
+                        return SizedBox(width: 16.w);
+                      }
+                      return Expanded(
+                        child: Container(
+                          color: (gridColor ?? Colors.red).withValues(
+                            alpha: 0.08,
                           ),
-                        );
-                      },
-                    ),
+                        ),
+                      );
+                    }),
                   ),
                 ),
               ),
