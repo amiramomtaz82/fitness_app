@@ -1,3 +1,6 @@
+import '../error/failures.dart';
+import 'cubit_message.dart';
+
 /// Super class for all UI events in the app (common and custom).
 abstract class BaseUiEvent {
   const BaseUiEvent();
@@ -11,13 +14,9 @@ sealed class CommonUiEvent extends BaseUiEvent {
   const CommonUiEvent();
 }
 
-class ShowSnackBarEvent extends CommonUiEvent {
-  final String message;
-  final bool isError;
-
-  const ShowSnackBarEvent({required this.message, this.isError = false});
-}
-
+// ==========================================
+// NAVIGATION EVENTS
+// ==========================================
 class NavigateEvent extends CommonUiEvent {
   final String route;
   final Object? arguments;
@@ -38,14 +37,18 @@ class PopEvent extends CommonUiEvent {
   const PopEvent([this.result]);
 }
 
-class ShowDialogEvent extends CommonUiEvent {
-  final String title;
-  final String message;
-  final String? actionText;
+// ==========================================
+// FEEDBACK EVENTS (NO RAW STRINGS!)
+// ==========================================
 
-  const ShowDialogEvent({
-    required this.title,
-    required this.message,
-    this.actionText,
-  });
+/// For errors: carries the Failure object (UI handles localization)
+class ShowErrorSnackBarEvent extends CommonUiEvent {
+  final Failure failure;
+  const ShowErrorSnackBarEvent(this.failure);
+}
+
+/// For successes: carries the Enum (UI handles localization)
+class ShowSuccessSnackBarEvent extends CommonUiEvent {
+  final CubitMessageType type;
+  const ShowSuccessSnackBarEvent(this.type);
 }
