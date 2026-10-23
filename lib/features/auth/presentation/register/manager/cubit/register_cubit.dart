@@ -1,8 +1,6 @@
 import 'package:injectable/injectable.dart';
 import '../../../../../../core/base/base_cubit.dart';
-import '../../../../../../core/base/cubit_message.dart';
 import '../../../../../../core/base/ui_events.dart';
-import '../../../../../../core/base_response/base_response.dart';
 import '../../../../../../core/error/failures.dart';
 import '../../../../../../core/go_routes/routes_names.dart';
 import '../../../../../../core/resource/resource.dart';
@@ -17,6 +15,8 @@ class RegisterCubit extends BaseCubit<RegisterState, BaseUiEvent> {
   final RegisterUseCase _registerUseCase;
   final SocialAuthService _socialAuthService;
   final FirestoreUserService _firestoreUserService;
+
+  RegisterUseCase get registerUseCase => _registerUseCase;
 
   RegisterCubit(
     this._registerUseCase,
@@ -66,49 +66,6 @@ class RegisterCubit extends BaseCubit<RegisterState, BaseUiEvent> {
         ),
       ),
     );
-  }
-
-  void _updateGender(String gender) {
-    emit(state.copyWith(params: state.params.copyWith(gender: gender)));
-  }
-
-  void _updateAge(int age) {
-    emit(state.copyWith(params: state.params.copyWith(age: age)));
-  }
-
-  void _updateWeight(num weight) {
-    emit(state.copyWith(params: state.params.copyWith(weight: weight)));
-  }
-
-  void _updateHeight(num height) {
-    emit(state.copyWith(params: state.params.copyWith(height: height)));
-  }
-
-  void _updateGoal(String goal) {
-    emit(state.copyWith(params: state.params.copyWith(goal: goal)));
-  }
-
-  Future<void> _submitFullRegistration(String activityLevel) async {
-    final fullParams = state.params.copyWith(activityLevel: activityLevel);
-    emit(
-      state.copyWith(
-        params: fullParams,
-        registerResource: const Resource.loading(),
-      ),
-    );
-
-    final response = await _registerUseCase(fullParams);
-
-    switch (response) {
-      case SuccessResponse(:final data):
-        emit(state.copyWith(registerResource: Resource.success(data)));
-        emitSuccess(CubitMessageType.registerSuccess);
-        emitEvent(const NavigateReplacementEvent(AppRoutes.login));
-
-      case ErrorResponse(:final failure):
-        emit(state.copyWith(registerResource: Resource.error(failure)));
-        emitFailure(failure);
-    }
   }
 
   // ==========================================
