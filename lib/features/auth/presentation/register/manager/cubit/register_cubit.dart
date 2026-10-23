@@ -43,18 +43,7 @@ class RegisterCubit extends BaseCubit<RegisterState, BaseUiEvent> {
           email: email,
           password: password,
         );
-      case UpdateGenderIntent(:final gender):
-        _updateGender(gender);
-      case UpdateAgeIntent(:final age):
-        _updateAge(age);
-      case UpdateWeightIntent(:final weight):
-        _updateWeight(weight);
-      case UpdateHeightIntent(:final height):
-        _updateHeight(height);
-      case UpdateGoalIntent(:final goal):
-        _updateGoal(goal);
-      case SubmitFullRegistrationIntent(:final activityLevel):
-        _submitFullRegistration(activityLevel);
+
     }
   }
 

@@ -1,14 +1,11 @@
 import 'package:bloc_test/bloc_test.dart';
-import 'package:fitness_app/core/base/cubit_message.dart';
 import 'package:fitness_app/core/base/ui_events.dart';
-import 'package:fitness_app/core/base_response/base_response.dart';
-import 'package:fitness_app/core/error/failures.dart';
 import 'package:fitness_app/core/go_routes/routes_names.dart';
 import 'package:fitness_app/core/resource/resource.dart';
 import 'package:fitness_app/features/auth/data/data_source/remote/firestore_user_data_source.dart';
 import 'package:fitness_app/features/auth/data/data_source/remote/social_auth_data_source.dart';
-import 'package:fitness_app/features/auth/domain/entities/social_auth_user.dart';
 import 'package:fitness_app/features/auth/domain/entities/register_parameters.dart';
+import 'package:fitness_app/features/auth/domain/entities/social_auth_user.dart';
 import 'package:fitness_app/features/auth/domain/entities/user_entity.dart';
 import 'package:fitness_app/features/auth/domain/use_cases/register_use_case.dart';
 import 'package:fitness_app/features/auth/presentation/register/manager/cubit/register_cubit.dart';
@@ -29,19 +26,6 @@ void main() {
   late MockFirestoreUserService mockFirestoreUserService;
   late RegisterCubit registerCubit;
 
-  const tUser = UserEntity(
-    id: 'user_123',
-    firstName: 'Ahmed',
-    lastName: 'Ali',
-    email: 'ahmed@example.com',
-    gender: 'male',
-    age: 25,
-    weight: 75,
-    height: 180,
-    goal: 'Gain weight',
-    activityLevel: 'level1',
-  );
-
   setUpAll(() {
     registerFallbackValue(const RegisterParameters());
   });
@@ -61,7 +45,7 @@ void main() {
     registerCubit.close();
   });
 
-  group('RegisterCubit', () {
+  group('RegisterCubit (Screen 1: Credentials & Social Auth)', () {
     test('initial state should have correct default values', () {
       expect(registerCubit.state, equals(const RegisterState()));
       expect(registerCubit.state.isPasswordObscured, isTrue);
@@ -117,185 +101,6 @@ void main() {
           ),
         ],
       );
-    });
-
-    group('Wizard Step Intents', () {
-      blocTest<RegisterCubit, RegisterState>(
-        'emits state with updated gender when UpdateGenderIntent is dispatched',
-        build: () => registerCubit,
-        act: (cubit) => cubit.doIntent(const UpdateGenderIntent('male')),
-        expect: () => [
-          const RegisterState(params: RegisterParameters(gender: 'male')),
-        ],
-      );
-
-      blocTest<RegisterCubit, RegisterState>(
-        'emits state with updated age when UpdateAgeIntent is dispatched',
-        build: () => registerCubit,
-        act: (cubit) => cubit.doIntent(const UpdateAgeIntent(25)),
-        expect: () => [
-          const RegisterState(params: RegisterParameters(age: 25)),
-        ],
-      );
-
-      blocTest<RegisterCubit, RegisterState>(
-        'emits state with updated weight when UpdateWeightIntent is dispatched',
-        build: () => registerCubit,
-        act: (cubit) => cubit.doIntent(const UpdateWeightIntent(75.5)),
-        expect: () => [
-          const RegisterState(params: RegisterParameters(weight: 75.5)),
-        ],
-      );
-
-      blocTest<RegisterCubit, RegisterState>(
-        'emits state with updated height when UpdateHeightIntent is dispatched',
-        build: () => registerCubit,
-        act: (cubit) => cubit.doIntent(const UpdateHeightIntent(180)),
-        expect: () => [
-          const RegisterState(params: RegisterParameters(height: 180)),
-        ],
-      );
-
-      blocTest<RegisterCubit, RegisterState>(
-        'emits state with updated goal when UpdateGoalIntent is dispatched',
-        build: () => registerCubit,
-        act: (cubit) => cubit.doIntent(const UpdateGoalIntent('Gain weight')),
-        expect: () => [
-          const RegisterState(params: RegisterParameters(goal: 'Gain weight')),
-        ],
-      );
-    });
-
-    group('SubmitFullRegistrationIntent', () {
-      const tActivity = 'level1';
-      const tFullParams = RegisterParameters(
-        firstName: 'Ahmed',
-        lastName: 'Ali',
-        email: 'ahmed@example.com',
-        password: 'Password123',
-        gender: 'male',
-        age: 25,
-        weight: 75,
-        height: 180,
-        goal: 'Gain weight',
-        activityLevel: tActivity,
-      );
-
-      blocTest<RegisterCubit, RegisterState>(
-        'emits [loading, success] when registerUseCase succeeds',
-        setUp: () {
-          when(
-            () => mockRegisterUseCase(any()),
-          ).thenAnswer((_) async => const SuccessResponse<UserEntity>(tUser));
-        },
-        build: () => registerCubit,
-        seed: () => const RegisterState(
-          params: RegisterParameters(
-            firstName: 'Ahmed',
-            lastName: 'Ali',
-            email: 'ahmed@example.com',
-            password: 'Password123',
-            gender: 'male',
-            age: 25,
-            weight: 75,
-            height: 180,
-            goal: 'Gain weight',
-          ),
-        ),
-        act: (cubit) =>
-            cubit.doIntent(const SubmitFullRegistrationIntent(tActivity)),
-        expect: () => [
-          const RegisterState(
-            params: tFullParams,
-            registerResource: Resource.loading(),
-          ),
-          const RegisterState(
-            params: tFullParams,
-            registerResource: Resource.success(tUser),
-          ),
-        ],
-        verify: (_) {
-          verify(() => mockRegisterUseCase(tFullParams)).called(1);
-        },
-      );
-
-      test(
-        'triggers success snackbar and NavigateReplacementEvent on registration success',
-        () async {
-          when(
-            () => mockRegisterUseCase(any()),
-          ).thenAnswer((_) async => const SuccessResponse<UserEntity>(tUser));
-
-          final events = <BaseUiEvent>[];
-          final subscription = registerCubit.eventStream.listen(events.add);
-
-          registerCubit.doIntent(const SubmitFullRegistrationIntent(tActivity));
-          await Future.delayed(Duration.zero);
-
-          expect(events, hasLength(2));
-          expect(events[0], isA<ShowSuccessSnackBarEvent>());
-          expect(
-            (events[0] as ShowSuccessSnackBarEvent).type,
-            equals(CubitMessageType.registerSuccess),
-          );
-          expect(events[1], isA<NavigateReplacementEvent>());
-          expect(
-            (events[1] as NavigateReplacementEvent).route,
-            equals(AppRoutes.login),
-          );
-
-          await subscription.cancel();
-        },
-      );
-
-      const tFailure = ServerFailure(
-        serverMessage: 'User already exists',
-        statusCode: 409,
-      );
-
-      blocTest<RegisterCubit, RegisterState>(
-        'emits [loading, error] when registerUseCase fails',
-        setUp: () {
-          when(() => mockRegisterUseCase(any())).thenAnswer(
-            (_) async => ErrorResponse<UserEntity>(failure: tFailure),
-          );
-        },
-        build: () => registerCubit,
-        act: (cubit) =>
-            cubit.doIntent(const SubmitFullRegistrationIntent(tActivity)),
-        expect: () => [
-          const RegisterState(
-            params: RegisterParameters(activityLevel: tActivity),
-            registerResource: Resource.loading(),
-          ),
-          const RegisterState(
-            params: RegisterParameters(activityLevel: tActivity),
-            registerResource: Resource.error(tFailure),
-          ),
-        ],
-        verify: (_) {
-          verify(() => mockRegisterUseCase(any())).called(1);
-        },
-      );
-
-      test('triggers failure UI event on registration error', () async {
-        when(
-          () => mockRegisterUseCase(any()),
-        ).thenAnswer((_) async => ErrorResponse<UserEntity>(failure: tFailure));
-
-        final events = <BaseUiEvent>[];
-        final subscription = registerCubit.eventStream.listen(events.add);
-
-        registerCubit.doIntent(const SubmitFullRegistrationIntent(tActivity));
-        await Future.delayed(Duration.zero);
-
-        expect(events, hasLength(1));
-        expect(events.first, isA<ShowErrorSnackBarEvent>());
-        final errorEvent = events.first as ShowErrorSnackBarEvent;
-        expect(errorEvent.failure, equals(tFailure));
-
-        await subscription.cancel();
-      });
     });
 
     group('SignInWithGoogleIntent', () {
