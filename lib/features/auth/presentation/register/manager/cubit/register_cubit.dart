@@ -1,8 +1,6 @@
 import 'package:injectable/injectable.dart';
 import '../../../../../../core/base/base_cubit.dart';
-import '../../../../../../core/base/cubit_message.dart';
 import '../../../../../../core/base/ui_events.dart';
-import '../../../../../../core/base_response/base_response.dart';
 import '../../../../../../core/error/failures.dart';
 import '../../../../../../core/go_routes/routes_names.dart';
 import '../../../../../../core/resource/resource.dart';
@@ -17,6 +15,8 @@ class RegisterCubit extends BaseCubit<RegisterState, BaseUiEvent> {
   final RegisterUseCase _registerUseCase;
   final SocialAuthService _socialAuthService;
   final FirestoreUserService _firestoreUserService;
+
+  RegisterUseCase get registerUseCase => _registerUseCase;
 
   RegisterCubit(
     this._registerUseCase,
