@@ -43,18 +43,9 @@ class RegisterCubit extends BaseCubit<RegisterState, BaseUiEvent> {
           email: email,
           password: password,
         );
-      case UpdateGenderIntent(:final gender):
-        _updateGender(gender);
-      case UpdateAgeIntent(:final age):
-        _updateAge(age);
-      case UpdateWeightIntent(:final weight):
-        _updateWeight(weight);
-      case UpdateHeightIntent(:final height):
-        _updateHeight(height);
-      case UpdateGoalIntent(:final goal):
-        _updateGoal(goal);
-      case SubmitFullRegistrationIntent(:final activityLevel):
-        _submitFullRegistration(activityLevel);
+
+      case SignInWithFacebookIntent():
+        _signInWithFacebook();
     }
   }
 
@@ -80,48 +71,11 @@ class RegisterCubit extends BaseCubit<RegisterState, BaseUiEvent> {
     );
   }
 
-  void _updateGender(String gender) {
-    emit(state.copyWith(params: state.params.copyWith(gender: gender)));
-  }
 
-  void _updateAge(int age) {
-    emit(state.copyWith(params: state.params.copyWith(age: age)));
-  }
 
-  void _updateWeight(num weight) {
-    emit(state.copyWith(params: state.params.copyWith(weight: weight)));
-  }
 
-  void _updateHeight(num height) {
-    emit(state.copyWith(params: state.params.copyWith(height: height)));
-  }
 
-  void _updateGoal(String goal) {
-    emit(state.copyWith(params: state.params.copyWith(goal: goal)));
-  }
 
-  Future<void> _submitFullRegistration(String activityLevel) async {
-    final fullParams = state.params.copyWith(activityLevel: activityLevel);
-    emit(
-      state.copyWith(
-        params: fullParams,
-        registerResource: const Resource.loading(),
-      ),
-    );
-
-    final response = await _registerUseCase(fullParams);
-
-    switch (response) {
-      case SuccessResponse(:final data):
-        emit(state.copyWith(registerResource: Resource.success(data)));
-        emitSuccess(CubitMessageType.registerSuccess);
-        emitEvent(const NavigateReplacementEvent(AppRoutes.login));
-
-      case ErrorResponse(:final failure):
-        emit(state.copyWith(registerResource: Resource.error(failure)));
-        emitFailure(failure);
-    }
-  }
 
   // ==========================================
   // GOOGLE SIGN-IN HANDLER
@@ -169,6 +123,52 @@ class RegisterCubit extends BaseCubit<RegisterState, BaseUiEvent> {
       // 4. Navigate directly to Screen 2 (Select Gender) to continue the wizard
       emitEvent(const NavigateEvent(AppRoutes.multiStepRegistration));
     } catch (e) {
+      final failure = UnknownFailure(serverMessage: e.toString());
+      emit(state.copyWith(registerResource: Resource.error(failure)));
+      emitFailure(failure);
+    }
+  }
+
+  Future<void> _signInWithFacebook() async {
+    emit(state.copyWith(registerResource: const Resource.loading()));
+    try {
+      final facebookUser = await _socialAuthService.signInWithFacebook();
+      if (facebookUser == null) {
+        // User cancelled picker
+        emit(state.copyWith(registerResource: const Resource.initial()));
+        return;
+      }
+      // 1. Get unified Facebook provider password
+      final providerPassword = await _firestoreUserService.getProviderPassword(
+        'facebook',
+      );
+      // 2. Save user in Firestore for forgot-password check
+      try {
+        await _firestoreUserService.saveUser(
+          email: facebookUser.email,
+          provider: 'facebook',
+          firstName: facebookUser.firstName,
+          lastName: facebookUser.lastName,
+        );
+      } catch (_) {
+        // Ignored: Best-effort save for forgot-password verification
+      }
+      // 3. Pre-fill credentials into state
+      emit(
+        state.copyWith(
+          registerResource: const Resource.initial(),
+          params: state.params.copyWith(
+            firstName: facebookUser.firstName,
+            lastName: facebookUser.lastName,
+            email: facebookUser.email,
+            password: providerPassword,
+          ),
+        ),
+      );
+      // 4. Navigate directly to Screen 2 (Select Gender)
+      emitEvent(const NavigateEvent(AppRoutes.multiStepRegistration));
+    } catch (e) {
+      // ✅ Emits typed Failure without raw strings!
       final failure = UnknownFailure(serverMessage: e.toString());
       emit(state.copyWith(registerResource: Resource.error(failure)));
       emitFailure(failure);
