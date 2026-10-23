@@ -43,7 +43,6 @@ class RegisterCubit extends BaseCubit<RegisterState, BaseUiEvent> {
           email: email,
           password: password,
         );
-
     }
   }
 

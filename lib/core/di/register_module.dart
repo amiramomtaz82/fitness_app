@@ -15,8 +15,4 @@ abstract class RegisterModule {
   GoogleSignIn get googleSignIn => GoogleSignIn(scopes: ['email', 'profile']);
   @lazySingleton
   FirebaseAuth get firebaseAuth => FirebaseAuth.instance;
-
-
-
-
 }

@@ -21,7 +21,6 @@ final class SubmitAccountCredentialsIntent extends RegisterIntent {
 
 // Wizard Intents
 
-
 // Screen 1: User Intents
 final class SignInWithGoogleIntent extends RegisterIntent {
   const SignInWithGoogleIntent();
