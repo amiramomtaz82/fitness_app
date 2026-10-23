@@ -1,4 +1,5 @@
 import 'package:fitness_app/core/contants/app_assets.dart';
+import 'package:fitness_app/core/theme/app_colors.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -25,7 +26,7 @@ class AppBackgroundScaffold extends StatelessWidget {
     required this.child,
     this.appBar,
     this.backgroundImage,
-    this.overlayColor = Colors.black,
+    this.overlayColor = AppColors.black,
     this.overlayOpacity = 0.6,
     this.overlayGradient,
     this.bottomNavigationBar,
@@ -43,55 +44,92 @@ class AppBackgroundScaffold extends StatelessWidget {
       bottomNavigationBar: bottomNavigationBar,
       body: Stack(
         children: [
-          // 1. Background image
-          Positioned.fill(
-            child: Image.asset(
-              backgroundImage ?? AppAssets.authProfileBG,
-              fit: BoxFit.cover,
-            ),
+          AppBackgroundImage(image: backgroundImage),
+          AppBackgroundOverlay(
+            color: overlayColor,
+            opacity: overlayOpacity,
+            gradient: overlayGradient,
           ),
-
-          // 2. Overlay tint (Solid color or Gradient, customizable per feature)
-          Positioned.fill(
-            child: Container(
-              decoration: BoxDecoration(
-                color: overlayGradient == null
-                    ? overlayColor.withValues(alpha: overlayOpacity)
-                    : null,
-                gradient: overlayGradient,
-              ),
-            ),
-          ),
-
-          // 3. Screen content
           SafeArea(child: child),
-
-          // 4. Feature-Specific Layout Guide Overlay (Visible only in debug if enabled)
           if (kDebugMode && showLayoutGrid)
-            Positioned.fill(
-              child: IgnorePointer(
-                child: Padding(
-                  padding: EdgeInsetsDirectional.symmetric(horizontal: 8.w),
-                  child: Row(
-                    children: List.generate(gridColumns * 2 - 1, (index) {
-                      // Alternate between column and gutter gap
-                      if (index.isOdd) {
-                        return SizedBox(width: 16.w);
-                      }
-                      return Expanded(
-                        child: Container(
-                          color: (gridColor ?? Colors.red).withValues(
-                            alpha: 0.08,
-                          ),
-                        ),
-                      );
-                    }),
-                  ),
-                ),
-              ),
-            ),
+            AppLayoutGrid(columns: gridColumns, color: gridColor),
         ],
       ),
+    );
+  }
+}
+
+class AppBackgroundImage extends StatelessWidget {
+  const AppBackgroundImage({super.key, this.image});
+
+  final String? image;
+
+  @override
+  Widget build(BuildContext context) {
+    return Positioned.fill(
+      child: Image.asset(image ?? AppAssets.authProfileBG, fit: BoxFit.cover),
+    );
+  }
+}
+
+class AppBackgroundOverlay extends StatelessWidget {
+  const AppBackgroundOverlay({
+    super.key,
+    required this.color,
+    required this.opacity,
+    this.gradient,
+  });
+
+  final Color color;
+  final double opacity;
+  final Gradient? gradient;
+
+  @override
+  Widget build(BuildContext context) {
+    return Positioned.fill(
+      child: Container(
+        decoration: BoxDecoration(
+          color: gradient == null ? color.withValues(alpha: opacity) : null,
+          gradient: gradient,
+        ),
+      ),
+    );
+  }
+}
+
+class AppLayoutGrid extends StatelessWidget {
+  const AppLayoutGrid({super.key, required this.columns, this.color});
+
+  final int columns;
+  final Color? color;
+
+  @override
+  Widget build(BuildContext context) {
+    return Positioned.fill(
+      child: IgnorePointer(
+        child: Padding(
+          padding: EdgeInsetsDirectional.symmetric(horizontal: 8.w),
+          child: Row(
+            children: List.generate(columns * 2 - 1, (index) {
+              if (index.isOdd) return SizedBox(width: 16.w);
+              return Expanded(child: AppLayoutColumn(color: color));
+            }),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class AppLayoutColumn extends StatelessWidget {
+  const AppLayoutColumn({super.key, this.color});
+
+  final Color? color;
+
+  @override
+  Widget build(BuildContext context) {
+    return ColoredBox(
+      color: (color ?? AppColors.error).withValues(alpha: 0.08),
     );
   }
 }
