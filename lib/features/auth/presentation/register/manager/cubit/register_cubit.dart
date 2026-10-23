@@ -3,13 +3,14 @@ import 'dart:async';
 import 'package:injectable/injectable.dart';
 
 import '../../../../../../core/base/base_cubit.dart';
+import '../../../../../../core/base/cubit_message.dart';
 import '../../../../../../core/base/ui_events.dart';
 import '../../../../../../core/base_response/base_response.dart';
 import '../../../../../../core/error/error_handler.dart';
+import '../../../../../../core/error/failures.dart';
 import '../../../../../../core/resource/resource.dart';
 import '../../../../../../core/validation/form_validators.dart';
 import '../../../../../../core/validation/validation_errors.dart';
-import '../../../../../../generated/locale_keys.g.dart';
 import '../../../../domain/entities/register_parameters.dart';
 import '../../../../domain/entities/user_entity.dart';
 import '../../../../domain/use_cases/register_use_case.dart';
@@ -180,7 +181,7 @@ class RegisterCubit extends BaseCubit<RegisterState, BaseUiEvent> {
       _publishRegistration(result);
     } catch (error) {
       if (isClosed) return;
-      _showFailure(ErrorHandler.extractErrorMessage(error));
+      _showFailure(ErrorHandler.handle(error));
     }
   }
 
@@ -188,19 +189,19 @@ class RegisterCubit extends BaseCubit<RegisterState, BaseUiEvent> {
     switch (result) {
       case SuccessResponse(:final data):
         _showSuccess(data);
-      case final ErrorResponse<UserEntity> failure:
-        _showFailure(failure.errMessage);
+      case final ErrorResponse<UserEntity> response:
+        _showFailure(response.failure);
     }
   }
 
   void _showSuccess(UserEntity user) {
     emit(state.copyWith(registerResource: Resource.success(user)));
-    emitEvent(const ShowSnackBarEvent(message: LocaleKeys.auth_done));
+    emitSuccess(CubitMessageType.registerSuccess);
   }
 
-  void _showFailure(String message) {
-    emit(state.copyWith(registerResource: Resource.error(message)));
-    emitEvent(ShowSnackBarEvent(message: message, isError: true));
+  void _showFailure(Failure failure) {
+    emit(state.copyWith(registerResource: Resource.error(failure)));
+    emitFailure(failure);
   }
 
   bool get _submissionIsClosed =>

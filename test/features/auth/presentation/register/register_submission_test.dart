@@ -1,5 +1,6 @@
 import 'package:bloc_test/bloc_test.dart';
 import 'package:fitness_app/core/base/ui_events.dart';
+import 'package:fitness_app/core/error/failures.dart';
 import 'package:fitness_app/features/auth/domain/entities/register_parameters.dart';
 import 'package:fitness_app/features/auth/domain/use_cases/register_use_case.dart';
 import 'package:fitness_app/features/auth/presentation/register/manager/cubit/register_cubit.dart';
@@ -82,16 +83,16 @@ Matcher _loadingRegistration() {
 
 Matcher _offlineRegistration() {
   return isA<RegisterState>().having(
-    (state) => state.registerResource.errorMessage,
-    'error',
+    (state) => state.registerResource.failure?.serverMessage,
+    'failure',
     'Exception: offline',
   );
 }
 
 void _expectOfflineSnackBar() {
-  final event = events.single as ShowSnackBarEvent;
-  expect(event.isError, isTrue);
-  expect(event.message, 'Exception: offline');
+  final event = events.single as ShowErrorSnackBarEvent;
+  expect(event.failure, isA<UnknownFailure>());
+  expect(event.failure.serverMessage, 'Exception: offline');
 }
 
 RegisterState _readyToSubmit() {
