@@ -18,10 +18,10 @@ class SocialAuthService {
     GoogleSignIn? googleSignIn,
     FirebaseAuth? firebaseAuth,
     FacebookAuth? facebookAuth,
-  })  : _googleSignIn =
-      googleSignIn ?? GoogleSignIn(scopes: ['email', 'profile']),
-        _firebaseAuth = firebaseAuth ?? FirebaseAuth.instance,
-        _facebookAuth = facebookAuth ?? FacebookAuth.instance;
+  }) : _googleSignIn =
+           googleSignIn ?? GoogleSignIn(scopes: ['email', 'profile']),
+       _firebaseAuth = firebaseAuth ?? FirebaseAuth.instance,
+       _facebookAuth = facebookAuth ?? FacebookAuth.instance;
 
   // ==========================================
   // GOOGLE SIGN-IN
@@ -33,7 +33,7 @@ class SocialAuthService {
       if (account == null) return null;
 
       final GoogleSignInAuthentication googleAuth =
-      await account.authentication;
+          await account.authentication;
       final AuthCredential credential = GoogleAuthProvider.credential(
         accessToken: googleAuth.accessToken,
         idToken: googleAuth.idToken,
@@ -43,8 +43,9 @@ class SocialAuthService {
       final fullName = account.displayName?.trim() ?? 'User';
       final nameParts = fullName.split(' ');
       final firstName = nameParts.isNotEmpty ? nameParts.first : 'User';
-      final lastName =
-      nameParts.length > 1 ? nameParts.sublist(1).join(' ') : 'Fitness';
+      final lastName = nameParts.length > 1
+          ? nameParts.sublist(1).join(' ')
+          : 'Fitness';
 
       return SocialAuthUser(
         email: account.email.trim().toLowerCase(),
@@ -96,8 +97,9 @@ class SocialAuthService {
       final fullName = (userData['name'] as String?)?.trim() ?? 'Facebook User';
       final nameParts = fullName.split(' ');
       final firstName = nameParts.isNotEmpty ? nameParts.first : 'User';
-      final lastName =
-      nameParts.length > 1 ? nameParts.sublist(1).join(' ') : 'Fitness';
+      final lastName = nameParts.length > 1
+          ? nameParts.sublist(1).join(' ')
+          : 'Fitness';
       final pictureUrl = userData['picture']?['data']?['url'] as String?;
 
       return SocialAuthUser(

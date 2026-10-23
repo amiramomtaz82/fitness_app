@@ -71,12 +71,6 @@ class RegisterCubit extends BaseCubit<RegisterState, BaseUiEvent> {
     );
   }
 
-
-
-
-
-
-
   // ==========================================
   // GOOGLE SIGN-IN HANDLER
   // ==========================================

@@ -224,5 +224,146 @@ void main() {
         },
       );
     });
+
+    group('SignInWithFacebookIntent', () {
+      const tFacebookUser = SocialAuthUser(
+        email: 'amira@facebook.com',
+        firstName: 'Amira',
+        lastName: 'Momtaz',
+        provider: 'facebook',
+      );
+      const tFacebookPassword = 'FacebookAuth@ElevateFitness2026#';
+
+      blocTest<RegisterCubit, RegisterState>(
+        'emits [loading, initial with pre-filled params] and saves user to firestore on successful Facebook sign-in',
+        setUp: () {
+          when(
+            () => mockSocialAuthService.signInWithFacebook(),
+          ).thenAnswer((_) async => tFacebookUser);
+          when(
+            () => mockFirestoreUserService.getProviderPassword('facebook'),
+          ).thenAnswer((_) async => tFacebookPassword);
+          when(
+            () => mockFirestoreUserService.saveUser(
+              email: any(named: 'email'),
+              provider: any(named: 'provider'),
+              firstName: any(named: 'firstName'),
+              lastName: any(named: 'lastName'),
+            ),
+          ).thenAnswer((_) async {});
+        },
+        build: () => registerCubit,
+        act: (cubit) => cubit.doIntent(const SignInWithFacebookIntent()),
+        expect: () => [
+          const RegisterState(registerResource: Resource.loading()),
+          const RegisterState(
+            registerResource: Resource.initial(),
+            params: RegisterParameters(
+              firstName: 'Amira',
+              lastName: 'Momtaz',
+              email: 'amira@facebook.com',
+              password: tFacebookPassword,
+            ),
+          ),
+        ],
+        verify: (_) {
+          verify(() => mockSocialAuthService.signInWithFacebook()).called(1);
+          verify(
+            () => mockFirestoreUserService.getProviderPassword('facebook'),
+          ).called(1);
+          verify(
+            () => mockFirestoreUserService.saveUser(
+              email: 'amira@facebook.com',
+              provider: 'facebook',
+              firstName: 'Amira',
+              lastName: 'Momtaz',
+            ),
+          ).called(1);
+        },
+      );
+
+      test(
+        'triggers NavigateEvent to multiStepRegistration on successful Facebook sign-in',
+        () async {
+          when(
+            () => mockSocialAuthService.signInWithFacebook(),
+          ).thenAnswer((_) async => tFacebookUser);
+          when(
+            () => mockFirestoreUserService.getProviderPassword('facebook'),
+          ).thenAnswer((_) async => tFacebookPassword);
+          when(
+            () => mockFirestoreUserService.saveUser(
+              email: any(named: 'email'),
+              provider: any(named: 'provider'),
+              firstName: any(named: 'firstName'),
+              lastName: any(named: 'lastName'),
+            ),
+          ).thenAnswer((_) async {});
+
+          final events = <BaseUiEvent>[];
+          final subscription = registerCubit.eventStream.listen(events.add);
+
+          registerCubit.doIntent(const SignInWithFacebookIntent());
+          await Future.delayed(Duration.zero);
+
+          expect(events, hasLength(1));
+          expect(events.first, isA<NavigateEvent>());
+          expect(
+            (events.first as NavigateEvent).route,
+            equals(AppRoutes.multiStepRegistration),
+          );
+
+          await subscription.cancel();
+        },
+      );
+
+      blocTest<RegisterCubit, RegisterState>(
+        'emits [loading, initial] when user cancels Facebook sign-in dialog',
+        setUp: () {
+          when(
+            () => mockSocialAuthService.signInWithFacebook(),
+          ).thenAnswer((_) async => null);
+        },
+        build: () => registerCubit,
+        act: (cubit) => cubit.doIntent(const SignInWithFacebookIntent()),
+        expect: () => [
+          const RegisterState(registerResource: Resource.loading()),
+          const RegisterState(registerResource: Resource.initial()),
+        ],
+        verify: (_) {
+          verify(() => mockSocialAuthService.signInWithFacebook()).called(1);
+          verifyNever(
+            () => mockFirestoreUserService.getProviderPassword(any()),
+          );
+          verifyNever(
+            () => mockFirestoreUserService.saveUser(
+              email: any(named: 'email'),
+              provider: any(named: 'provider'),
+              firstName: any(named: 'firstName'),
+              lastName: any(named: 'lastName'),
+            ),
+          );
+        },
+      );
+
+      blocTest<RegisterCubit, RegisterState>(
+        'emits [loading, error] and emits failure event on Facebook sign-in error',
+        setUp: () {
+          when(
+            () => mockSocialAuthService.signInWithFacebook(),
+          ).thenThrow(Exception('Facebook connection error'));
+        },
+        build: () => registerCubit,
+        act: (cubit) => cubit.doIntent(const SignInWithFacebookIntent()),
+        expect: () => [
+          const RegisterState(registerResource: Resource.loading()),
+          isA<RegisterState>().having(
+            (s) => s.registerResource.isError,
+            'registerResource.isError',
+            isTrue,
+          ),
+        ],
+      );
+    });
   });
 }
