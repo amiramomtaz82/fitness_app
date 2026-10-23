@@ -109,17 +109,15 @@ class AppLayoutGrid extends StatelessWidget {
       child: IgnorePointer(
         child: Padding(
           padding: EdgeInsetsDirectional.symmetric(horizontal: 8.w),
-          child: Row(children: _children()),
+          child: Row(
+            children: List.generate(columns * 2 - 1, (index) {
+              if (index.isOdd) return SizedBox(width: 16.w);
+              return Expanded(child: AppLayoutColumn(color: color));
+            }),
+          ),
         ),
       ),
     );
-  }
-
-  List<Widget> _children() => List.generate(columns * 2 - 1, _child);
-
-  Widget _child(int index) {
-    if (index.isOdd) return SizedBox(width: 16.w);
-    return Expanded(child: AppLayoutColumn(color: color));
   }
 }
 

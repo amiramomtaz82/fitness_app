@@ -11,18 +11,16 @@ class RegistrationStepPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return SizedBox.expand(child: _step(step));
+    return SizedBox.expand(
+      child: switch (step) {
+        0 => const RegistrationGenderStep(),
+        1 => const RegistrationAgeStep(),
+        2 => const RegistrationWeightStep(),
+        3 => const RegistrationHeightStep(),
+        4 => const RegistrationGoalStep(),
+        5 => const RegistrationActivityStep(),
+        _ => const SizedBox.shrink(),
+      },
+    );
   }
-}
-
-Widget _step(int step) {
-  return switch (step) {
-    0 => const RegistrationGenderStep(),
-    1 => const RegistrationAgeStep(),
-    2 => const RegistrationWeightStep(),
-    3 => const RegistrationHeightStep(),
-    4 => const RegistrationGoalStep(),
-    5 => const RegistrationActivityStep(),
-    _ => const SizedBox.shrink(),
-  };
 }

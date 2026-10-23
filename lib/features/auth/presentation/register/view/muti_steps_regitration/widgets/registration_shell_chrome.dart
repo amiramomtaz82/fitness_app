@@ -137,8 +137,9 @@ class RegistrationTitles extends StatelessWidget {
     final step = context.select<RegisterCubit, int>(
       (cubit) => cubit.state.currentStep,
     );
-    final copy = _copyFor(step);
-    return RegistrationStepCopy(title: copy.$1, subtitle: copy.$2);
+    final index = step.clamp(0, _stepKeys.length - 1);
+    final keys = _stepKeys[index];
+    return RegistrationStepCopy(title: keys.$1.tr(), subtitle: keys.$2.tr());
   }
 }
 
@@ -254,9 +255,3 @@ const _stepKeys = <(String, String)>[
     LocaleKeys.profile_setup_personalized_plan_subtitle,
   ),
 ];
-
-(String, String) _copyFor(int step) {
-  final index = step.clamp(0, _stepKeys.length - 1);
-  final keys = _stepKeys[index];
-  return (keys.$1.tr(), keys.$2.tr());
-}
