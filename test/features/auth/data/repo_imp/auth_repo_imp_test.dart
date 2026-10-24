@@ -1,22 +1,32 @@
-import 'package:flutter_test/flutter_test.dart';
-import 'package:mocktail/mocktail.dart';
 import 'package:fitness_app/core/base_response/base_response.dart';
 import 'package:fitness_app/features/auth/data/data_source/local/local_data_source.dart';
 import 'package:fitness_app/features/auth/data/data_source/remote/auth_remote_data_source.dart';
+import 'package:fitness_app/features/auth/data/data_source/remote/firestore_user_data_source.dart';
+import 'package:fitness_app/features/auth/data/data_source/remote/social_auth_data_source.dart';
 import 'package:fitness_app/features/auth/data/models/register_request_dto.dart';
 import 'package:fitness_app/features/auth/data/models/register_response_dto.dart';
 import 'package:fitness_app/features/auth/data/models/user_dto.dart';
 import 'package:fitness_app/features/auth/data/repo_imp/auth_repo_imp.dart';
 import 'package:fitness_app/features/auth/domain/entities/register_parameters.dart';
 import 'package:fitness_app/features/auth/domain/entities/user_entity.dart';
+import 'package:flutter_test/flutter_test.dart';
+import 'package:mocktail/mocktail.dart';
 
 class MockAuthRemoteDataSource extends Mock implements AuthRemoteDataSource {}
+
 class MockLocalDataSource extends Mock implements LocalDataSource {}
+
+class MockSocialAuthService extends Mock implements SocialAuthService {}
+
+class MockFirestoreUserService extends Mock implements FirestoreUserService {}
+
 class FakeRegisterRequestDto extends Fake implements RegisterRequestDto {}
 
 void main() {
   late MockAuthRemoteDataSource mockRemoteDataSource;
   late MockLocalDataSource mockLocalDataSource;
+  late MockSocialAuthService mockSocialAuthService;
+  late MockFirestoreUserService mockFirestoreUserService;
   late AuthRepoImp repo;
 
   setUpAll(() {
@@ -26,7 +36,14 @@ void main() {
   setUp(() {
     mockRemoteDataSource = MockAuthRemoteDataSource();
     mockLocalDataSource = MockLocalDataSource();
-    repo = AuthRepoImp(mockRemoteDataSource, mockLocalDataSource);
+    mockSocialAuthService = MockSocialAuthService();
+    mockFirestoreUserService = MockFirestoreUserService();
+    repo = AuthRepoImp(
+      mockRemoteDataSource,
+      mockLocalDataSource,
+      mockSocialAuthService,
+      mockFirestoreUserService,
+    );
   });
 
   const testParams = RegisterParameters(
@@ -62,41 +79,55 @@ void main() {
   );
 
   group('AuthRepoImp.register', () {
-    test('returns SuccessResponse with UserEntity when remote call succeeds', () async {
-      when(() => mockRemoteDataSource.register(any())).thenAnswer((_) async => testResponse);
+    test(
+      'returns SuccessResponse with UserEntity when remote call succeeds',
+      () async {
+        when(
+          () => mockRemoteDataSource.register(any()),
+        ).thenAnswer((_) async => testResponse);
 
-      final result = await repo.register(testParams);
+        final result = await repo.register(testParams);
 
-      expect(result, isA<SuccessResponse<UserEntity>>());
-      final success = result as SuccessResponse<UserEntity>;
-      expect(success.data.id, equals('123'));
-      expect(success.data.firstName, equals('Ahmed'));
-      expect(success.data.email, equals('ahmed@test.com'));
-      verify(() => mockRemoteDataSource.register(any())).called(1);
-    });
+        expect(result, isA<SuccessResponse<UserEntity>>());
+        final success = result as SuccessResponse<UserEntity>;
+        expect(success.data.id, equals('123'));
+        expect(success.data.firstName, equals('Ahmed'));
+        expect(success.data.email, equals('ahmed@test.com'));
+        verify(() => mockRemoteDataSource.register(any())).called(1);
+      },
+    );
 
-    test('returns ErrorResponse when remote call throws an exception', () async {
-      when(() => mockRemoteDataSource.register(any())).thenThrow(Exception('Server unreachable'));
+    test(
+      'returns ErrorResponse when remote call throws an exception',
+      () async {
+        when(
+          () => mockRemoteDataSource.register(any()),
+        ).thenThrow(Exception('Server unreachable'));
 
-      final result = await repo.register(testParams);
+        final result = await repo.register(testParams);
 
-      expect(result, isA<ErrorResponse<UserEntity>>());
-      final error = result as ErrorResponse<UserEntity>;
-      expect(error.failure, isNotNull);
-      verify(() => mockRemoteDataSource.register(any())).called(1);
-    });
+        expect(result, isA<ErrorResponse<UserEntity>>());
+        final error = result as ErrorResponse<UserEntity>;
+        expect(error.failure, isNotNull);
+        verify(() => mockRemoteDataSource.register(any())).called(1);
+      },
+    );
   });
 
   group('AuthRepoImp local data source delegation', () {
     test('getToken returns token from local data source', () async {
-      when(() => mockLocalDataSource.getToken()).thenAnswer((_) async => 'saved-token');
+      when(
+        () => mockLocalDataSource.getToken(),
+      ).thenAnswer((_) async => 'saved-token');
       final result = await repo.getToken();
       expect(result, equals('saved-token'));
       verify(() => mockLocalDataSource.getToken()).called(1);
     });
 
     test('isLoggedIn returns bool from local data source', () async {
-      when(() => mockLocalDataSource.isLoggedIn()).thenAnswer((_) async => true);
+      when(
+        () => mockLocalDataSource.isLoggedIn(),
+      ).thenAnswer((_) async => true);
       final result = await repo.isLoggedIn();
       expect(result, isTrue);
       verify(() => mockLocalDataSource.isLoggedIn()).called(1);

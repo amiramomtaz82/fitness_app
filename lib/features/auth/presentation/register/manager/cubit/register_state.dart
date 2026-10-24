@@ -4,7 +4,6 @@ import '../../../../../../core/resource/resource.dart';
 import '../../../../domain/entities/register_parameters.dart';
 import '../../../../domain/entities/user_entity.dart';
 
-
 class RegisterState extends Equatable {
   final RegisterParameters params;
   final Resource<UserEntity> registerResource;

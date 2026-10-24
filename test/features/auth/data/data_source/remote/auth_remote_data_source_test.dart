@@ -55,23 +55,31 @@ void main() {
   );
 
   group('AuthRemoteDataSourceImp.register', () {
-    test('should return RegisterResponseDto when client call succeeds', () async {
-      when(() => mockClient.register(any())).thenAnswer((_) async => testResponse);
+    test(
+      'should return RegisterResponseDto when client call succeeds',
+      () async {
+        when(
+          () => mockClient.register(any()),
+        ).thenAnswer((_) async => testResponse);
 
-      final result = await dataSource.register(testRequest);
+        final result = await dataSource.register(testRequest);
 
-      expect(result, equals(testResponse));
-      expect(result.message, equals('success'));
-      expect(result.user?.firstName, equals('Ahmed'));
-      expect(result.token, equals('jwt-token-xyz'));
-      verify(() => mockClient.register(testRequest)).called(1);
-    });
+        expect(result, equals(testResponse));
+        expect(result.message, equals('success'));
+        expect(result.user?.firstName, equals('Ahmed'));
+        expect(result.token, equals('jwt-token-xyz'));
+        verify(() => mockClient.register(testRequest)).called(1);
+      },
+    );
 
     test('should rethrow exception when client call fails', () async {
       final exception = Exception('Network error');
       when(() => mockClient.register(any())).thenThrow(exception);
 
-      expect(() => dataSource.register(testRequest), throwsA(equals(exception)));
+      expect(
+        () => dataSource.register(testRequest),
+        throwsA(equals(exception)),
+      );
       verify(() => mockClient.register(testRequest)).called(1);
     });
   });
