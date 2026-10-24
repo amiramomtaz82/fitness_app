@@ -1,16 +1,38 @@
 import 'package:injectable/injectable.dart';
+import '../../../../core/base_response/base_response.dart';
+import '../../../../core/base_response/safe_call.dart';
+import '../../../../core/error/failures.dart';
+import '../../domain/entities/login_params.dart';
 import '../../domain/entities/user_entity.dart';
 import '../../domain/repo/auth_repo.dart';
 import '../data_source/local/local_data_source.dart';
 import '../data_source/remote/auth_remote_data_source.dart';
+import '../mapper/user_mapper.dart';
+import '../models/login_request_dto.dart';
 
 @Injectable(as: AuthRepo)
 class AuthRepoImp implements AuthRepo {
-  // ignore: unused_field
   final AuthRemoteDataSource _remoteDataSource;
   final LocalDataSource _localDataSource;
 
   const AuthRepoImp(this._remoteDataSource, this._localDataSource);
+
+  @override
+  Future<BaseResponse<UserEntity>> login(LoginParams params) {
+    return safeCall(() async {
+      final response = await _remoteDataSource.login(
+        LoginRequestDto(email: params.email, password: params.password),
+      );
+      final token = response.token;
+      final user = UserMapper.toEntity(response.user);
+      if (token == null || token.isEmpty || user == null) {
+        throw const ServerFailure();
+      }
+      await _localDataSource.saveToken(token);
+      await _localDataSource.saveUser(user);
+      return user;
+    });
+  }
 
   @override
   Future<String?> getToken() => _localDataSource.getToken();

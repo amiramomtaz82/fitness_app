@@ -42,6 +42,7 @@ class AppBackgroundScaffold extends StatelessWidget {
       resizeToAvoidBottomInset: resizeToAvoidBottomInset,
       bottomNavigationBar: bottomNavigationBar,
       body: Stack(
+        fit: StackFit.expand,
         children: [
           // 1. Background image
           Positioned.fill(
