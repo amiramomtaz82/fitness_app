@@ -1,24 +1,32 @@
-import 'package:flutter_test/flutter_test.dart';
-import 'package:mocktail/mocktail.dart';
 import 'package:fitness_app/core/base_response/base_response.dart';
 import 'package:fitness_app/features/auth/data/data_source/local/local_data_source.dart';
 import 'package:fitness_app/features/auth/data/data_source/remote/auth_remote_data_source.dart';
+import 'package:fitness_app/features/auth/data/data_source/remote/firestore_user_data_source.dart';
+import 'package:fitness_app/features/auth/data/data_source/remote/social_auth_data_source.dart';
 import 'package:fitness_app/features/auth/data/models/register_request_dto.dart';
 import 'package:fitness_app/features/auth/data/models/register_response_dto.dart';
 import 'package:fitness_app/features/auth/data/models/user_dto.dart';
 import 'package:fitness_app/features/auth/data/repo_imp/auth_repo_imp.dart';
 import 'package:fitness_app/features/auth/domain/entities/register_parameters.dart';
 import 'package:fitness_app/features/auth/domain/entities/user_entity.dart';
+import 'package:flutter_test/flutter_test.dart';
+import 'package:mocktail/mocktail.dart';
 
 class MockAuthRemoteDataSource extends Mock implements AuthRemoteDataSource {}
 
 class MockLocalDataSource extends Mock implements LocalDataSource {}
+
+class MockSocialAuthService extends Mock implements SocialAuthService {}
+
+class MockFirestoreUserService extends Mock implements FirestoreUserService {}
 
 class FakeRegisterRequestDto extends Fake implements RegisterRequestDto {}
 
 void main() {
   late MockAuthRemoteDataSource mockRemoteDataSource;
   late MockLocalDataSource mockLocalDataSource;
+  late MockSocialAuthService mockSocialAuthService;
+  late MockFirestoreUserService mockFirestoreUserService;
   late AuthRepoImp repo;
 
   setUpAll(() {
@@ -28,7 +36,14 @@ void main() {
   setUp(() {
     mockRemoteDataSource = MockAuthRemoteDataSource();
     mockLocalDataSource = MockLocalDataSource();
-    repo = AuthRepoImp(mockRemoteDataSource, mockLocalDataSource);
+    mockSocialAuthService = MockSocialAuthService();
+    mockFirestoreUserService = MockFirestoreUserService();
+    repo = AuthRepoImp(
+      mockRemoteDataSource,
+      mockLocalDataSource,
+      mockSocialAuthService,
+      mockFirestoreUserService,
+    );
   });
 
   const testParams = RegisterParameters(

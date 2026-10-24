@@ -21,16 +21,16 @@ void main() async {
       options: DefaultFirebaseOptions.currentPlatform,
     );
     isFirebaseInitialized = true;
-  } catch (e) {
-
+  } catch (_) {
+    // Handled: isFirebaseInitialized remains false, launching fallback screen
   }
 
   // 2. Only configure dependencies if Firebase succeeded
   if (isFirebaseInitialized) {
     try {
       await dotenv.load(fileName: '.env');
-    } catch (e) {
-
+    } catch (_) {
+      // Optional: local .env file may not exist in production
     }
     configureDependencies();
   }

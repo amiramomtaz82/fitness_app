@@ -14,7 +14,14 @@ class RegisterSocialButtons extends StatelessWidget {
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
-        SocialButton(icon: AppAssets.facebook, onTap: () {}),
+        SocialButton(
+          icon: AppAssets.facebook,
+          onTap: () {
+            context.read<RegisterCubit>().doIntent(
+              const SignInWithFacebookIntent(),
+            );
+          },
+        ),
         SizedBox(width: 20.w),
         SocialButton(
           icon: AppAssets.google,

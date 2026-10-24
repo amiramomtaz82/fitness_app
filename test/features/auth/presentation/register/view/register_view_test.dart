@@ -2,13 +2,16 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:easy_localization/easy_localization.dart';
+import 'package:fitness_app/core/base_response/base_response.dart';
 import 'package:fitness_app/core/di/di.dart';
 import 'package:fitness_app/core/go_routes/routes_names.dart';
-import 'package:fitness_app/features/auth/data/data_source/remote/firestore_user_data_source.dart';
-import 'package:fitness_app/features/auth/data/data_source/remote/social_auth_data_source.dart';
-import 'package:fitness_app/features/auth/domain/entities/social_auth_user.dart';
+import 'package:fitness_app/features/auth/domain/entities/email_provider_status.dart';
 import 'package:fitness_app/features/auth/domain/entities/register_parameters.dart';
+import 'package:fitness_app/features/auth/domain/entities/social_auth_user.dart';
+import 'package:fitness_app/features/auth/domain/use_cases/get_provider_password_use_case.dart';
 import 'package:fitness_app/features/auth/domain/use_cases/register_use_case.dart';
+import 'package:fitness_app/features/auth/domain/use_cases/sign_in_with_facebook_use_case.dart';
+import 'package:fitness_app/features/auth/domain/use_cases/sign_in_with_google_use_case.dart';
 import 'package:fitness_app/features/auth/presentation/register/manager/cubit/register_cubit.dart';
 import 'package:fitness_app/features/auth/presentation/register/view/register_first_sceen/register_view.dart';
 import 'package:fitness_app/features/auth/presentation/register/view/register_first_sceen/widgets/register_card.dart';
@@ -28,9 +31,14 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 class MockRegisterUseCase extends Mock implements RegisterUseCase {}
 
-class MockSocialAuthService extends Mock implements SocialAuthService {}
+class MockSignInWithGoogleUseCase extends Mock
+    implements SignInWithGoogleUseCase {}
 
-class MockFirestoreUserService extends Mock implements FirestoreUserService {}
+class MockGetProviderPasswordUseCase extends Mock
+    implements GetProviderPasswordUseCase {}
+
+class MockSignInWithFacebookUseCase extends Mock
+    implements SignInWithFacebookUseCase {}
 
 class InMemoryAssetLoader extends AssetLoader {
   final Map<String, dynamic> data;
@@ -76,8 +84,9 @@ Widget createTestApp({required GoRouter router}) {
 
 void main() {
   late MockRegisterUseCase mockRegisterUseCase;
-  late MockSocialAuthService mockSocialAuthService;
-  late MockFirestoreUserService mockFirestoreUserService;
+  late MockSignInWithGoogleUseCase mockSignInWithGoogleUseCase;
+  late MockGetProviderPasswordUseCase mockGetProviderPasswordUseCase;
+  late MockSignInWithFacebookUseCase mockSignInWithFacebookUseCase;
   late RegisterCubit registerCubit;
 
   setUpAll(() async {
@@ -88,16 +97,19 @@ void main() {
             as Map<String, dynamic>;
     await EasyLocalization.ensureInitialized();
     registerFallbackValue(const RegisterParameters());
+    registerFallbackValue(EmailProviderStatus.registeredWithGoogle);
   });
 
   setUp(() {
     mockRegisterUseCase = MockRegisterUseCase();
-    mockSocialAuthService = MockSocialAuthService();
-    mockFirestoreUserService = MockFirestoreUserService();
+    mockSignInWithGoogleUseCase = MockSignInWithGoogleUseCase();
+    mockGetProviderPasswordUseCase = MockGetProviderPasswordUseCase();
+    mockSignInWithFacebookUseCase = MockSignInWithFacebookUseCase();
     registerCubit = RegisterCubit(
       mockRegisterUseCase,
-      mockSocialAuthService,
-      mockFirestoreUserService,
+      mockSignInWithGoogleUseCase,
+      mockGetProviderPasswordUseCase,
+      mockSignInWithFacebookUseCase,
     );
 
     if (getIt.isRegistered<RegisterCubit>()) {
@@ -324,25 +336,23 @@ void main() {
     testWidgets(
       'triggers Google sign-in and navigates when Google button is tapped',
       (tester) async {
-        when(() => mockSocialAuthService.signInWithGoogle()).thenAnswer(
-          (_) async => const SocialAuthUser(
-            email: 'googleuser@gmail.com',
-            firstName: 'Google',
-            lastName: 'User',
-            provider: 'google',
+        when(() => mockSignInWithGoogleUseCase()).thenAnswer(
+          (_) async => const SuccessResponse(
+            SocialAuthUser(
+              email: 'googleuser@gmail.com',
+              firstName: 'Google',
+              lastName: 'User',
+              provider: 'google',
+            ),
           ),
         );
         when(
-          () => mockFirestoreUserService.getProviderPassword('google'),
-        ).thenAnswer((_) async => 'GoogleAuth@ElevateFitness2026#');
-        when(
-          () => mockFirestoreUserService.saveUser(
-            email: any(named: 'email'),
-            provider: any(named: 'provider'),
-            firstName: any(named: 'firstName'),
-            lastName: any(named: 'lastName'),
+          () => mockGetProviderPasswordUseCase(
+            EmailProviderStatus.registeredWithGoogle,
           ),
-        ).thenAnswer((_) async {});
+        ).thenAnswer(
+          (_) async => const SuccessResponse('GoogleAuth@ElevateFitness2026#'),
+        );
 
         final router = createRouter();
         await pumpRegisterView(tester, router);
@@ -354,7 +364,7 @@ void main() {
         await tester.tap(socialButtons.at(1));
         await tester.pumpAndSettle();
 
-        verify(() => mockSocialAuthService.signInWithGoogle()).called(1);
+        verify(() => mockSignInWithGoogleUseCase()).called(1);
         expect(
           registerCubit.state.params.email,
           equals('googleuser@gmail.com'),

@@ -13,4 +13,5 @@ abstract class AuthRepo {
   Future<BaseResponse<String>> getProviderPassword(EmailProviderStatus status);
   Future<BaseResponse<EmailProviderStatus>> checkEmailProvider(String email);
   Future<BaseResponse<SocialAuthUser?>> signInWithGoogle();
+  Future<BaseResponse<SocialAuthUser?>> signInWithFacebook();
 }

@@ -18,7 +18,7 @@ class ErrorHandler {
       return switch (error.code) {
         'user-not-found' => const NotFoundFailure(),
         'wrong-password' => const UnauthorizedFailure(),
-        'user-disabled'  => const ForbiddenFailure(),
+        'user-disabled' => const ForbiddenFailure(),
         'network-request-failed' => const NetworkFailure(),
         _ => const ServerFailure(),
       };

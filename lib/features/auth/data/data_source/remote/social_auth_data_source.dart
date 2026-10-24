@@ -1,35 +1,41 @@
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter_facebook_auth/flutter_facebook_auth.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:injectable/injectable.dart';
 
+import '../../../domain/entities/email_provider_status.dart';
 import '../../../domain/entities/social_auth_user.dart';
+import '../../mapper/email_provider_status_mapper.dart';
 
 @lazySingleton
 class SocialAuthService {
   final GoogleSignIn _googleSignIn;
   final FirebaseAuth _firebaseAuth;
+  final FacebookAuth _facebookAuth;
 
+  // Facebook Graph API Constants (No inline magic strings)
+  static const List<String> _facebookPermissions = ['email', 'public_profile'];
+  static const String _facebookFields = 'name,email,picture.width(200)';
 
   SocialAuthService({
     required GoogleSignIn googleSignIn,
     required FirebaseAuth firebaseAuth,
+    required FacebookAuth facebookAuth,
   })  : _googleSignIn = googleSignIn,
-        _firebaseAuth = firebaseAuth;
+        _firebaseAuth = firebaseAuth,
+        _facebookAuth = facebookAuth;
 
   // ==========================================
   // GOOGLE SIGN-IN
   // ==========================================
   Future<SocialAuthUser?> signInWithGoogle() async {
-    // 1. Sign out previous session to guarantee account picker shows
     await _googleSignIn.signOut();
 
-    // 2. Open Google Sign-In prompt
     final account = await _googleSignIn.signIn();
     if (account == null) {
-      return null;
+      return null; // Intentional user cancellation
     }
 
-    // 3. Authenticate with Firebase (NO try-catch! If it fails, let it throw)
     final GoogleSignInAuthentication googleAuth = await account.authentication;
     final AuthCredential credential = GoogleAuthProvider.credential(
       accessToken: googleAuth.accessToken,
@@ -37,24 +43,71 @@ class SocialAuthService {
     );
     await _firebaseAuth.signInWithCredential(credential);
 
-    // 4. Parse user profile name
-    final fullName = account.displayName?.trim() ?? 'User';
-    final nameParts = fullName.split(' ');
-    final firstName = nameParts.isNotEmpty ? nameParts.first : 'User';
-    final lastName =
-    nameParts.length > 1 ? nameParts.sublist(1).join(' ') : 'Fitness';
+    // Clean name parsing without fake dummy names
+    final fullName = account.displayName?.trim() ?? '';
+    final nameParts = fullName.isNotEmpty ? fullName.split(' ') : <String>[];
+    final firstName = nameParts.isNotEmpty ? nameParts.first : '';
+    final lastName = nameParts.length > 1 ? nameParts.sublist(1).join(' ') : '';
 
     return SocialAuthUser(
       email: account.email.trim().toLowerCase(),
       firstName: firstName,
       lastName: lastName,
       photoUrl: account.photoUrl,
-      provider: 'google',
+
+      provider: EmailProviderStatus.registeredWithGoogle.providerName,
+    );
+  }
+
+  // ==========================================
+  // FACEBOOK SIGN-IN
+  // ==========================================
+  Future<SocialAuthUser?> signInWithFacebook() async {
+    final LoginResult result = await _facebookAuth.login(
+      permissions: _facebookPermissions,
+    );
+
+    if (result.status == LoginStatus.cancelled) {
+      return null; // Intentional user cancellation
+    }
+
+    if (result.status == LoginStatus.failed) {
+      throw FirebaseAuthException(
+        code: 'facebook-sign-in-failed',
+        message: result.message ?? 'Facebook login failed',
+      );
+    }
+
+    final AccessToken accessToken = result.accessToken!;
+    final OAuthCredential credential = FacebookAuthProvider.credential(
+      accessToken.tokenString,
+    );
+    await _firebaseAuth.signInWithCredential(credential);
+
+    final userData = await _facebookAuth.getUserData(
+      fields: _facebookFields,
+    );
+
+    // Clean name parsing without fake dummy names
+    final fullName = (userData['name'] as String?)?.trim() ?? '';
+    final nameParts = fullName.isNotEmpty ? fullName.split(' ') : <String>[];
+    final firstName = nameParts.isNotEmpty ? nameParts.first : '';
+    final lastName = nameParts.length > 1 ? nameParts.sublist(1).join(' ') : '';
+    final email = (userData['email'] as String? ?? '').trim().toLowerCase();
+
+    return SocialAuthUser(
+      email: email,
+      firstName: firstName,
+      lastName: lastName,
+      photoUrl: userData['picture']?['data']?['url'] as String?,
+
+      provider: EmailProviderStatus.registeredWithFacebook.providerName,
     );
   }
 
   Future<void> signOut() async {
     await _googleSignIn.signOut();
+    await _facebookAuth.logOut();
     await _firebaseAuth.signOut();
   }
 }

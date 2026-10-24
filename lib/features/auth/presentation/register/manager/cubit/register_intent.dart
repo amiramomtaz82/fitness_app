@@ -25,3 +25,7 @@ final class SubmitAccountCredentialsIntent extends RegisterIntent {
 final class SignInWithGoogleIntent extends RegisterIntent {
   const SignInWithGoogleIntent();
 }
+
+final class SignInWithFacebookIntent extends RegisterIntent {
+  const SignInWithFacebookIntent();
+}

@@ -3,9 +3,8 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:go_router/go_router.dart';
+
 import '../../../../../../../core/contants/app_assets.dart';
-import '../../../../../../../core/go_routes/routes_names.dart';
 import '../../../../../../../core/theme/app_colors.dart';
 import '../../../../../../../core/theme/text_styles.dart';
 import '../../../../../../../core/validation/form_validators.dart';
@@ -52,8 +51,6 @@ class _RegisterCardState extends State<RegisterCard> {
           password: _passwordController.text,
         ),
       );
-
-
     }
   }
 
@@ -69,7 +66,7 @@ class _RegisterCardState extends State<RegisterCard> {
             vertical: 28.h,
           ),
           decoration: BoxDecoration(
-            color:AppColors.surface.withValues(alpha: 0.10),
+            color: AppColors.surface.withValues(alpha: 0.10),
             borderRadius: BorderRadius.circular(50.r),
             border: Border.all(color: AppColors.white.withValues(alpha: 0.08)),
           ),

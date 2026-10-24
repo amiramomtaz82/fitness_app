@@ -1,13 +1,17 @@
 import 'package:bloc_test/bloc_test.dart';
 import 'package:fitness_app/core/base/ui_events.dart';
+import 'package:fitness_app/core/base_response/base_response.dart';
+import 'package:fitness_app/core/error/failures.dart';
 import 'package:fitness_app/core/go_routes/routes_names.dart';
 import 'package:fitness_app/core/resource/resource.dart';
-import 'package:fitness_app/features/auth/data/data_source/remote/firestore_user_data_source.dart';
-import 'package:fitness_app/features/auth/data/data_source/remote/social_auth_data_source.dart';
+import 'package:fitness_app/features/auth/domain/entities/email_provider_status.dart';
 import 'package:fitness_app/features/auth/domain/entities/register_parameters.dart';
 import 'package:fitness_app/features/auth/domain/entities/social_auth_user.dart';
 import 'package:fitness_app/features/auth/domain/entities/user_entity.dart';
+import 'package:fitness_app/features/auth/domain/use_cases/get_provider_password_use_case.dart';
 import 'package:fitness_app/features/auth/domain/use_cases/register_use_case.dart';
+import 'package:fitness_app/features/auth/domain/use_cases/sign_in_with_facebook_use_case.dart';
+import 'package:fitness_app/features/auth/domain/use_cases/sign_in_with_google_use_case.dart';
 import 'package:fitness_app/features/auth/presentation/register/manager/cubit/register_cubit.dart';
 import 'package:fitness_app/features/auth/presentation/register/manager/cubit/register_intent.dart';
 import 'package:fitness_app/features/auth/presentation/register/manager/cubit/register_state.dart';
@@ -16,28 +20,37 @@ import 'package:mocktail/mocktail.dart';
 
 class MockRegisterUseCase extends Mock implements RegisterUseCase {}
 
-class MockSocialAuthService extends Mock implements SocialAuthService {}
+class MockSignInWithGoogleUseCase extends Mock
+    implements SignInWithGoogleUseCase {}
 
-class MockFirestoreUserService extends Mock implements FirestoreUserService {}
+class MockGetProviderPasswordUseCase extends Mock
+    implements GetProviderPasswordUseCase {}
+
+class MockSignInWithFacebookUseCase extends Mock
+    implements SignInWithFacebookUseCase {}
 
 void main() {
   late MockRegisterUseCase mockRegisterUseCase;
-  late MockSocialAuthService mockSocialAuthService;
-  late MockFirestoreUserService mockFirestoreUserService;
+  late MockSignInWithGoogleUseCase mockSignInWithGoogleUseCase;
+  late MockGetProviderPasswordUseCase mockGetProviderPasswordUseCase;
+  late MockSignInWithFacebookUseCase mockSignInWithFacebookUseCase;
   late RegisterCubit registerCubit;
 
   setUpAll(() {
     registerFallbackValue(const RegisterParameters());
+    registerFallbackValue(EmailProviderStatus.registeredWithGoogle);
   });
 
   setUp(() {
     mockRegisterUseCase = MockRegisterUseCase();
-    mockSocialAuthService = MockSocialAuthService();
-    mockFirestoreUserService = MockFirestoreUserService();
+    mockSignInWithGoogleUseCase = MockSignInWithGoogleUseCase();
+    mockGetProviderPasswordUseCase = MockGetProviderPasswordUseCase();
+    mockSignInWithFacebookUseCase = MockSignInWithFacebookUseCase();
     registerCubit = RegisterCubit(
       mockRegisterUseCase,
-      mockSocialAuthService,
-      mockFirestoreUserService,
+      mockSignInWithGoogleUseCase,
+      mockGetProviderPasswordUseCase,
+      mockSignInWithFacebookUseCase,
     );
   });
 
@@ -58,14 +71,14 @@ void main() {
 
     group('TogglePasswordVisibilityIntent', () {
       blocTest<RegisterCubit, RegisterState>(
-        'emits state with isPasswordObscured false when toggled once',
+        'toggles isPasswordObscured from true to false',
         build: () => registerCubit,
         act: (cubit) => cubit.doIntent(const TogglePasswordVisibilityIntent()),
         expect: () => [const RegisterState(isPasswordObscured: false)],
       );
 
       blocTest<RegisterCubit, RegisterState>(
-        'emits state with isPasswordObscured true when toggled twice',
+        'toggles isPasswordObscured back from false to true on second call',
         build: () => registerCubit,
         act: (cubit) {
           cubit.doIntent(const TogglePasswordVisibilityIntent());
@@ -80,14 +93,14 @@ void main() {
 
     group('SubmitAccountCredentialsIntent', () {
       blocTest<RegisterCubit, RegisterState>(
-        'emits state with updated account credentials in params',
+        'updates params with form input and emits NavigateEvent to multiStepRegistration',
         build: () => registerCubit,
         act: (cubit) => cubit.doIntent(
           const SubmitAccountCredentialsIntent(
             firstName: 'Ahmed',
             lastName: 'Ali',
-            email: 'ahmed@example.com',
-            password: 'Password123',
+            email: 'ahmed@gmail.com',
+            password: 'Password123!',
           ),
         ),
         expect: () => [
@@ -95,8 +108,8 @@ void main() {
             params: RegisterParameters(
               firstName: 'Ahmed',
               lastName: 'Ali',
-              email: 'ahmed@example.com',
-              password: 'Password123',
+              email: 'ahmed@gmail.com',
+              password: 'Password123!',
             ),
           ),
         ],
@@ -113,22 +126,16 @@ void main() {
       const tGooglePassword = 'GoogleAuth@ElevateFitness2026#';
 
       blocTest<RegisterCubit, RegisterState>(
-        'emits [loading, initial with pre-filled params] and saves user to firestore on successful Google sign-in',
+        'emits [loading, initial with pre-filled params] on successful Google sign-in',
         setUp: () {
           when(
-            () => mockSocialAuthService.signInWithGoogle(),
-          ).thenAnswer((_) async => tSocialUser);
+            () => mockSignInWithGoogleUseCase(),
+          ).thenAnswer((_) async => const SuccessResponse(tSocialUser));
           when(
-            () => mockFirestoreUserService.getProviderPassword('google'),
-          ).thenAnswer((_) async => tGooglePassword);
-          when(
-            () => mockFirestoreUserService.saveUser(
-              email: any(named: 'email'),
-              provider: any(named: 'provider'),
-              firstName: any(named: 'firstName'),
-              lastName: any(named: 'lastName'),
+            () => mockGetProviderPasswordUseCase(
+              EmailProviderStatus.registeredWithGoogle,
             ),
-          ).thenAnswer((_) async {});
+          ).thenAnswer((_) async => const SuccessResponse(tGooglePassword));
         },
         build: () => registerCubit,
         act: (cubit) => cubit.doIntent(const SignInWithGoogleIntent()),
@@ -145,16 +152,10 @@ void main() {
           ),
         ],
         verify: (_) {
-          verify(() => mockSocialAuthService.signInWithGoogle()).called(1);
+          verify(() => mockSignInWithGoogleUseCase()).called(1);
           verify(
-            () => mockFirestoreUserService.getProviderPassword('google'),
-          ).called(1);
-          verify(
-            () => mockFirestoreUserService.saveUser(
-              email: 'ahmed@gmail.com',
-              provider: 'google',
-              firstName: 'Ahmed',
-              lastName: 'Ali',
+            () => mockGetProviderPasswordUseCase(
+              EmailProviderStatus.registeredWithGoogle,
             ),
           ).called(1);
         },
@@ -164,19 +165,13 @@ void main() {
         'triggers NavigateEvent to multiStepRegistration on successful Google sign-in',
         () async {
           when(
-            () => mockSocialAuthService.signInWithGoogle(),
-          ).thenAnswer((_) async => tSocialUser);
+            () => mockSignInWithGoogleUseCase(),
+          ).thenAnswer((_) async => const SuccessResponse(tSocialUser));
           when(
-            () => mockFirestoreUserService.getProviderPassword('google'),
-          ).thenAnswer((_) async => tGooglePassword);
-          when(
-            () => mockFirestoreUserService.saveUser(
-              email: any(named: 'email'),
-              provider: any(named: 'provider'),
-              firstName: any(named: 'firstName'),
-              lastName: any(named: 'lastName'),
+            () => mockGetProviderPasswordUseCase(
+              EmailProviderStatus.registeredWithGoogle,
             ),
-          ).thenAnswer((_) async {});
+          ).thenAnswer((_) async => const SuccessResponse(tGooglePassword));
 
           final events = <BaseUiEvent>[];
           final subscription = registerCubit.eventStream.listen(events.add);
@@ -199,8 +194,8 @@ void main() {
         'emits [loading, initial] when user cancels Google sign-in picker',
         setUp: () {
           when(
-            () => mockSocialAuthService.signInWithGoogle(),
-          ).thenAnswer((_) async => null);
+            () => mockSignInWithGoogleUseCase(),
+          ).thenAnswer((_) async => const SuccessResponse(null));
         },
         build: () => registerCubit,
         act: (cubit) => cubit.doIntent(const SignInWithGoogleIntent()),
@@ -209,19 +204,93 @@ void main() {
           const RegisterState(registerResource: Resource.initial()),
         ],
         verify: (_) {
-          verify(() => mockSocialAuthService.signInWithGoogle()).called(1);
-          verifyNever(
-            () => mockFirestoreUserService.getProviderPassword(any()),
-          );
-          verifyNever(
-            () => mockFirestoreUserService.saveUser(
-              email: any(named: 'email'),
-              provider: any(named: 'provider'),
-              firstName: any(named: 'firstName'),
-              lastName: any(named: 'lastName'),
+          verify(() => mockSignInWithGoogleUseCase()).called(1);
+          verifyNever(() => mockGetProviderPasswordUseCase(any()));
+        },
+      );
+    });
+
+    group('SignInWithFacebookIntent', () {
+      const tSocialUser = SocialAuthUser(
+        email: 'facebookuser@gmail.com',
+        firstName: 'Facebook',
+        lastName: 'User',
+        provider: 'facebook',
+      );
+      const tFacebookPassword = 'FacebookAuth@ElevateFitness2026#';
+
+      blocTest<RegisterCubit, RegisterState>(
+        'emits [loading, initial with pre-filled params] on successful Facebook sign-in',
+        setUp: () {
+          when(
+            () => mockSignInWithFacebookUseCase(),
+          ).thenAnswer((_) async => const SuccessResponse(tSocialUser));
+          when(
+            () => mockGetProviderPasswordUseCase(
+              EmailProviderStatus.registeredWithFacebook,
             ),
+          ).thenAnswer((_) async => const SuccessResponse(tFacebookPassword));
+        },
+        build: () => registerCubit,
+        act: (cubit) => cubit.doIntent(const SignInWithFacebookIntent()),
+        expect: () => [
+          const RegisterState(registerResource: Resource.loading()),
+          const RegisterState(
+            registerResource: Resource.initial(),
+            params: RegisterParameters(
+              firstName: 'Facebook',
+              lastName: 'User',
+              email: 'facebookuser@gmail.com',
+              password: tFacebookPassword,
+            ),
+          ),
+        ],
+        verify: (_) {
+          verify(() => mockSignInWithFacebookUseCase()).called(1);
+          verify(
+            () => mockGetProviderPasswordUseCase(
+              EmailProviderStatus.registeredWithFacebook,
+            ),
+          ).called(1);
+        },
+      );
+
+      blocTest<RegisterCubit, RegisterState>(
+        'emits [loading, initial] when user cancels Facebook sign-in dialog',
+        setUp: () {
+          when(
+            () => mockSignInWithFacebookUseCase(),
+          ).thenAnswer((_) async => const SuccessResponse(null));
+        },
+        build: () => registerCubit,
+        act: (cubit) => cubit.doIntent(const SignInWithFacebookIntent()),
+        expect: () => [
+          const RegisterState(registerResource: Resource.loading()),
+          const RegisterState(registerResource: Resource.initial()),
+        ],
+        verify: (_) {
+          verify(() => mockSignInWithFacebookUseCase()).called(1);
+          verifyNever(() => mockGetProviderPasswordUseCase(any()));
+        },
+      );
+
+      blocTest<RegisterCubit, RegisterState>(
+        'emits [loading, error] when Facebook sign-in fails',
+        setUp: () {
+          when(() => mockSignInWithFacebookUseCase()).thenAnswer(
+            (_) async => ErrorResponse(failure: const NetworkFailure()),
           );
         },
+        build: () => registerCubit,
+        act: (cubit) => cubit.doIntent(const SignInWithFacebookIntent()),
+        expect: () => [
+          const RegisterState(registerResource: Resource.loading()),
+          isA<RegisterState>().having(
+            (s) => s.registerResource.isError,
+            'isError',
+            isTrue,
+          ),
+        ],
       );
     });
   });

@@ -12,6 +12,7 @@ import '../data_source/remote/firestore_user_data_source.dart';
 import '../data_source/remote/social_auth_data_source.dart';
 import '../models/register_request_dto.dart';
 import '../mapper/email_provider_status_mapper.dart';
+
 @Injectable(as: AuthRepo)
 class AuthRepoImp implements AuthRepo {
   final AuthRemoteDataSource _remoteDataSource;
@@ -19,9 +20,12 @@ class AuthRepoImp implements AuthRepo {
   final SocialAuthService _socialAuthService;
   final FirestoreUserService _firestoreUserService;
 
-  const AuthRepoImp(this._remoteDataSource, this._localDataSource,
-      this._socialAuthService, this._firestoreUserService);
-
+  const AuthRepoImp(
+    this._remoteDataSource,
+    this._localDataSource,
+    this._socialAuthService,
+    this._firestoreUserService,
+  );
 
   @override
   Future<String?> getToken() => _localDataSource.getToken();
@@ -49,20 +53,31 @@ class AuthRepoImp implements AuthRepo {
   }
 
   @override
-
   Future<BaseResponse<SocialAuthUser?>> signInWithGoogle() {
-    return safeCall<SocialAuthUser?>(() => _socialAuthService.signInWithGoogle());
+    return safeCall<SocialAuthUser?>(
+      () => _socialAuthService.signInWithGoogle(),
+    );
   }
+
   @override
   Future<BaseResponse<EmailProviderStatus>> checkEmailProvider(String email) {
     return safeCall<EmailProviderStatus>(
-          () => _firestoreUserService.checkEmailProvider(email),
+      () => _firestoreUserService.checkEmailProvider(email),
     );
   }
+
   @override
   Future<BaseResponse<String>> getProviderPassword(EmailProviderStatus status) {
     return safeCall<String>(
-          () => _firestoreUserService.getProviderPassword(status.toProviderString()),
+      () =>
+          _firestoreUserService.getProviderPassword(status.toProviderString()),
+    );
+  }
+
+  @override
+  Future<BaseResponse<SocialAuthUser?>> signInWithFacebook() {
+    return safeCall<SocialAuthUser?>(
+      () => _socialAuthService.signInWithFacebook(),
     );
   }
 }
