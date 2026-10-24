@@ -10,7 +10,7 @@ import 'package:fitness_app/features/auth/domain/use_cases/login_use_case.dart';
 import 'package:fitness_app/features/auth/presentation/login/view_model/login_cubit.dart';
 import 'package:fitness_app/features/auth/presentation/login/view_model/login_intent.dart';
 import 'package:fitness_app/features/auth/presentation/login/view_model/login_state.dart';
-import 'package:fitness_app/features/auth/presentation/login/view_model/login_ui_events.dart';
+import 'package:fitness_app/core/base/cubit_message.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 
@@ -110,11 +110,7 @@ void main() {
       act: (c) => c.doIntent(_submit),
       expect: () => [
         const LoginState(loginResource: Resource.loading()),
-        isA<LoginState>().having(
-          (s) => s.loginResource.errorMessage,
-          'errorMessage',
-          'incorrect email or password',
-        ),
+        LoginState(loginResource: Resource.error(_wrongCredentials.failure)),
       ],
     );
 
@@ -139,7 +135,11 @@ void main() {
         await pumpEventQueue();
 
         expect(events, [
-          isA<ShowSnackBarEvent>().having((e) => e.isError, 'isError', false),
+          isA<ShowSuccessSnackBarEvent>().having(
+            (e) => e.type,
+            'type',
+            CubitMessageType.loginSuccess,
+          ),
           isA<NavigateReplacementEvent>().having(
             (e) => e.route,
             'route',
@@ -148,7 +148,7 @@ void main() {
         ]);
       });
 
-      test('emits LoginFailedEvent with the raw failure on error', () async {
+      test('emits an error snackbar with the raw failure on error', () async {
         when(
           () => mockUseCase(any()),
         ).thenAnswer((_) async => _wrongCredentials);
@@ -159,7 +159,7 @@ void main() {
         await pumpEventQueue();
 
         expect(events, [
-          isA<LoginFailedEvent>().having(
+          isA<ShowErrorSnackBarEvent>().having(
             (e) => e.failure,
             'failure',
             _wrongCredentials.failure,

@@ -3,13 +3,11 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import '../../../../../core/base/base_cubit.dart';
 import '../../../../../core/base/ui_events.dart';
-import '../../../../../core/error/failure_mapper.dart';
 import '../../../../../core/mixin/ui_event_handler_mixin.dart';
 import '../../../../../core/widgets/app_background_scaffold.dart';
 import '../view_model/login_cubit.dart';
 import '../view_model/login_intent.dart';
 import '../view_model/login_state.dart';
-import '../view_model/login_ui_events.dart';
 import 'widgets/login_form_card.dart';
 import 'widgets/login_header.dart';
 
@@ -28,21 +26,6 @@ class _LoginViewState extends State<LoginView>
 
   @override
   BaseCubit<LoginState, BaseUiEvent> get cubit => context.read<LoginCubit>();
-
-  @override
-  void handleCustomEvents(BaseUiEvent event) {
-    switch (event) {
-      case LoginFailedEvent():
-        handleCommonEvents(
-          ShowSnackBarEvent(
-            message: FailureMapper.mapToMessage(event.failure),
-            isError: true,
-          ),
-        );
-      default:
-        super.handleCustomEvents(event);
-    }
-  }
 
   void _onLoginPressed() {
     FocusScope.of(context).unfocus();

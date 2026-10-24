@@ -11,7 +11,6 @@ import '../../../domain/entities/user_entity.dart';
 import '../../../domain/use_cases/login_use_case.dart';
 import 'login_intent.dart';
 import 'login_state.dart';
-import 'login_ui_events.dart';
 
 @injectable
 class LoginCubit extends BaseCubit<LoginState, BaseUiEvent> {
@@ -47,12 +46,8 @@ class LoginCubit extends BaseCubit<LoginState, BaseUiEvent> {
   }
 
   void _onLoginFailure(Failure failure) {
-    emit(
-      state.copyWith(
-        loginResource: Resource(ApiStatus.error, null, failure.serverMessage),
-      ),
-    );
-    emitEvent(LoginFailedEvent(failure));
+    emit(state.copyWith(loginResource: Resource.error(failure)));
+    emitFailure(failure);
   }
 
   void _onLoginSuccess(UserEntity user) {

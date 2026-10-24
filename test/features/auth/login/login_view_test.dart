@@ -8,7 +8,6 @@ import 'package:fitness_app/features/auth/presentation/login/view/login_view.dar
 import 'package:fitness_app/features/auth/presentation/login/view_model/login_cubit.dart';
 import 'package:fitness_app/features/auth/presentation/login/view_model/login_intent.dart';
 import 'package:fitness_app/features/auth/presentation/login/view_model/login_state.dart';
-import 'package:fitness_app/features/auth/presentation/login/view_model/login_ui_events.dart';
 import 'package:fitness_app/generated/locale_keys.g.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -173,12 +172,14 @@ void main() {
       expect(find.byIcon(Icons.visibility_off_outlined), findsOneWidget);
     });
 
-    testWidgets('shows the server message on LoginFailedEvent', (tester) async {
+    testWidgets('shows the server message on wrong credentials', (
+      tester,
+    ) async {
       await tester.pumpWidget(makeTestable());
       await tester.pumpAndSettle();
 
       events.add(
-        const LoginFailedEvent(
+        const ShowErrorSnackBarEvent(
           UnauthorizedFailure(serverMessage: 'incorrect email or password'),
         ),
       );
