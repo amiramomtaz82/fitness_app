@@ -21,9 +21,9 @@ class SocialAuthService {
     required GoogleSignIn googleSignIn,
     required FirebaseAuth firebaseAuth,
     required FacebookAuth facebookAuth,
-  })  : _googleSignIn = googleSignIn,
-        _firebaseAuth = firebaseAuth,
-        _facebookAuth = facebookAuth;
+  }) : _googleSignIn = googleSignIn,
+       _firebaseAuth = firebaseAuth,
+       _facebookAuth = facebookAuth;
 
   // ==========================================
   // GOOGLE SIGN-IN
@@ -84,9 +84,7 @@ class SocialAuthService {
     );
     await _firebaseAuth.signInWithCredential(credential);
 
-    final userData = await _facebookAuth.getUserData(
-      fields: _facebookFields,
-    );
+    final userData = await _facebookAuth.getUserData(fields: _facebookFields);
 
     // Clean name parsing without fake dummy names
     final fullName = (userData['name'] as String?)?.trim() ?? '';
