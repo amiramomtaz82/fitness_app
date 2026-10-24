@@ -1,27 +1,36 @@
+import 'dart:async';
+
 import 'package:bloc_test/bloc_test.dart';
+import 'package:fitness_app/core/base/ui_events.dart';
+import 'package:fitness_app/core/error/failures.dart';
 import 'package:fitness_app/core/resource/resource.dart';
 import 'package:fitness_app/features/auth/presentation/login/view/login_view.dart';
 import 'package:fitness_app/features/auth/presentation/login/view_model/login_cubit.dart';
 import 'package:fitness_app/features/auth/presentation/login/view_model/login_intent.dart';
 import 'package:fitness_app/features/auth/presentation/login/view_model/login_state.dart';
+import 'package:fitness_app/features/auth/presentation/login/view_model/login_ui_events.dart';
 import 'package:fitness_app/generated/locale_keys.g.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:get_it/get_it.dart';
 import 'package:mocktail/mocktail.dart';
+
+import '../../../helpers/test_app.dart';
 
 class MockLoginCubit extends Mock implements LoginCubit {}
 
-Widget _makeTestable() {
-  return ScreenUtilInit(
-    designSize: const Size(375, 812),
-    builder: (_, _) => const MaterialApp(home: LoginView()),
-  );
-}
-
 void main() {
   late MockLoginCubit mockCubit;
+  late StreamController<BaseUiEvent> events;
+
+  Widget makeTestable() {
+    return makeTestableWidget(
+      BlocProvider<LoginCubit>.value(
+        value: mockCubit,
+        child: const LoginView(),
+      ),
+    );
+  }
 
   setUpAll(() {
     registerFallbackValue(const TogglePasswordVisibilityIntent());
@@ -40,14 +49,13 @@ void main() {
 
   setUp(() {
     mockCubit = MockLoginCubit();
-    when(() => mockCubit.eventStream).thenAnswer((_) => const Stream.empty());
+    events = StreamController<BaseUiEvent>.broadcast();
+    when(() => mockCubit.eventStream).thenAnswer((_) => events.stream);
     when(() => mockCubit.close()).thenAnswer((_) async {});
     givenStates(const LoginState());
-
-    GetIt.instance.registerSingleton<LoginCubit>(mockCubit);
   });
 
-  tearDown(() => GetIt.instance.reset());
+  tearDown(() => events.close());
 
   Future<void> tapByKey(WidgetTester tester, String key) async {
     final finder = find.byKey(Key(key));
@@ -58,7 +66,7 @@ void main() {
 
   group('LoginView Widget Tests —', () {
     testWidgets('renders header, fields and buttons', (tester) async {
-      await tester.pumpWidget(_makeTestable());
+      await tester.pumpWidget(makeTestable());
       await tester.pumpAndSettle();
 
       expect(find.text(LocaleKeys.auth_hey_there), findsOneWidget);
@@ -73,7 +81,7 @@ void main() {
     testWidgets('shows required errors and does not submit empty form', (
       tester,
     ) async {
-      await tester.pumpWidget(_makeTestable());
+      await tester.pumpWidget(makeTestable());
       await tester.pumpAndSettle();
 
       await tapByKey(tester, 'loginBtn');
@@ -85,7 +93,7 @@ void main() {
     testWidgets('email field shows validation error on invalid input', (
       tester,
     ) async {
-      await tester.pumpWidget(_makeTestable());
+      await tester.pumpWidget(makeTestable());
       await tester.pumpAndSettle();
 
       await tester.enterText(find.byKey(const Key('emailField')), 'bademail');
@@ -100,7 +108,7 @@ void main() {
     });
 
     testWidgets('submits the entered email and password', (tester) async {
-      await tester.pumpWidget(_makeTestable());
+      await tester.pumpWidget(makeTestable());
       await tester.pumpAndSettle();
 
       await tester.enterText(
@@ -126,7 +134,7 @@ void main() {
     ) async {
       givenStates(const LoginState(loginResource: Resource.loading()));
 
-      await tester.pumpWidget(_makeTestable());
+      await tester.pumpWidget(makeTestable());
       await tester.pump();
 
       expect(find.byType(CircularProgressIndicator), findsOneWidget);
@@ -139,7 +147,7 @@ void main() {
     testWidgets('eye button sends TogglePasswordVisibilityIntent', (
       tester,
     ) async {
-      await tester.pumpWidget(_makeTestable());
+      await tester.pumpWidget(makeTestable());
       await tester.pumpAndSettle();
 
       await tapByKey(tester, 'togglePasswordBtn');
@@ -151,10 +159,40 @@ void main() {
       ).called(1);
     });
 
+    testWidgets('eye icon reflects the password visibility state', (
+      tester,
+    ) async {
+      givenStates(const LoginState(), [
+        const LoginState(isPasswordObscured: false),
+      ]);
+
+      await tester.pumpWidget(makeTestable());
+      expect(find.byIcon(Icons.visibility_outlined), findsOneWidget);
+
+      await tester.pumpAndSettle();
+      expect(find.byIcon(Icons.visibility_off_outlined), findsOneWidget);
+    });
+
+    testWidgets('shows the server message on LoginFailedEvent', (tester) async {
+      await tester.pumpWidget(makeTestable());
+      await tester.pumpAndSettle();
+
+      events.add(
+        const LoginFailedEvent(
+          UnauthorizedFailure(serverMessage: 'incorrect email or password'),
+        ),
+      );
+      await tester.pump(); // deliver the event
+      await tester.pump(); // build the snackbar
+
+      expect(find.byType(SnackBar), findsOneWidget);
+      expect(find.text('incorrect email or password'), findsOneWidget);
+    });
+
     testWidgets('register and forgot password send navigation intents', (
       tester,
     ) async {
-      await tester.pumpWidget(_makeTestable());
+      await tester.pumpWidget(makeTestable());
       await tester.pumpAndSettle();
 
       await tapByKey(tester, 'registerBtn');

@@ -42,7 +42,7 @@ class AppTextFormField extends StatelessWidget {
           color: colors.grey,
           fontSize: 14.sp,
         ),
-        contentPadding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 12.h),
+        contentPadding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 12.w),
         prefixIcon: _FieldIcon(asset: prefixIcon),
         suffixIcon: suffix,
         border: _border(colors.border),

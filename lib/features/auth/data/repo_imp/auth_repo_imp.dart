@@ -1,6 +1,7 @@
 import 'package:injectable/injectable.dart';
 import '../../../../core/base_response/base_response.dart';
 import '../../../../core/base_response/safe_call.dart';
+import '../../../../core/error/failures.dart';
 import '../../domain/entities/login_params.dart';
 import '../../domain/entities/user_entity.dart';
 import '../../domain/repo/auth_repo.dart';
@@ -22,8 +23,12 @@ class AuthRepoImp implements AuthRepo {
       final response = await _remoteDataSource.login(
         LoginRequestDto(email: params.email, password: params.password),
       );
-      final user = UserMapper.toEntity(response.user) ?? const UserEntity();
-      await _localDataSource.saveToken(response.token ?? '');
+      final token = response.token;
+      final user = UserMapper.toEntity(response.user);
+      if (token == null || token.isEmpty || user == null) {
+        throw const ServerFailure();
+      }
+      await _localDataSource.saveToken(token);
       await _localDataSource.saveUser(user);
       return user;
     });

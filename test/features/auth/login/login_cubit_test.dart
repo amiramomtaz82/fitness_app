@@ -10,6 +10,7 @@ import 'package:fitness_app/features/auth/domain/use_cases/login_use_case.dart';
 import 'package:fitness_app/features/auth/presentation/login/view_model/login_cubit.dart';
 import 'package:fitness_app/features/auth/presentation/login/view_model/login_intent.dart';
 import 'package:fitness_app/features/auth/presentation/login/view_model/login_state.dart';
+import 'package:fitness_app/features/auth/presentation/login/view_model/login_ui_events.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 
@@ -18,7 +19,12 @@ class MockLoginUseCase extends Mock implements LoginUseCase {}
 const _testUser = UserEntity(id: 'user-id', email: 'test@test.com');
 
 const _submit = LoginSubmittedIntent(
-  email: ' test@test.com ',
+  email: 'test@test.com',
+  password: 'Pass1234',
+);
+
+const _expectedParams = LoginParams(
+  email: 'test@test.com',
   password: 'Pass1234',
 );
 
@@ -73,11 +79,24 @@ void main() {
         const LoginState(loginResource: Resource.loading()),
         const LoginState(loginResource: Resource.success(_testUser)),
       ],
-      verify: (_) => verify(
-        () => mockUseCase(
-          const LoginParams(email: 'test@test.com', password: 'Pass1234'),
+      verify: (_) => verify(() => mockUseCase(_expectedParams)).called(1),
+    );
+
+    blocTest<LoginCubit, LoginState>(
+      'trims leading and trailing whitespace from the email',
+      build: () {
+        when(
+          () => mockUseCase(any()),
+        ).thenAnswer((_) async => const SuccessResponse(_testUser));
+        return cubit;
+      },
+      act: (c) => c.doIntent(
+        const LoginSubmittedIntent(
+          email: '  test@test.com  ',
+          password: 'Pass1234',
         ),
-      ).called(1),
+      ),
+      verify: (_) => verify(() => mockUseCase(_expectedParams)).called(1),
     );
 
     blocTest<LoginCubit, LoginState>(
@@ -129,7 +148,7 @@ void main() {
         ]);
       });
 
-      test('shows an error snackbar on wrong credentials', () async {
+      test('emits LoginFailedEvent with the raw failure on error', () async {
         when(
           () => mockUseCase(any()),
         ).thenAnswer((_) async => _wrongCredentials);
@@ -140,13 +159,11 @@ void main() {
         await pumpEventQueue();
 
         expect(events, [
-          isA<ShowSnackBarEvent>()
-              .having((e) => e.isError, 'isError', true)
-              .having(
-                (e) => e.message,
-                'message',
-                'incorrect email or password',
-              ),
+          isA<LoginFailedEvent>().having(
+            (e) => e.failure,
+            'failure',
+            _wrongCredentials.failure,
+          ),
         ]);
       });
 

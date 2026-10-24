@@ -65,7 +65,7 @@ class _PasswordField extends StatelessWidget {
           textInputAction: TextInputAction.done,
           validator: (value) =>
               FormValidators.validateRequired(value)?.toMessage(),
-          suffix: const _PasswordVisibilityToggle(),
+          suffix: _PasswordVisibilityToggle(isObscured: isObscured),
         );
       },
     );
@@ -73,7 +73,9 @@ class _PasswordField extends StatelessWidget {
 }
 
 class _PasswordVisibilityToggle extends StatelessWidget {
-  const _PasswordVisibilityToggle();
+  final bool isObscured;
+
+  const _PasswordVisibilityToggle({required this.isObscured});
 
   @override
   Widget build(BuildContext context) {
@@ -82,10 +84,9 @@ class _PasswordVisibilityToggle extends StatelessWidget {
       onPressed: () => context.read<LoginCubit>().doIntent(
         const TogglePasswordVisibilityIntent(),
       ),
-      icon: Image.asset(
-        AppAssets.eye,
-        width: 20.w,
-        height: 20.w,
+      icon: Icon(
+        isObscured ? Icons.visibility_outlined : Icons.visibility_off_outlined,
+        size: 20.r,
         color: context.colors.white,
       ),
     );

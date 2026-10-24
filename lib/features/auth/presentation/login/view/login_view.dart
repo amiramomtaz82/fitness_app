@@ -3,42 +3,46 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import '../../../../../core/base/base_cubit.dart';
 import '../../../../../core/base/ui_events.dart';
-import '../../../../../core/di/di.dart';
+import '../../../../../core/error/failure_mapper.dart';
 import '../../../../../core/mixin/ui_event_handler_mixin.dart';
 import '../../../../../core/widgets/app_background_scaffold.dart';
 import '../view_model/login_cubit.dart';
 import '../view_model/login_intent.dart';
 import '../view_model/login_state.dart';
+import '../view_model/login_ui_events.dart';
 import 'widgets/login_form_card.dart';
 import 'widgets/login_header.dart';
 
-class LoginView extends StatelessWidget {
+class LoginView extends StatefulWidget {
   const LoginView({super.key});
 
   @override
-  Widget build(BuildContext context) {
-    return BlocProvider(
-      create: (_) => getIt<LoginCubit>(),
-      child: const LoginViewBody(),
-    );
-  }
+  State<LoginView> createState() => _LoginViewState();
 }
 
-class LoginViewBody extends StatefulWidget {
-  const LoginViewBody({super.key});
-
-  @override
-  State<LoginViewBody> createState() => _LoginViewBodyState();
-}
-
-class _LoginViewBodyState extends State<LoginViewBody>
-    with UiEventMixin<LoginViewBody, LoginState, BaseUiEvent> {
+class _LoginViewState extends State<LoginView>
+    with UiEventMixin<LoginView, LoginState, BaseUiEvent> {
   final _formKey = GlobalKey<FormState>();
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
 
   @override
   BaseCubit<LoginState, BaseUiEvent> get cubit => context.read<LoginCubit>();
+
+  @override
+  void handleCustomEvents(BaseUiEvent event) {
+    switch (event) {
+      case LoginFailedEvent():
+        handleCommonEvents(
+          ShowSnackBarEvent(
+            message: FailureMapper.mapToMessage(event.failure),
+            isError: true,
+          ),
+        );
+      default:
+        super.handleCustomEvents(event);
+    }
+  }
 
   void _onLoginPressed() {
     FocusScope.of(context).unfocus();

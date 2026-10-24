@@ -120,6 +120,38 @@ void main() {
         verifyNever(() => mockLocal.saveUser(any()));
       });
 
+      for (final (name, response) in [
+        (
+          'the token is missing',
+          const LoginResponseDto(user: UserDto(id: 'user-id')),
+        ),
+        (
+          'the token is empty',
+          const LoginResponseDto(
+            token: '',
+            user: UserDto(id: 'user-id'),
+          ),
+        ),
+        ('the user is missing', const LoginResponseDto(token: 'abc123')),
+      ]) {
+        test('returns a server error and caches nothing when $name', () async {
+          when(() => mockRemote.login(any())).thenAnswer((_) async => response);
+
+          final result = await repo.login(_params);
+
+          expect(
+            result,
+            isA<ErrorResponse<UserEntity>>().having(
+              (e) => e.failure,
+              'failure',
+              isA<ServerFailure>(),
+            ),
+          );
+          verifyNever(() => mockLocal.saveToken(any()));
+          verifyNever(() => mockLocal.saveUser(any()));
+        });
+      }
+
       test('returns a network error when there is no connection', () async {
         when(
           () => mockRemote.login(any()),
