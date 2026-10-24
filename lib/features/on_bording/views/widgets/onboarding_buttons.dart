@@ -35,22 +35,27 @@ class OnboardingButtons extends StatelessWidget {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        OutlinedButton(
-          onPressed: onBack,
-          style: OutlinedButton.styleFrom(
-            minimumSize: smallSize,
-            foregroundColor: colors.primary,
-            side: BorderSide(color: colors.primary),
+        Expanded(
+          child: OutlinedButton(
+            onPressed: onBack,
+            style: OutlinedButton.styleFrom(
+              minimumSize: smallSize,
+              foregroundColor: colors.primary,
+              side: BorderSide(color: colors.primary),
+            ),
+            child: Text(LocaleKeys.onboarding_back.tr()),
           ),
-          child: Text(LocaleKeys.onboarding_back.tr()),
         ),
-        ElevatedButton(
-          onPressed: isLast ? onFinish : onNext,
-          style: ElevatedButton.styleFrom(minimumSize: smallSize),
-          child: Text(
-            isLast
-                ? LocaleKeys.onboarding_do_it.tr()
-                : LocaleKeys.onboarding_next.tr(),
+        SizedBox(width: 12.w),
+        Expanded(
+          child: ElevatedButton(
+            onPressed: isLast ? onFinish : onNext,
+            style: ElevatedButton.styleFrom(minimumSize: smallSize),
+            child: Text(
+              isLast
+                  ? LocaleKeys.onboarding_do_it.tr()
+                  : LocaleKeys.onboarding_next.tr(),
+            ),
           ),
         ),
       ],

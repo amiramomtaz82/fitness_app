@@ -1,5 +1,6 @@
 import 'package:fitness_app/core/contants/app_assets.dart';
 import 'package:fitness_app/core/go_routes/routes_names.dart';
+import 'package:fitness_app/core/theme/app_colors.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
@@ -45,8 +46,7 @@ class _SplashViewState extends State<SplashView>
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      // نفس لون الـ native splash عشان مفيش وميض بينهم
-      backgroundColor: const Color(0xFF1E1E1E),
+      backgroundColor: AppColors.background,
       body: Center(
         child: ScaleTransition(
           scale: _scaleAnimation,
