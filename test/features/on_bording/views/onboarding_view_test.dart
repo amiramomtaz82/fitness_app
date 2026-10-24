@@ -1,4 +1,8 @@
+import 'dart:convert';
+
 import 'package:easy_localization/easy_localization.dart';
+import 'package:easy_localization/src/localization.dart';
+import 'package:easy_localization/src/translations.dart';
 import 'package:fitness_app/core/go_routes/routes_names.dart';
 import 'package:fitness_app/core/theme/app_theme.dart';
 import 'package:fitness_app/features/on_bording/views/onboarding_view.dart';
@@ -6,15 +10,14 @@ import 'package:fitness_app/features/on_bording/views/widgets/onboarding_buttons
 import 'package:fitness_app/features/on_bording/views/widgets/onboarding_indicator.dart';
 import 'package:fitness_app/generated/locale_keys.g.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 class _LoginStub extends StatelessWidget {
-  const _LoginStub();
+  const _LoginStub({super.key});
 
-  @override
   Widget build(BuildContext context) {
     return const Scaffold(body: SizedBox.shrink());
   }
@@ -22,8 +25,12 @@ class _LoginStub extends StatelessWidget {
 
 void main() {
   setUpAll(() async {
-    SharedPreferences.setMockInitialValues({});
-    await EasyLocalization.ensureInitialized();
+    // Load the English translations into the shared localization instance so
+    // the localized strings resolve while rendering the widgets in tests.
+    final String content = await rootBundle.loadString('assets/translations/en.json');
+    final Map<String, dynamic> jsonMap = jsonDecode(content) as Map<String, dynamic>;
+    final Translations translations = Translations(jsonMap);
+    Localization.load(Locale('en'), translations: translations);
   });
 
   late GoRouter goRouter;
@@ -50,26 +57,17 @@ void main() {
 
   Future<void> pumpApp(WidgetTester tester) async {
     await tester.pumpWidget(
-      EasyLocalization(
-        path: 'assets/translations',
-        supportedLocales: const [Locale('en'), Locale('ar')],
-        fallbackLocale: const Locale('en'),
-        saveLocale: false,
-        child: ScreenUtilInit(
-          designSize: const Size(375, 812),
-          minTextAdapt: true,
-          splitScreenMode: true,
-          builder: (context, child) => MaterialApp.router(
-            theme: AppTheme.darkTheme,
-            routerConfig: goRouter,
-          ),
+      ScreenUtilInit(
+        designSize: const Size(375, 812),
+        minTextAdapt: true,
+        splitScreenMode: true,
+        builder: (context, child) => MaterialApp.router(
+          theme: AppTheme.darkTheme,
+          routerConfig: goRouter,
         ),
       ),
     );
     await tester.pump();
-    // Allow the async localization asset load to settle before asserting on
-    // translated content.
-    await tester.pump(const Duration(seconds: 2));
   }
 
   testWidgets(
@@ -107,71 +105,74 @@ void main() {
     },
   );
 
-  testWidgets('Verify tapping Next advances to the next onboarding page', (
-    WidgetTester tester,
-  ) async {
-    await tester.binding.setSurfaceSize(const Size(500, 1200));
+  testWidgets(
+    'Verify tapping Next advances to the next onboarding page',
+    (WidgetTester tester) async {
+      await tester.binding.setSurfaceSize(const Size(500, 1200));
 
-    await pumpApp(tester);
+      await pumpApp(tester);
 
-    expect(find.text(LocaleKeys.onboarding_title_1.tr()), findsOneWidget);
+      expect(find.text(LocaleKeys.onboarding_title_1.tr()), findsOneWidget);
 
-    await tester.tap(find.text(LocaleKeys.onboarding_next.tr()));
-    await tester.pumpAndSettle();
+      await tester.tap(find.text(LocaleKeys.onboarding_next.tr()));
+      await tester.pumpAndSettle();
 
-    // The second page content is displayed now.
-    expect(find.text(LocaleKeys.onboarding_title_2.tr()), findsOneWidget);
-    expect(find.text(LocaleKeys.onboarding_desc_2.tr()), findsOneWidget);
+      // The second page content is displayed now.
+      expect(find.text(LocaleKeys.onboarding_title_2.tr()), findsOneWidget);
+      expect(find.text(LocaleKeys.onboarding_desc_2.tr()), findsOneWidget);
 
-    // From the second page the back action becomes available, skip is
-    // still available because it is not the last page.
-    expect(find.text(LocaleKeys.onboarding_back.tr()), findsOneWidget);
-    expect(find.text(LocaleKeys.onboarding_skip.tr()), findsOneWidget);
-    expect(find.text(LocaleKeys.onboarding_next.tr()), findsOneWidget);
+      // From the second page the back action becomes available, skip is
+      // still available because it is not the last page.
+      expect(find.text(LocaleKeys.onboarding_back.tr()), findsOneWidget);
+      expect(find.text(LocaleKeys.onboarding_skip.tr()), findsOneWidget);
+      expect(find.text(LocaleKeys.onboarding_next.tr()), findsOneWidget);
 
-    await tester.binding.setSurfaceSize(null);
-  });
+      await tester.binding.setSurfaceSize(null);
+    },
+  );
 
-  testWidgets('Verify tapping Back returns to the previous onboarding page', (
-    WidgetTester tester,
-  ) async {
-    await tester.binding.setSurfaceSize(const Size(500, 1200));
+  testWidgets(
+    'Verify tapping Back returns to the previous onboarding page',
+    (WidgetTester tester) async {
+      await tester.binding.setSurfaceSize(const Size(500, 1200));
 
-    await pumpApp(tester);
+      await pumpApp(tester);
 
-    // Move to the second page first.
-    await tester.tap(find.text(LocaleKeys.onboarding_next.tr()));
-    await tester.pumpAndSettle();
-    expect(find.text(LocaleKeys.onboarding_title_2.tr()), findsOneWidget);
+      // Move to the second page first.
+      await tester.tap(find.text(LocaleKeys.onboarding_next.tr()));
+      await tester.pumpAndSettle();
+      expect(find.text(LocaleKeys.onboarding_title_2.tr()), findsOneWidget);
 
-    await tester.tap(find.text(LocaleKeys.onboarding_back.tr()));
-    await tester.pumpAndSettle();
+      await tester.tap(find.text(LocaleKeys.onboarding_back.tr()));
+      await tester.pumpAndSettle();
 
-    expect(find.text(LocaleKeys.onboarding_title_1.tr()), findsOneWidget);
-    expect(find.text(LocaleKeys.onboarding_back.tr()), findsNothing);
-    expect(find.text(LocaleKeys.onboarding_next.tr()), findsOneWidget);
+      expect(find.text(LocaleKeys.onboarding_title_1.tr()), findsOneWidget);
+      expect(find.text(LocaleKeys.onboarding_back.tr()), findsNothing);
+      expect(find.text(LocaleKeys.onboarding_next.tr()), findsOneWidget);
 
-    await tester.binding.setSurfaceSize(null);
-  });
+      await tester.binding.setSurfaceSize(null);
+    },
+  );
 
-  testWidgets('Verify tapping Skip navigates to the login screen', (
-    WidgetTester tester,
-  ) async {
-    await tester.binding.setSurfaceSize(const Size(500, 1200));
+  testWidgets(
+    'Verify tapping Skip navigates to the login screen',
+    (WidgetTester tester) async {
+      await tester.binding.setSurfaceSize(const Size(500, 1200));
 
-    await pumpApp(tester);
+      await pumpApp(tester);
 
-    expect(find.byType(OnboardingView), findsOneWidget);
-    expect(find.byType(_LoginStub), findsNothing);
+      expect(find.byType(OnboardingView), findsOneWidget);
+      expect(find.byType(_LoginStub), findsNothing);
 
-    await tester.tap(find.text(LocaleKeys.onboarding_skip.tr()));
-    await tester.pumpAndSettle();
+      await tester.tap(find.text(LocaleKeys.onboarding_skip.tr()));
+      await tester.pumpAndSettle();
 
-    expect(find.byType(_LoginStub), findsOneWidget);
-    expect(find.byType(OnboardingView), findsNothing);
+      expect(find.byType(_LoginStub), findsOneWidget);
+      expect(find.byType(OnboardingView), findsNothing);
 
-    await tester.binding.setSurfaceSize(null);
-  });
+      await tester.binding.setSurfaceSize(null);
+    },
+  );
 
   testWidgets(
     'Verify the last onboarding page shows the Do It action and navigates to the login screen',
