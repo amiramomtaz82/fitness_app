@@ -1,86 +1,81 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:injectable/injectable.dart';
 
-enum EmailProviderStatus {
-  notFound,
-  registeredWithGoogle,
-  registeredWithFacebook,
-  registeredWithEmail,
-}
+import '../../../../../core/error/exceptions.dart';
+import '../../../domain/entities/email_provider_status.dart';
+import '../../mapper/email_provider_status_mapper.dart';
+import '../../models/auth_provider_config_dto.dart';
+import '../../models/registered_user_dto.dart';
+
 
 @lazySingleton
 class FirestoreUserService {
-  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+  final FirebaseFirestore _firestore;
 
-  static const String _collectionName = 'registered_users';
+  static const String _usersCollection = 'registered_users';
+  static const String _configCollection = 'app_config';
+  static const String _providersDoc = 'auth_providers';
 
-  /// Saves or updates the registered user in Firestore
-  Future<void> saveUser({
-    required String email,
-    required String provider, // 'google', 'facebook', 'email'
-    required String firstName,
-    required String lastName,
-  }) async {
-    final sanitizedEmail = email.trim().toLowerCase();
-    await _firestore.collection(_collectionName).doc(sanitizedEmail).set({
-      'email': sanitizedEmail,
-      'provider': provider,
-      'firstName': firstName,
-      'lastName': lastName,
-      'createdAt': FieldValue.serverTimestamp(),
-    }, SetOptions(merge: true));
+
+  FirestoreUserService({required FirebaseFirestore firestore})
+      : _firestore = firestore;
+
+
+  CollectionReference<RegisteredUserDto> get _usersRef =>
+      _firestore.collection(_usersCollection).withConverter<RegisteredUserDto>(
+        fromFirestore: (snapshot, _) =>
+            RegisteredUserDto.fromJson(snapshot.data() ?? {}),
+        toFirestore: (user, _) => user.toJson(),
+      );
+
+
+  DocumentReference<AuthProviderConfigDto> get _providerConfigRef =>
+      _firestore
+          .collection(_configCollection)
+          .doc(_providersDoc)
+          .withConverter<AuthProviderConfigDto>(
+        fromFirestore: (snapshot, _) =>
+            AuthProviderConfigDto.fromJson(snapshot.data() ?? {}),
+        toFirestore: (config, _) => config.toJson(),
+      );
+
+
+  Future<void> saveUser(RegisteredUserDto user) async {
+    final sanitizedEmail = user.email.trim().toLowerCase();
+    await _usersRef.doc(sanitizedEmail).set(user, SetOptions(merge: true));
   }
 
-  /// Checks Firestore to determine how the email was registered (for Forgot Password)
+
   Future<EmailProviderStatus> checkEmailProvider(String email) async {
-    try {
-      final sanitizedEmail = email.trim().toLowerCase();
-      final doc = await _firestore
-          .collection(_collectionName)
-          .doc(sanitizedEmail)
-          .get();
+    final sanitizedEmail = email.trim().toLowerCase();
+    final docSnapshot = await _usersRef.doc(sanitizedEmail).get();
 
-      if (!doc.exists) {
-        return EmailProviderStatus.notFound;
-      }
-
-      final provider = doc.data()?['provider'] as String?;
-      return switch (provider) {
-        'google' => EmailProviderStatus.registeredWithGoogle,
-        'facebook' => EmailProviderStatus.registeredWithFacebook,
-        _ => EmailProviderStatus.registeredWithEmail,
-      };
-    } catch (_) {
+    if (!docSnapshot.exists || docSnapshot.data() == null) {
       return EmailProviderStatus.notFound;
     }
+
+    // Type-safe property access directly on RegisteredUserDto!
+    final userDto = docSnapshot.data()!;
+    return userDto.provider.toEmailProviderStatus();
   }
 
-  /// Gets the unified password for a provider (checking Firestore first, fallback to .env)
+
   Future<String> getProviderPassword(String provider) async {
-    try {
-      final configDoc = await _firestore
-          .collection('app_config')
-          .doc('auth_providers')
-          .get();
-      if (configDoc.exists) {
-        final key = provider == 'google'
-            ? 'google_provider_password'
-            : 'facebook_provider_password';
-        final password = configDoc.data()?[key] as String?;
-        if (password != null && password.isNotEmpty) {
-          return password;
-        }
-      }
-    } catch (_) {
-      // Fallback to .env on network/permission error
+    final configDoc = await _providerConfigRef.get();
+
+    if (!configDoc.exists || configDoc.data() == null) {
+      throw const ServerException(
+        message: 'Auth provider configuration does not exist in Firestore',
+      );
     }
 
-    if (provider == 'google') {
-      return dotenv.env['GOOGLE_PROVIDER_PASSWORD'] ??
-          'GoogleAuth@ElevateFitness2026#';
+    final password = configDoc.data()!.getPassword(provider);
+    if (password == null || password.isEmpty) {
+      throw ServerException(
+        message: 'Password for provider "$provider" is not configured',
+      );
     }
-    return dotenv.env['FACEBOOK_PROVIDER_PASSWORD'] ??
-        'FacebookAuth@ElevateFitness2026#';
+
+    return password;
   }
 }

@@ -7,40 +7,43 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'core/di/di.dart';
 import 'core/go_routes/app_routes.dart';
 import 'core/theme/app_theme.dart';
+import 'core/widgets/firebase_initialization_error_app.dart';
 import 'firebase_options.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  await EasyLocalization.ensureInitialized();
 
-  // 1. Initialize Firebase with FlutterFire CLI options
+  // 1. Initialize Firebase
+  bool isFirebaseInitialized = false;
   try {
     await Firebase.initializeApp(
       options: DefaultFirebaseOptions.currentPlatform,
     );
+    isFirebaseInitialized = true;
   } catch (e) {
-    debugPrint('Failed to initialize Firebase: $e');
+
   }
 
-  // 2. Load environment variables (.env)
-  try {
-    await dotenv.load(fileName: '.env');
-  } catch (e) {
-    debugPrint('Failed to load .env: $e');
+  // 2. Only configure dependencies if Firebase succeeded
+  if (isFirebaseInitialized) {
+    try {
+      await dotenv.load(fileName: '.env');
+    } catch (e) {
+
+    }
+    configureDependencies();
   }
 
-  // 3. Initialize Localization
-  await EasyLocalization.ensureInitialized();
-
-  // 4. Setup Dependency Injection (GetIt)
-  configureDependencies();
-
-  // 5. Run the Application
+  // 3. Single runApp call: Renders MyApp or fallback error screen
   runApp(
     EasyLocalization(
       supportedLocales: const [Locale('en'), Locale('ar')],
       path: 'assets/translations',
       fallbackLocale: const Locale('en'),
-      child: const MyApp(),
+      child: isFirebaseInitialized
+          ? const MyApp()
+          : const FirebaseInitializationErrorApp(),
     ),
   );
 }

@@ -35,8 +35,8 @@ class _RegisterViewState extends State<RegisterView>
 
   @override
   Widget build(BuildContext context) {
-    return BlocProvider.value(
-      value: _cubit,
+ return BlocProvider(
+      create: (_) => _cubit,
       child: AppBackgroundScaffold(
         overlayColor: AppColors.black,
         overlayOpacity: 0.1,

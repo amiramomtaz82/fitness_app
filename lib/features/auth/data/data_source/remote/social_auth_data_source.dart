@@ -9,47 +9,48 @@ class SocialAuthService {
   final GoogleSignIn _googleSignIn;
   final FirebaseAuth _firebaseAuth;
 
-  // Constructor with optional dependencies for 100% testability
-  // Defaults to production platform SDK singletons
-  SocialAuthService({GoogleSignIn? googleSignIn, FirebaseAuth? firebaseAuth})
-    : _googleSignIn =
-          googleSignIn ?? GoogleSignIn(scopes: ['email', 'profile']),
-      _firebaseAuth = firebaseAuth ?? FirebaseAuth.instance;
+
+  SocialAuthService({
+    required GoogleSignIn googleSignIn,
+    required FirebaseAuth firebaseAuth,
+  })  : _googleSignIn = googleSignIn,
+        _firebaseAuth = firebaseAuth;
 
   // ==========================================
   // GOOGLE SIGN-IN
   // ==========================================
   Future<SocialAuthUser?> signInWithGoogle() async {
-    try {
-      await _googleSignIn.signOut();
-      final account = await _googleSignIn.signIn();
-      if (account == null) return null;
+    // 1. Sign out previous session to guarantee account picker shows
+    await _googleSignIn.signOut();
 
-      final GoogleSignInAuthentication googleAuth =
-          await account.authentication;
-      final AuthCredential credential = GoogleAuthProvider.credential(
-        accessToken: googleAuth.accessToken,
-        idToken: googleAuth.idToken,
-      );
-      await _firebaseAuth.signInWithCredential(credential);
-
-      final fullName = account.displayName?.trim() ?? 'User';
-      final nameParts = fullName.split(' ');
-      final firstName = nameParts.isNotEmpty ? nameParts.first : 'User';
-      final lastName = nameParts.length > 1
-          ? nameParts.sublist(1).join(' ')
-          : 'Fitness';
-
-      return SocialAuthUser(
-        email: account.email.trim().toLowerCase(),
-        firstName: firstName,
-        lastName: lastName,
-        photoUrl: account.photoUrl,
-        provider: 'google',
-      );
-    } catch (e) {
+    // 2. Open Google Sign-In prompt
+    final account = await _googleSignIn.signIn();
+    if (account == null) {
       return null;
     }
+
+    // 3. Authenticate with Firebase (NO try-catch! If it fails, let it throw)
+    final GoogleSignInAuthentication googleAuth = await account.authentication;
+    final AuthCredential credential = GoogleAuthProvider.credential(
+      accessToken: googleAuth.accessToken,
+      idToken: googleAuth.idToken,
+    );
+    await _firebaseAuth.signInWithCredential(credential);
+
+    // 4. Parse user profile name
+    final fullName = account.displayName?.trim() ?? 'User';
+    final nameParts = fullName.split(' ');
+    final firstName = nameParts.isNotEmpty ? nameParts.first : 'User';
+    final lastName =
+    nameParts.length > 1 ? nameParts.sublist(1).join(' ') : 'Fitness';
+
+    return SocialAuthUser(
+      email: account.email.trim().toLowerCase(),
+      firstName: firstName,
+      lastName: lastName,
+      photoUrl: account.photoUrl,
+      provider: 'google',
+    );
   }
 
   Future<void> signOut() async {

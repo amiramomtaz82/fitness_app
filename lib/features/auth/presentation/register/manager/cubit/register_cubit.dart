@@ -1,28 +1,29 @@
 import 'package:injectable/injectable.dart';
+
 import '../../../../../../core/base/base_cubit.dart';
 import '../../../../../../core/base/ui_events.dart';
-import '../../../../../../core/error/failures.dart';
+import '../../../../../../core/base_response/base_response.dart';
 import '../../../../../../core/go_routes/routes_names.dart';
 import '../../../../../../core/resource/resource.dart';
-import '../../../../data/data_source/remote/firestore_user_data_source.dart';
-import '../../../../data/data_source/remote/social_auth_data_source.dart';
+import '../../../../domain/entities/email_provider_status.dart';
+
+import '../../../../domain/use_cases/get_provider_password_use.dart';
 import '../../../../domain/use_cases/register_use_case.dart';
+import '../../../../domain/use_cases/sign_in_with_google_use_case.dart';
 import 'register_intent.dart';
 import 'register_state.dart';
 
 @injectable
 class RegisterCubit extends BaseCubit<RegisterState, BaseUiEvent> {
   final RegisterUseCase _registerUseCase;
-  final SocialAuthService _socialAuthService;
-  final FirestoreUserService _firestoreUserService;
-
-  RegisterUseCase get registerUseCase => _registerUseCase;
+  final SignInWithGoogleUseCase _signInWithGoogleUseCase;
+  final GetProviderPasswordUseCase _getProviderPasswordUseCase;
 
   RegisterCubit(
-    this._registerUseCase,
-    this._socialAuthService,
-    this._firestoreUserService,
-  ) : super(const RegisterState());
+      this._registerUseCase,
+      this._signInWithGoogleUseCase,
+      this._getProviderPasswordUseCase,
+      ) : super(const RegisterState());
 
   void doIntent(RegisterIntent intent) {
     switch (intent) {
@@ -31,11 +32,12 @@ class RegisterCubit extends BaseCubit<RegisterState, BaseUiEvent> {
 
       case TogglePasswordVisibilityIntent():
         _togglePasswordVisibility();
+
       case SubmitAccountCredentialsIntent(
-        :final firstName,
-        :final lastName,
-        :final email,
-        :final password,
+          :final firstName,
+          :final lastName,
+          :final email,
+          :final password,
       ):
         _submitAccountCredentials(
           firstName: firstName,
@@ -66,57 +68,51 @@ class RegisterCubit extends BaseCubit<RegisterState, BaseUiEvent> {
         ),
       ),
     );
+    emitEvent(const NavigateEvent(AppRoutes.multiStepRegistration));
   }
 
-  // ==========================================
-  // GOOGLE SIGN-IN HANDLER
-  // ==========================================
   Future<void> _signInWithGoogle() async {
     emit(state.copyWith(registerResource: const Resource.loading()));
-    try {
-      final googleUser = await _socialAuthService.signInWithGoogle();
-      if (googleUser == null) {
-        // User cancelled Google picker
-        emit(state.copyWith(registerResource: const Resource.initial()));
-        return;
-      }
 
-      // 1. Get the unified Google provider password
-      final providerPassword = await _firestoreUserService.getProviderPassword(
-        'google',
-      );
+    final result = await _signInWithGoogleUseCase();
 
-      // 2. 👇 SAVE USER IN FIRESTORE FOR FORGOT PASSWORD CHECK
-      try {
-        await _firestoreUserService.saveUser(
-          email: googleUser.email,
-          provider: 'google',
-          firstName: googleUser.firstName,
-          lastName: googleUser.lastName,
+    switch (result) {
+      case SuccessResponse(:final data):
+        if (data == null) {
+          // User intentionally cancelled the Google picker
+          emit(state.copyWith(registerResource: const Resource.initial()));
+          return;
+        }
+
+        // Get unified provider password from repository
+        final passwordResult = await _getProviderPasswordUseCase(
+          EmailProviderStatus.registeredWithGoogle,
         );
-      } catch (_) {
-        // Ignored: Best-effort save for forgot-password verification
-      }
 
-      // 3. Pre-fill credentials into state
-      emit(
-        state.copyWith(
-          registerResource: const Resource.initial(),
-          params: state.params.copyWith(
-            firstName: googleUser.firstName,
-            lastName: googleUser.lastName,
-            email: googleUser.email,
-            password: providerPassword,
-          ),
-        ),
-      );
+        switch (passwordResult) {
+          case SuccessResponse(data: final providerPassword):
+            emit(
+              state.copyWith(
+                registerResource: const Resource.initial(),
+                params: state.params.copyWith(
+                  firstName: data.firstName,
+                  lastName: data.lastName,
+                  email: data.email,
+                  password: providerPassword,
+                ),
+              ),
+            );
+            // Navigate via typed UI Event
+            emitEvent(const NavigateEvent(AppRoutes.multiStepRegistration));
 
-      // 4. Navigate directly to Screen 2 (Select Gender) to continue the wizard
-      emitEvent(const NavigateEvent(AppRoutes.multiStepRegistration));
-    } catch (e) {
-      final failure = UnknownFailure(serverMessage: e.toString());
-      emit(state.copyWith(registerResource: Resource.error(failure)));
-      emitFailure(failure);
+          case ErrorResponse(:final failure):
+            emit(state.copyWith(registerResource: Resource.error(failure)));
+            emitFailure(failure);
+        }
+
+      case ErrorResponse(:final failure):
+        emit(state.copyWith(registerResource: Resource.error(failure)));
+        emitFailure(failure);
     }
   }
 }

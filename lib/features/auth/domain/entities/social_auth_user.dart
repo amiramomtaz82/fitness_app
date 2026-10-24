@@ -1,4 +1,6 @@
-class SocialAuthUser {
+import 'package:equatable/equatable.dart';
+
+class SocialAuthUser extends Equatable {
   final String email;
   final String firstName;
   final String lastName;
@@ -12,4 +14,7 @@ class SocialAuthUser {
     this.photoUrl,
     required this.provider,
   });
+
+  @override
+  List<Object?> get props => [email, firstName, lastName, photoUrl, provider];
 }

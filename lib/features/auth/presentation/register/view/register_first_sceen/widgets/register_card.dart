@@ -53,7 +53,7 @@ class _RegisterCardState extends State<RegisterCard> {
         ),
       );
 
-      context.push(AppRoutes.multiStepRegistration);
+
     }
   }
 
@@ -69,7 +69,7 @@ class _RegisterCardState extends State<RegisterCard> {
             vertical: 28.h,
           ),
           decoration: BoxDecoration(
-            color: const Color(0xFF242424).withValues(alpha: 0.10),
+            color:AppColors.surface.withValues(alpha: 0.10),
             borderRadius: BorderRadius.circular(50.r),
             border: Border.all(color: AppColors.white.withValues(alpha: 0.08)),
           ),
