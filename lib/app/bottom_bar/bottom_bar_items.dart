@@ -1,12 +1,13 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:fitness_app/app/bottom_bar/bottom_item.dart';
 import 'package:fitness_app/core/theme/app_colors.dart';
 import 'package:fitness_app/core/theme/text_styles.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
-  class BottomBarItems extends StatelessWidget {
-    final BottomItem item;
-    final bool isSelected;
+class BottomBarItems extends StatelessWidget {
+  final BottomItem item;
+  final bool isSelected;
   final VoidCallback onTap;
 
   const BottomBarItems({
@@ -59,7 +60,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
                         child: Padding(
                           padding: EdgeInsets.only(top: 4.h),
                           child: Text(
-                            item.label,
+                            item.label.tr(),
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
                             style: AppTextStyles.orange12regular.copyWith(
