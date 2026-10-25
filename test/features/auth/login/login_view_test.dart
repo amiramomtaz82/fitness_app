@@ -190,6 +190,23 @@ void main() {
       expect(find.text('incorrect email or password'), findsOneWidget);
     });
 
+    testWidgets('google and facebook buttons send social intents', (
+      tester,
+    ) async {
+      await tester.pumpWidget(makeTestable());
+      await tester.pumpAndSettle();
+
+      await tapByKey(tester, 'googleBtn');
+      await tapByKey(tester, 'facebookBtn');
+
+      verify(
+        () => mockCubit.doIntent(any(that: isA<SignInWithGoogleIntent>())),
+      ).called(1);
+      verify(
+        () => mockCubit.doIntent(any(that: isA<SignInWithFacebookIntent>())),
+      ).called(1);
+    });
+
     testWidgets('register and forgot password send navigation intents', (
       tester,
     ) async {

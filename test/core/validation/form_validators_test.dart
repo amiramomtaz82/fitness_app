@@ -109,10 +109,7 @@ void rejectsPasswordWithoutLowercase() {
 
 void rejectsPasswordWithoutDigit() {
   test('returns passwordMissingNumber when digits are missing', () {
-    expect(
-      FormValidators.validatePassword('LongPasswordNoDigit!'),
-      _noDigit,
-    );
+    expect(FormValidators.validatePassword('LongPasswordNoDigit!'), _noDigit);
   });
 }
 
@@ -162,10 +159,7 @@ void rejectsDifferentConfirmation() {
 
 void acceptsMatchingConfirmation() {
   test('returns null when passwords match', () {
-    expect(
-      FormValidators.validateConfirmPassword('Pass123', 'Pass123'),
-      null,
-    );
+    expect(FormValidators.validateConfirmPassword('Pass123', 'Pass123'), null);
   });
 }
 

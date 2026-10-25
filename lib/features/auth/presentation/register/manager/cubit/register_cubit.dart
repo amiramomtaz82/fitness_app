@@ -77,6 +77,7 @@ class RegisterCubit extends BaseCubit<RegisterState, BaseUiEvent> {
         _signInWithFacebook();
     }
   }
+
   void _togglePasswordVisibility() {
     emit(state.copyWith(isPasswordObscured: !state.isPasswordObscured));
   }
@@ -169,6 +170,7 @@ class RegisterCubit extends BaseCubit<RegisterState, BaseUiEvent> {
     }
     _advanceStep();
   }
+
   void _submitAccountCredentials({
     required String firstName,
     required String lastName,
@@ -220,7 +222,9 @@ class RegisterCubit extends BaseCubit<RegisterState, BaseUiEvent> {
               ),
             );
             // Navigate via typed UI Event
-            emitEvent(NavigateEvent(AppRoutes.multiStepRegistration, arguments: this));
+            emitEvent(
+              NavigateEvent(AppRoutes.multiStepRegistration, arguments: this),
+            );
 
           case ErrorResponse(:final failure):
             emit(state.copyWith(registerResource: Resource.error(failure)));
@@ -264,7 +268,9 @@ class RegisterCubit extends BaseCubit<RegisterState, BaseUiEvent> {
               ),
             );
             // Navigate to Screen 2 via UiEvent stream
-            emitEvent(NavigateEvent(AppRoutes.multiStepRegistration, arguments: this));
+            emitEvent(
+              NavigateEvent(AppRoutes.multiStepRegistration, arguments: this),
+            );
           case ErrorResponse(:final failure):
             emit(state.copyWith(registerResource: Resource.error(failure)));
             emitFailure(failure);
@@ -274,7 +280,6 @@ class RegisterCubit extends BaseCubit<RegisterState, BaseUiEvent> {
         emitFailure(failure);
     }
   }
-
 
   void _advanceStep() {
     final nextStep = state.currentStep + 1;

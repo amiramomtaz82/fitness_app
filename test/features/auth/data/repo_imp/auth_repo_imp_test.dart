@@ -78,9 +78,12 @@ void main() {
 
     when(() => mockLocalDataSource.saveToken(any())).thenAnswer((_) async {});
     when(() => mockLocalDataSource.saveUser(any())).thenAnswer((_) async {});
-    when(() => mockFirestoreUserService.getProviderPassword(any()))
-        .thenAnswer((_) async => 'Google123!');
-    when(() => mockFirestoreUserService.saveUser(any())).thenAnswer((_) async {});
+    when(
+      () => mockFirestoreUserService.getProviderPassword(any()),
+    ).thenAnswer((_) async => 'Google123!');
+    when(
+      () => mockFirestoreUserService.saveUser(any()),
+    ).thenAnswer((_) async {});
 
     repo = AuthRepoImp(
       mockRemoteDataSource,
@@ -109,18 +112,21 @@ void main() {
       },
     );
 
-    test('returns ErrorResponse when remote call throws an exception', () async {
-      when(
-        () => mockRemoteDataSource.register(any()),
-      ).thenThrow(Exception('Server unreachable'));
+    test(
+      'returns ErrorResponse when remote call throws an exception',
+      () async {
+        when(
+          () => mockRemoteDataSource.register(any()),
+        ).thenThrow(Exception('Server unreachable'));
 
-      final result = await repo.register(testParams);
+        final result = await repo.register(testParams);
 
-      expect(result, isA<ErrorResponse<UserEntity>>());
-      final error = result as ErrorResponse<UserEntity>;
-      expect(error.failure, isNotNull);
-      verify(() => mockRemoteDataSource.register(any())).called(1);
-    });
+        expect(result, isA<ErrorResponse<UserEntity>>());
+        final error = result as ErrorResponse<UserEntity>;
+        expect(error.failure, isNotNull);
+        verify(() => mockRemoteDataSource.register(any())).called(1);
+      },
+    );
   });
 
   group('AuthRepoImp local data source delegation', () {

@@ -64,8 +64,6 @@ class AuthRepoImp implements AuthRepo {
     await _localDataSource.deleteToken();
     await _localDataSource.deleteUser();
   }
-
-
   @override
   Future<BaseResponse<UserEntity>> register(RegisterParameters params) {
     return safeCall<UserEntity>(() async {

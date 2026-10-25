@@ -3,6 +3,8 @@ import 'package:fitness_app/core/base_response/base_response.dart';
 import 'package:fitness_app/core/error/failures.dart';
 import 'package:fitness_app/features/auth/data/data_source/local/local_data_source.dart';
 import 'package:fitness_app/features/auth/data/data_source/remote/auth_remote_data_source.dart';
+import 'package:fitness_app/features/auth/data/data_source/remote/firestore_user_data_source.dart';
+import 'package:fitness_app/features/auth/data/data_source/remote/social_auth_data_source.dart';
 import 'package:fitness_app/features/auth/data/models/login_request_dto.dart';
 import 'package:fitness_app/features/auth/data/models/login_response_dto.dart';
 import 'package:fitness_app/features/auth/data/models/user_dto.dart';
@@ -15,6 +17,10 @@ import 'package:mocktail/mocktail.dart';
 class MockAuthRemoteDataSource extends Mock implements AuthRemoteDataSource {}
 
 class MockLocalDataSource extends Mock implements LocalDataSource {}
+
+class MockSocialAuthService extends Mock implements SocialAuthService {}
+
+class MockFirestoreUserService extends Mock implements FirestoreUserService {}
 
 const _params = LoginParams(email: 'test@test.com', password: 'Pass1234');
 
@@ -57,7 +63,12 @@ void main() {
   setUp(() {
     mockRemote = MockAuthRemoteDataSource();
     mockLocal = MockLocalDataSource();
-    repo = AuthRepoImp(mockRemote, mockLocal);
+    repo = AuthRepoImp(
+      mockRemote,
+      mockLocal,
+      MockSocialAuthService(),
+      MockFirestoreUserService(),
+    );
     when(() => mockLocal.saveToken(any())).thenAnswer((_) async {});
     when(() => mockLocal.saveUser(any())).thenAnswer((_) async {});
   });

@@ -13,7 +13,6 @@ import 'registration_validation_message.dart';
 import 'widgets/registration_shell_chrome.dart';
 
 class MultiStepsRegistrationView extends StatelessWidget {
-
   const MultiStepsRegistrationView({super.key, this.pageController});
 
   final PageController? pageController;

@@ -20,3 +20,11 @@ class NavigateToRegisterIntent extends LoginIntent {
 class NavigateToForgetPasswordIntent extends LoginIntent {
   const NavigateToForgetPasswordIntent();
 }
+
+class SignInWithGoogleIntent extends LoginIntent {
+  const SignInWithGoogleIntent();
+}
+
+class SignInWithFacebookIntent extends LoginIntent {
+  const SignInWithFacebookIntent();
+}
