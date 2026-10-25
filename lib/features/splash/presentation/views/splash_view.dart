@@ -1,5 +1,5 @@
+import 'package:fitness_app/app/app_routes.dart';
 import 'package:fitness_app/core/contants/app_assets.dart';
-import 'package:fitness_app/core/go_routes/routes_names.dart';
 import 'package:fitness_app/core/theme/app_colors.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
