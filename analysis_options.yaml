@@ -8,6 +8,8 @@ analyzer:
     - "**/*.config.dart"
     - "**/*.mocks.dart"
     - "build/**"
+    - android/**
+    - ios/**
   errors:
     missing_required_param: error
     missing_return: error
