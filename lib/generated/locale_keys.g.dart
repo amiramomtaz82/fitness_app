@@ -2,7 +2,7 @@
 
 // ignore_for_file: constant_identifier_names
 
-abstract class LocaleKeys {
+abstract class  LocaleKeys {
   static const common_app_name = 'common.app_name';
   static const common_next = 'common.next';
   static const common_skip = 'common.skip';
@@ -57,31 +57,23 @@ abstract class LocaleKeys {
   static const auth_create_new_password = 'auth.create_new_password';
   static const auth_done = 'auth.done';
   static const auth = 'auth';
-  static const profile_setup_personalized_plan_subtitle =
-      'profile_setup.personalized_plan_subtitle';
-  static const profile_setup_tell_us_about_yourself =
-      'profile_setup.tell_us_about_yourself';
-  static const profile_setup_need_to_know_gender =
-      'profile_setup.need_to_know_gender';
+  static const profile_setup_personalized_plan_subtitle = 'profile_setup.personalized_plan_subtitle';
+  static const profile_setup_tell_us_about_yourself = 'profile_setup.tell_us_about_yourself';
+  static const profile_setup_need_to_know_gender = 'profile_setup.need_to_know_gender';
   static const profile_setup_how_old_are_you = 'profile_setup.how_old_are_you';
   static const profile_setup_year = 'profile_setup.year';
-  static const profile_setup_what_is_your_weight =
-      'profile_setup.what_is_your_weight';
+  static const profile_setup_what_is_your_weight = 'profile_setup.what_is_your_weight';
   static const profile_setup_kg = 'profile_setup.kg';
   static const profile_setup_done = 'profile_setup.done';
-  static const profile_setup_what_is_your_height =
-      'profile_setup.what_is_your_height';
+  static const profile_setup_what_is_your_height = 'profile_setup.what_is_your_height';
   static const profile_setup_cm = 'profile_setup.cm';
-  static const profile_setup_what_is_your_goal =
-      'profile_setup.what_is_your_goal';
+  static const profile_setup_what_is_your_goal = 'profile_setup.what_is_your_goal';
   static const profile_setup_gain_weight = 'profile_setup.gain_weight';
   static const profile_setup_lose_weight = 'profile_setup.lose_weight';
   static const profile_setup_get_fitter = 'profile_setup.get_fitter';
-  static const profile_setup_gain_more_flexible =
-      'profile_setup.gain_more_flexible';
+  static const profile_setup_gain_more_flexible = 'profile_setup.gain_more_flexible';
   static const profile_setup_learn_the_basic = 'profile_setup.learn_the_basic';
-  static const profile_setup_activity_level_title =
-      'profile_setup.activity_level_title';
+  static const profile_setup_activity_level_title = 'profile_setup.activity_level_title';
   static const profile_setup_rookie = 'profile_setup.rookie';
   static const profile_setup_beginner = 'profile_setup.beginner';
   static const profile_setup_intermediate = 'profile_setup.intermediate';
@@ -129,8 +121,7 @@ abstract class LocaleKeys {
   static const exercises = 'exercises';
   static const chat_hi_user = 'chat.hi_user';
   static const chat_i_am_your_smart_coach = 'chat.i_am_your_smart_coach';
-  static const chat_how_can_i_assist_you_today =
-      'chat.how_can_i_assist_you_today';
+  static const chat_how_can_i_assist_you_today = 'chat.how_can_i_assist_you_today';
   static const chat_get_started = 'chat.get_started';
   static const chat_smart_coach = 'chat.smart_coach';
   static const chat_hello_how_can_i_assist = 'chat.hello_how_can_i_assist';
@@ -140,23 +131,18 @@ abstract class LocaleKeys {
   static const profile_edit_profile = 'profile.edit_profile';
   static const profile_change_password = 'profile.change_password';
   static const profile_select_language = 'profile.select_language';
-  static const profile_select_language_english =
-      'profile.select_language_english';
+  static const profile_select_language_english = 'profile.select_language_english';
   static const profile_security = 'profile.security';
   static const profile_privacy_policy = 'profile.privacy_policy';
   static const profile_help = 'profile.help';
   static const profile_logout = 'profile.logout';
-  static const profile_your_weight_tap_to_edit =
-      'profile.your_weight_tap_to_edit';
+  static const profile_your_weight_tap_to_edit = 'profile.your_weight_tap_to_edit';
   static const profile_your_goal_tap_to_edit = 'profile.your_goal_tap_to_edit';
-  static const profile_your_activity_level_tap_to_edit =
-      'profile.your_activity_level_tap_to_edit';
-  static const profile_are_you_sure_close_app =
-      'profile.are_you_sure_close_app';
+  static const profile_your_activity_level_tap_to_edit = 'profile.your_activity_level_tap_to_edit';
+  static const profile_are_you_sure_close_app = 'profile.are_you_sure_close_app';
   static const profile_no = 'profile.no';
   static const profile_yes = 'profile.yes';
-  static const profile_make_sure_8_characters =
-      'profile.make_sure_8_characters';
+  static const profile_make_sure_8_characters = 'profile.make_sure_8_characters';
   static const profile_create_new_password = 'profile.create_new_password';
   static const profile_old_password = 'profile.old_password';
   static const profile_new_password = 'profile.new_password';
@@ -167,25 +153,12 @@ abstract class LocaleKeys {
   static const validation_invalid_email = 'validation.invalid_email';
   static const validation_password_required = 'validation.password_required';
   static const validation_password_too_short = 'validation.password_too_short';
-  static const validation_password_missing_number =
-      'validation.password_missing_number';
-  static const validation_passwords_dont_match =
-      'validation.passwords_dont_match';
+  static const validation_password_missing_number = 'validation.password_missing_number';
+  static const validation_passwords_dont_match = 'validation.passwords_dont_match';
   static const validation_field_required = 'validation.field_required';
   static const validation_not_a_number = 'validation.not_a_number';
-  static const validation_value_below_minimum =
-      'validation.value_below_minimum';
-  static const validation_value_above_maximum =
-      'validation.value_above_maximum';
-  static const validation_invalid_phone_number =
-      'validation.invalid_phone_number';
-  static const validation_invalid_gender = 'validation.invalid_gender';
-  static const validation_password_missing_uppercase =
-      'validation.password_missing_uppercase';
-  static const validation_password_missing_lowercase =
-      'validation.password_missing_lowercase';
-  static const validation_password_missing_special_char =
-      'validation.password_missing_special_char';
+  static const validation_value_below_minimum = 'validation.value_below_minimum';
+  static const validation_value_above_maximum = 'validation.value_above_maximum';
   static const validation = 'validation';
   static const errors_something_went_wrong = 'errors.something_went_wrong';
   static const errors_connection_timeout = 'errors.connection_timeout';
@@ -201,4 +174,5 @@ abstract class LocaleKeys {
   static const errors_invalid_fields = 'errors.invalid_fields';
   static const errors_internal_server_error = 'errors.internal_server_error';
   static const errors = 'errors';
+
 }
