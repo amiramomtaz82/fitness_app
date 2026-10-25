@@ -6,7 +6,12 @@ enum ValidationError {
   invalidEmail,
   passwordTooShort,
   passwordMissingNumber,
+  passwordMissingUppercase,
+  passwordMissingLowercase,
+  passwordMissingSpecialChar,
   passwordsDoNotMatch,
+  invalidPhoneNumber,
+  invalidGender,
 
   // Fitness App Specific (Weight, Reps, Calories, Height)
   notANumber,
