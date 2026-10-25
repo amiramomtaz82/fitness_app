@@ -15,6 +15,8 @@ extension RegistrationValidationMessage on ValidationError {
       ValidationError.passwordTooShort ||
       ValidationError.passwordMissingNumber ||
       ValidationError.passwordMissingUppercase ||
+      ValidationError.passwordMissingLowercase ||
+      ValidationError.passwordMissingSpecialChar ||
       ValidationError.passwordsDoNotMatch ||
       ValidationError.invalidPhoneNumber =>
         LocaleKeys.validation_field_required,

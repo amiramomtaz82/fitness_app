@@ -7,6 +7,8 @@ enum ValidationError {
   passwordTooShort,
   passwordMissingNumber,
   passwordMissingUppercase,
+  passwordMissingLowercase,
+  passwordMissingSpecialChar,
   passwordsDoNotMatch,
   invalidPhoneNumber,
   invalidGender,

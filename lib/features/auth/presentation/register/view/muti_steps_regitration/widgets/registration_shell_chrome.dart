@@ -10,6 +10,7 @@ import '../../../../../../../core/theme/context.extension.dart';
 import '../../../../../../../core/widgets/app_background_scaffold.dart';
 import '../../../../../../../generated/locale_keys.g.dart';
 import '../../../manager/cubit/register_cubit.dart';
+import '../../../manager/cubit/register_intent.dart';
 import '../../../registration_measurement_rules.dart';
 import 'registration_progress.dart';
 import 'registration_step_page.dart';
@@ -206,27 +207,62 @@ class RegistrationPages extends StatelessWidget {
 }
 
 class RegistrationNextButton extends StatelessWidget {
-  const RegistrationNextButton({super.key, required this.onNext});
+  const RegistrationNextButton({super.key, this.onNext});
 
-  final VoidCallback onNext;
+  final VoidCallback? onNext;
 
   @override
   Widget build(BuildContext context) {
+    final isLastStep = context.select<RegisterCubit, bool>(
+          (cubit) =>
+      cubit.state.currentStep == RegistrationMeasurementRules.lastStepIndex,
+    );
+    final isLoading = context.select<RegisterCubit, bool>(
+          (cubit) => cubit.state.registerResource.isLoading,
+    );
     final enabled = context.select<RegisterCubit, bool>(_canPressNext);
-    return ElevatedButton(
-      onPressed: enabled ? onNext : null,
-      child: Text(LocaleKeys.common_next.tr()),
+
+    return SizedBox(
+      width: double.infinity,
+      height: 48.h,
+      child: ElevatedButton(
+        onPressed: enabled
+            ? () {
+          final cubit = context.read<RegisterCubit>();
+          if (cubit.state.isPaging || isLoading) return;
+
+          if (isLastStep) {
+            cubit.doIntent(const SubmitRegistrationIntent());
+          } else {
+            cubit.doIntent(const NextStepIntent());
+          }
+        }
+            : null,
+        child: isLoading
+            ? SizedBox(
+          width: 24.r,
+          height: 24.r,
+          child: const CircularProgressIndicator(
+            strokeWidth: 2.5,
+            color: Colors.white,
+          ),
+        )
+            : Text(
+          isLastStep
+              ? LocaleKeys.auth_register.tr()
+              : LocaleKeys.common_next.tr(),
+        ),
+      ),
     );
   }
 }
-
 bool _canPressNext(RegisterCubit cubit) {
   final state = cubit.state;
   if (state.isPaging || state.registerResource.isLoading) return false;
-  final finished =
-      state.currentStep == RegistrationMeasurementRules.lastStepIndex &&
-      state.selectedActivity != null;
-  return !finished;
+  if (state.currentStep == RegistrationMeasurementRules.lastStepIndex) {
+    return state.selectedActivity != null; // Enabled once activity is chosen
+  }
+  return true;
 }
 
 const _stepKeys = <(String, String)>[

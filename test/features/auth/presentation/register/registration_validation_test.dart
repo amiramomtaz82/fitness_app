@@ -10,6 +10,7 @@ import 'package:fitness_app/features/auth/presentation/register/manager/cubit/re
 import 'package:fitness_app/features/auth/presentation/register/registration_options.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
+import 'register_test_helper.dart';
 
 class MockRegisterUseCase extends Mock implements RegisterUseCase {}
 
@@ -134,13 +135,13 @@ void _blocks(String name, RegisterState seed, ValidationError error) {
 }
 
 RegisterCubit openCubit() {
-  final cubit = RegisterCubit(useCase);
+  final cubit = createTestRegisterCubit(registerUseCase: useCase);
   addTearDown(cubit.close);
   return cubit;
 }
 
 RegisterCubit listenToValidation() {
-  final cubit = RegisterCubit(useCase);
+  final cubit = createTestRegisterCubit(registerUseCase: useCase);
   cubit.eventStream.listen(events.add);
   return cubit;
 }

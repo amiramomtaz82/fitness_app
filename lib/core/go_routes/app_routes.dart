@@ -31,10 +31,15 @@ final GoRouter appRouter = GoRouter(
     GoRoute(
       path: AppRoutes.multiStepRegistration,
       name: AppRoutes.multiStepRegistration,
-      builder: (context, state) => BlocProvider(
-        create: (_) => GetIt.instance<RegisterCubit>(),
-        child: const MultiStepsRegistrationView(),
-      ),
+      builder: (context, state) {
+        final cubit = state.extra is RegisterCubit
+            ? state.extra! as RegisterCubit
+            : GetIt.instance<RegisterCubit>();
+        return BlocProvider.value(
+          value: cubit,
+          child: const MultiStepsRegistrationView(),
+        );
+      },
     ),
     GoRoute(
       path: AppRoutes.forgotPassword,

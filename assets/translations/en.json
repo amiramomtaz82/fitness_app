@@ -169,7 +169,9 @@
     "value_above_maximum": "Entered value exceeds maximum limit.",
     "invalid_phone_number": "Please enter a valid Egyptian phone number.",
     "invalid_gender": "Please select a valid gender.",
-    "password_missing_uppercase": "Password must contain at least one uppercase letter."
+    "password_missing_uppercase": "Password must contain at least one uppercase letter.",
+    "password_missing_lowercase": "Password must contain at least one lowercase letter.",
+    "password_missing_special_char": "Password must contain at least one special character (#?!@$%^&*-)."
   },
   "errors": {
     "something_went_wrong": "Something went wrong. Please try again.",

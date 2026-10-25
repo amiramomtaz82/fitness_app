@@ -221,7 +221,7 @@ void main() {
       await tester.enterText(textFields.at(0), 'Ahmed');
       await tester.enterText(textFields.at(1), 'Ali');
       await tester.enterText(textFields.at(2), 'invalid-email');
-      await tester.enterText(textFields.at(3), 'Password123');
+      await tester.enterText(textFields.at(3), 'Password@123');
 
       final nextButtonFinder = find.byType(RegisterNextButton);
       await tester.ensureVisible(nextButtonFinder);
@@ -299,7 +299,7 @@ void main() {
         await tester.enterText(textFields.at(0), 'Ahmed');
         await tester.enterText(textFields.at(1), 'Ali');
         await tester.enterText(textFields.at(2), 'ahmed@example.com');
-        await tester.enterText(textFields.at(3), 'Password123');
+        await tester.enterText(textFields.at(3), 'Password@123');
 
         final nextButtonFinder = find.byType(RegisterNextButton);
         await tester.ensureVisible(nextButtonFinder);
@@ -310,7 +310,7 @@ void main() {
         expect(registerCubit.state.params.firstName, equals('Ahmed'));
         expect(registerCubit.state.params.lastName, equals('Ali'));
         expect(registerCubit.state.params.email, equals('ahmed@example.com'));
-        expect(registerCubit.state.params.password, equals('Password123'));
+        expect(registerCubit.state.params.password, equals('Password@123'));
 
         // Check navigation occurred
         expect(find.text('Multi-Step Screen Destination'), findsOneWidget);

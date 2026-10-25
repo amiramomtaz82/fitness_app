@@ -13,6 +13,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
+import 'register_test_helper.dart';
 
 class MockRegisterUseCase extends Mock implements RegisterUseCase {}
 
@@ -54,7 +55,7 @@ void arabicValidationUsesRtl() {
   testWidgets('arabic uses rtl and an arabic validation message', (
     tester,
   ) async {
-    final cubit = RegisterCubit(MockRegisterUseCase());
+    final cubit = createTestRegisterCubit();
     addTearDown(cubit.close);
     await _pump(tester, cubit, const Locale('ar'));
     _expectRtl(tester);
@@ -67,7 +68,7 @@ void arabicValidationUsesRtl() {
 
 void scrollingAgeWheelStoresNextAge() {
   testWidgets('scrolling the age wheel stores the next age', (tester) async {
-    final cubit = RegisterCubit(MockRegisterUseCase());
+    final cubit = createTestRegisterCubit();
     addTearDown(cubit.close);
     await _pump(tester, cubit, const Locale('en'));
     await _openAgeStep(tester, cubit);

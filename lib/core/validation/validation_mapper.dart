@@ -14,6 +14,10 @@ extension ValidationErrorMapper on ValidationError {
         LocaleKeys.validation_password_missing_number.tr(),
       ValidationError.passwordMissingUppercase =>
         LocaleKeys.validation_password_missing_uppercase.tr(),
+      ValidationError.passwordMissingLowercase =>
+        LocaleKeys.validation_password_missing_lowercase.tr(),
+      ValidationError.passwordMissingSpecialChar =>
+        LocaleKeys.validation_password_missing_special_char.tr(),
       ValidationError.passwordsDoNotMatch =>
         LocaleKeys.validation_passwords_dont_match.tr(),
       ValidationError.invalidPhoneNumber =>

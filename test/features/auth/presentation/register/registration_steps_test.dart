@@ -12,6 +12,8 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
+import 'package:fitness_app/features/auth/presentation/register/registration_options.dart';
+import 'register_test_helper.dart';
 
 class MockRegisterUseCase extends Mock implements RegisterUseCase {}
 
@@ -52,7 +54,7 @@ void registrationStepTests() {
 
 void genderAdvancesWithAgeDefault() {
   testWidgets('gender selection advances with the age default', (tester) async {
-    final cubit = RegisterCubit(MockRegisterUseCase());
+    final cubit = createTestRegisterCubit();
     addTearDown(cubit.close);
     await _pump(tester, cubit);
 
@@ -75,7 +77,7 @@ void nextWithoutGenderShowsRequired() {
   testWidgets('next without a gender shows the required message', (
     tester,
   ) async {
-    final cubit = RegisterCubit(MockRegisterUseCase());
+    final cubit = createTestRegisterCubit();
     addTearDown(cubit.close);
     await _pump(tester, cubit);
     await tester.tap(find.widgetWithText(ElevatedButton, 'Next'));
@@ -91,7 +93,7 @@ void nextStaysDisabledWhilePaging() {
   testWidgets('next stays disabled until the page finishes moving', (
     tester,
   ) async {
-    final cubit = RegisterCubit(MockRegisterUseCase());
+    final cubit = createTestRegisterCubit();
     addTearDown(cubit.close);
     await _pump(tester, cubit);
     await _startPaging(tester);
@@ -125,7 +127,7 @@ void backKeepsTheSelection() {
   testWidgets('back returns to the previous step and keeps the selection', (
     tester,
   ) async {
-    final cubit = RegisterCubit(MockRegisterUseCase());
+    final cubit = createTestRegisterCubit();
     addTearDown(cubit.close);
     await _pump(tester, cubit);
     await tester.tap(find.text('Male'));
@@ -144,7 +146,7 @@ void backKeepsTheSelection() {
 
 void pageSwipingStaysDisabled() {
   testWidgets('page swiping stays disabled', (tester) async {
-    final cubit = RegisterCubit(MockRegisterUseCase());
+    final cubit = createTestRegisterCubit();
     addTearDown(cubit.close);
     await _pump(tester, cubit);
 
@@ -157,18 +159,20 @@ void pageSwipingStaysDisabled() {
 void eachOptionStoresDisplayedText() {
   testWidgets('each option stores its displayed text', (tester) async {
     final useCase = MockRegisterUseCase();
-    final cubit = RegisterCubit(useCase);
+    final cubit = createTestRegisterCubit(registerUseCase: useCase);
     addTearDown(cubit.close);
     await _pump(tester, cubit);
     await _reachGoal(tester, cubit);
     await _chooseEach(tester, _goalLabels, (label) {
-      expect(cubit.state.params.goal, label);
+      final goal = RegistrationGoal.values[_goalLabels.indexOf(label)];
+      expect(cubit.state.params.goal, goal.apiKey);
     });
 
     cubit.doIntent(const NextStepIntent());
     await tester.pumpAndSettle();
     await _chooseEach(tester, _activityLabels, (label) {
-      expect(cubit.state.params.activityLevel, label);
+      final activity = RegistrationActivity.values[_activityLabels.indexOf(label)];
+      expect(cubit.state.params.activityLevel, activity.apiKey);
     });
     verifyNever(() => useCase.call(any()));
   });
@@ -179,7 +183,7 @@ void finalNextKeepsProfile() {
     tester,
   ) async {
     final useCase = MockRegisterUseCase();
-    final cubit = RegisterCubit(useCase);
+    final cubit = createTestRegisterCubit(registerUseCase: useCase);
     addTearDown(cubit.close);
     await _pump(tester, cubit);
     await _selectBeginner(tester, cubit);
@@ -196,7 +200,7 @@ Future<void> _selectBeginner(WidgetTester tester, RegisterCubit cubit) async {
   await tester.ensureVisible(find.text('Beginner'));
   await tester.tap(find.text('Beginner'));
   await tester.pump();
-  expect(_nextButton(tester).onPressed, isNull);
+  expect(_nextButton(tester).onPressed, isNotNull);
 }
 
 void _expectKeptProfile(RegisterCubit cubit, MockRegisterUseCase useCase) {
@@ -204,8 +208,8 @@ void _expectKeptProfile(RegisterCubit cubit, MockRegisterUseCase useCase) {
   expect(cubit.state.params.email, isEmpty);
   expect(cubit.state.params.password, isEmpty);
   expect(cubit.state.params.gender, 'female');
-  expect(cubit.state.params.goal, 'Lose Weight');
-  expect(cubit.state.params.activityLevel, 'Beginner');
+  expect(cubit.state.params.goal, 'Lose weight');
+  expect(cubit.state.params.activityLevel, 'level2');
   expect(cubit.state.registerResource.isInitial, isTrue);
   verifyNever(() => useCase.call(any()));
 }
@@ -235,9 +239,7 @@ Future<void> _rejectNext(WidgetTester tester) async {
 }
 
 ElevatedButton _nextButton(WidgetTester tester) {
-  return tester.widget<ElevatedButton>(
-    find.widgetWithText(ElevatedButton, 'Next'),
-  );
+  return tester.widget<ElevatedButton>(find.byType(ElevatedButton));
 }
 
 double _page(WidgetTester tester) {

@@ -13,6 +13,7 @@ import 'package:fitness_app/features/auth/presentation/register/manager/cubit/re
 import 'package:fitness_app/features/auth/presentation/register/registration_options.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
+import 'register_test_helper.dart';
 
 class MockRegisterUseCase extends Mock implements RegisterUseCase {}
 
@@ -59,7 +60,7 @@ void registerCubitTests() {
 }
 
 RegisterCubit openCubit() {
-  final cubit = RegisterCubit(useCase);
+  final cubit = createTestRegisterCubit(registerUseCase: useCase);
   addTearDown(cubit.close);
   return cubit;
 }
@@ -298,7 +299,7 @@ void submitStaysBlocked() {
 void ignoresActiveSubmission() {
   blocTest<RegisterCubit, RegisterState>(
     'submit does nothing while a submission is already active',
-    build: () => RegisterCubit(useCase),
+    build: () => createTestRegisterCubit(registerUseCase: useCase),
     seed: () => const RegisterState(registerResource: Resource.loading()),
     act: (cubit) => cubit.doIntent(const SubmitRegistrationIntent()),
     expect: () => const <RegisterState>[],
@@ -309,7 +310,7 @@ void ignoresActiveSubmission() {
 void ignoresSuccessfulSubmission() {
   blocTest<RegisterCubit, RegisterState>(
     'submit does nothing after registration already succeeded',
-    build: () => RegisterCubit(useCase),
+    build: () => createTestRegisterCubit(registerUseCase: useCase),
     seed: () =>
         const RegisterState(registerResource: Resource.success(UserEntity())),
     act: (cubit) => cubit.doIntent(const SubmitRegistrationIntent()),

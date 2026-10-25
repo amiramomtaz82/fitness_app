@@ -17,13 +17,13 @@ class SocialAuthService {
   static const List<String> _facebookPermissions = ['email', 'public_profile'];
   static const String _facebookFields = 'name,email,picture.width(200)';
 
-  SocialAuthService({
-    required GoogleSignIn googleSignIn,
-    required FirebaseAuth firebaseAuth,
-    required FacebookAuth facebookAuth,
-  }) : _googleSignIn = googleSignIn,
-       _firebaseAuth = firebaseAuth,
-       _facebookAuth = facebookAuth;
+  SocialAuthService(
+    this._googleSignIn,
+    this._firebaseAuth,
+    this._facebookAuth,
+  );
+
+
 
   // ==========================================
   // GOOGLE SIGN-IN

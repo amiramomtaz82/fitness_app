@@ -18,12 +18,13 @@ class RegistrationGoalStep extends StatelessWidget {
     );
     final choices = <RegistrationChoice>[];
     for (final goal in RegistrationGoal.values) {
-      final label = goal.displayText;
+      final label = goal.displayText; // Localized text for UI
       choices.add(
         RegistrationChoice(
           label: label,
           selected: selected == goal,
-          onTap: () => _selectGoal(context, goal, label),
+          // 👇 Send goal.apiKey to the Cubit
+          onTap: () => _selectGoal(context, goal, goal.apiKey),
         ),
       );
     }
@@ -41,12 +42,13 @@ class RegistrationActivityStep extends StatelessWidget {
     );
     final choices = <RegistrationChoice>[];
     for (final activity in RegistrationActivity.values) {
-      final label = activity.displayText;
+      final label = activity.displayText; // Localized text for UI
       choices.add(
         RegistrationChoice(
           label: label,
           selected: selected == activity,
-          onTap: () => _selectActivity(context, activity, label),
+          // 👇 Send activity.apiKey ('level1', 'level2', etc.) to the Cubit
+          onTap: () => _selectActivity(context, activity, activity.apiKey),
         ),
       );
     }

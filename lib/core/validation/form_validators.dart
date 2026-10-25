@@ -23,19 +23,27 @@ class FormValidators {
     return null;
   }
 
-  /// Validates password strength (min 6 chars, uppercase letter, digit)
+  /// Validates password strength matching backend pattern:
+  /// /^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9])(?=.*?[#?!@$%^&*-]).{8,}$/
+  /// (min 8 chars, uppercase, lowercase, digit, special character from [#?!@$%^&*-])
   static ValidationError? validatePassword(String? value) {
     if (value == null || value.trim().isEmpty) {
       return ValidationError.empty;
     }
-    if (value.length < 6) {
+    if (value.length < 8) {
       return ValidationError.passwordTooShort;
     }
     if (!RegExp(r'[A-Z]').hasMatch(value)) {
       return ValidationError.passwordMissingUppercase;
     }
+    if (!RegExp(r'[a-z]').hasMatch(value)) {
+      return ValidationError.passwordMissingLowercase;
+    }
     if (!RegExp(r'\d').hasMatch(value)) {
       return ValidationError.passwordMissingNumber;
+    }
+    if (!RegExp(r'[#?!@$%^&*-]').hasMatch(value)) {
+      return ValidationError.passwordMissingSpecialChar;
     }
     return null;
   }

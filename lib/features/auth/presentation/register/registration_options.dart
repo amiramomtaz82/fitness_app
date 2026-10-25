@@ -14,6 +14,7 @@ extension RegistrationGenderLabel on RegistrationGender {
       RegistrationGender.female => _genderFemaleKey.tr(),
     };
   }
+
 }
 
 enum RegistrationGoal {
@@ -52,4 +53,25 @@ extension RegistrationActivityLabel on RegistrationActivity {
         LocaleKeys.profile_setup_true_beast.tr(),
     };
   }
+}
+// 1. Backend contract mapping for Goal (Fixed English strings)
+extension RegistrationGoalApiKey on RegistrationGoal {
+  String get apiKey => switch (this) {
+    RegistrationGoal.gainWeight => 'Gain weight',
+    RegistrationGoal.loseWeight => 'Lose weight',
+    RegistrationGoal.getFitter => 'Get fitter',
+    RegistrationGoal.gainMoreFlexible => 'Gain more flexible',
+    RegistrationGoal.learnTheBasic => 'Learn the basic',
+  };
+}
+
+// 2. Backend contract mapping for Activity Level ('level1' to 'level5')
+extension RegistrationActivityApiKey on RegistrationActivity {
+  String get apiKey => switch (this) {
+    RegistrationActivity.rookie => 'level1',
+    RegistrationActivity.beginner => 'level2',
+    RegistrationActivity.intermediate => 'level3',
+    RegistrationActivity.advance => 'level4',
+    RegistrationActivity.trueBeast => 'level5',
+  };
 }

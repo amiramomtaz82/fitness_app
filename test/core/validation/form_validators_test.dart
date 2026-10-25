@@ -68,7 +68,10 @@ void passwordFieldTests() {
   group('validatePassword', () {
     rejectsBlankPassword();
     rejectsShortPassword();
+    rejectsPasswordWithoutUppercase();
+    rejectsPasswordWithoutLowercase();
     rejectsPasswordWithoutDigit();
+    rejectsPasswordWithoutSpecialChar();
     acceptsValidPassword();
   });
 }
@@ -80,27 +83,56 @@ void rejectsBlankPassword() {
   });
 }
 
-      test('returns passwordTooShort when less than 6 characters', () {
-        expect(
-          FormValidators.validatePassword('Pass1'),
-          ValidationError.passwordTooShort,
-        );
-      });
 void rejectsShortPassword() {
-  test('returns passwordTooShort when less than 6 characters', () {
-    expect(FormValidators.validatePassword('Ab1xy'), _shortPassword);
+  test('returns passwordTooShort when less than 8 characters', () {
+    expect(FormValidators.validatePassword('Ab1!xyz'), _shortPassword);
+  });
+}
+
+void rejectsPasswordWithoutUppercase() {
+  test('returns passwordMissingUppercase when uppercase is missing', () {
+    expect(
+      FormValidators.validatePassword('lowercase123!'),
+      ValidationError.passwordMissingUppercase,
+    );
+  });
+}
+
+void rejectsPasswordWithoutLowercase() {
+  test('returns passwordMissingLowercase when lowercase is missing', () {
+    expect(
+      FormValidators.validatePassword('UPPERCASE123!'),
+      ValidationError.passwordMissingLowercase,
+    );
   });
 }
 
 void rejectsPasswordWithoutDigit() {
   test('returns passwordMissingNumber when digits are missing', () {
-    expect(FormValidators.validatePassword('LongPasswordNoDigit'), _noDigit);
+    expect(
+      FormValidators.validatePassword('LongPasswordNoDigit!'),
+      _noDigit,
+    );
   });
+}
+
+void rejectsPasswordWithoutSpecialChar() {
+  test(
+    'returns passwordMissingSpecialChar when special character is missing',
+    () {
+      expect(
+        FormValidators.validatePassword('Passwordd123'),
+        ValidationError.passwordMissingSpecialChar,
+      );
+    },
+  );
 }
 
 void acceptsValidPassword() {
   test('returns null when valid password meets criteria', () {
-    expect(FormValidators.validatePassword('StrongPassword123'), isNull);
+    expect(FormValidators.validatePassword('StrongPassword@123'), isNull);
+    expect(FormValidators.validatePassword('Password!123'), isNull);
+    expect(FormValidators.validatePassword('Elevate#2026'), isNull);
   });
 }
 
@@ -130,7 +162,10 @@ void rejectsDifferentConfirmation() {
 
 void acceptsMatchingConfirmation() {
   test('returns null when passwords match', () {
-    expect(FormValidators.validateConfirmPassword('Pass123', 'Pass123'), null);
+    expect(
+      FormValidators.validateConfirmPassword('Pass123', 'Pass123'),
+      null,
+    );
   });
 }
 
@@ -145,34 +180,40 @@ void weightFieldTests() {
 
 void rejectsBlankWeight() {
   test('returns empty when null or empty', () {
-    expect(FormValidators.validateWeight(null), ValidationError.empty);
-    expect(FormValidators.validateWeight(''), ValidationError.empty);
+    expect(FormValidators.validateWeight(null), _empty);
+    expect(FormValidators.validateWeight(''), _empty);
   });
 }
 
 void rejectsNonNumericWeight() {
   test('returns notANumber when input is not numeric', () {
-    expect(FormValidators.validateWeight('abc'), ValidationError.notANumber);
+    expect(FormValidators.validateWeight('abc'), _notANumber);
+    expect(FormValidators.validateWeight('70kg'), _notANumber);
   });
 }
 
 void rejectsWeightOutOfRange() {
   test('returns the bound error when weight is outside 20 to 350', () {
     expect(FormValidators.validateWeight('19.9'), _belowMinimum);
+    expect(FormValidators.validateWeight('0'), _belowMinimum);
+    expect(FormValidators.validateWeight('-10'), _belowMinimum);
     expect(FormValidators.validateWeight('350.1'), _aboveMaximum);
+    expect(FormValidators.validateWeight('500'), _aboveMaximum);
   });
 }
 
 void acceptsValidWeight() {
   test('returns null when weight is within valid range', () {
-    expect(FormValidators.validateWeight('70.5'), isNull);
+    expect(FormValidators.validateWeight('20.0'), isNull);
+    expect(FormValidators.validateWeight('75.5'), isNull);
+    expect(FormValidators.validateWeight('350.0'), isNull);
   });
 }
 
 void repsFieldTests() {
   group('validateRepsOrSets', () {
     rejectsBlankReps();
-    rejectsNonIntegerReps();
+    rejectsNonNumericReps();
     rejectsRepsOutOfRange();
     acceptsValidReps();
   });
@@ -180,17 +221,15 @@ void repsFieldTests() {
 
 void rejectsBlankReps() {
   test('returns empty when null or empty', () {
-    expect(FormValidators.validateRepsOrSets(null), ValidationError.empty);
-    expect(FormValidators.validateRepsOrSets(''), ValidationError.empty);
+    expect(FormValidators.validateRepsOrSets(null), _empty);
+    expect(FormValidators.validateRepsOrSets(''), _empty);
   });
 }
 
-void rejectsNonIntegerReps() {
+void rejectsNonNumericReps() {
   test('returns notANumber when input is not an integer', () {
-    expect(
-      FormValidators.validateRepsOrSets('abc'),
-      ValidationError.notANumber,
-    );
+    expect(FormValidators.validateRepsOrSets('ten'), _notANumber);
+    expect(FormValidators.validateRepsOrSets('12.5'), _notANumber);
   });
 }
 
@@ -214,3 +253,4 @@ const _noDigit = ValidationError.passwordMissingNumber;
 const _empty = ValidationError.empty;
 const _belowMinimum = ValidationError.valueBelowMinimum;
 const _aboveMaximum = ValidationError.valueAboveMaximum;
+const _notANumber = ValidationError.notANumber;

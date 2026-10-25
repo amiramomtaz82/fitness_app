@@ -7,6 +7,7 @@ import 'package:fitness_app/features/auth/presentation/register/manager/cubit/re
 import 'package:fitness_app/features/auth/presentation/register/manager/cubit/registration_validation_event.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
+import 'register_test_helper.dart';
 
 class MockRegisterUseCase extends Mock implements RegisterUseCase {}
 
@@ -23,7 +24,7 @@ void stepNavigationTests() {
 }
 
 RegisterCubit openCubit() {
-  final cubit = RegisterCubit(MockRegisterUseCase());
+  final cubit = createTestRegisterCubit();
   addTearDown(cubit.close);
   return cubit;
 }

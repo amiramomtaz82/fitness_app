@@ -13,6 +13,7 @@ import 'package:fitness_app/features/auth/presentation/register/manager/cubit/re
 import 'package:fitness_app/features/auth/presentation/register/registration_options.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
+import 'register_test_helper.dart';
 
 class MockRegisterUseCase extends Mock implements RegisterUseCase {}
 
@@ -29,7 +30,7 @@ void main() {
 
 void filledStepsDoNotRegister() {
   test('filled steps do not call register', () {
-    final cubit = RegisterCubit(useCase);
+    final cubit = createTestRegisterCubit(registerUseCase: useCase);
     addTearDown(cubit.close);
     _fillProfile(cubit);
     cubit.doIntent(const SubmitRegistrationIntent());
@@ -64,7 +65,7 @@ void repositoryFailureIsStored() {
 void thrownRegistrationErrorEscapes() {
   test('a thrown registration error escapes', () async {
     _throwOffline();
-    final cubit = RegisterCubit(useCase);
+    final cubit = createTestRegisterCubit(registerUseCase: useCase);
     addTearDown(cubit.close);
     cubit.emit(_readyToSubmit());
     final error = await _captureSubmitError(cubit);
@@ -88,7 +89,7 @@ void _throwOffline() {
 }
 
 RegisterCubit _listenToRegistration() {
-  final cubit = RegisterCubit(useCase);
+  final cubit = createTestRegisterCubit(registerUseCase: useCase);
   cubit.eventStream.listen(events.add);
   return cubit;
 }
@@ -148,13 +149,13 @@ RegisterState _readyToSubmit() {
       firstName: 'Ada',
       lastName: 'Lovelace',
       email: 'ada@example.com',
-      password: 'Secret1',
+      password: 'Secret1@#',
       gender: 'female',
       age: 40,
       weight: 70.5,
       height: 180,
-      goal: 'Lose Weight',
-      activityLevel: 'Intermediate',
+      goal: 'Lose weight',
+      activityLevel: 'level3',
     ),
   );
 }

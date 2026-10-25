@@ -11,9 +11,7 @@ import '../../../../../../core/resource/resource.dart';
 import '../../../../domain/entities/email_provider_status.dart';
 
 import '../../../../domain/use_cases/get_provider_password_use_case.dart';
-import '../../../../../../core/base_response/base_response.dart';
 import '../../../../../../core/error/failures.dart';
-import '../../../../../../core/resource/resource.dart';
 import '../../../../../../core/validation/form_validators.dart';
 import '../../../../../../core/validation/validation_errors.dart';
 import '../../../../domain/entities/register_parameters.dart';
@@ -24,7 +22,6 @@ import '../../../../domain/use_cases/sign_in_with_google_use_case.dart';
 import '../../registration_measurement_rules.dart';
 import '../../registration_options.dart';
 import 'register_intent.dart';
-import 'register_state.dart';
 import 'register_state.dart';
 import 'registration_validation_event.dart';
 
@@ -188,7 +185,7 @@ class RegisterCubit extends BaseCubit<RegisterState, BaseUiEvent> {
         ),
       ),
     );
-    emitEvent(const NavigateEvent(AppRoutes.multiStepRegistration));
+    emitEvent(NavigateEvent(AppRoutes.multiStepRegistration, arguments: this));
   }
 
   Future<void> _signInWithGoogle() async {
@@ -223,7 +220,7 @@ class RegisterCubit extends BaseCubit<RegisterState, BaseUiEvent> {
               ),
             );
             // Navigate via typed UI Event
-            emitEvent(const NavigateEvent(AppRoutes.multiStepRegistration));
+            emitEvent(NavigateEvent(AppRoutes.multiStepRegistration, arguments: this));
 
           case ErrorResponse(:final failure):
             emit(state.copyWith(registerResource: Resource.error(failure)));
@@ -267,7 +264,7 @@ class RegisterCubit extends BaseCubit<RegisterState, BaseUiEvent> {
               ),
             );
             // Navigate to Screen 2 via UiEvent stream
-            emitEvent(const NavigateEvent(AppRoutes.multiStepRegistration));
+            emitEvent(NavigateEvent(AppRoutes.multiStepRegistration, arguments: this));
           case ErrorResponse(:final failure):
             emit(state.copyWith(registerResource: Resource.error(failure)));
             emitFailure(failure);
@@ -277,7 +274,7 @@ class RegisterCubit extends BaseCubit<RegisterState, BaseUiEvent> {
         emitFailure(failure);
     }
   }
-}
+
 
   void _advanceStep() {
     final nextStep = state.currentStep + 1;
@@ -330,6 +327,8 @@ class RegisterCubit extends BaseCubit<RegisterState, BaseUiEvent> {
   void _showSuccess(UserEntity user) {
     emit(state.copyWith(registerResource: Resource.success(user)));
     emitSuccess(CubitMessageType.registerSuccess);
+    // Navigate to login after registration success
+    emitEvent(const NavigateReplacementEvent(AppRoutes.login));
   }
 
   void _showFailure(Failure failure) {

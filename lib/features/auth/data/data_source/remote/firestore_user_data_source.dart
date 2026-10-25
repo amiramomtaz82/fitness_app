@@ -15,8 +15,8 @@ class FirestoreUserService {
   static const String _configCollection = 'app_config';
   static const String _providersDoc = 'auth_providers';
 
-  FirestoreUserService({required FirebaseFirestore firestore})
-    : _firestore = firestore;
+  FirestoreUserService(this._firestore);
+
 
   CollectionReference<RegisteredUserDto> get _usersRef => _firestore
       .collection(_usersCollection)
