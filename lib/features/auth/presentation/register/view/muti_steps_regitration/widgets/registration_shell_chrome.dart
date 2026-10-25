@@ -30,7 +30,6 @@ class RegistrationShellBody extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return AppBackgroundScaffold(
-      backgroundImage: AppAssets.authProfileBG,
       child: Padding(
         padding: EdgeInsets.fromLTRB(16.w, 8.h, 16.w, 16.h),
         child: Column(
@@ -214,11 +213,11 @@ class RegistrationNextButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final isLastStep = context.select<RegisterCubit, bool>(
-          (cubit) =>
-      cubit.state.currentStep == RegistrationMeasurementRules.lastStepIndex,
+      (cubit) =>
+          cubit.state.currentStep == RegistrationMeasurementRules.lastStepIndex,
     );
     final isLoading = context.select<RegisterCubit, bool>(
-          (cubit) => cubit.state.registerResource.isLoading,
+      (cubit) => cubit.state.registerResource.isLoading,
     );
     final enabled = context.select<RegisterCubit, bool>(_canPressNext);
 
@@ -228,34 +227,35 @@ class RegistrationNextButton extends StatelessWidget {
       child: ElevatedButton(
         onPressed: enabled
             ? () {
-          final cubit = context.read<RegisterCubit>();
-          if (cubit.state.isPaging || isLoading) return;
+                final cubit = context.read<RegisterCubit>();
+                if (cubit.state.isPaging || isLoading) return;
 
-          if (isLastStep) {
-            cubit.doIntent(const SubmitRegistrationIntent());
-          } else {
-            cubit.doIntent(const NextStepIntent());
-          }
-        }
+                if (isLastStep) {
+                  cubit.doIntent(const SubmitRegistrationIntent());
+                } else {
+                  cubit.doIntent(const NextStepIntent());
+                }
+              }
             : null,
         child: isLoading
             ? SizedBox(
-          width: 24.r,
-          height: 24.r,
-          child: const CircularProgressIndicator(
-            strokeWidth: 2.5,
-            color: Colors.white,
-          ),
-        )
+                width: 24.r,
+                height: 24.r,
+                child: const CircularProgressIndicator(
+                  strokeWidth: 2.5,
+                  color: Colors.white,
+                ),
+              )
             : Text(
-          isLastStep
-              ? LocaleKeys.auth_register.tr()
-              : LocaleKeys.common_next.tr(),
-        ),
+                isLastStep
+                    ? LocaleKeys.auth_register.tr()
+                    : LocaleKeys.common_next.tr(),
+              ),
       ),
     );
   }
 }
+
 bool _canPressNext(RegisterCubit cubit) {
   final state = cubit.state;
   if (state.isPaging || state.registerResource.isLoading) return false;
