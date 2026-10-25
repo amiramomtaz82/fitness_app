@@ -4,6 +4,8 @@ import 'package:go_router/go_router.dart';
 
 import '../../features/auth/presentation/forget_password/view/forget_pasword_view.dart';
 import '../../features/auth/presentation/login/view/login_view.dart';
+import '../../features/auth/presentation/login/view_model/login_cubit.dart';
+import '../di/di.dart';
 import '../../features/auth/presentation/register/manager/cubit/register_cubit.dart';
 import '../../features/auth/presentation/register/view/muti_steps_regitration/multi_steps_registration_view.dart';
 import '../../features/auth/presentation/register/view/register_first_sceen/register_view.dart';
@@ -21,7 +23,10 @@ final GoRouter appRouter = GoRouter(
     GoRoute(
       path: AppRoutes.login,
       name: AppRoutes.login,
-      builder: (context, state) => const LoginView(),
+      builder: (context, state) => BlocProvider(
+        create: (_) => getIt<LoginCubit>(),
+        child: const LoginView(),
+      ),
     ),
     GoRoute(
       path: AppRoutes.register,

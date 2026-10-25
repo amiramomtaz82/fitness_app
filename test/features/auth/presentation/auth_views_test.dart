@@ -2,16 +2,21 @@ import 'package:bloc_test/bloc_test.dart';
 import 'package:fitness_app/core/di/di.dart';
 import 'package:fitness_app/features/auth/presentation/forget_password/view/forget_pasword_view.dart';
 import 'package:fitness_app/features/auth/presentation/login/view/login_view.dart';
+import 'package:fitness_app/features/auth/presentation/login/view_model/login_cubit.dart';
+import 'package:fitness_app/features/auth/presentation/login/view_model/login_state.dart';
 import 'package:fitness_app/features/auth/presentation/register/manager/cubit/register_cubit.dart';
 import 'package:fitness_app/features/auth/presentation/register/manager/cubit/register_state.dart';
 import 'package:fitness_app/features/auth/presentation/register/view/register_first_sceen/register_view.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 
 class MockRegisterCubit extends MockCubit<RegisterState>
     implements RegisterCubit {}
+
+class MockLoginCubit extends MockCubit<LoginState> implements LoginCubit {}
 
 void main() {
   group('Auth Views Smoke Tests', () {
@@ -37,7 +42,23 @@ void main() {
     });
 
     testWidgets('LoginView renders properly', (WidgetTester tester) async {
-      await tester.pumpWidget(const MaterialApp(home: LoginView()));
+      final mockLoginCubit = MockLoginCubit();
+      when(() => mockLoginCubit.state).thenReturn(const LoginState());
+      when(
+        () => mockLoginCubit.eventStream,
+      ).thenAnswer((_) => const Stream.empty());
+
+      await tester.pumpWidget(
+        ScreenUtilInit(
+          designSize: const Size(375, 812),
+          builder: (context, child) => MaterialApp(
+            home: BlocProvider<LoginCubit>.value(
+              value: mockLoginCubit,
+              child: const LoginView(),
+            ),
+          ),
+        ),
+      );
       expect(find.byType(LoginView), findsOneWidget);
     });
 

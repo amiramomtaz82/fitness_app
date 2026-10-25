@@ -17,13 +17,7 @@ class SocialAuthService {
   static const List<String> _facebookPermissions = ['email', 'public_profile'];
   static const String _facebookFields = 'name,email,picture.width(200)';
 
-  SocialAuthService(
-    this._googleSignIn,
-    this._firebaseAuth,
-    this._facebookAuth,
-  );
-
-
+  SocialAuthService(this._googleSignIn, this._firebaseAuth, this._facebookAuth);
 
   // ==========================================
   // GOOGLE SIGN-IN

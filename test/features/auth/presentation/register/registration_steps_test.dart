@@ -171,7 +171,8 @@ void eachOptionStoresDisplayedText() {
     cubit.doIntent(const NextStepIntent());
     await tester.pumpAndSettle();
     await _chooseEach(tester, _activityLabels, (label) {
-      final activity = RegistrationActivity.values[_activityLabels.indexOf(label)];
+      final activity =
+          RegistrationActivity.values[_activityLabels.indexOf(label)];
       expect(cubit.state.params.activityLevel, activity.apiKey);
     });
     verifyNever(() => useCase.call(any()));

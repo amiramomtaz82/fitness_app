@@ -2,6 +2,8 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:injectable/injectable.dart';
 import '../../../../core/base_response/base_response.dart';
 import '../../../../core/base_response/safe_call.dart';
+import '../../../../core/error/failures.dart';
+import '../../domain/entities/login_params.dart';
 import '../../domain/entities/email_provider_status.dart';
 import '../../domain/entities/register_parameters.dart';
 import '../../domain/entities/social_auth_user.dart';
@@ -9,6 +11,8 @@ import '../../domain/entities/user_entity.dart';
 import '../../domain/repo/auth_repo.dart';
 import '../data_source/local/local_data_source.dart';
 import '../data_source/remote/auth_remote_data_source.dart';
+import '../mapper/user_mapper.dart';
+import '../models/login_request_dto.dart';
 import '../data_source/remote/firestore_user_data_source.dart';
 import '../data_source/remote/social_auth_data_source.dart';
 import '../models/register_request_dto.dart';
@@ -30,6 +34,23 @@ class AuthRepoImp implements AuthRepo {
   );
 
   @override
+  Future<BaseResponse<UserEntity>> login(LoginParams params) {
+    return safeCall(() async {
+      final response = await _remoteDataSource.login(
+        LoginRequestDto(email: params.email, password: params.password),
+      );
+      final token = response.token;
+      final user = UserMapper.toEntity(response.user);
+      if (token == null || token.isEmpty || user == null) {
+        throw const ServerFailure();
+      }
+      await _localDataSource.saveToken(token);
+      await _localDataSource.saveUser(user);
+      return user;
+    });
+  }
+
+  @override
   Future<String?> getToken() => _localDataSource.getToken();
 
   @override
@@ -43,8 +64,6 @@ class AuthRepoImp implements AuthRepo {
     await _localDataSource.deleteToken();
     await _localDataSource.deleteUser();
   }
-
-
   @override
   Future<BaseResponse<UserEntity>> register(RegisterParameters params) {
     return safeCall<UserEntity>(() async {

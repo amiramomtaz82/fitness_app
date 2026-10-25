@@ -14,7 +14,6 @@ extension RegistrationGenderLabel on RegistrationGender {
       RegistrationGender.female => _genderFemaleKey.tr(),
     };
   }
-
 }
 
 enum RegistrationGoal {
@@ -54,6 +53,7 @@ extension RegistrationActivityLabel on RegistrationActivity {
     };
   }
 }
+
 // 1. Backend contract mapping for Goal (Fixed English strings)
 extension RegistrationGoalApiKey on RegistrationGoal {
   String get apiKey => switch (this) {

@@ -32,7 +32,6 @@ final class SignInWithFacebookIntent extends RegisterIntent {
   const SignInWithFacebookIntent();
 }
 
-
 final class SelectGenderIntent extends RegisterIntent {
   final String gender;
 
