@@ -6,7 +6,6 @@ import '../../../../../../core/base/base_cubit.dart';
 import '../../../../../../core/base/cubit_message.dart';
 import '../../../../../../core/base/ui_events.dart';
 import '../../../../../../core/base_response/base_response.dart';
-import '../../../../../../core/error/error_handler.dart';
 import '../../../../../../core/error/failures.dart';
 import '../../../../../../core/resource/resource.dart';
 import '../../../../../../core/validation/form_validators.dart';
@@ -175,14 +174,9 @@ class RegisterCubit extends BaseCubit<RegisterState, BaseUiEvent> {
   }
 
   Future<void> _register(RegisterParameters params) async {
-    try {
-      final result = await _registerUseCase(params);
-      if (isClosed) return;
-      _publishRegistration(result);
-    } catch (error) {
-      if (isClosed) return;
-      _showFailure(ErrorHandler.handle(error));
-    }
+    final result = await _registerUseCase(params);
+    if (isClosed) return;
+    _publishRegistration(result);
   }
 
   void _publishRegistration(BaseResponse<UserEntity> result) {

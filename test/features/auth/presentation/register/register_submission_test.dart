@@ -1,7 +1,11 @@
+import 'dart:async';
+
 import 'package:bloc_test/bloc_test.dart';
 import 'package:fitness_app/core/base/ui_events.dart';
+import 'package:fitness_app/core/base_response/base_response.dart';
 import 'package:fitness_app/core/error/failures.dart';
 import 'package:fitness_app/features/auth/domain/entities/register_parameters.dart';
+import 'package:fitness_app/features/auth/domain/entities/user_entity.dart';
 import 'package:fitness_app/features/auth/domain/use_cases/register_use_case.dart';
 import 'package:fitness_app/features/auth/presentation/register/manager/cubit/register_cubit.dart';
 import 'package:fitness_app/features/auth/presentation/register/manager/cubit/register_intent.dart';
@@ -19,7 +23,8 @@ void main() {
   setUpAll(() => registerFallbackValue(const RegisterParameters()));
   setUp(() => useCase = MockRegisterUseCase());
   filledStepsDoNotRegister();
-  thrownRegistrationErrorIsStored();
+  repositoryFailureIsStored();
+  thrownRegistrationErrorEscapes();
 }
 
 void filledStepsDoNotRegister() {
@@ -43,33 +48,52 @@ void _expectUnsubmittedProfile(RegisterCubit cubit) {
   expect(cubit.state.params.activityLevel, 'Intermediate');
 }
 
-void thrownRegistrationErrorIsStored() {
+void repositoryFailureIsStored() {
   blocTest<RegisterCubit, RegisterState>(
-    'a thrown registration error is stored instead of escaping',
-    setUp: _throwOffline,
-    build: _listenToThrownRegistration,
+    'a repository failure is stored',
+    setUp: _returnRepositoryFailure,
+    build: _listenToRegistration,
     seed: _readyToSubmit,
     act: (cubit) => cubit.doIntent(const SubmitRegistrationIntent()),
     wait: Duration.zero,
-    expect: _offlineRegistrationStates,
-    verify: (_) => _expectOfflineSnackBar(),
+    expect: _repositoryFailureStates,
+    verify: (_) => _expectFailureSnackBar(),
   );
 }
 
-void _throwOffline() {
+void thrownRegistrationErrorEscapes() {
+  test('a thrown registration error escapes', () async {
+    _throwOffline();
+    final cubit = RegisterCubit(useCase);
+    addTearDown(cubit.close);
+    cubit.emit(_readyToSubmit());
+    final error = await _captureSubmitError(cubit);
+    _expectEscaped(cubit, error);
+  });
+}
+
+void _returnRepositoryFailure() {
   events = [];
+  when(() => useCase.call(any())).thenAnswer((_) async {
+    return ErrorResponse<UserEntity>(
+      failure: const UnknownFailure(serverMessage: 'offline'),
+    );
+  });
+}
+
+void _throwOffline() {
   when(() => useCase.call(any())).thenAnswer((_) async {
     throw Exception('offline');
   });
 }
 
-RegisterCubit _listenToThrownRegistration() {
+RegisterCubit _listenToRegistration() {
   final cubit = RegisterCubit(useCase);
   cubit.eventStream.listen(events.add);
   return cubit;
 }
 
-List<Matcher> _offlineRegistrationStates() {
+List<Matcher> _repositoryFailureStates() {
   return [_loadingRegistration(), _offlineRegistration()];
 }
 
@@ -85,14 +109,34 @@ Matcher _offlineRegistration() {
   return isA<RegisterState>().having(
     (state) => state.registerResource.failure?.serverMessage,
     'failure',
-    'Exception: offline',
+    'offline',
   );
 }
 
-void _expectOfflineSnackBar() {
+void _expectFailureSnackBar() {
   final event = events.single as ShowErrorSnackBarEvent;
   expect(event.failure, isA<UnknownFailure>());
-  expect(event.failure.serverMessage, 'Exception: offline');
+  expect(event.failure.serverMessage, 'offline');
+}
+
+Future<Object> _captureSubmitError(RegisterCubit cubit) {
+  final captured = Completer<Object>();
+  runZonedGuarded(
+    () {
+      cubit.doIntent(const SubmitRegistrationIntent());
+    },
+    (error, _) {
+      if (!captured.isCompleted) captured.complete(error);
+    },
+  );
+  return captured.future;
+}
+
+void _expectEscaped(RegisterCubit cubit, Object error) {
+  expect(error, isA<Exception>());
+  expect(error.toString(), 'Exception: offline');
+  expect(cubit.state.registerResource.isLoading, isTrue);
+  expect(cubit.state.registerResource.failure, isNull);
 }
 
 RegisterState _readyToSubmit() {
