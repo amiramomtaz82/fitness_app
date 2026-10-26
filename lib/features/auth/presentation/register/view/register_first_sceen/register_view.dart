@@ -40,8 +40,7 @@ class _RegisterViewState extends State<RegisterView>
       child: AppBackgroundScaffold(
         overlayColor: AppColors.black,
         overlayOpacity: 0.1,
-        showLayoutGrid: true,
-        gridColor: AppColors.orange,
+
         backgroundImage: AppAssets.authProfileBG,
 
         child: SingleChildScrollView(

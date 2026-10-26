@@ -17,7 +17,6 @@ class FirestoreUserService {
 
   FirestoreUserService(this._firestore);
 
-
   CollectionReference<RegisteredUserDto> get _usersRef => _firestore
       .collection(_usersCollection)
       .withConverter<RegisteredUserDto>(

@@ -64,6 +64,7 @@ class AuthRepoImp implements AuthRepo {
     await _localDataSource.deleteToken();
     await _localDataSource.deleteUser();
   }
+
   @override
   Future<BaseResponse<UserEntity>> register(RegisterParameters params) {
     return safeCall<UserEntity>(() async {
@@ -83,11 +84,14 @@ class AuthRepoImp implements AuthRepo {
       // 4. Determine auth provider ('google', 'facebook', or 'email')
       String provider = 'email';
       try {
-        final googlePassword = await _firestoreUserService.getProviderPassword('google');
+        final googlePassword = await _firestoreUserService.getProviderPassword(
+          'google',
+        );
         if (params.password == googlePassword) {
           provider = 'google';
         } else {
-          final facebookPassword = await _firestoreUserService.getProviderPassword('facebook');
+          final facebookPassword = await _firestoreUserService
+              .getProviderPassword('facebook');
           if (params.password == facebookPassword) {
             provider = 'facebook';
           }
@@ -96,7 +100,8 @@ class AuthRepoImp implements AuthRepo {
         // Fallback to .env in case of temporary offline/sync delay
         if (params.password == dotenv.env['GOOGLE_PROVIDER_PASSWORD']) {
           provider = 'google';
-        } else if (params.password == dotenv.env['FACEBOOK_PROVIDER_PASSWORD']) {
+        } else if (params.password ==
+            dotenv.env['FACEBOOK_PROVIDER_PASSWORD']) {
           provider = 'facebook';
         }
       }
