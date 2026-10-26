@@ -7,6 +7,7 @@ enum ValidationError {
   passwordTooShort,
   passwordMissingNumber,
   passwordsDoNotMatch,
+  incompleteOtp,
 
   // Fitness App Specific (Weight, Reps, Calories, Height)
   notANumber,

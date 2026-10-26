@@ -51,6 +51,17 @@ class FormValidators {
     return null;
   }
 
+  /// Validates a one-time reset/verification code of [length] digits.
+  static ValidationError? validateOtp(String? value, {int length = 6}) {
+    if (value == null || value.trim().length < length) {
+      return ValidationError.incompleteOtp;
+    }
+    if (!RegExp(r'^\d+$').hasMatch(value.trim())) {
+      return ValidationError.incompleteOtp;
+    }
+    return null;
+  }
+
   // ==========================================
   // Fitness-Specific Input Validators
   // ==========================================

@@ -1,11 +1,30 @@
-// ignore_for_file: unused_field
-
 import 'package:dio/dio.dart';
 import 'package:retrofit/retrofit.dart';
+
+import 'package:fitness_app/core/contants/endpoints/endpoints.dart';
+import '../models/auth_action_response_dto.dart';
+import '../models/forget_password_request_dto.dart';
+import '../models/reset_password_request_dto.dart';
+import '../models/verify_otp_request_dto.dart';
 
 part 'auth_client.g.dart';
 
 @RestApi()
 abstract class AuthClient {
   factory AuthClient(Dio dio, {String baseUrl}) = _AuthClient;
+
+  @POST(Endpoints.forgotPassword)
+  Future<AuthActionResponseDto> forgotPassword(
+    @Body() ForgetPasswordRequestDto body,
+  );
+
+  @POST(Endpoints.verifyResetCode)
+  Future<AuthActionResponseDto> verifyResetCode(
+    @Body() VerifyOtpRequestDto body,
+  );
+
+  @PUT(Endpoints.resetPassword)
+  Future<AuthActionResponseDto> resetPassword(
+    @Body() ResetPasswordRequestDto body,
+  );
 }

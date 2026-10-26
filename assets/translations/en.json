@@ -52,6 +52,7 @@
     "confirm": "Confirm",
     "didnt_receive_code": "Didnt Recieve Verification Code?",
     "resend_code": "Resend Code?",
+    "resend_in": "Resend in {seconds}s",
     "make_sure_8_characters": "Make Sure Its 8 Characters Or More",
     "create_new_password": "Create New Password",
     "done": "Done"
@@ -163,6 +164,7 @@
     "password_too_short": "Password must be at least 8 characters.",
     "password_missing_number": "Password must contain at least one digit.",
     "passwords_dont_match": "Passwords do not match.",
+    "incomplete_otp": "Please enter the complete verification code.",
     "field_required": "This field is required.",
     "not_a_number": "Please enter a valid numeric value.",
     "value_below_minimum": "Entered value is too low.",

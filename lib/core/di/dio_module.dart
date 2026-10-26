@@ -5,6 +5,7 @@ import 'package:pretty_dio_logger/pretty_dio_logger.dart';
 import '../contants/endpoints/endpoints.dart';
 import '../interceptors/auth_interceptor.dart';
 import '../interceptors/local_interceptor.dart';
+import '../interceptors/mock_forget_password_interceptor.dart';
 
 @module
 abstract class DioModule {
@@ -22,6 +23,7 @@ abstract class DioModule {
     );
     dioInstance.interceptors.add(authInterceptor);
     dioInstance.interceptors.add(localeInterceptor);
+    dioInstance.interceptors.add(MockForgetPasswordInterceptor());
     dioInstance.interceptors.add(
       PrettyDioLogger(
         requestBody: true,
