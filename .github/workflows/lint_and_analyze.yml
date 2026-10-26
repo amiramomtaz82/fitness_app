@@ -32,8 +32,20 @@ jobs:
 
       - name: Create Mock Firebase Options
         run: |
-          dart run tool/generate_mock_firebase_options.dart
-          dart format lib/firebase_options.dart
+          if [ ! -f lib/firebase_options.dart ]; then
+            mkdir -p lib
+            echo "// Generated mock for CI and static analysis" > lib/firebase_options.dart
+            echo "import 'package:firebase_core/firebase_core.dart' show FirebaseOptions;" >> lib/firebase_options.dart
+            echo "class DefaultFirebaseOptions {" >> lib/firebase_options.dart
+            echo "  static FirebaseOptions get currentPlatform => const FirebaseOptions(" >> lib/firebase_options.dart
+            echo "    apiKey: 'mock-api-key'," >> lib/firebase_options.dart
+            echo "    appId: 'mock-app-id'," >> lib/firebase_options.dart
+            echo "    messagingSenderId: 'mock-sender-id'," >> lib/firebase_options.dart
+            echo "    projectId: 'mock-project-id'," >> lib/firebase_options.dart
+            echo "  );" >> lib/firebase_options.dart
+            echo "}" >> lib/firebase_options.dart
+            dart format lib/firebase_options.dart
+          fi
 
       - name: Generate Localization Keys
         run: |
