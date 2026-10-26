@@ -8,7 +8,7 @@ packages:
       sha256: "1b0e6a07425a3e460666e88bf1c949ccc7bb0116ad562ce94a1eca60fe820725"
       url: "https://pub.dev"
     source: hosted
-    version: "99.0.0"
+    version: "103.0.0"
   _flutterfire_internals:
     dependency: transitive
     description:
@@ -165,7 +165,7 @@ packages:
     dependency: transitive
     description:
       name: clock
-      sha256: e51d50bca3217c9a9fa2b41a30e4a38971133f5f9ec7a3d57bae095007f1d28e
+      sha256: fddb70d9b5277016c77a80201021d40a2247104d9f4aa7bab7157b7e3f05b84b
       url: "https://pub.dev"
     source: hosted
     version: "1.1.2"
@@ -470,14 +470,6 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "6.0.1"
-  flutter_launcher_icons:
-    dependency: "direct dev"
-    description:
-      name: flutter_launcher_icons
-      sha256: "10f13781741a2e3972126fae08393d3c4e01fa4cd7473326b94b72cf594195e7"
-      url: "https://pub.dev"
-    source: hosted
-    version: "0.14.4"
   flutter_facebook_auth:
     dependency: "direct main"
     description:
@@ -502,6 +494,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "6.1.2"
+  flutter_launcher_icons:
+    dependency: "direct dev"
+    description:
+      name: flutter_launcher_icons
+      sha256: "10f13781741a2e3972126fae08393d3c4e01fa4cd7473326b94b72cf594195e7"
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.14.4"
   flutter_lints:
     dependency: "direct dev"
     description:
@@ -881,10 +881,10 @@ packages:
     dependency: "direct dev"
     description:
       name: json_serializable
-      sha256: ffcd10cde35a93b2abbbcc26bd9971f4ca93763e8abe78d855e3c4177797e501
+      sha256: cc7822761b40be9237bcaae62b755ffe5453ceff96a0001f1f5f2439251c66f1
       url: "https://pub.dev"
     source: hosted
-    version: "6.14.0"
+    version: "6.15.2"
   leak_tracker:
     dependency: transitive
     description:
@@ -1206,7 +1206,7 @@ packages:
     source: hosted
     version: "10.2.7"
   shared_preferences:
-    dependency: "direct dev"
+    dependency: "direct main"
     description:
       name: shared_preferences
       sha256: "1e85e0dccf5b4a016077fea7dfbb4a7cb39c759ac1596fcf60c06deadb7da91f"

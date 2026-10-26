@@ -28,9 +28,10 @@ dependencies:
   go_router: ^16.2.0
   easy_localization: ^3.0.8
 
-  # UI & Storage & Utils
+  # UI, Storage & Utils
   pinput: ^6.0.2
   flutter_secure_storage: ^10.0.0
+  shared_preferences: ^2.5.6
   uuid: ^4.5.1
   image_picker: ^1.1.2
   url_launcher: ^6.3.1
@@ -39,6 +40,8 @@ dependencies:
   flutter_screenutil: ^5.9.3
   flutter_svg: ^2.3.0
   molten_navigationbar_flutter: ^1.0.1
+
+  # Firebase & Authentication
   firebase_core: ^3.12.1
   cloud_firestore: ^5.6.5
   google_sign_in: ^6.2.2
@@ -56,15 +59,12 @@ dev_dependencies:
   retrofit_generator: 10.2.7
   json_serializable: ^6.15.2
   flutter_launcher_icons: ^0.14.4
+  flutter_native_splash: ^2.4.8
 
   # Testing
   bloc_test: ^10.0.0
   mockito: ^5.6.4
   mocktail: ^1.0.5
-  shared_preferences: ^2.5.0
-
-  shared_preferences: ^2.5.6
-  flutter_native_splash: ^2.4.8
 
 flutter:
   uses-material-design: true
@@ -72,7 +72,7 @@ flutter:
   assets:
     - assets/translations/
     - assets/images/
-   # - .env
+    # - .env
 
 flutter_native_splash:
   color: "#1E1E1E"

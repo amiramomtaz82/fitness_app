@@ -1,5 +1,6 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:fitness_app/app/app_routes.dart';
+import 'package:fitness_app/app/routes_names.dart';
 import 'package:fitness_app/core/contants/app_assets.dart';
 import 'package:fitness_app/core/theme/text_styles.dart';
 import 'package:fitness_app/features/on_bording/views/widgets/onboarding_buttons.dart';

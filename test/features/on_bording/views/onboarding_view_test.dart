@@ -4,7 +4,7 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:easy_localization/src/localization.dart';
 import 'package:easy_localization/src/translations.dart';
 import 'package:fitness_app/app/app_routes.dart';
-import 'package:fitness_app/core/go_routes/routes_names.dart';
+import 'package:fitness_app/app/routes_names.dart';
 import 'package:fitness_app/core/theme/app_theme.dart';
 import 'package:fitness_app/features/on_bording/views/onboarding_view.dart';
 import 'package:fitness_app/features/on_bording/views/widgets/onboarding_buttons.dart';
