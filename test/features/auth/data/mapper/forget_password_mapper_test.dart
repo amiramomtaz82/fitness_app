@@ -6,53 +6,55 @@ import 'package:fitness_app/features/auth/domain/entities/forget_password/verify
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
-  group('ForgetPasswordMapper.toSendRequestDto', () {
+  group('ForgetPasswordRequest.toDto', () {
     test('copies the email across', () {
-      final dto = ForgetPasswordMapper.toSendRequestDto(
-        const ForgetPasswordRequest(email: 'user@mail.com'),
-      );
+      const request = ForgetPasswordRequest(email: 'user@mail.com');
+      final dto = request.toDto();
       expect(dto.email, 'user@mail.com');
     });
   });
 
-  group('ForgetPasswordMapper.toVerifyRequestDto', () {
+  group('VerifyOtpRequest.toDto', () {
     test('copies the reset code across', () {
-      final dto = ForgetPasswordMapper.toVerifyRequestDto(
-        const VerifyOtpRequest(resetCode: '7542'),
-      );
+      const request = VerifyOtpRequest(resetCode: '7542');
+      final dto = request.toDto();
       expect(dto.resetCode, '7542');
     });
   });
 
-  group('ForgetPasswordMapper.toResetRequestDto', () {
+  group('ResetPasswordRequest.toDto', () {
     test('copies email and new password across', () {
-      final dto = ForgetPasswordMapper.toResetRequestDto(
-        const ResetPasswordRequest(email: 'user@mail.com', newPassword: 'NewPass1'),
+      const request = ResetPasswordRequest(
+        email: 'user@mail.com',
+        newPassword: 'NewPass1',
       );
+      final dto = request.toDto();
       expect(dto.email, 'user@mail.com');
       expect(dto.newPassword, 'NewPass1');
     });
   });
 
-  group('ForgetPasswordMapper.toEntity', () {
+  group('AuthActionResponseDto.toEntity', () {
     test('maps success and message from the response dto', () {
-      final entity = ForgetPasswordMapper.toEntity(
-        const AuthActionResponseDto(success: false, message: 'Invalid reset code.'),
+      const dto = AuthActionResponseDto(
+        success: false,
+        message: 'Invalid reset code.',
       );
+      final entity = dto.toEntity();
       expect(entity.success, isFalse);
       expect(entity.message, 'Invalid reset code.');
     });
 
     test('a missing dto defaults to success without a message', () {
-      final entity = ForgetPasswordMapper.toEntity(null);
+      const AuthActionResponseDto? dto = null;
+      final entity = dto.toEntity();
       expect(entity.success, isTrue);
       expect(entity.message, isNull);
     });
 
     test('a dto without fields defaults to success', () {
-      final entity = ForgetPasswordMapper.toEntity(
-        const AuthActionResponseDto(),
-      );
+      const dto = AuthActionResponseDto();
+      final entity = dto.toEntity();
       expect(entity.success, isTrue);
     });
   });

@@ -1,13 +1,11 @@
-import 'package:fitness_app/core/base_response/base_response.dart';
-import 'package:fitness_app/core/base_response/safe_call.dart';
-import 'package:fitness_app/features/auth/data/client/auth_client.dart';
-import 'package:fitness_app/features/auth/data/data_source/remote/auth_remote_data_source.dart';
-import 'package:fitness_app/features/auth/data/mapper/forget_password_mapper.dart';
-import 'package:fitness_app/features/auth/domain/entities/forget_password/auth_action_result.dart';
-import 'package:fitness_app/features/auth/domain/entities/forget_password/forget_password_request.dart';
-import 'package:fitness_app/features/auth/domain/entities/forget_password/reset_password_request.dart';
-import 'package:fitness_app/features/auth/domain/entities/forget_password/verify_otp_request.dart';
 import 'package:injectable/injectable.dart';
+
+import '../../client/auth_client.dart';
+import '../../models/auth_action_response_dto.dart';
+import '../../models/forget_password_request_dto.dart';
+import '../../models/reset_password_request_dto.dart';
+import '../../models/verify_otp_request_dto.dart';
+import 'auth_remote_data_source.dart';
 
 @Injectable(as: AuthRemoteDataSource)
 class AuthRemoteDataSourceImp implements AuthRemoteDataSource {
@@ -16,29 +14,17 @@ class AuthRemoteDataSourceImp implements AuthRemoteDataSource {
   const AuthRemoteDataSourceImp(this._client);
 
   @override
-  Future<BaseResponse<AuthActionResult>> sendResetCode(
-    ForgetPasswordRequest request,
-  ) => safeCall(
-    () async => ForgetPasswordMapper.toEntity(
-      await _client.forgotPassword(ForgetPasswordMapper.toSendRequestDto(request)),
-    ),
-  );
+  Future<AuthActionResponseDto> sendResetCode(
+    ForgetPasswordRequestDto request,
+  ) => _client.forgotPassword(request);
 
   @override
-  Future<BaseResponse<AuthActionResult>> verifyResetCode(
-    VerifyOtpRequest request,
-  ) => safeCall(
-    () async => ForgetPasswordMapper.toEntity(
-      await _client.verifyResetCode(ForgetPasswordMapper.toVerifyRequestDto(request)),
-    ),
-  );
+  Future<AuthActionResponseDto> verifyResetCode(
+    VerifyOtpRequestDto request,
+  ) => _client.verifyResetCode(request);
 
   @override
-  Future<BaseResponse<AuthActionResult>> resetPassword(
-    ResetPasswordRequest request,
-  ) => safeCall(
-    () async => ForgetPasswordMapper.toEntity(
-      await _client.resetPassword(ForgetPasswordMapper.toResetRequestDto(request)),
-    ),
-  );
+  Future<AuthActionResponseDto> resetPassword(
+    ResetPasswordRequestDto request,
+  ) => _client.resetPassword(request);
 }

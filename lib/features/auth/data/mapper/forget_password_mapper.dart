@@ -7,18 +7,20 @@ import '../models/forget_password_request_dto.dart';
 import '../models/reset_password_request_dto.dart';
 import '../models/verify_otp_request_dto.dart';
 
-abstract final class ForgetPasswordMapper {
-  ForgetPasswordMapper._();
+extension ForgetPasswordRequestToDto on ForgetPasswordRequest {
+  ForgetPasswordRequestDto toDto() => ForgetPasswordRequestDto(email: email);
+}
 
-  static ForgetPasswordRequestDto toSendRequestDto(ForgetPasswordRequest r) =>
-      ForgetPasswordRequestDto(email: r.email);
+extension VerifyOtpRequestToDto on VerifyOtpRequest {
+  VerifyOtpRequestDto toDto() => VerifyOtpRequestDto(resetCode: resetCode);
+}
 
-  static VerifyOtpRequestDto toVerifyRequestDto(VerifyOtpRequest r) =>
-      VerifyOtpRequestDto(resetCode: r.resetCode);
+extension ResetPasswordRequestToDto on ResetPasswordRequest {
+  ResetPasswordRequestDto toDto() =>
+      ResetPasswordRequestDto(email: email, newPassword: newPassword);
+}
 
-  static ResetPasswordRequestDto toResetRequestDto(ResetPasswordRequest r) =>
-      ResetPasswordRequestDto(email: r.email, newPassword: r.newPassword);
-
-  static AuthActionResult toEntity(AuthActionResponseDto? dto) =>
-      AuthActionResult(success: dto?.success ?? true, message: dto?.message);
+extension AuthActionResponseDtoToEntity on AuthActionResponseDto? {
+  AuthActionResult toEntity() =>
+      AuthActionResult(success: this?.success ?? true, message: this?.message);
 }

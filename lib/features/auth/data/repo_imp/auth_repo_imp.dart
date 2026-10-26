@@ -1,5 +1,6 @@
 import 'package:injectable/injectable.dart';
 import 'package:fitness_app/core/base_response/base_response.dart';
+import 'package:fitness_app/core/base_response/safe_call.dart';
 import '../../domain/entities/forget_password/auth_action_result.dart';
 import '../../domain/entities/forget_password/forget_password_request.dart';
 import '../../domain/entities/forget_password/reset_password_request.dart';
@@ -8,6 +9,7 @@ import '../../domain/entities/user_entity.dart';
 import '../../domain/repo/auth_repo.dart';
 import '../data_source/local/local_data_source.dart';
 import '../data_source/remote/auth_remote_data_source.dart';
+import '../mapper/forget_password_mapper.dart';
 
 @Injectable(as: AuthRepo)
 class AuthRepoImp implements AuthRepo {
@@ -34,15 +36,27 @@ class AuthRepoImp implements AuthRepo {
   @override
   Future<BaseResponse<AuthActionResult>> sendResetCode(
     ForgetPasswordRequest request,
-  ) => _remoteDataSource.sendResetCode(request);
+  ) => safeCall(
+    () async => (
+      await _remoteDataSource.sendResetCode(request.toDto())
+    ).toEntity(),
+  );
 
   @override
   Future<BaseResponse<AuthActionResult>> verifyResetCode(
     VerifyOtpRequest request,
-  ) => _remoteDataSource.verifyResetCode(request);
+  ) => safeCall(
+    () async => (
+      await _remoteDataSource.verifyResetCode(request.toDto())
+    ).toEntity(),
+  );
 
   @override
   Future<BaseResponse<AuthActionResult>> resetPassword(
     ResetPasswordRequest request,
-  ) => _remoteDataSource.resetPassword(request);
+  ) => safeCall(
+    () async => (
+      await _remoteDataSource.resetPassword(request.toDto())
+    ).toEntity(),
+  );
 }
