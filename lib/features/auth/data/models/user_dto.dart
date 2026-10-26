@@ -1,4 +1,5 @@
 import 'package:json_annotation/json_annotation.dart';
+import '../../domain/entities/user_entity.dart';
 
 part 'user_dto.g.dart';
 
@@ -37,4 +38,36 @@ class UserDto {
       _$UserDtoFromJson(json);
 
   Map<String, dynamic> toJson() => _$UserDtoToJson(this);
+
+  factory UserDto.fromEntity(UserEntity entity) => UserDto(
+    id: entity.id,
+    firstName: entity.firstName,
+    lastName: entity.lastName,
+    email: entity.email,
+    gender: entity.gender,
+    age: entity.age,
+    weight: entity.weight,
+    height: entity.height,
+    activityLevel: entity.activityLevel,
+    goal: entity.goal,
+    photo: entity.photo,
+  );
+
+  UserEntity toEntity() => UserEntity(
+    id: id,
+    firstName: firstName,
+    lastName: lastName,
+    email: email,
+    gender: gender,
+    age: age,
+    weight: weight,
+    height: height,
+    activityLevel: activityLevel,
+    goal: goal,
+    photo: photo,
+  );
+}
+
+extension UserEntityToDto on UserEntity {
+  UserDto toDto() => UserDto.fromEntity(this);
 }

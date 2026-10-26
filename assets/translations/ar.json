@@ -168,7 +168,12 @@
     "field_required": "هذا الحقل مطلوب.",
     "not_a_number": "يرجى إدخال قيمة رقمية صحيحة.",
     "value_below_minimum": "القيمة المدخلة أقل من الحد الأدنى.",
-    "value_above_maximum": "القيمة المدخلة تتجاوز الحد الأقصى."
+    "value_above_maximum": "القيمة المدخلة تتجاوز الحد الأقصى.",
+    "invalid_phone_number": "يرجى إدخال رقم هاتف مصري صحيح.",
+    "invalid_gender": "يرجى تحديد النوع بشكل صحيح.",
+    "password_missing_uppercase": "يجب أن تحتوي كلمة المرور على حرف كبير واحد على الأقل.",
+    "password_missing_lowercase": "يجب أن تحتوي كلمة المرور على حرف صغير واحد على الأقل.",
+    "password_missing_special_char": "يجب أن تحتوي كلمة المرور على رمز خاص واحد على الأقل (#?!@$%^&*-)."
   },
   "errors": {
     "something_went_wrong": "حدث خطأ ما. يرجى المحاولة مرة أخرى.",

@@ -41,56 +41,59 @@ class AppBackgroundScaffold extends StatelessWidget {
       appBar: appBar,
       resizeToAvoidBottomInset: resizeToAvoidBottomInset,
       bottomNavigationBar: bottomNavigationBar,
-      body: Stack(
-        children: [
-          // 1. Background image
-          Positioned.fill(
-            child: Image.asset(
-              backgroundImage ?? AppAssets.authProfileBG,
-              fit: BoxFit.cover,
-            ),
-          ),
-
-          // 2. Overlay tint (Solid color or Gradient, customizable per feature)
-          Positioned.fill(
-            child: Container(
-              decoration: BoxDecoration(
-                color: overlayGradient == null
-                    ? overlayColor.withValues(alpha: overlayOpacity)
-                    : null,
-                gradient: overlayGradient,
+      body: SizedBox.expand(
+        child: Stack(
+          fit: StackFit.expand,
+          children: [
+            // 1. Background image
+            Positioned.fill(
+              child: Image.asset(
+                backgroundImage ?? AppAssets.authProfileBG,
+                fit: BoxFit.cover,
               ),
             ),
-          ),
 
-          // 3. Screen content
-          SafeArea(child: child),
-
-          // 4. Feature-Specific Layout Guide Overlay (Visible only in debug if enabled)
-          if (kDebugMode && showLayoutGrid)
+            // 2. Overlay tint (Solid color or Gradient, customizable per feature)
             Positioned.fill(
-              child: IgnorePointer(
-                child: Padding(
-                  padding: EdgeInsetsDirectional.symmetric(horizontal: 8.w),
-                  child: Row(
-                    children: List.generate(gridColumns * 2 - 1, (index) {
-                      // Alternate between column and gutter gap
-                      if (index.isOdd) {
-                        return SizedBox(width: 16.w);
-                      }
-                      return Expanded(
-                        child: Container(
-                          color: (gridColor ?? Colors.red).withValues(
-                            alpha: 0.08,
-                          ),
-                        ),
-                      );
-                    }),
-                  ),
+              child: Container(
+                decoration: BoxDecoration(
+                  color: overlayGradient == null
+                      ? overlayColor.withValues(alpha: overlayOpacity)
+                      : null,
+                  gradient: overlayGradient,
                 ),
               ),
             ),
-        ],
+
+            // 3. Screen content
+            SafeArea(child: child),
+
+            // 4. Feature-Specific Layout Guide Overlay (Visible only in debug if enabled)
+            if (kDebugMode && showLayoutGrid)
+              Positioned.fill(
+                child: IgnorePointer(
+                  child: Padding(
+                    padding: EdgeInsetsDirectional.symmetric(horizontal: 8.w),
+                    child: Row(
+                      children: List.generate(gridColumns * 2 - 1, (index) {
+                        // Alternate between column and gutter gap
+                        if (index.isOdd) {
+                          return SizedBox(width: 16.w);
+                        }
+                        return Expanded(
+                          child: Container(
+                            color: (gridColor ?? Colors.red).withValues(
+                              alpha: 0.08,
+                            ),
+                          ),
+                        );
+                      }),
+                    ),
+                  ),
+                ),
+              ),
+          ],
+        ),
       ),
     );
   }

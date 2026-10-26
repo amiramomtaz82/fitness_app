@@ -12,8 +12,18 @@ extension ValidationErrorMapper on ValidationError {
         LocaleKeys.validation_password_too_short.tr(),
       ValidationError.passwordMissingNumber =>
         LocaleKeys.validation_password_missing_number.tr(),
+      ValidationError.passwordMissingUppercase =>
+        LocaleKeys.validation_password_missing_uppercase.tr(),
+      ValidationError.passwordMissingLowercase =>
+        LocaleKeys.validation_password_missing_lowercase.tr(),
+      ValidationError.passwordMissingSpecialChar =>
+        LocaleKeys.validation_password_missing_special_char.tr(),
       ValidationError.passwordsDoNotMatch =>
         LocaleKeys.validation_passwords_dont_match.tr(),
+      ValidationError.invalidPhoneNumber =>
+        LocaleKeys.validation_invalid_phone_number.tr(),
+      ValidationError.invalidGender =>
+        LocaleKeys.validation_invalid_gender.tr(),
       ValidationError.incompleteOtp =>
         LocaleKeys.validation_incomplete_otp.tr(),
       ValidationError.notANumber => LocaleKeys.validation_not_a_number.tr(),
