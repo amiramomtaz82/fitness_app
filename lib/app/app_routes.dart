@@ -2,10 +2,11 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get_it/get_it.dart';
 import 'package:go_router/go_router.dart';
 
-import '../features/auth/presentation/forget_password/view/forget_pasword_view.dart';
+import '../core/di/di.dart';
+import '../features/auth/presentation/forget_password/view/forget_password_view.dart';
+import '../features/auth/presentation/forget_password/view_model/forget_password_cubit.dart';
 import '../features/auth/presentation/login/view/login_view.dart';
 import '../features/auth/presentation/login/view_model/login_cubit.dart';
-import '../core/di/di.dart';
 import '../features/auth/presentation/register/manager/cubit/register_cubit.dart';
 import '../features/auth/presentation/register/view/muti_steps_regitration/multi_steps_registration_view.dart';
 import '../features/auth/presentation/register/view/register_first_sceen/register_view.dart';
@@ -49,7 +50,10 @@ final GoRouter appRouter = GoRouter(
     GoRoute(
       path: AppRoutes.forgotPassword,
       name: AppRoutes.forgotPassword,
-      builder: (context, state) => const ForgetPaswordView(),
+      builder: (context, state) => BlocProvider(
+        create: (_) => getIt<ForgetPasswordCubit>(),
+        child: const ForgetPasswordView(),
+      ),
     ),
   ],
 );
