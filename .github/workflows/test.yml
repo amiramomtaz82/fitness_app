@@ -32,6 +32,11 @@ jobs:
       - name: Create Mock .env File
         run: touch .env
 
+      - name: Create Mock Firebase Options
+        run: |
+          dart run tool/generate_mock_firebase_options.dart
+          dart format lib/firebase_options.dart
+
       - name: Generate Localization Keys
         run: |
           dart run easy_localization:generate -S assets/translations -f keys -o locale_keys.g.dart
