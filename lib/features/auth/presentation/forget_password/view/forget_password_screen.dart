@@ -1,4 +1,4 @@
-import 'package:fitness_app/app/go_routes/routes_names.dart';
+import 'package:fitness_app/app/routes_names.dart';
 import 'package:fitness_app/core/base/ui_events.dart';
 import 'package:fitness_app/core/mixin/ui_event_handler_mixin.dart';
 import 'package:fitness_app/core/widgets/app_background_scaffold.dart';

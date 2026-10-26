@@ -1,7 +1,7 @@
 import 'package:fitness_app/core/base/cubit_message.dart';
 import 'package:fitness_app/core/base/ui_events.dart';
 import 'package:fitness_app/core/error/failures.dart';
-import 'package:fitness_app/app/go_routes/routes_names.dart';
+import 'package:fitness_app/app/routes_names.dart';
 import 'package:fitness_app/features/auth/presentation/forget_password/view_model/forget_password_event.dart';
 import 'package:fitness_app/features/auth/presentation/forget_password/view_model/forget_password_state.dart';
 import 'package:flutter/material.dart';

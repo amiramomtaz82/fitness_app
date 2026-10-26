@@ -1,6 +1,6 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:fitness_app/core/base_response/base_response.dart';
-import 'package:fitness_app/app/go_routes/routes_names.dart';
+import 'package:fitness_app/app/routes_names.dart';
 import 'package:fitness_app/core/theme/app_theme.dart';
 import 'package:fitness_app/core/widgets/app_background_scaffold.dart';
 import 'package:fitness_app/features/auth/domain/entities/forget_password/auth_action_result.dart';

@@ -5,7 +5,7 @@ import 'package:fitness_app/core/base/cubit_message.dart';
 import 'package:fitness_app/core/base/ui_events.dart';
 import 'package:fitness_app/core/base_response/base_response.dart';
 import 'package:fitness_app/core/error/failures.dart';
-import 'package:fitness_app/app/go_routes/routes_names.dart';
+import 'package:fitness_app/app/routes_names.dart';
 import 'package:fitness_app/core/resource/resource.dart';
 import 'package:fitness_app/features/auth/domain/entities/forget_password/forget_password_request.dart';
 import 'package:fitness_app/features/auth/domain/entities/forget_password/reset_password_request.dart';
