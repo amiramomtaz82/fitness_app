@@ -23,10 +23,10 @@ class AppYoutubeVideo extends StatefulWidget {
   final double aspectRatio;
 
   @override
-  State<AppYoutubeVideo> createState() => _AppYoutubeVideoState();
+  State<AppYoutubeVideo> createState() => AppYoutubeVideoState();
 }
 
-class _AppYoutubeVideoState extends State<AppYoutubeVideo> {
+class AppYoutubeVideoState extends State<AppYoutubeVideo> {
   YoutubePlayerController? _controller;
   StreamSubscription<YoutubePlayerValue>? _subscription;
   String? _videoId;
@@ -43,22 +43,22 @@ class _AppYoutubeVideoState extends State<AppYoutubeVideo> {
   void didUpdateWidget(covariant AppYoutubeVideo oldWidget) {
     super.didUpdateWidget(oldWidget);
     if (oldWidget.videoUrl == widget.videoUrl) return;
-    _releaseController();
+    releaseController();
     _videoId = youtubeVideoId(widget.videoUrl);
   }
 
   @override
   void dispose() {
-    _releaseController();
+    releaseController();
     super.dispose();
   }
 
-  void _play() {
+  void play() {
     final videoId = _videoId;
     if (videoId == null || _controller != null) return;
     try {
-      final controller = _newController(videoId);
-      _subscription = controller.listen(_onPlayerValue);
+      final controller = newController(videoId);
+      _subscription = controller.listen(onPlayerValue);
       setState(() => _controller = controller);
     } catch (_) {
       _awaitingPlay = false;
@@ -66,7 +66,7 @@ class _AppYoutubeVideoState extends State<AppYoutubeVideo> {
     }
   }
 
-  YoutubePlayerController _newController(String videoId) {
+  YoutubePlayerController newController(String videoId) {
     _awaitingPlay = true;
     return YoutubePlayerController.fromVideoId(
       videoId: videoId,
@@ -79,24 +79,24 @@ class _AppYoutubeVideoState extends State<AppYoutubeVideo> {
     );
   }
 
-  void _onPlayerValue(YoutubePlayerValue value) {
+  void onPlayerValue(YoutubePlayerValue value) {
     final controller = _controller;
     if (!mounted || controller == null) return;
-    _playWhenCued(controller, value);
+    playWhenCued(controller, value);
     if (value.hasError == _playbackFailed) return;
     setState(() => _playbackFailed = value.hasError);
   }
 
-  void _playWhenCued(
+  void playWhenCued(
     YoutubePlayerController controller,
     YoutubePlayerValue value,
   ) {
     if (!_awaitingPlay || value.playerState != PlayerState.cued) return;
     _awaitingPlay = false;
-    unawaited(_startPlayback(controller));
+    unawaited(startPlayback(controller));
   }
 
-  Future<void> _startPlayback(YoutubePlayerController controller) async {
+  Future<void> startPlayback(YoutubePlayerController controller) async {
     try {
       await controller.playVideo();
     } catch (_) {
@@ -105,7 +105,7 @@ class _AppYoutubeVideoState extends State<AppYoutubeVideo> {
     }
   }
 
-  void _releaseController() {
+  void releaseController() {
     _subscription?.cancel();
     _subscription = null;
     final controller = _controller;
@@ -126,23 +126,23 @@ class _AppYoutubeVideoState extends State<AppYoutubeVideo> {
         child: Stack(
           fit: StackFit.expand,
           children: [
-            _surface(controller),
-            if (_playbackFailed && controller == null) const _PlaybackFailure(),
+            surface(controller),
+            if (_playbackFailed && controller == null) const PlaybackFailure(),
             if (widget.showBackButton && controller == null)
-              _BackOverlay(onBack: widget.onBack),
+              BackOverlay(onBack: widget.onBack),
           ],
         ),
       ),
     );
   }
 
-  Widget _surface(YoutubePlayerController? controller) {
+  Widget surface(YoutubePlayerController? controller) {
     final videoId = _videoId;
-    if (videoId == null) return const _UnavailableSurface();
+    if (videoId == null) return const UnavailableSurface();
     if (controller == null) {
-      return _ThumbnailSurface(videoId: videoId, onPlay: _play);
+      return ThumbnailSurface(videoId: videoId, onPlay: play);
     }
-    return _ActivePlayer(
+    return ActivePlayer(
       key: ValueKey(videoId),
       controller: controller,
       aspectRatio: widget.aspectRatio,
@@ -153,8 +153,8 @@ class _AppYoutubeVideoState extends State<AppYoutubeVideo> {
   }
 }
 
-class _ActivePlayer extends StatelessWidget {
-  const _ActivePlayer({
+class ActivePlayer extends StatelessWidget {
+  const ActivePlayer({
     super.key,
     required this.controller,
     required this.aspectRatio,
@@ -179,23 +179,27 @@ class _ActivePlayer extends StatelessWidget {
       gestureRecognizers: const {},
       backgroundColor: context.colors.background,
       // The player WebView covers a back button placed outside this builder.
-      controlsBuilder: _controls,
+      controlsBuilder: controls,
     );
   }
 
-  Widget _controls(BuildContext context, bool isFullscreen) {
+  Widget controls(BuildContext context, bool isFullscreen) {
     return Stack(
       fit: StackFit.expand,
       children: [
-        if (showFailure) const _PlaybackFailure(),
-        if (showBackButton && !isFullscreen) _BackOverlay(onBack: onBack),
+        if (showFailure) const PlaybackFailure(),
+        if (showBackButton && !isFullscreen) BackOverlay(onBack: onBack),
       ],
     );
   }
 }
 
-class _ThumbnailSurface extends StatelessWidget {
-  const _ThumbnailSurface({required this.videoId, required this.onPlay});
+class ThumbnailSurface extends StatelessWidget {
+  const ThumbnailSurface({
+    super.key,
+    required this.videoId,
+    required this.onPlay,
+  });
 
   final String videoId;
   final VoidCallback onPlay;
@@ -208,16 +212,16 @@ class _ThumbnailSurface extends StatelessWidget {
       child: Stack(
         fit: StackFit.expand,
         children: [
-          _ThumbnailImage(videoId: videoId),
-          const Center(child: _PlayButton()),
+          ThumbnailImage(videoId: videoId),
+          const Center(child: PlayButton()),
         ],
       ),
     );
   }
 }
 
-class _ThumbnailImage extends StatelessWidget {
-  const _ThumbnailImage({required this.videoId});
+class ThumbnailImage extends StatelessWidget {
+  const ThumbnailImage({super.key, required this.videoId});
 
   final String videoId;
 
@@ -230,18 +234,18 @@ class _ThumbnailImage extends StatelessWidget {
       ),
       fit: BoxFit.cover,
       loadingBuilder: (_, child, progress) =>
-          progress == null ? child : _surface(context),
-      errorBuilder: (_, _, _) => _surface(context),
+          progress == null ? child : surface(context),
+      errorBuilder: (_, _, _) => surface(context),
     );
   }
 
-  Widget _surface(BuildContext context) {
+  Widget surface(BuildContext context) {
     return ColoredBox(color: context.colors.surface);
   }
 }
 
-class _UnavailableSurface extends StatelessWidget {
-  const _UnavailableSurface();
+class UnavailableSurface extends StatelessWidget {
+  const UnavailableSurface({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -252,8 +256,8 @@ class _UnavailableSurface extends StatelessWidget {
   }
 }
 
-class _PlaybackFailure extends StatelessWidget {
-  const _PlaybackFailure();
+class PlaybackFailure extends StatelessWidget {
+  const PlaybackFailure({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -273,8 +277,8 @@ class _PlaybackFailure extends StatelessWidget {
   }
 }
 
-class _PlayButton extends StatelessWidget {
-  const _PlayButton();
+class PlayButton extends StatelessWidget {
+  const PlayButton({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -293,8 +297,8 @@ class _PlayButton extends StatelessWidget {
   }
 }
 
-class _BackOverlay extends StatelessWidget {
-  const _BackOverlay({required this.onBack});
+class BackOverlay extends StatelessWidget {
+  const BackOverlay({super.key, required this.onBack});
 
   final VoidCallback? onBack;
 
@@ -303,13 +307,13 @@ class _BackOverlay extends StatelessWidget {
     return PositionedDirectional(
       top: 12.h,
       start: 12.w,
-      child: _VideoBackButton(onPressed: onBack),
+      child: VideoBackButton(onPressed: onBack),
     );
   }
 }
 
-class _VideoBackButton extends StatelessWidget {
-  const _VideoBackButton({required this.onPressed});
+class VideoBackButton extends StatelessWidget {
+  const VideoBackButton({super.key, required this.onPressed});
 
   final VoidCallback? onPressed;
 
