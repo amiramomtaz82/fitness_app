@@ -1,5 +1,3 @@
-import 'dart:ui';
-
 import 'package:fitness_app/core/theme/context.extension.dart';
 import 'package:fitness_app/core/theme/text_styles.dart';
 import 'package:flutter/material.dart';
@@ -87,21 +85,17 @@ class _CardBlurredTitle extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final colors = context.colors;
     return PositionedDirectional(
       start: 20,
       end: 20,
       bottom: 20,
-      child:  Text(
-              title,
-              textAlign: TextAlign.center,
-              maxLines: 2,
-              overflow: TextOverflow.ellipsis,
-              style: AppTextStyles.white20bold.copyWith(fontSize: 16),
-            ),
-
-
-      );
-
+      child: Text(
+        title,
+        textAlign: TextAlign.center,
+        maxLines: 2,
+        overflow: TextOverflow.ellipsis,
+        style: AppTextStyles.white20bold.copyWith(fontSize: 16),
+      ),
+    );
   }
 }

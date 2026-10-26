@@ -38,11 +38,9 @@ class AppContentGridView extends StatelessWidget {
     return GridView.builder(
       physics: physics,
       shrinkWrap: shrinkWrap,
-      padding: padding ??
-          EdgeInsetsDirectional.symmetric(
-            horizontal: 16.w,
-            vertical: 12.h,
-          ),
+      padding:
+          padding ??
+          EdgeInsetsDirectional.symmetric(horizontal: 16.w, vertical: 12.h),
       gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
         crossAxisCount: 2,
         crossAxisSpacing: 12.w,

@@ -72,9 +72,7 @@ class _CategoryTabItem extends StatelessWidget {
             label,
             style: isSelected
                 ? AppTextStyles.white14bold
-                : AppTextStyles.white14regular.copyWith(
-              color: colors.grey,
-            ),
+                : AppTextStyles.white14regular.copyWith(color: colors.grey),
           ),
         ),
       ),
