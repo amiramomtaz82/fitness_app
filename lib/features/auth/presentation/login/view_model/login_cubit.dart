@@ -4,7 +4,7 @@ import '../../../../../core/base/cubit_message.dart';
 import '../../../../../core/base/ui_events.dart';
 import '../../../../../core/base_response/base_response.dart';
 import '../../../../../core/error/failures.dart';
-import '../../../../../core/go_routes/routes_names.dart';
+import '../../../../../app/routes_names.dart';
 import '../../../../../core/resource/resource.dart';
 import '../../../domain/entities/email_provider_status.dart';
 import '../../../domain/entities/login_params.dart';

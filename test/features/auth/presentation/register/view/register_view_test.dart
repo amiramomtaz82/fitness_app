@@ -4,7 +4,7 @@ import 'dart:io';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:fitness_app/core/base_response/base_response.dart';
 import 'package:fitness_app/core/di/di.dart';
-import 'package:fitness_app/core/go_routes/routes_names.dart';
+import 'package:fitness_app/app/routes_names.dart';
 import 'package:fitness_app/features/auth/domain/entities/email_provider_status.dart';
 import 'package:fitness_app/features/auth/domain/entities/register_parameters.dart';
 import 'package:fitness_app/features/auth/domain/entities/social_auth_user.dart';

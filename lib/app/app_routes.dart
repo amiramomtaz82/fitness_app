@@ -2,14 +2,14 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get_it/get_it.dart';
 import 'package:go_router/go_router.dart';
 
-import '../../features/auth/presentation/forget_password/view/forget_pasword_view.dart';
-import '../../features/auth/presentation/login/view/login_view.dart';
-import '../../features/auth/presentation/login/view_model/login_cubit.dart';
-import '../di/di.dart';
-import '../../features/auth/presentation/register/manager/cubit/register_cubit.dart';
-import '../../features/auth/presentation/register/view/muti_steps_regitration/multi_steps_registration_view.dart';
-import '../../features/auth/presentation/register/view/register_first_sceen/register_view.dart';
-import '../../features/home/presentation/view/home_view.dart';
+import '../features/auth/presentation/forget_password/view/forget_pasword_view.dart';
+import '../features/auth/presentation/login/view/login_view.dart';
+import '../features/auth/presentation/login/view_model/login_cubit.dart';
+import '../core/di/di.dart';
+import '../features/auth/presentation/register/manager/cubit/register_cubit.dart';
+import '../features/auth/presentation/register/view/muti_steps_regitration/multi_steps_registration_view.dart';
+import '../features/auth/presentation/register/view/register_first_sceen/register_view.dart';
+import '../features/home/presentation/view/home_view.dart';
 import 'routes_names.dart';
 
 final GoRouter appRouter = GoRouter(
