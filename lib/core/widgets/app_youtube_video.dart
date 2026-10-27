@@ -66,8 +66,10 @@ class AppYoutubeVideoState extends State<AppYoutubeVideo> {
       _subscription = controller.listen(onPlayerValue);
       setState(() => _controller = controller);
     } catch (_) {
-      _awaitingPlay = false;
-      setState(() => _playbackFailed = true);
+      setState(() {
+        _awaitingPlay = false;
+        _playbackFailed = true;
+      });
     }
   }
 
