@@ -63,31 +63,6 @@ class AppYoutubeVideoState extends State<AppYoutubeVideo> {
     final videoId = _videoId;
     if (videoId == null || _controller != null) return;
 
-    Future<void> startPlayback(YoutubeVideoController controller) async {
-      try {
-        await controller.play();
-      } catch (_) {
-        if (!mounted || !identical(_controller, controller)) return;
-        setState(() => _playbackFailed = true);
-      }
-    }
-
-    void onValue(YoutubePlayerValue value) {
-      final controller = _controller;
-      if (!mounted || controller == null) return;
-      if (_awaitingPlay && value.playerState == PlayerState.cued) {
-        _awaitingPlay = false;
-        unawaited(startPlayback(controller));
-      }
-      final fullscreen = value.fullScreenOption.enabled;
-      final failed = value.hasError;
-      if (fullscreen == _fullscreen && failed == _playbackFailed) return;
-      setState(() {
-        _fullscreen = fullscreen;
-        _playbackFailed = failed;
-      });
-    }
-
     final YoutubeVideoController controller;
     try {
       _awaitingPlay = true;
@@ -105,18 +80,46 @@ class AppYoutubeVideoState extends State<AppYoutubeVideo> {
       _controller = controller;
       _playbackFailed = false;
     });
-    _subscription = controller.listen(onValue);
+    _subscription = controller.listen(_onPlayerValue);
+  }
+
+  void _onPlayerValue(YoutubePlayerValue value) {
+    final controller = _controller;
+    if (!mounted || controller == null) return;
+    if (_awaitingPlay && value.playerState == PlayerState.cued) {
+      _awaitingPlay = false;
+      unawaited(_startPlayback(controller));
+    }
+    final fullscreen = value.fullScreenOption.enabled;
+    final failed = value.hasError;
+    if (fullscreen == _fullscreen && failed == _playbackFailed) return;
+    setState(() {
+      _fullscreen = fullscreen;
+      _playbackFailed = failed;
+    });
+  }
+
+  Future<void> _startPlayback(YoutubeVideoController controller) async {
+    try {
+      await controller.play();
+    } catch (_) {
+      if (!mounted || !identical(_controller, controller)) return;
+      setState(() => _playbackFailed = true);
+    }
   }
 
   void releaseController() {
     _subscription?.cancel();
     _subscription = null;
     final controller = _controller;
+    // Drop the reference before close() finishes. Playback still in flight
+    // then fails the identical() check and cannot call setState.
     _controller = null;
     _awaitingPlay = false;
     _playbackFailed = false;
     _fullscreen = false;
     if (controller == null) return;
+    // dart:async Future.ignore. close() can fail after the player is gone.
     controller.close().ignore();
   }
 
@@ -301,9 +304,7 @@ class PlaybackFailure extends StatelessWidget {
     return Stack(
       fit: StackFit.expand,
       children: [
-        GestureDetector(
-          behavior: HitTestBehavior.opaque,
-          onTap: () {},
+        AbsorbPointer(
           child: ColoredBox(
             key: const Key('app_youtube_video_error'),
             color: context.colors.background.withValues(alpha: 0.72),
