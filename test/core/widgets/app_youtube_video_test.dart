@@ -303,6 +303,7 @@ void main() {
       await tester.pump();
 
       expect(created.first.closed, isTrue);
+      expect(created.first.values.isClosed, isTrue);
       expect(find.byKey(_playKey), findsOneWidget);
       expect(find.byKey(_playerKey), findsNothing);
 
