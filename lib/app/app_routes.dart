@@ -10,17 +10,33 @@ import '../features/auth/presentation/login/view_model/login_cubit.dart';
 import '../features/auth/presentation/register/manager/cubit/register_cubit.dart';
 import '../features/auth/presentation/register/view/muti_steps_regitration/multi_steps_registration_view.dart';
 import '../features/auth/presentation/register/view/register_first_sceen/register_view.dart';
-import '../features/home/presentation/view/home_view.dart';
+import '../features/chat/presentation/view/screens/smart_coach_screen.dart';
+import '../features/home/presentation/view/screens/home_screen.dart';
+import '../features/home/presentation/view/screens/workouts_screen.dart';
+import '../features/on_bording/views/onboarding_view.dart';
+import '../features/profile/presentation/view/screens/profile_screen.dart';
+import '../features/splash/presentation/views/splash_view.dart';
+import 'bottom_bar/bottom_navigation_bar.dart';
 import 'routes_names.dart';
 
 final GoRouter appRouter = GoRouter(
-  initialLocation: AppRoutes.login,
+  initialLocation: AppRoutes.splash,
   routes: [
+    // Splash
     GoRoute(
-      path: AppRoutes.home,
-      name: AppRoutes.home,
-      builder: (context, state) => const HomeView(),
+      path: AppRoutes.splash,
+      name: AppRoutes.splash,
+      builder: (context, state) => const SplashView(),
     ),
+
+    // Onboarding
+    GoRoute(
+      path: AppRoutes.onboarding,
+      name: AppRoutes.onboarding,
+      builder: (context, state) => const OnboardingView(),
+    ),
+
+    // Login
     GoRoute(
       path: AppRoutes.login,
       name: AppRoutes.login,
@@ -29,11 +45,15 @@ final GoRouter appRouter = GoRouter(
         child: const LoginView(),
       ),
     ),
+
+    // Register
     GoRoute(
       path: AppRoutes.register,
       name: AppRoutes.register,
       builder: (context, state) => const RegisterView(),
     ),
+
+    // Multi-step Registration
     GoRoute(
       path: AppRoutes.multiStepRegistration,
       name: AppRoutes.multiStepRegistration,
@@ -41,12 +61,15 @@ final GoRouter appRouter = GoRouter(
         final cubit = state.extra is RegisterCubit
             ? state.extra! as RegisterCubit
             : GetIt.instance<RegisterCubit>();
+
         return BlocProvider.value(
           value: cubit,
           child: const MultiStepsRegistrationView(),
         );
       },
     ),
+
+    // Forgot Password
     GoRoute(
       path: AppRoutes.forgotPassword,
       name: AppRoutes.forgotPassword,
@@ -54,6 +77,58 @@ final GoRouter appRouter = GoRouter(
         create: (_) => getIt<ForgetPasswordCubit>(),
         child: const ForgetPasswordView(),
       ),
+    ),
+
+    // Main app with bottom navigation
+    StatefulShellRoute.indexedStack(
+      builder: (context, state, navigationShell) {
+        return AppBottomNavigationBar(navigationShell: navigationShell);
+      },
+      branches: [
+        // Home
+        StatefulShellBranch(
+          routes: [
+            GoRoute(
+              path: AppRoutes.home,
+              name: AppRoutes.home,
+              builder: (context, state) => const HomeScreen(),
+            ),
+          ],
+        ),
+
+        // Smart Coach
+        StatefulShellBranch(
+          routes: [
+            GoRoute(
+              path: AppRoutes.smartCoach,
+              name: AppRoutes.smartCoach,
+              builder: (context, state) => const SmartCoachScreen(),
+            ),
+          ],
+        ),
+
+        // Workouts
+        StatefulShellBranch(
+          routes: [
+            GoRoute(
+              path: AppRoutes.workouts,
+              name: AppRoutes.workouts,
+              builder: (context, state) => const WorkOutsScreen(),
+            ),
+          ],
+        ),
+
+        // Profile
+        StatefulShellBranch(
+          routes: [
+            GoRoute(
+              path: AppRoutes.profile,
+              name: AppRoutes.profile,
+              builder: (context, state) => const ProfileScreen(),
+            ),
+          ],
+        ),
+      ],
     ),
   ],
 );
