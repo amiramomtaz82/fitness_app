@@ -12,11 +12,12 @@ import 'package:fitness_app/features/auth/presentation/register/manager/cubit/re
 import 'package:fitness_app/features/auth/presentation/register/view/muti_steps_regitration/multi_steps_registration_view.dart';
 import 'package:fitness_app/features/auth/presentation/register/view/register_first_sceen/register_view.dart';
 import 'package:fitness_app/features/chat/presentation/view/screens/smart_coach_screen.dart';
-import 'package:fitness_app/features/home/presentation/view/screens/home_screen.dart';
-import 'package:fitness_app/features/home/presentation/view/screens/workouts_screen.dart';
+import 'package:fitness_app/features/exercise/presentation/home/view/home_screen.dart';
 import 'package:fitness_app/features/on_bording/views/onboarding_view.dart';
 import 'package:fitness_app/features/profile/presentation/view/screens/profile_screen.dart';
 import 'package:fitness_app/features/splash/presentation/views/splash_view.dart';
+
+import '../features/exercise/presentation/work_out/view/work_out_view.dart';
 
 final GoRouter appRouter = GoRouter(
   initialLocation: AppRoutes.splash,
@@ -109,7 +110,7 @@ final GoRouter appRouter = GoRouter(
             GoRoute(
               path: AppRoutes.workouts,
               name: AppRoutes.workouts,
-              builder: (context, state) => const WorkOutsScreen(),
+              builder: (context, state) => const WorkOutView(),
             ),
           ],
         ),

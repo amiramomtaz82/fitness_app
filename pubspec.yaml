@@ -31,7 +31,8 @@ dependencies:
   # UI, Storage & Utils
   pinput: ^6.0.2
   flutter_secure_storage: ^10.0.0
-  shared_preferences: ^2.5.6
+  shared_preferences_android: 2.4.23
+
   uuid: ^4.5.1
   image_picker: ^1.1.2
   url_launcher: ^6.3.1
@@ -47,6 +48,8 @@ dependencies:
   google_sign_in: ^6.2.2
   firebase_auth: ^5.4.4
   flutter_facebook_auth: ^7.1.1
+
+
 
 dev_dependencies:
   flutter_test:
@@ -65,6 +68,8 @@ dev_dependencies:
   bloc_test: ^10.0.0
   mockito: ^5.6.4
   mocktail: ^1.0.5
+
+
 
 flutter:
   uses-material-design: true
