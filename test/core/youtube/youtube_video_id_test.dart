@@ -11,6 +11,10 @@ void main() {
       expect(youtubeVideoId('AbC-def_123'), 'AbC-def_123');
     });
 
+    test('a matching id is only a text shape, not an existing video', () {
+      expect(youtubeVideoId('not-a-video'), 'not-a-video');
+    });
+
     test('reads watch, short, embed, shorts, and live URLs', () {
       expect(youtubeVideoId('https://www.youtube.com/watch?v=$id'), id);
       expect(youtubeVideoId('https://youtube.com/watch?v=$id&t=43'), id);

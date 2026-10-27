@@ -37,6 +37,7 @@ class AppYoutubeVideoState extends State<AppYoutubeVideo> {
   String? _videoId;
   bool _awaitingPlay = false;
   bool _playbackFailed = false;
+  bool _fullscreen = false;
 
   @override
   void initState() {
@@ -61,48 +62,50 @@ class AppYoutubeVideoState extends State<AppYoutubeVideo> {
   void play() {
     final videoId = _videoId;
     if (videoId == null || _controller != null) return;
+
+    Future<void> startPlayback(YoutubeVideoController controller) async {
+      try {
+        await controller.play();
+      } catch (_) {
+        if (!mounted || !identical(_controller, controller)) return;
+        setState(() => _playbackFailed = true);
+      }
+    }
+
+    void onValue(YoutubePlayerValue value) {
+      final controller = _controller;
+      if (!mounted || controller == null) return;
+      if (_awaitingPlay && value.playerState == PlayerState.cued) {
+        _awaitingPlay = false;
+        unawaited(startPlayback(controller));
+      }
+      final fullscreen = value.fullScreenOption.enabled;
+      final failed = value.hasError;
+      if (fullscreen == _fullscreen && failed == _playbackFailed) return;
+      setState(() {
+        _fullscreen = fullscreen;
+        _playbackFailed = failed;
+      });
+    }
+
+    final YoutubeVideoController controller;
     try {
-      final controller = openController(videoId);
-      _subscription = controller.listen(onPlayerValue);
-      setState(() => _controller = controller);
+      _awaitingPlay = true;
+      final create =
+          widget.createController ?? IframeYoutubeVideoController.open;
+      controller = create(videoId);
     } catch (_) {
       setState(() {
         _awaitingPlay = false;
         _playbackFailed = true;
       });
+      return;
     }
-  }
-
-  YoutubeVideoController openController(String videoId) {
-    _awaitingPlay = true;
-    final create = widget.createController ?? IframeYoutubeVideoController.open;
-    return create(videoId);
-  }
-
-  void onPlayerValue(YoutubePlayerValue value) {
-    final controller = _controller;
-    if (!mounted || controller == null) return;
-    playWhenCued(controller, value);
-    if (value.hasError == _playbackFailed) return;
-    setState(() => _playbackFailed = value.hasError);
-  }
-
-  void playWhenCued(
-    YoutubeVideoController controller,
-    YoutubePlayerValue value,
-  ) {
-    if (!_awaitingPlay || value.playerState != PlayerState.cued) return;
-    _awaitingPlay = false;
-    unawaited(startPlayback(controller));
-  }
-
-  Future<void> startPlayback(YoutubeVideoController controller) async {
-    try {
-      await controller.play();
-    } catch (_) {
-      if (!mounted || !identical(_controller, controller)) return;
-      setState(() => _playbackFailed = true);
-    }
+    setState(() {
+      _controller = controller;
+      _playbackFailed = false;
+    });
+    _subscription = controller.listen(onValue);
   }
 
   void releaseController() {
@@ -112,6 +115,7 @@ class AppYoutubeVideoState extends State<AppYoutubeVideo> {
     _controller = null;
     _awaitingPlay = false;
     _playbackFailed = false;
+    _fullscreen = false;
     if (controller == null) return;
     controller.close().ignore();
   }
@@ -119,6 +123,7 @@ class AppYoutubeVideoState extends State<AppYoutubeVideo> {
   @override
   Widget build(BuildContext context) {
     final controller = _controller;
+    final videoId = _videoId;
     return AspectRatio(
       aspectRatio: widget.aspectRatio,
       child: ColoredBox(
@@ -126,29 +131,30 @@ class AppYoutubeVideoState extends State<AppYoutubeVideo> {
         child: Stack(
           fit: StackFit.expand,
           children: [
-            surface(controller),
-            if (_playbackFailed && controller == null) const PlaybackFailure(),
+            if (videoId == null)
+              const UnavailableSurface()
+            else if (controller == null)
+              ThumbnailSurface(
+                videoId: videoId,
+                onPlay: _playbackFailed ? null : play,
+              )
+            else
+              ActivePlayer(
+                key: ValueKey(videoId),
+                controller: controller,
+                aspectRatio: widget.aspectRatio,
+                showBackButton: widget.showBackButton,
+                onBack: widget.onBack,
+                showFailure: _playbackFailed,
+                fullscreen: _fullscreen,
+              ),
+            if (_playbackFailed && controller == null)
+              PlaybackFailure(onRetry: play),
             if (widget.showBackButton && controller == null)
               BackOverlay(onBack: widget.onBack),
           ],
         ),
       ),
-    );
-  }
-
-  Widget surface(YoutubeVideoController? controller) {
-    final videoId = _videoId;
-    if (videoId == null) return const UnavailableSurface();
-    if (controller == null) {
-      return ThumbnailSurface(videoId: videoId, onPlay: play);
-    }
-    return ActivePlayer(
-      key: ValueKey(videoId),
-      controller: controller,
-      aspectRatio: widget.aspectRatio,
-      showBackButton: widget.showBackButton,
-      onBack: widget.onBack,
-      showFailure: _playbackFailed,
     );
   }
 }
@@ -161,6 +167,7 @@ class ActivePlayer extends StatelessWidget {
     required this.showBackButton,
     required this.onBack,
     required this.showFailure,
+    required this.fullscreen,
   });
 
   final YoutubeVideoController controller;
@@ -168,50 +175,51 @@ class ActivePlayer extends StatelessWidget {
   final bool showBackButton;
   final VoidCallback? onBack;
   final bool showFailure;
+  final bool fullscreen;
 
   @override
   Widget build(BuildContext context) {
-    return KeyedSubtree(
-      key: const Key('app_youtube_video_player'),
-      child: controller.buildPlayer(
-        context: context,
-        aspectRatio: aspectRatio,
-        backgroundColor: context.colors.background,
-        controls: controls,
-      ),
-    );
-  }
-
-  Widget controls(BuildContext context, bool isFullscreen) {
     return Stack(
       fit: StackFit.expand,
       children: [
-        if (showFailure) const PlaybackFailure(),
-        if (showBackButton && !isFullscreen) BackOverlay(onBack: onBack),
+        KeyedSubtree(
+          key: const Key('app_youtube_video_player'),
+          child: controller.buildPlayer(
+            context: context,
+            aspectRatio: aspectRatio,
+            backgroundColor: context.colors.background,
+            controls: controls,
+          ),
+        ),
+        if (showBackButton && !fullscreen) PlayerBackButton(onPressed: onBack),
       ],
     );
+  }
+
+  Widget controls(BuildContext context, bool _) {
+    if (!showFailure) return const SizedBox.shrink();
+    return const PlaybackFailure();
   }
 }
 
 class ThumbnailSurface extends StatelessWidget {
-  const ThumbnailSurface({
-    super.key,
-    required this.videoId,
-    required this.onPlay,
-  });
+  const ThumbnailSurface({super.key, required this.videoId, this.onPlay});
 
   final String videoId;
-  final VoidCallback onPlay;
+  final VoidCallback? onPlay;
 
   @override
   Widget build(BuildContext context) {
+    final image = ThumbnailImage(videoId: videoId);
+    final play = onPlay;
+    if (play == null) return image;
     return GestureDetector(
       behavior: HitTestBehavior.opaque,
-      onTap: onPlay,
+      onTap: play,
       child: Stack(
         fit: StackFit.expand,
         children: [
-          ThumbnailImage(videoId: videoId),
+          image,
           const Center(child: PlayButton()),
         ],
       ),
@@ -269,21 +277,120 @@ class UnavailableSurface extends StatelessWidget {
 }
 
 class PlaybackFailure extends StatelessWidget {
-  const PlaybackFailure({super.key});
+  const PlaybackFailure({super.key, this.onRetry});
+
+  final VoidCallback? onRetry;
 
   @override
   Widget build(BuildContext context) {
-    return IgnorePointer(
-      child: ColoredBox(
-        key: const Key('app_youtube_video_error'),
-        color: context.colors.background.withValues(alpha: 0.72),
-        child: Center(
-          child: Icon(
-            Icons.error_outline,
-            color: context.colors.white,
-            size: 36.r,
+    final retry = onRetry;
+    final icon = Icon(
+      Icons.error_outline,
+      color: context.colors.white,
+      size: 36.r,
+    );
+    if (retry == null) {
+      return IgnorePointer(
+        child: ColoredBox(
+          key: const Key('app_youtube_video_error'),
+          color: context.colors.background.withValues(alpha: 0.72),
+          child: Center(child: icon),
+        ),
+      );
+    }
+    return Stack(
+      fit: StackFit.expand,
+      children: [
+        GestureDetector(
+          behavior: HitTestBehavior.opaque,
+          onTap: () {},
+          child: ColoredBox(
+            key: const Key('app_youtube_video_error'),
+            color: context.colors.background.withValues(alpha: 0.72),
+            child: const SizedBox.expand(),
           ),
         ),
+        Center(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              icon,
+              SizedBox(height: 12.h),
+              GestureDetector(
+                key: const Key('app_youtube_video_retry'),
+                onTap: retry,
+                child: DecoratedBox(
+                  decoration: BoxDecoration(
+                    color: context.colors.surface.withValues(alpha: 0.72),
+                    shape: BoxShape.circle,
+                  ),
+                  child: Padding(
+                    padding: EdgeInsets.all(10.r),
+                    child: Icon(
+                      Icons.refresh,
+                      color: context.colors.white,
+                      size: 36.r,
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+class PlayerBackButton extends StatefulWidget {
+  const PlayerBackButton({super.key, required this.onPressed});
+
+  final VoidCallback? onPressed;
+
+  @override
+  State<PlayerBackButton> createState() => PlayerBackButtonState();
+}
+
+class PlayerBackButtonState extends State<PlayerBackButton> {
+  final LayerLink layerLink = LayerLink();
+  final OverlayPortalController portal = OverlayPortalController();
+
+  @override
+  void initState() {
+    super.initState();
+    // The player portal is shown at the end of this frame in release, and one
+    // frame later in debug. It absorbs taps during unknown and unStarted.
+    // scheduleFrame is required because a post-frame callback does not request
+    // the next frame by itself. Showing after that portal keeps this button
+    // above it: the last OverlayPortal.show wins.
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      WidgetsBinding.instance.scheduleFrame();
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (!mounted) return;
+        portal.show();
+      });
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return OverlayPortal.overlayChildLayoutBuilder(
+      controller: portal,
+      overlayChildBuilder: (context, info) {
+        return CompositedTransformFollower(
+          link: layerLink,
+          showWhenUnlinked: false,
+          child: SizedBox(
+            width: info.childSize.width,
+            height: info.childSize.height,
+            child: Stack(children: [BackOverlay(onBack: widget.onPressed)]),
+          ),
+        );
+      },
+      child: CompositedTransformTarget(
+        link: layerLink,
+        child: const SizedBox.expand(),
       ),
     );
   }
