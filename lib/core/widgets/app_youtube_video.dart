@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:fitness_app/core/theme/context.extension.dart';
+import 'package:fitness_app/core/youtube/youtube_video_controller.dart';
 import 'package:fitness_app/core/youtube/youtube_video_id.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -15,6 +16,7 @@ class AppYoutubeVideo extends StatefulWidget {
     this.showBackButton = false,
     this.onBack,
     this.aspectRatio = 16 / 9,
+    this.createController,
   });
 
   final String videoUrl;
@@ -22,12 +24,15 @@ class AppYoutubeVideo extends StatefulWidget {
   final VoidCallback? onBack;
   final double aspectRatio;
 
+  /// Replaces the in-app player. Production leaves this null.
+  final YoutubeVideoControllerFactory? createController;
+
   @override
   State<AppYoutubeVideo> createState() => AppYoutubeVideoState();
 }
 
 class AppYoutubeVideoState extends State<AppYoutubeVideo> {
-  YoutubePlayerController? _controller;
+  YoutubeVideoController? _controller;
   StreamSubscription<YoutubePlayerValue>? _subscription;
   String? _videoId;
   bool _awaitingPlay = false;
@@ -57,7 +62,7 @@ class AppYoutubeVideoState extends State<AppYoutubeVideo> {
     final videoId = _videoId;
     if (videoId == null || _controller != null) return;
     try {
-      final controller = newController(videoId);
+      final controller = openController(videoId);
       _subscription = controller.listen(onPlayerValue);
       setState(() => _controller = controller);
     } catch (_) {
@@ -66,17 +71,10 @@ class AppYoutubeVideoState extends State<AppYoutubeVideo> {
     }
   }
 
-  YoutubePlayerController newController(String videoId) {
+  YoutubeVideoController openController(String videoId) {
     _awaitingPlay = true;
-    return YoutubePlayerController.fromVideoId(
-      videoId: videoId,
-      autoPlay: false,
-      params: const YoutubePlayerParams(
-        showControls: true,
-        showFullscreenButton: false,
-        playsInline: true,
-      ),
-    );
+    final create = widget.createController ?? IframeYoutubeVideoController.open;
+    return create(videoId);
   }
 
   void onPlayerValue(YoutubePlayerValue value) {
@@ -88,7 +86,7 @@ class AppYoutubeVideoState extends State<AppYoutubeVideo> {
   }
 
   void playWhenCued(
-    YoutubePlayerController controller,
+    YoutubeVideoController controller,
     YoutubePlayerValue value,
   ) {
     if (!_awaitingPlay || value.playerState != PlayerState.cued) return;
@@ -96,9 +94,9 @@ class AppYoutubeVideoState extends State<AppYoutubeVideo> {
     unawaited(startPlayback(controller));
   }
 
-  Future<void> startPlayback(YoutubePlayerController controller) async {
+  Future<void> startPlayback(YoutubeVideoController controller) async {
     try {
-      await controller.playVideo();
+      await controller.play();
     } catch (_) {
       if (!mounted || !identical(_controller, controller)) return;
       setState(() => _playbackFailed = true);
@@ -136,7 +134,7 @@ class AppYoutubeVideoState extends State<AppYoutubeVideo> {
     );
   }
 
-  Widget surface(YoutubePlayerController? controller) {
+  Widget surface(YoutubeVideoController? controller) {
     final videoId = _videoId;
     if (videoId == null) return const UnavailableSurface();
     if (controller == null) {
@@ -163,7 +161,7 @@ class ActivePlayer extends StatelessWidget {
     required this.showFailure,
   });
 
-  final YoutubePlayerController controller;
+  final YoutubeVideoController controller;
   final double aspectRatio;
   final bool showBackButton;
   final VoidCallback? onBack;
@@ -171,15 +169,14 @@ class ActivePlayer extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return YoutubePlayer(
-      controller: controller,
-      aspectRatio: aspectRatio,
-      autoFullScreen: false,
-      enableFullScreenOnVerticalDrag: false,
-      gestureRecognizers: const {},
-      backgroundColor: context.colors.background,
-      // The player WebView covers a back button placed outside this builder.
-      controlsBuilder: controls,
+    return KeyedSubtree(
+      key: const Key('app_youtube_video_player'),
+      child: controller.buildPlayer(
+        context: context,
+        aspectRatio: aspectRatio,
+        backgroundColor: context.colors.background,
+        controls: controls,
+      ),
     );
   }
 
@@ -227,16 +224,29 @@ class ThumbnailImage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Image.network(
-      YoutubePlayerController.getThumbnail(
-        videoId: videoId,
-        quality: ThumbnailQuality.high,
-      ),
-      fit: BoxFit.cover,
-      loadingBuilder: (_, child, progress) =>
-          progress == null ? child : surface(context),
-      errorBuilder: (_, _, _) => surface(context),
+    final devicePixelRatio = MediaQuery.devicePixelRatioOf(context);
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        return Image.network(
+          YoutubePlayerController.getThumbnail(
+            videoId: videoId,
+            quality: ThumbnailQuality.high,
+          ),
+          fit: BoxFit.cover,
+          gaplessPlayback: true,
+          cacheWidth: cachePixels(constraints.maxWidth, devicePixelRatio),
+          cacheHeight: cachePixels(constraints.maxHeight, devicePixelRatio),
+          loadingBuilder: (_, child, progress) =>
+              progress == null ? child : surface(context),
+          errorBuilder: (_, _, _) => surface(context),
+        );
+      },
     );
+  }
+
+  int? cachePixels(double size, double devicePixelRatio) {
+    if (!size.isFinite || size <= 0) return null;
+    return (size * devicePixelRatio).round();
   }
 
   Widget surface(BuildContext context) {
