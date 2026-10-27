@@ -59,7 +59,6 @@ class _EmailStepViewState extends State<EmailStepView> {
         child: Column(
           children: [
             TextFormField(
-
               key: const Key('emailField'),
               controller: _emailController,
               enabled: !isSubmitting,
@@ -74,7 +73,7 @@ class _EmailStepViewState extends State<EmailStepView> {
                 prefixIcon: Image.asset(AppAssets.mail, height: 20, width: 20),
               ),
             ),
-            SizedBox(height: 28.h),
+            SizedBox(height: 18.h),
             ElevatedButton(
               key: const Key('continueButton'),
               onPressed: isSubmitting ? null : _submit,

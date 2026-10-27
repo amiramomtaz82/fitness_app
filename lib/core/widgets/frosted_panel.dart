@@ -16,7 +16,7 @@ class FrostedPanel extends StatelessWidget {
     required this.child,
     this.padding,
     this.radius = 50,
-    this.blurSigma = 16,
+    this.blurSigma = 20,
   });
 
   @override
@@ -29,12 +29,14 @@ class FrostedPanel extends StatelessWidget {
       child: BackdropFilter(
         filter: ImageFilter.blur(sigmaX: blurSigma, sigmaY: blurSigma),
         child: Container(
+          width: double.infinity,
           decoration: BoxDecoration(
-            color: colors.surface.withValues(alpha: 0.45),
+            color: colors.white.withValues(alpha: 0.06),
             borderRadius: borderRadius,
             border: Border.all(color: colors.white.withValues(alpha: 0.10)),
           ),
-          padding: padding ?? EdgeInsets.symmetric(horizontal: 20.w, vertical: 28.h),
+          padding: padding ??
+              EdgeInsets.symmetric(horizontal: 16.w, vertical: 24.h),
           child: child,
         ),
       ),

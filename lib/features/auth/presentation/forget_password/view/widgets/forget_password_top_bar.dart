@@ -24,8 +24,8 @@ class ForgetPasswordTopBar extends StatelessWidget {
           Center(
             child: Image.asset(
               AppAssets.logo,
+              width: 85.w,
               height: 60.h,
-              fit: BoxFit.contain,
             ),
           ),
         ],

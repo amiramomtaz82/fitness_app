@@ -3,12 +3,17 @@ import 'package:fitness_app/core/base_response/base_response.dart';
 import 'package:fitness_app/app/routes_names.dart';
 import 'package:fitness_app/core/theme/app_theme.dart';
 import 'package:fitness_app/core/widgets/app_background_scaffold.dart';
+import 'package:fitness_app/features/auth/domain/entities/email_provider_status.dart';
 import 'package:fitness_app/features/auth/domain/entities/forget_password/auth_action_result.dart';
 import 'package:fitness_app/features/auth/domain/entities/forget_password/forget_password_request.dart';
 import 'package:fitness_app/features/auth/domain/entities/forget_password/reset_password_request.dart';
 import 'package:fitness_app/features/auth/domain/entities/forget_password/verify_otp_request.dart';
+import 'package:fitness_app/features/auth/domain/entities/login_params.dart';
+import 'package:fitness_app/features/auth/domain/entities/register_parameters.dart';
+import 'package:fitness_app/features/auth/domain/entities/social_auth_user.dart';
 import 'package:fitness_app/features/auth/domain/entities/user_entity.dart';
 import 'package:fitness_app/features/auth/domain/repo/auth_repo.dart';
+import 'package:fitness_app/features/auth/domain/use_cases/check_email_provider_use_case.dart';
 import 'package:fitness_app/features/auth/domain/use_cases/reset_password_use_case.dart';
 import 'package:fitness_app/features/auth/domain/use_cases/send_reset_code_use_case.dart';
 import 'package:fitness_app/features/auth/domain/use_cases/verify_reset_code_use_case.dart';
@@ -39,6 +44,28 @@ class _NoRepo implements AuthRepo {
 
   @override
   Future<void> logout() => _called();
+
+  @override
+  Future<BaseResponse<UserEntity>> login(LoginParams params) => _called();
+
+  @override
+  Future<BaseResponse<UserEntity>> register(RegisterParameters params) =>
+      _called();
+
+  @override
+  Future<BaseResponse<String>> getProviderPassword(
+    EmailProviderStatus status,
+  ) => _called();
+
+  @override
+  Future<BaseResponse<EmailProviderStatus>> checkEmailProvider(String email) =>
+      _called();
+
+  @override
+  Future<BaseResponse<SocialAuthUser?>> signInWithGoogle() => _called();
+
+  @override
+  Future<BaseResponse<SocialAuthUser?>> signInWithFacebook() => _called();
 
   @override
   Future<BaseResponse<AuthActionResult>> sendResetCode(
@@ -83,6 +110,14 @@ class _StubResetPasswordUseCase extends ResetPasswordUseCase {
   }) => throw UnsupportedError('Widget tests must not reach the use cases.');
 }
 
+class _StubCheckEmailProviderUseCase extends CheckEmailProviderUseCase {
+  const _StubCheckEmailProviderUseCase() : super(const _NoRepo());
+
+  @override
+  Future<BaseResponse<EmailProviderStatus>> call(String email) =>
+      throw UnsupportedError('Widget tests must not reach the use cases.');
+}
+
 class FakeForgetPasswordCubit extends ForgetPasswordCubit {
   final List<ForgetPasswordEvent> events = [];
 
@@ -91,6 +126,7 @@ class FakeForgetPasswordCubit extends ForgetPasswordCubit {
         const _StubSendResetCodeUseCase(),
         const _StubVerifyResetCodeUseCase(),
         const _StubResetPasswordUseCase(),
+        const _StubCheckEmailProviderUseCase(),
       );
 
   @override

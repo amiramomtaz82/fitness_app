@@ -14,7 +14,7 @@ import '../features/home/presentation/view/home_view.dart';
 import 'routes_names.dart';
 
 final GoRouter appRouter = GoRouter(
-  initialLocation: AppRoutes.register,
+  initialLocation: AppRoutes.login,
   routes: [
     GoRoute(
       path: AppRoutes.home,

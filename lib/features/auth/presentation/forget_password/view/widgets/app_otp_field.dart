@@ -5,13 +5,6 @@ import 'package:pinput/pinput.dart';
 
 import '../../../../../../core/theme/context.extension.dart';
 
-/// Themed one-time-code input with an inline error message slot.
-///
-/// Uses the Figma "underline" style: orange digits over a thin underline that
-/// turns orange once filled/focused.
-///
-/// [errorNotifier] is deliberately a [ValueNotifier]: setting or clearing the
-/// error rebuilds only the error text, never the whole step/screen.
 class AppOtpField extends StatelessWidget {
   final int length;
   final bool enabled;
@@ -67,14 +60,13 @@ class AppOtpField extends StatelessWidget {
         SizedBox(height: 8.h),
         ValueListenableBuilder<String?>(
           valueListenable: errorNotifier,
-          builder: (context, error, _) =>
-              error == null
-                  ? const SizedBox.shrink()
-                  : Text(
-                    error,
-                    textAlign: TextAlign.center,
-                    style: TextStyle(fontSize: 12.sp, color: colors.error),
-                  ),
+          builder: (context, error, _) => error == null
+              ? const SizedBox.shrink()
+              : Text(
+                  error,
+                  textAlign: TextAlign.center,
+                  style: TextStyle(fontSize: 12.sp, color: colors.error),
+                ),
         ),
       ],
     );

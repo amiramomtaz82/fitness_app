@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:easy_localization/easy_localization.dart';
 import 'package:fitness_app/core/base/base_cubit.dart';
 import 'package:fitness_app/core/base/cubit_message.dart';
 import 'package:fitness_app/core/base/ui_events.dart';
@@ -7,12 +8,15 @@ import 'package:fitness_app/core/base_response/base_response.dart';
 import 'package:fitness_app/core/error/failures.dart';
 import 'package:fitness_app/app/routes_names.dart';
 import 'package:fitness_app/core/resource/resource.dart';
+import 'package:fitness_app/features/auth/domain/entities/email_provider_status.dart';
 import 'package:fitness_app/features/auth/domain/entities/forget_password/forget_password_request.dart';
 import 'package:fitness_app/features/auth/domain/entities/forget_password/reset_password_request.dart';
 import 'package:fitness_app/features/auth/domain/entities/forget_password/verify_otp_request.dart';
+import 'package:fitness_app/features/auth/domain/use_cases/check_email_provider_use_case.dart';
 import 'package:fitness_app/features/auth/domain/use_cases/reset_password_use_case.dart';
 import 'package:fitness_app/features/auth/domain/use_cases/send_reset_code_use_case.dart';
 import 'package:fitness_app/features/auth/domain/use_cases/verify_reset_code_use_case.dart';
+import 'package:fitness_app/generated/locale_keys.g.dart';
 import 'package:injectable/injectable.dart';
 
 import 'forget_password_config.dart';
@@ -24,12 +28,14 @@ class ForgetPasswordCubit extends BaseCubit<ForgetPasswordState, BaseUiEvent> {
   final SendResetCodeUseCase _sendCodeUseCase;
   final VerifyResetCodeUseCase _verifyCodeUseCase;
   final ResetPasswordUseCase _resetPasswordUseCase;
+  final CheckEmailProviderUseCase _checkEmailProviderUseCase;
   Timer? _resendTimer;
 
   ForgetPasswordCubit(
     this._sendCodeUseCase,
     this._verifyCodeUseCase,
     this._resetPasswordUseCase,
+    this._checkEmailProviderUseCase,
   ) : super(const ForgetPasswordState());
 
   void onEvent(ForgetPasswordEvent event) {
@@ -50,6 +56,13 @@ class ForgetPasswordCubit extends BaseCubit<ForgetPasswordState, BaseUiEvent> {
   Future<void> _sendCode(String email) async {
     if (state.sendCode.isLoading) return;
     emit(state.copyWith(sendCode: const Resource.loading()));
+
+    final socialFailure = await _socialProviderFailure(email);
+    if (socialFailure != null) {
+      emit(state.copyWith(sendCode: Resource.error(socialFailure)));
+      emitFailure(socialFailure);
+      return;
+    }
 
     final result = await _sendCodeUseCase(
       request: ForgetPasswordRequest(email: email),
@@ -74,6 +87,22 @@ class ForgetPasswordCubit extends BaseCubit<ForgetPasswordState, BaseUiEvent> {
         emit(state.copyWith(sendCode: Resource.error(failure)));
         emitFailure(failure);
     }
+  }
+
+  Future<ValidationFailure?> _socialProviderFailure(String email) async {
+    final check = await _checkEmailProviderUseCase(email);
+    return switch (check) {
+      SuccessResponse(:final data) => switch (data) {
+        EmailProviderStatus.registeredWithGoogle => ValidationFailure(
+          serverMessage: LocaleKeys.auth_forgot_password_google.tr(),
+        ),
+        EmailProviderStatus.registeredWithFacebook => ValidationFailure(
+          serverMessage: LocaleKeys.auth_forgot_password_facebook.tr(),
+        ),
+        _ => null,
+      },
+      ErrorResponse() => null,
+    };
   }
 
   Future<void> _verifyCode(String otp) async {
