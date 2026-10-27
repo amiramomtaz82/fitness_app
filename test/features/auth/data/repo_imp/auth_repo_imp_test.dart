@@ -179,7 +179,7 @@ void main() {
     );
 
     test(
-      'verifyResetCode surfaces a rejected code as a failed entity',
+      'verifyResetCode converts a rejected code into a validation failure',
       () async {
         when(() => mockRemoteDataSource.verifyResetCode(any())).thenAnswer(
           (_) async => const AuthActionResponseDto(
@@ -192,14 +192,36 @@ void main() {
           const VerifyOtpRequest(resetCode: '0000'),
         );
 
-        final entity = (response as SuccessResponse<AuthActionResult>).data;
-        expect(entity.success, isFalse);
-        expect(entity.message, 'Invalid reset code.');
+        expect(response, isA<ErrorResponse<AuthActionResult>>());
+        final failure = (response as ErrorResponse<AuthActionResult>).failure;
+        expect(failure, isA<ValidationFailure>());
+        expect(failure.serverMessage, 'Invalid reset code.');
         verify(
           () => mockRemoteDataSource.verifyResetCode(
             any(that: isA<VerifyOtpRequestDto>()),
           ),
         ).called(1);
+      },
+    );
+
+    test(
+      'sendResetCode converts a rejected request into a validation failure',
+      () async {
+        when(() => mockRemoteDataSource.sendResetCode(any())).thenAnswer(
+          (_) async => const AuthActionResponseDto(
+            success: false,
+            message: 'User not found.',
+          ),
+        );
+
+        final response = await repo.sendResetCode(
+          const ForgetPasswordRequest(email: 'user@mail.com'),
+        );
+
+        expect(response, isA<ErrorResponse<AuthActionResult>>());
+        final failure = (response as ErrorResponse<AuthActionResult>).failure;
+        expect(failure, isA<ValidationFailure>());
+        expect(failure.serverMessage, 'User not found.');
       },
     );
 

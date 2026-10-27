@@ -161,27 +161,39 @@ class AuthRepoImp implements AuthRepo {
   @override
   Future<BaseResponse<AuthActionResult>> sendResetCode(
     ForgetPasswordRequest request,
-  ) => safeCall(
-    () async => (
+  ) => safeCall(() async {
+    final result = (
       await _remoteDataSource.sendResetCode(request.toDto())
-    ).toEntity(),
-  );
+    ).toEntity();
+    if (!result.success) {
+      throw ValidationFailure(serverMessage: result.message);
+    }
+    return result;
+  });
 
   @override
   Future<BaseResponse<AuthActionResult>> verifyResetCode(
     VerifyOtpRequest request,
-  ) => safeCall(
-    () async => (
+  ) => safeCall(() async {
+    final result = (
       await _remoteDataSource.verifyResetCode(request.toDto())
-    ).toEntity(),
-  );
+    ).toEntity();
+    if (!result.success) {
+      throw ValidationFailure(serverMessage: result.message);
+    }
+    return result;
+  });
 
   @override
   Future<BaseResponse<AuthActionResult>> resetPassword(
     ResetPasswordRequest request,
-  ) => safeCall(
-    () async => (
+  ) => safeCall(() async {
+    final result = (
       await _remoteDataSource.resetPassword(request.toDto())
-    ).toEntity(),
-  );
+    ).toEntity();
+    if (!result.success) {
+      throw ValidationFailure(serverMessage: result.message);
+    }
+    return result;
+  });
 }

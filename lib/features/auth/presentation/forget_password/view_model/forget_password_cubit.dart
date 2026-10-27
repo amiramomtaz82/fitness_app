@@ -1,6 +1,5 @@
 import 'dart:async';
 
-import 'package:easy_localization/easy_localization.dart';
 import 'package:fitness_app/core/base/base_cubit.dart';
 import 'package:fitness_app/core/base/cubit_message.dart';
 import 'package:fitness_app/core/base/ui_events.dart';
@@ -16,7 +15,6 @@ import 'package:fitness_app/features/auth/domain/use_cases/check_email_provider_
 import 'package:fitness_app/features/auth/domain/use_cases/reset_password_use_case.dart';
 import 'package:fitness_app/features/auth/domain/use_cases/send_reset_code_use_case.dart';
 import 'package:fitness_app/features/auth/domain/use_cases/verify_reset_code_use_case.dart';
-import 'package:fitness_app/generated/locale_keys.g.dart';
 import 'package:injectable/injectable.dart';
 
 import 'forget_password_config.dart';
@@ -69,7 +67,7 @@ class ForgetPasswordCubit extends BaseCubit<ForgetPasswordState, BaseUiEvent> {
     );
 
     switch (result) {
-      case SuccessResponse(:final data) when data.success:
+      case SuccessResponse(:final data):
         emit(
           state.copyWith(
             sendCode: Resource.success(data),
@@ -79,29 +77,23 @@ class ForgetPasswordCubit extends BaseCubit<ForgetPasswordState, BaseUiEvent> {
         );
         emitSuccess(CubitMessageType.otpSent);
         _startResendCountdown();
-      case SuccessResponse(:final data):
-        final failure = ValidationFailure(serverMessage: data.message);
-        emit(state.copyWith(sendCode: Resource.error(failure)));
-        emitFailure(failure);
       case ErrorResponse(:final failure):
         emit(state.copyWith(sendCode: Resource.error(failure)));
         emitFailure(failure);
     }
   }
 
-  Future<ValidationFailure?> _socialProviderFailure(String email) async {
+  Future<Failure?> _socialProviderFailure(String email) async {
     final check = await _checkEmailProviderUseCase(email);
     return switch (check) {
       SuccessResponse(:final data) => switch (data) {
-        EmailProviderStatus.registeredWithGoogle => ValidationFailure(
-          serverMessage: LocaleKeys.auth_forgot_password_google.tr(),
-        ),
-        EmailProviderStatus.registeredWithFacebook => ValidationFailure(
-          serverMessage: LocaleKeys.auth_forgot_password_facebook.tr(),
-        ),
+        EmailProviderStatus.registeredWithGoogle =>
+          const SocialAccountFailure(provider: SocialProvider.google),
+        EmailProviderStatus.registeredWithFacebook =>
+          const SocialAccountFailure(provider: SocialProvider.facebook),
         _ => null,
       },
-      ErrorResponse() => null,
+      ErrorResponse(:final failure) => failure,
     };
   }
 
@@ -114,17 +106,13 @@ class ForgetPasswordCubit extends BaseCubit<ForgetPasswordState, BaseUiEvent> {
     );
 
     switch (result) {
-      case SuccessResponse(:final data) when data.success:
+      case SuccessResponse(:final data):
         emit(
           state.copyWith(
             verifyCode: Resource.success(data),
             step: ForgetPasswordStep.resetPassword,
           ),
         );
-      case SuccessResponse(:final data):
-        final failure = ValidationFailure(serverMessage: data.message);
-        emit(state.copyWith(verifyCode: Resource.error(failure)));
-        emitFailure(failure);
       case ErrorResponse(:final failure):
         emit(state.copyWith(verifyCode: Resource.error(failure)));
         emitFailure(failure);
@@ -140,14 +128,10 @@ class ForgetPasswordCubit extends BaseCubit<ForgetPasswordState, BaseUiEvent> {
     );
 
     switch (result) {
-      case SuccessResponse(:final data) when data.success:
+      case SuccessResponse(:final data):
         emit(state.copyWith(resendCode: Resource.success(data)));
         emitSuccess(CubitMessageType.otpSent);
         _startResendCountdown();
-      case SuccessResponse(:final data):
-        final failure = ValidationFailure(serverMessage: data.message);
-        emit(state.copyWith(resendCode: Resource.error(failure)));
-        emitFailure(failure);
       case ErrorResponse(:final failure):
         emit(state.copyWith(resendCode: Resource.error(failure)));
         emitFailure(failure);
@@ -168,14 +152,10 @@ class ForgetPasswordCubit extends BaseCubit<ForgetPasswordState, BaseUiEvent> {
     );
 
     switch (result) {
-      case SuccessResponse(:final data) when data.success:
+      case SuccessResponse(:final data):
         emit(state.copyWith(resetPassword: Resource.success(data)));
         emitSuccess(CubitMessageType.passwordChanged);
         emitEvent(const NavigateReplacementEvent(AppRoutes.login));
-      case SuccessResponse(:final data):
-        final failure = ValidationFailure(serverMessage: data.message);
-        emit(state.copyWith(resetPassword: Resource.error(failure)));
-        emitFailure(failure);
       case ErrorResponse(:final failure):
         emit(state.copyWith(resetPassword: Resource.error(failure)));
         emitFailure(failure);

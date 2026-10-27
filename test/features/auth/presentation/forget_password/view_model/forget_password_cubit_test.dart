@@ -164,7 +164,9 @@ void main() {
 
       expect(cubit.state.step, ForgetPasswordStep.email);
       expect(cubit.state.sendCode.isError, isTrue);
-      expect(cubit.state.sendCode.failure, isA<ValidationFailure>());
+      final failure = cubit.state.sendCode.failure;
+      expect(failure, isA<SocialAccountFailure>());
+      expect((failure as SocialAccountFailure).provider, SocialProvider.google);
       verify(checkUseCase('social@mail.com')).called(1);
       verifyNever(sendUseCase(request: anyNamed('request')));
     });
@@ -178,7 +180,12 @@ void main() {
 
       expect(cubit.state.step, ForgetPasswordStep.email);
       expect(cubit.state.sendCode.isError, isTrue);
-      expect(cubit.state.sendCode.failure, isA<ValidationFailure>());
+      final failure = cubit.state.sendCode.failure;
+      expect(failure, isA<SocialAccountFailure>());
+      expect(
+        (failure as SocialAccountFailure).provider,
+        SocialProvider.facebook,
+      );
       verifyNever(sendUseCase(request: anyNamed('request')));
     });
 
@@ -198,19 +205,17 @@ void main() {
       ).called(1);
     });
 
-    test('continues to the backend when the provider check fails', () async {
+    test('surfaces the provider check failure and does not send a code',
+        () async {
       stubCheckUnavailable();
-      stubSendSuccess();
 
       cubit.onEvent(const SendResetCode(email: 'user@mail.com'));
       await Future(() {});
 
-      expect(cubit.state.step, ForgetPasswordStep.otp);
-      verify(
-        sendUseCase(
-          request: const ForgetPasswordRequest(email: 'user@mail.com'),
-        ),
-      ).called(1);
+      expect(cubit.state.step, ForgetPasswordStep.email);
+      expect(cubit.state.sendCode.isError, isTrue);
+      expect(cubit.state.sendCode.failure, networkFailure);
+      verifyNever(sendUseCase(request: anyNamed('request')));
     });
   });
 
