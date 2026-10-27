@@ -15,6 +15,7 @@ const _backKey = Key('app_youtube_video_back');
 const _unavailableKey = Key('app_youtube_video_unavailable');
 const _playerKey = Key('app_youtube_video_player');
 const _errorKey = Key('app_youtube_video_error');
+const _retryKey = Key('app_youtube_video_retry');
 
 void main() {
   Widget video(
@@ -184,6 +185,73 @@ void main() {
       expect(fake.playCalls, 1);
       expect(find.byKey(_errorKey), findsOneWidget);
       expect(find.byKey(_playerKey), findsOneWidget);
+      expect(find.byKey(_retryKey), findsNothing);
+    });
+
+    testWidgets('retries only from the retry button after a failed open', (
+      tester,
+    ) async {
+      var opens = 0;
+      await tester.pumpWidget(
+        video(
+          _watchUrl,
+          createController: (_) {
+            opens++;
+            throw StateError('open');
+          },
+        ),
+      );
+
+      await tester.tap(find.byKey(_playKey));
+      await tester.pump();
+
+      expect(opens, 1);
+      expect(find.byKey(_errorKey), findsOneWidget);
+      expect(find.byKey(_playKey), findsNothing);
+      expect(find.byKey(_retryKey), findsOneWidget);
+
+      final errorTopLeft = tester.getRect(find.byKey(_errorKey)).topLeft;
+      await tester.tapAt(errorTopLeft + const Offset(8, 8));
+      await tester.pump();
+
+      expect(opens, 1);
+
+      await tester.tap(find.byKey(_retryKey));
+      await tester.pump();
+
+      expect(opens, 2);
+      expect(tester.takeException(), isNull);
+    });
+
+    testWidgets('keeps the back button tappable after Play', (tester) async {
+      var taps = 0;
+      final fake = FakeYoutubeVideoController('dQw4w9WgXcQ');
+      await tester.pumpWidget(
+        video(
+          _watchUrl,
+          showBackButton: true,
+          onBack: () => taps++,
+          createController: (_) => fake,
+        ),
+      );
+
+      await tester.tap(find.byKey(_playKey));
+      await tester.pump();
+      await pumpUntilFound(tester, find.byKey(_backKey));
+
+      expect(find.byKey(_backKey), findsOneWidget);
+      await tester.tap(find.byKey(_backKey));
+      await tester.pump();
+      expect(taps, 1);
+
+      fake.emit(
+        YoutubePlayerValue(
+          fullScreenOption: const FullScreenOption(enabled: true),
+        ),
+      );
+      await tester.pump();
+
+      expect(find.byKey(_backKey), findsNothing);
     });
 
     testWidgets(
@@ -244,6 +312,13 @@ void main() {
       expect(tester.takeException(), isNull);
     });
   });
+}
+
+Future<void> pumpUntilFound(WidgetTester tester, Finder finder) async {
+  for (var attempt = 0; attempt < 6; attempt++) {
+    if (finder.evaluate().isNotEmpty) return;
+    await tester.pump();
+  }
 }
 
 FakeYoutubeVideoController track(

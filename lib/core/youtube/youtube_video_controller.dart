@@ -69,7 +69,6 @@ class IframeYoutubeVideoController implements YoutubeVideoController {
       enableFullScreenOnVerticalDrag: false,
       gestureRecognizers: const {},
       backgroundColor: backgroundColor,
-      // The player WebView covers a back button placed outside this builder.
       controlsBuilder: controls,
     );
   }
