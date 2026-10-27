@@ -72,7 +72,7 @@ void main() {
   testWidgets('a password without a digit is rejected', (tester) async {
     await pumpResetStep(tester);
 
-    await fillAndSubmit(tester, 'abcdefgh', 'abcdefgh');
+    await fillAndSubmit(tester, 'Abcdefg@', 'Abcdefg@');
 
     expect(
       find.text('Password must contain at least one digit.'),
@@ -84,7 +84,7 @@ void main() {
   testWidgets('a blank confirmation is rejected as required', (tester) async {
     await pumpResetStep(tester);
 
-    await fillAndSubmit(tester, 'NewPass1', '');
+    await fillAndSubmit(tester, 'NewPass@1', '');
 
     expect(find.text('This field is required.'), findsOneWidget);
     expect(cubit.events, isEmpty);
@@ -95,7 +95,7 @@ void main() {
   ) async {
     await pumpResetStep(tester);
 
-    await fillAndSubmit(tester, 'NewPass1', 'OtherPass1');
+    await fillAndSubmit(tester, 'NewPass@1', 'OtherPass@1');
 
     expect(find.text('Passwords do not match.'), findsOneWidget);
     expect(cubit.events, isEmpty);
@@ -106,14 +106,14 @@ void main() {
   ) async {
     await pumpResetStep(tester);
 
-    await fillAndSubmit(tester, 'NewPass1', 'NewPass1');
+    await fillAndSubmit(tester, 'NewPass@1', 'NewPass@1');
 
     expect(
       cubit.events,
       contains(
         const SubmitNewPassword(
-          password: 'NewPass1',
-          confirmPassword: 'NewPass1',
+          password: 'NewPass@1',
+          confirmPassword: 'NewPass@1',
         ),
       ),
     );
@@ -124,8 +124,8 @@ void main() {
   ) async {
     await pumpResetStep(tester);
 
-    await tester.enterText(find.byKey(passwordKey), 'NewPass1');
-    await tester.enterText(find.byKey(confirmKey), 'NewPass1');
+    await tester.enterText(find.byKey(passwordKey), 'NewPass@1');
+    await tester.enterText(find.byKey(confirmKey), 'NewPass@1');
     await tester.testTextInput.receiveAction(TextInputAction.done);
     await settle(tester);
 
@@ -133,8 +133,8 @@ void main() {
       cubit.events,
       contains(
         const SubmitNewPassword(
-          password: 'NewPass1',
-          confirmPassword: 'NewPass1',
+          password: 'NewPass@1',
+          confirmPassword: 'NewPass@1',
         ),
       ),
     );

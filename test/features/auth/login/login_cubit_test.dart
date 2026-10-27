@@ -356,7 +356,7 @@ void main() {
 
         expect(events.cast<NavigateEvent>().map((e) => e.route), [
           AppRoutes.register,
-          AppRoutes.forgetPassword,
+          AppRoutes.forgotPassword,
         ]);
       });
     });

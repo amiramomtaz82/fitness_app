@@ -1,6 +1,6 @@
 import 'package:bloc_test/bloc_test.dart';
 import 'package:fitness_app/core/di/di.dart';
-import 'package:fitness_app/features/auth/presentation/forget_password/view/forget_pasword_view.dart';
+import 'package:fitness_app/features/auth/presentation/forget_password/view/forget_password_view.dart';
 import 'package:fitness_app/features/auth/presentation/login/view/login_view.dart';
 import 'package:fitness_app/features/auth/presentation/login/view_model/login_cubit.dart';
 import 'package:fitness_app/features/auth/presentation/login/view_model/login_state.dart';
@@ -12,6 +12,8 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
+
+import 'forget_password/forget_password_widget_test_helpers.dart';
 
 class MockRegisterCubit extends MockCubit<RegisterState>
     implements RegisterCubit {}
@@ -75,8 +77,8 @@ void main() {
     testWidgets('ForgetPaswordView renders properly', (
       WidgetTester tester,
     ) async {
-      await tester.pumpWidget(const MaterialApp(home: ForgetPaswordView()));
-      expect(find.byType(ForgetPaswordView), findsOneWidget);
+      await pumpForgetPassword(tester, cubit: FakeForgetPasswordCubit());
+      expect(find.byType(ForgetPasswordView), findsOneWidget);
     });
   });
 }

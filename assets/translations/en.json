@@ -41,6 +41,8 @@
     "email": "Email",
     "password": "Password",
     "forgot_password": "Forgot Password ?",
+    "forgot_password_google": "This email is registered with Google. Please sign in with Google.",
+    "forgot_password_facebook": "This email is registered with Facebook. Please sign in with Facebook.",
     "or": "Or",
     "dont_have_account": "Dont Have An Account Yet ?",
     "already_have_account": "Already Have An Account ?",
