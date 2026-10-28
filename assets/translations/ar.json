@@ -117,7 +117,9 @@
     "shoulder": "كتف",
     "back": "ظهر",
     "legs": "أرجل",
-    "high_chest_exercise": "تمرين أعلى الصدر"
+    "high_chest_exercise": "تمرين أعلى الصدر",
+    "stomach": "معدة",
+    "no_muscles_found": "لم يتم العثور على عضلات لهذا القسم."
   },
   "exercises": {
     "exercise": "التمرين",
