@@ -114,6 +114,8 @@ abstract class  LocaleKeys {
   static const workouts_back = 'workouts.back';
   static const workouts_legs = 'workouts.legs';
   static const workouts_high_chest_exercise = 'workouts.high_chest_exercise';
+  static const workouts_stomach = 'workouts.stomach';
+  static const workouts_no_muscles_found = 'workouts.no_muscles_found';
   static const workouts = 'workouts';
   static const exercises_exercise = 'exercises.exercise';
   static const exercises_min_30 = 'exercises.min_30';
