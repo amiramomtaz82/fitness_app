@@ -22,6 +22,10 @@ class Endpoints {
   static const String muscles = '/muscles';
   static const String musclesGroup = '/musclesGroup';
 
+  // Meals (TheMealDB - third-party, no auth)
+  static const String mealDbBaseUrl = 'https://www.themealdb.com/api/json/v1/1';
+  static const String mealCategories = '/categories.php';
+
   // Exercises
   static const String exercises = '/exercises';
   static const String exercisesRandom = '/exercises/random';
