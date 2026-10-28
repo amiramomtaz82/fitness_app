@@ -1,10 +1,8 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get_it/get_it.dart';
 import 'package:go_router/go_router.dart';
-
 import 'package:fitness_app/app/bottom_bar/bottom_navigation_bar.dart';
 import 'package:fitness_app/core/di/di.dart';
-import 'package:fitness_app/features/auth/presentation/forget_password/view/forget_pasword_view.dart';
 import 'package:fitness_app/features/auth/presentation/login/view/login_view.dart';
 import 'package:fitness_app/features/auth/presentation/login/view_model/login_cubit.dart';
 import 'package:fitness_app/features/auth/presentation/register/manager/cubit/register_cubit.dart';
@@ -14,22 +12,11 @@ import 'package:fitness_app/features/chat/presentation/view/screens/smart_coach_
 import 'package:fitness_app/features/exercise/presentation/home/view/home_screen.dart';
 import 'package:fitness_app/features/on_bording/views/onboarding_view.dart';
 import 'package:fitness_app/features/profile/presentation/view/screens/profile_screen.dart';
-import 'package:fitness_app/features/splash/presentation/views/splash_view.dart';
-import '../core/di/di.dart';
+
 import '../features/auth/presentation/forget_password/view/forget_password_view.dart';
 import '../features/auth/presentation/forget_password/view_model/forget_password_cubit.dart';
-import '../features/auth/presentation/login/view/login_view.dart';
-import '../features/auth/presentation/login/view_model/login_cubit.dart';
-import '../features/auth/presentation/register/manager/cubit/register_cubit.dart';
-import '../features/auth/presentation/register/view/muti_steps_regitration/multi_steps_registration_view.dart';
-import '../features/auth/presentation/register/view/register_first_sceen/register_view.dart';
-import '../features/chat/presentation/view/screens/smart_coach_screen.dart';
-import '../features/home/presentation/view/screens/home_screen.dart';
-import '../features/home/presentation/view/screens/workouts_screen.dart';
-import '../features/on_bording/views/onboarding_view.dart';
-import '../features/profile/presentation/view/screens/profile_screen.dart';
 import '../features/splash/presentation/views/splash_view.dart';
-import 'bottom_bar/bottom_navigation_bar.dart';
+
 import 'routes_names.dart';
 
 import '../features/exercise/presentation/work_out/view/work_out_view.dart';
