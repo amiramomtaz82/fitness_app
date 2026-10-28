@@ -42,6 +42,8 @@ abstract class  LocaleKeys {
   static const auth_email = 'auth.email';
   static const auth_password = 'auth.password';
   static const auth_forgot_password = 'auth.forgot_password';
+  static const auth_forgot_password_google = 'auth.forgot_password_google';
+  static const auth_forgot_password_facebook = 'auth.forgot_password_facebook';
   static const auth_or = 'auth.or';
   static const auth_dont_have_account = 'auth.dont_have_account';
   static const auth_already_have_account = 'auth.already_have_account';
@@ -53,6 +55,7 @@ abstract class  LocaleKeys {
   static const auth_confirm = 'auth.confirm';
   static const auth_didnt_receive_code = 'auth.didnt_receive_code';
   static const auth_resend_code = 'auth.resend_code';
+  static const auth_resend_in = 'auth.resend_in';
   static const auth_make_sure_8_characters = 'auth.make_sure_8_characters';
   static const auth_create_new_password = 'auth.create_new_password';
   static const auth_done = 'auth.done';
@@ -157,6 +160,7 @@ abstract class  LocaleKeys {
   static const validation_password_too_short = 'validation.password_too_short';
   static const validation_password_missing_number = 'validation.password_missing_number';
   static const validation_passwords_dont_match = 'validation.passwords_dont_match';
+  static const validation_incomplete_otp = 'validation.incomplete_otp';
   static const validation_field_required = 'validation.field_required';
   static const validation_not_a_number = 'validation.not_a_number';
   static const validation_value_below_minimum = 'validation.value_below_minimum';

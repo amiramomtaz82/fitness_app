@@ -40,3 +40,10 @@ class ValidationFailure extends Failure {
 class UnknownFailure extends Failure {
   const UnknownFailure({super.serverMessage, super.statusCode});
 }
+
+enum SocialProvider { google, facebook }
+
+class SocialAccountFailure extends Failure {
+  final SocialProvider provider;
+  const SocialAccountFailure({required this.provider, super.serverMessage});
+}
