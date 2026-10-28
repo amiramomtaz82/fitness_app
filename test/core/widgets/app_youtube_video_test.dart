@@ -170,22 +170,49 @@ void main() {
       expect(tester.takeException(), isNull);
     });
 
-    testWidgets('shows the error state when playback fails after cue', (
+    testWidgets('recreates the player when playback fails after cue', (
       tester,
     ) async {
-      final fake = FakeYoutubeVideoController('dQw4w9WgXcQ')..playError = true;
-      await tester.pumpWidget(video(_watchUrl, createController: (_) => fake));
+      final created = <FakeYoutubeVideoController>[];
+      await tester.pumpWidget(
+        video(
+          _watchUrl,
+          createController: (videoId) {
+            final fake = track(created, videoId);
+            fake.playError = created.length == 1;
+            return fake;
+          },
+        ),
+      );
 
       await tester.tap(find.byKey(_playKey));
       await tester.pump();
-      fake.emit(YoutubePlayerValue(playerState: PlayerState.cued));
-      await tester.pump();
-      await tester.pump();
+      created.single.emit(YoutubePlayerValue(playerState: PlayerState.cued));
+      await pumpUntilFound(tester, find.byKey(_retryKey));
 
-      expect(fake.playCalls, 1);
+      expect(created.single.playCalls, 1);
       expect(find.byKey(_errorKey), findsOneWidget);
       expect(find.byKey(_playerKey), findsOneWidget);
+
+      created.single.emit(YoutubePlayerValue(playerState: PlayerState.playing));
+      await tester.pump();
+      await tester.pump();
+      expect(find.byKey(_retryKey), findsOneWidget);
+
+      final errorTopLeft = tester.getRect(find.byKey(_errorKey)).topLeft;
+      await tester.tapAt(errorTopLeft + const Offset(8, 8));
+      await tester.pump();
+      expect(created, hasLength(1));
+
+      await tester.tap(find.byKey(_retryKey));
+      await tester.pump();
+
+      expect(created, hasLength(2));
+      expect(created.first.closed, isTrue);
+      expect(created.first.values.isClosed, isTrue);
       expect(find.byKey(_retryKey), findsNothing);
+      expect(find.byKey(_playerKey), findsOneWidget);
+      expect(tester.takeException(), isNull);
     });
 
     testWidgets('retries only from the retry button after a failed open', (
@@ -269,12 +296,16 @@ void main() {
         await tester.pump();
 
         expect(find.byKey(_errorKey), findsOneWidget);
+        expect(find.byKey(_retryKey), findsNothing);
+        expect(fake.closed, isFalse);
 
         fake.emit(YoutubePlayerValue(playerState: PlayerState.playing));
         await tester.pump();
         await tester.pump();
 
         expect(find.byKey(_errorKey), findsNothing);
+        expect(find.byKey(_retryKey), findsNothing);
+        expect(fake.closed, isFalse);
         expect(fake.playCalls, 0);
       },
     );
