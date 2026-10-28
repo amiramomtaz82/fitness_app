@@ -1,10 +1,10 @@
 import 'package:fitness_app/core/theme/context.extension.dart';
-import 'package:fitness_app/core/widgets/youtube/youtube_playback_failure.dart';
+import 'package:fitness_app/core/youtube/youtube_playback_failure.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
-class PlayerChrome extends StatefulWidget {
-  const PlayerChrome({
+class PlayerOverlay extends StatefulWidget {
+  const PlayerOverlay({
     super.key,
     required this.showBackButton,
     required this.onBack,
@@ -18,21 +18,16 @@ class PlayerChrome extends StatefulWidget {
   final VoidCallback onRetry;
 
   @override
-  State<PlayerChrome> createState() => PlayerChromeState();
+  State<PlayerOverlay> createState() => _PlayerOverlayState();
 }
 
-class PlayerChromeState extends State<PlayerChrome> {
+class _PlayerOverlayState extends State<PlayerOverlay> {
   final LayerLink layerLink = LayerLink();
   final OverlayPortalController portal = OverlayPortalController();
 
   @override
   void initState() {
     super.initState();
-    // The player portal is shown at the end of this frame in release, and one
-    // frame later in debug. It absorbs taps during unknown and unStarted.
-    // scheduleFrame is required because a post-frame callback does not request
-    // the next frame by itself. Showing after that portal keeps this layer
-    // above it: the last OverlayPortal.show wins.
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (!mounted) return;
       WidgetsBinding.instance.scheduleFrame();

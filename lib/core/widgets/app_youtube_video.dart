@@ -1,18 +1,19 @@
 import 'dart:async';
 
 import 'package:fitness_app/core/theme/context.extension.dart';
-import 'package:fitness_app/core/widgets/youtube/youtube_playback_failure.dart';
-import 'package:fitness_app/core/widgets/youtube/youtube_player_chrome.dart';
-import 'package:fitness_app/core/widgets/youtube/youtube_video_thumbnail.dart';
+import 'package:fitness_app/core/youtube/youtube_playback_failure.dart';
+import 'package:fitness_app/core/youtube/youtube_player_overlay.dart';
 import 'package:fitness_app/core/youtube/youtube_video_controller.dart';
 import 'package:fitness_app/core/youtube/youtube_video_id.dart';
+import 'package:fitness_app/core/youtube/youtube_video_thumbnail.dart';
 import 'package:flutter/material.dart';
 import 'package:youtube_player_iframe/youtube_player_iframe.dart';
 
-/// Plays [videoUrl] inside the widget.
+/// Plays [videoUrl] inside the app.
 ///
-/// A player-reported error keeps the current controller. Retry after a
-/// failed play releases that controller and creates another one.
+/// Pass [showBackButton] and [onBack] to leave the screen from the video.
+/// Leave [createController] null outside tests. A failed play can be retried
+/// from the refresh button, which closes the current player and opens another.
 class AppYoutubeVideo extends StatefulWidget {
   const AppYoutubeVideo({
     super.key,
@@ -32,10 +33,10 @@ class AppYoutubeVideo extends StatefulWidget {
   final YoutubeVideoControllerFactory? createController;
 
   @override
-  State<AppYoutubeVideo> createState() => AppYoutubeVideoState();
+  State<AppYoutubeVideo> createState() => _AppYoutubeVideoState();
 }
 
-class AppYoutubeVideoState extends State<AppYoutubeVideo> {
+class _AppYoutubeVideoState extends State<AppYoutubeVideo> {
   YoutubeVideoController? _controller;
   StreamSubscription<YoutubePlayerValue>? _subscription;
   String? _videoId;
@@ -54,17 +55,17 @@ class AppYoutubeVideoState extends State<AppYoutubeVideo> {
   void didUpdateWidget(covariant AppYoutubeVideo oldWidget) {
     super.didUpdateWidget(oldWidget);
     if (oldWidget.videoUrl == widget.videoUrl) return;
-    releaseController();
+    _releaseController();
     _videoId = extractYoutubeVideoId(widget.videoUrl);
   }
 
   @override
   void dispose() {
-    releaseController();
+    _releaseController();
     super.dispose();
   }
 
-  void play() {
+  void _play() {
     final videoId = _videoId;
     if (videoId == null || _controller != null) return;
 
@@ -115,23 +116,20 @@ class AppYoutubeVideoState extends State<AppYoutubeVideo> {
   }
 
   void _retryPlay() {
-    releaseController();
-    play();
+    _releaseController();
+    _play();
   }
 
-  void releaseController() {
+  void _releaseController() {
     _subscription?.cancel();
     _subscription = null;
     final controller = _controller;
-    // Drop the reference before close() finishes. Playback still in flight
-    // then fails the identical() check and cannot call setState.
     _controller = null;
     _awaitingPlay = false;
     _playFailed = false;
     _playerError = false;
     _fullscreen = false;
     if (controller == null) return;
-    // dart:async Future.ignore. close() can fail after the player is gone.
     controller.close().ignore();
   }
 
@@ -151,10 +149,10 @@ class AppYoutubeVideoState extends State<AppYoutubeVideo> {
             else if (controller == null)
               ThumbnailSurface(
                 videoId: videoId,
-                onPlay: _playFailed ? null : play,
+                onPlay: _playFailed ? null : _play,
               )
             else
-              ActivePlayer(
+              _ActivePlayer(
                 key: ValueKey(videoId),
                 controller: controller,
                 aspectRatio: widget.aspectRatio,
@@ -176,8 +174,8 @@ class AppYoutubeVideoState extends State<AppYoutubeVideo> {
   }
 }
 
-class ActivePlayer extends StatelessWidget {
-  const ActivePlayer({
+class _ActivePlayer extends StatelessWidget {
+  const _ActivePlayer({
     super.key,
     required this.controller,
     required this.aspectRatio,
@@ -200,7 +198,7 @@ class ActivePlayer extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final showChrome = playFailed || (showBackButton && !fullscreen);
+    final showOverlay = playFailed || (showBackButton && !fullscreen);
     return Stack(
       fit: StackFit.expand,
       children: [
@@ -213,8 +211,8 @@ class ActivePlayer extends StatelessWidget {
             controls: controls,
           ),
         ),
-        if (showChrome)
-          PlayerChrome(
+        if (showOverlay)
+          PlayerOverlay(
             showBackButton: showBackButton && !fullscreen,
             onBack: onBack,
             playFailed: playFailed,
