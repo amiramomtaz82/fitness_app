@@ -16,9 +16,7 @@ void main() {
 
   setUp(() {
     provideDummy<BaseResponse<AuthActionResult>>(
-      const SuccessResponse<AuthActionResult>(
-        AuthActionResult(success: true),
-      ),
+      const SuccessResponse<AuthActionResult>(AuthActionResult(success: true)),
     );
     repo = MockAuthRepo();
     useCase = VerifyResetCodeUseCase(repo);
@@ -27,9 +25,9 @@ void main() {
   test('delegates the request to AuthRepo.verifyResetCode', () async {
     const request = VerifyOtpRequest(resetCode: '1234');
     const result = AuthActionResult(success: true);
-    when(repo.verifyResetCode(request)).thenAnswer(
-      (_) async => const SuccessResponse<AuthActionResult>(result),
-    );
+    when(
+      repo.verifyResetCode(request),
+    ).thenAnswer((_) async => const SuccessResponse<AuthActionResult>(result));
 
     final response = await useCase(request: request);
 

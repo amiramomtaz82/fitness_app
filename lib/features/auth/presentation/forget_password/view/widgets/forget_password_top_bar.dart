@@ -16,17 +16,10 @@ class ForgetPasswordTopBar extends StatelessWidget {
         children: [
           Align(
             alignment: Alignment.topLeft,
-            child: AppBackButton(
-              key: const Key('backButton'),
-              onTap: onBack,
-            ),
+            child: AppBackButton(key: const Key('backButton'), onTap: onBack),
           ),
           Center(
-            child: Image.asset(
-              AppAssets.logo,
-              width: 85.w,
-              height: 60.h,
-            ),
+            child: Image.asset(AppAssets.logo, width: 85.w, height: 60.h),
           ),
         ],
       ),

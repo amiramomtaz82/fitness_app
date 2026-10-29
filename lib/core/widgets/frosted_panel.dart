@@ -35,8 +35,8 @@ class FrostedPanel extends StatelessWidget {
             borderRadius: borderRadius,
             border: Border.all(color: colors.white.withValues(alpha: 0.10)),
           ),
-          padding: padding ??
-              EdgeInsets.symmetric(horizontal: 16.w, vertical: 24.h),
+          padding:
+              padding ?? EdgeInsets.symmetric(horizontal: 16.w, vertical: 24.h),
           child: child,
         ),
       ),
