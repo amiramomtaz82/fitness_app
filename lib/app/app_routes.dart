@@ -1,8 +1,6 @@
 import 'package:fitness_app/app/bottom_bar/bottom_navigation_bar.dart';
 import 'package:fitness_app/app/routes_names.dart';
 import 'package:fitness_app/core/di/di.dart';
-import 'package:fitness_app/features/auth/presentation/forget_password/view/forget_password_view.dart';
-import 'package:fitness_app/features/auth/presentation/forget_password/view_model/forget_password_cubit.dart';
 import 'package:fitness_app/features/auth/presentation/login/view/login_view.dart';
 import 'package:fitness_app/features/auth/presentation/login/view_model/login_cubit.dart';
 import 'package:fitness_app/features/auth/presentation/register/manager/cubit/register_cubit.dart';
@@ -14,10 +12,14 @@ import 'package:fitness_app/features/exercise/presentation/home/view/home_screen
 import 'package:fitness_app/features/exercise/presentation/work_out/view/work_out_view.dart';
 import 'package:fitness_app/features/on_bording/views/onboarding_view.dart';
 import 'package:fitness_app/features/profile/presentation/view/screens/profile_screen.dart';
-import 'package:fitness_app/features/splash/presentation/views/splash_view.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:get_it/get_it.dart';
-import 'package:go_router/go_router.dart';
+
+import '../features/auth/presentation/forget_password/view/forget_password_view.dart';
+import '../features/auth/presentation/forget_password/view_model/forget_password_cubit.dart';
+import '../features/splash/presentation/views/splash_view.dart';
+
+import 'routes_names.dart';
+
+import '../features/exercise/presentation/work_out/view/work_out_view.dart';
 
 final GoRouter appRouter = GoRouter(
   initialLocation: AppRoutes.workouts,
