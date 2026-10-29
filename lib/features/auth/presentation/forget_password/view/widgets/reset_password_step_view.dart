@@ -86,16 +86,14 @@ class _ResetPasswordStepViewState extends State<ResetPasswordStepView> {
               autovalidateMode: AutovalidateMode.onUserInteraction,
               validator: (value) =>
                   FormValidators.validatePassword(value)?.toMessage(),
-              decoration: _passwordDecoration(
-                LocaleKeys.auth_password.tr(),
-              ).copyWith(
-                suffixIcon: _visibilityToggle(
-                  obscured: _obscurePassword,
-                  onTap: () => setState(
-                    () => _obscurePassword = !_obscurePassword,
+              decoration: _passwordDecoration(LocaleKeys.auth_password.tr())
+                  .copyWith(
+                    suffixIcon: _visibilityToggle(
+                      obscured: _obscurePassword,
+                      onTap: () =>
+                          setState(() => _obscurePassword = !_obscurePassword),
+                    ),
                   ),
-                ),
-              ),
             ),
             SizedBox(height: 20.h),
             TextFormField(
@@ -110,14 +108,14 @@ class _ResetPasswordStepViewState extends State<ResetPasswordStepView> {
                 value,
               )?.toMessage(),
               onFieldSubmitted: (_) => _submit(),
-              decoration: _passwordDecoration(
-                LocaleKeys.auth_password.tr(),
-              ).copyWith(
-                suffixIcon: _visibilityToggle(
-                  obscured: _obscureConfirm,
-                  onTap: () => setState(() => _obscureConfirm = !_obscureConfirm),
-                ),
-              ),
+              decoration: _passwordDecoration(LocaleKeys.auth_password.tr())
+                  .copyWith(
+                    suffixIcon: _visibilityToggle(
+                      obscured: _obscureConfirm,
+                      onTap: () =>
+                          setState(() => _obscureConfirm = !_obscureConfirm),
+                    ),
+                  ),
             ),
             SizedBox(height: 28.h),
             ElevatedButton(
