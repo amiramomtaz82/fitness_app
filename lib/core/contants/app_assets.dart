@@ -46,6 +46,14 @@ abstract final class AppAssets {
   static const String securityWarning = '$_basePath/Security Warning.png';
   // ignore: constant_identifier_names
   static const String SecurityWarning = securityWarning;
+  static const String gym = '$_basePath/gym.png';
+  static const String fitness = '$_basePath/fitness.png';
+  static const String yoga = '$_basePath/yoga.png';
+  static const String aerobics = '$_basePath/aerobics.png';
+  static const String trainer = '$_basePath/trainer.png';
+  static const String human = '$_basePath/human.png';
+  
+
 }
 
 /// Alias for [AppAssets]

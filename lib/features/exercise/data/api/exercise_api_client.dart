@@ -1,6 +1,6 @@
 
 import 'package:dio/dio.dart';
-import 'package:retrofit/http.dart';
+import 'package:retrofit/retrofit.dart';
 
 part 'exercise_api_client.g.dart';
 
