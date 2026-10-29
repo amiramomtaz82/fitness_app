@@ -11,7 +11,7 @@ permissions:
 
 jobs:
   test:
-    name: Run Unit & Widget Tests
+    name: Automated Tests
     runs-on: ubuntu-latest
 
     steps:
