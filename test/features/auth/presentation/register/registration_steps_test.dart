@@ -45,6 +45,7 @@ Future<void> loadEnglishTranslations() async {
 void registrationStepTests() {
   genderAdvancesWithAgeDefault();
   nextWithoutGenderShowsRequired();
+  goalErrorStaysBelowTheChoices();
   nextStaysDisabledWhilePaging();
   backKeepsTheSelection();
   pageSwipingStaysDisabled();
@@ -86,6 +87,41 @@ void nextWithoutGenderShowsRequired() {
     expect(find.text('This field is required.'), findsOneWidget);
     expect(cubit.state.currentStep, 0);
     await tester.pumpAndSettle();
+  });
+}
+
+void goalErrorStaysBelowTheChoices() {
+  testWidgets('a goal error stays below the choices', (tester) async {
+    final cubit = createTestRegisterCubit();
+    addTearDown(cubit.close);
+    await _pump(tester, cubit);
+    await _reachGoal(tester, cubit);
+    await tester.tap(find.widgetWithText(ElevatedButton, 'Next'));
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 400));
+    expect(find.text('This field is required.'), findsOneWidget);
+    expect(find.byType(SnackBar), findsNothing);
+    expect(cubit.state.currentStep, 4);
+
+    final message = tester.getRect(find.text('This field is required.'));
+    final button = tester.getRect(
+      find.widgetWithText(ElevatedButton, 'Next'),
+    );
+    final lastVisible = tester.getRect(find.text('Gain More Flexible'));
+    expect(message.bottom, lessThanOrEqualTo(button.top));
+    expect(message.top, greaterThanOrEqualTo(lastVisible.center.dy));
+
+    await tester.fling(find.text('Gain Weight'), const Offset(0, -500), 1200);
+    await tester.pumpAndSettle();
+    expect(
+      tester.getRect(find.text('Learn The Basic')).center.dy,
+      lessThanOrEqualTo(tester.getRect(find.text('This field is required.')).top),
+    );
+
+    await tester.tap(find.text('Learn The Basic'));
+    await tester.pump();
+    expect(cubit.state.selectedGoal, RegistrationGoal.learnTheBasic);
+    expect(find.text('This field is required.'), findsNothing);
   });
 }
 
