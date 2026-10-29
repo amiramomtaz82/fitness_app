@@ -27,8 +27,9 @@ void main() {
           imageUrl: 'https://img.png',
         ),
       ];
-      when(() => mockRepo.getMusclesByGroupId(groupId))
-          .thenAnswer((_) async => const SuccessResponse(muscles));
+      when(
+        () => mockRepo.getMusclesByGroupId(groupId),
+      ).thenAnswer((_) async => const SuccessResponse(muscles));
 
       final result = await useCase(groupId);
 
@@ -38,11 +39,10 @@ void main() {
     });
 
     test('returns ErrorResponse from repository', () async {
-      final error = ErrorResponse<List<MuscleEntity>>(
-        errMessage: 'failure',
-      );
-      when(() => mockRepo.getMusclesByGroupId(groupId))
-          .thenAnswer((_) async => error);
+      final error = ErrorResponse<List<MuscleEntity>>(errMessage: 'failure');
+      when(
+        () => mockRepo.getMusclesByGroupId(groupId),
+      ).thenAnswer((_) async => error);
 
       final result = await useCase(groupId);
 

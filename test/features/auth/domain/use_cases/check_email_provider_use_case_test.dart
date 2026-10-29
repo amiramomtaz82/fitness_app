@@ -15,9 +15,7 @@ void main() {
 
   setUp(() {
     provideDummy<BaseResponse<EmailProviderStatus>>(
-      const SuccessResponse<EmailProviderStatus>(
-        EmailProviderStatus.notFound,
-      ),
+      const SuccessResponse<EmailProviderStatus>(EmailProviderStatus.notFound),
     );
     repo = MockAuthRepo();
     useCase = CheckEmailProviderUseCase(repo);
@@ -32,8 +30,10 @@ void main() {
     final response = await useCase('a@b.com');
 
     expect(response, isA<SuccessResponse<EmailProviderStatus>>());
-    expect((response as SuccessResponse<EmailProviderStatus>).data,
-        same(result));
+    expect(
+      (response as SuccessResponse<EmailProviderStatus>).data,
+      same(result),
+    );
     verify(repo.checkEmailProvider('a@b.com')).called(1);
     verifyNoMoreInteractions(repo);
   });

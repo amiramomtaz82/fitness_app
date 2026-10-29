@@ -26,17 +26,28 @@ void main() {
 
   const group1 = MuscleGroupEntity(id: 'group_1', name: 'Chest');
   const group2 = MuscleGroupEntity(id: 'group_2', name: 'Back');
-  const muscle1 = MuscleEntity(
-    id: 'm_1',
-    name: 'Upper Chest',
-    imageUrl: 'https://img.png/1',
-  );
-  const muscle2 = MuscleEntity(
-    id: 'm_2',
-    name: 'Lats',
-    imageUrl: 'https://img.png/2',
-  );
+  const muscle1 = MuscleEntity(id: 'm_1', name: 'Upper Chest', imageUrl: 'u1');
+  const muscle2 = MuscleEntity(id: 'm_2', name: 'Lats', imageUrl: 'u2');
   const testFailure = ServerFailure(serverMessage: 'server error');
+
+  const sLoadingGroups = WorkoutState(groupsResource: Resource.loading());
+  const sGroupsSuccess = WorkoutState(
+    groupsResource: Resource.success([group1, group2]),
+  );
+  const sGroup1Selected = WorkoutState(
+    groupsResource: Resource.success([group1, group2]),
+    selectedGroup: group1,
+  );
+  const sLoadingMuscles = WorkoutState(
+    groupsResource: Resource.success([group1, group2]),
+    selectedGroup: group1,
+    musclesResource: Resource.loading(),
+  );
+  const sMusclesSuccess = WorkoutState(
+    groupsResource: Resource.success([group1, group2]),
+    selectedGroup: group1,
+    musclesResource: Resource.success([muscle1]),
+  );
 
   setUp(() {
     mockGetGroups = MockGetMuscleGroupsUseCase();
@@ -55,30 +66,21 @@ void main() {
       blocTest<WorkoutCubit, WorkoutState>(
         'emits loading and success for groups and muscles',
         build: () {
-          when(() => mockGetGroups())
-              .thenAnswer((_) async => const SuccessResponse([group1, group2]));
-          when(() => mockGetMuscles(group1.id))
-              .thenAnswer((_) async => const SuccessResponse([muscle1]));
+          when(
+            () => mockGetGroups(),
+          ).thenAnswer((_) async => const SuccessResponse([group1, group2]));
+          when(
+            () => mockGetMuscles(group1.id),
+          ).thenAnswer((_) async => const SuccessResponse([muscle1]));
           return cubit;
         },
         act: (c) => c.doIntent(const InitWorkoutsIntent()),
         expect: () => [
-          const WorkoutState(groupsResource: Resource.loading()),
-          const WorkoutState(groupsResource: Resource.success([group1, group2])),
-          const WorkoutState(
-            groupsResource: Resource.success([group1, group2]),
-            selectedGroup: group1,
-          ),
-          const WorkoutState(
-            groupsResource: Resource.success([group1, group2]),
-            selectedGroup: group1,
-            musclesResource: Resource.loading(),
-          ),
-          const WorkoutState(
-            groupsResource: Resource.success([group1, group2]),
-            selectedGroup: group1,
-            musclesResource: Resource.success([muscle1]),
-          ),
+          sLoadingGroups,
+          sGroupsSuccess,
+          sGroup1Selected,
+          sLoadingMuscles,
+          sMusclesSuccess,
         ],
         verify: (_) {
           verify(() => mockGetGroups()).called(1);
@@ -89,14 +91,17 @@ void main() {
       blocTest<WorkoutCubit, WorkoutState>(
         'does not fetch muscles when group list is empty',
         build: () {
-          when(() => mockGetGroups())
-              .thenAnswer((_) async => const SuccessResponse(<MuscleGroupEntity>[]));
+          when(() => mockGetGroups()).thenAnswer(
+            (_) async => const SuccessResponse(<MuscleGroupEntity>[]),
+          );
           return cubit;
         },
         act: (c) => c.doIntent(const InitWorkoutsIntent()),
         expect: () => [
-          const WorkoutState(groupsResource: Resource.loading()),
-          const WorkoutState(groupsResource: Resource.success(<MuscleGroupEntity>[])),
+          sLoadingGroups,
+          const WorkoutState(
+            groupsResource: Resource.success(<MuscleGroupEntity>[]),
+          ),
         ],
         verify: (_) {
           verify(() => mockGetGroups()).called(1);
@@ -108,13 +113,14 @@ void main() {
         'emits error when fetching groups fails',
         build: () {
           when(() => mockGetGroups()).thenAnswer(
-            (_) async => ErrorResponse<List<MuscleGroupEntity>>(failure: testFailure),
+            (_) async =>
+                ErrorResponse<List<MuscleGroupEntity>>(failure: testFailure),
           );
           return cubit;
         },
         act: (c) => c.doIntent(const InitWorkoutsIntent()),
         expect: () => [
-          const WorkoutState(groupsResource: Resource.loading()),
+          sLoadingGroups,
           const WorkoutState(groupsResource: Resource.error(testFailure)),
         ],
         verify: (_) => verify(() => mockGetGroups()).called(1),
@@ -122,7 +128,8 @@ void main() {
 
       test('emits ShowErrorSnackBarEvent when groups fetch fails', () async {
         when(() => mockGetGroups()).thenAnswer(
-          (_) async => ErrorResponse<List<MuscleGroupEntity>>(failure: testFailure),
+          (_) async =>
+              ErrorResponse<List<MuscleGroupEntity>>(failure: testFailure),
         );
         final events = <BaseUiEvent>[];
         cubit.eventStream.listen(events.add);
@@ -131,24 +138,29 @@ void main() {
         await pumpEventQueue();
 
         expect(events, [
-          isA<ShowErrorSnackBarEvent>()
-              .having((e) => e.failure, 'failure', testFailure),
+          isA<ShowErrorSnackBarEvent>().having(
+            (e) => e.failure,
+            'failure',
+            testFailure,
+          ),
         ]);
       });
 
       blocTest<WorkoutCubit, WorkoutState>(
         'emits error when muscles fetch fails',
         build: () {
-          when(() => mockGetGroups())
-              .thenAnswer((_) async => const SuccessResponse([group1]));
+          when(
+            () => mockGetGroups(),
+          ).thenAnswer((_) async => const SuccessResponse([group1]));
           when(() => mockGetMuscles(group1.id)).thenAnswer(
-            (_) async => ErrorResponse<List<MuscleEntity>>(failure: testFailure),
+            (_) async =>
+                ErrorResponse<List<MuscleEntity>>(failure: testFailure),
           );
           return cubit;
         },
         act: (c) => c.doIntent(const InitWorkoutsIntent()),
         expect: () => [
-          const WorkoutState(groupsResource: Resource.loading()),
+          sLoadingGroups,
           const WorkoutState(groupsResource: Resource.success([group1])),
           const WorkoutState(
             groupsResource: Resource.success([group1]),
@@ -172,15 +184,12 @@ void main() {
       blocTest<WorkoutCubit, WorkoutState>(
         'fetches muscles for selected group',
         build: () {
-          when(() => mockGetMuscles(group2.id))
-              .thenAnswer((_) async => const SuccessResponse([muscle2]));
+          when(
+            () => mockGetMuscles(group2.id),
+          ).thenAnswer((_) async => const SuccessResponse([muscle2]));
           return cubit;
         },
-        seed: () => const WorkoutState(
-          groupsResource: Resource.success([group1, group2]),
-          selectedGroup: group1,
-          musclesResource: Resource.success([muscle1]),
-        ),
+        seed: () => sMusclesSuccess,
         act: (c) => c.doIntent(const SelectMuscleGroupIntent(group2)),
         expect: () => [
           const WorkoutState(
@@ -220,33 +229,23 @@ void main() {
       blocTest<WorkoutCubit, WorkoutState>(
         're-initializes when groups resource is in error',
         build: () {
-          when(() => mockGetGroups())
-              .thenAnswer((_) async => const SuccessResponse([group1]));
-          when(() => mockGetMuscles(group1.id))
-              .thenAnswer((_) async => const SuccessResponse([muscle1]));
+          when(
+            () => mockGetGroups(),
+          ).thenAnswer((_) async => const SuccessResponse([group1, group2]));
+          when(
+            () => mockGetMuscles(group1.id),
+          ).thenAnswer((_) async => const SuccessResponse([muscle1]));
           return cubit;
         },
-        seed: () => const WorkoutState(
-          groupsResource: Resource.error(testFailure),
-        ),
+        seed: () =>
+            const WorkoutState(groupsResource: Resource.error(testFailure)),
         act: (c) => c.doIntent(const RetryFetchMusclesIntent()),
         expect: () => [
-          const WorkoutState(groupsResource: Resource.loading()),
-          const WorkoutState(groupsResource: Resource.success([group1])),
-          const WorkoutState(
-            groupsResource: Resource.success([group1]),
-            selectedGroup: group1,
-          ),
-          const WorkoutState(
-            groupsResource: Resource.success([group1]),
-            selectedGroup: group1,
-            musclesResource: Resource.loading(),
-          ),
-          const WorkoutState(
-            groupsResource: Resource.success([group1]),
-            selectedGroup: group1,
-            musclesResource: Resource.success([muscle1]),
-          ),
+          sLoadingGroups,
+          sGroupsSuccess,
+          sGroup1Selected,
+          sLoadingMuscles,
+          sMusclesSuccess,
         ],
         verify: (_) {
           verify(() => mockGetGroups()).called(1);
@@ -257,8 +256,9 @@ void main() {
       blocTest<WorkoutCubit, WorkoutState>(
         're-fetches muscles when selected group exists and muscles is error',
         build: () {
-          when(() => mockGetMuscles(group1.id))
-              .thenAnswer((_) async => const SuccessResponse([muscle1]));
+          when(
+            () => mockGetMuscles(group1.id),
+          ).thenAnswer((_) async => const SuccessResponse([muscle1]));
           return cubit;
         },
         seed: () => const WorkoutState(

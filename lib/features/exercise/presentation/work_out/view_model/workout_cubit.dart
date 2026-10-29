@@ -16,7 +16,6 @@ class WorkoutCubit extends BaseCubit<WorkoutState, BaseUiEvent> {
   final GetMuscleGroupsUseCase _getMuscleGroupsUseCase;
   final GetMusclesByGroupIdUseCase _getMusclesByGroupIdUseCase;
 
-
   WorkoutCubit(this._getMuscleGroupsUseCase, this._getMusclesByGroupIdUseCase)
     : super(const WorkoutState());
 

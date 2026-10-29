@@ -32,8 +32,9 @@ void main() {
             MuscleGroupDto(id: 'group_2', name: 'Back'),
           ],
         );
-        when(() => mockRemoteDataSource.getMuscleGroups())
-            .thenAnswer((_) async => dto);
+        when(
+          () => mockRemoteDataSource.getMuscleGroups(),
+        ).thenAnswer((_) async => dto);
 
         final result = await repo.getMuscleGroups();
 
@@ -48,8 +49,9 @@ void main() {
 
       test('returns SuccessResponse with empty list when null', () async {
         const dto = MusclesGroupResponseDto(musclesGroup: null);
-        when(() => mockRemoteDataSource.getMuscleGroups())
-            .thenAnswer((_) async => dto);
+        when(
+          () => mockRemoteDataSource.getMuscleGroups(),
+        ).thenAnswer((_) async => dto);
 
         final result = await repo.getMuscleGroups();
 
@@ -59,8 +61,9 @@ void main() {
       });
 
       test('returns ErrorResponse when remote data source throws', () async {
-        when(() => mockRemoteDataSource.getMuscleGroups())
-            .thenThrow(Exception('network error'));
+        when(
+          () => mockRemoteDataSource.getMuscleGroups(),
+        ).thenThrow(Exception('network error'));
 
         final result = await repo.getMuscleGroups();
 
@@ -75,15 +78,12 @@ void main() {
       test('returns SuccessResponse with mapped entities', () async {
         const dto = MuscleGroupDetailResponseDto(
           muscles: [
-            MuscleDto(
-              id: 'm_1',
-              name: 'Upper Chest',
-              image: 'https://img.png',
-            ),
+            MuscleDto(id: 'm_1', name: 'Upper Chest', image: 'https://img.png'),
           ],
         );
-        when(() => mockRemoteDataSource.getMusclesByGroupId(groupId))
-            .thenAnswer((_) async => dto);
+        when(
+          () => mockRemoteDataSource.getMusclesByGroupId(groupId),
+        ).thenAnswer((_) async => dto);
 
         final result = await repo.getMusclesByGroupId(groupId);
 
@@ -96,13 +96,16 @@ void main() {
             imageUrl: 'https://img.png',
           ),
         ]);
-        verify(() => mockRemoteDataSource.getMusclesByGroupId(groupId)).called(1);
+        verify(
+          () => mockRemoteDataSource.getMusclesByGroupId(groupId),
+        ).called(1);
       });
 
       test('returns SuccessResponse with empty list when null', () async {
         const dto = MuscleGroupDetailResponseDto(muscles: null);
-        when(() => mockRemoteDataSource.getMusclesByGroupId(groupId))
-            .thenAnswer((_) async => dto);
+        when(
+          () => mockRemoteDataSource.getMusclesByGroupId(groupId),
+        ).thenAnswer((_) async => dto);
 
         final result = await repo.getMusclesByGroupId(groupId);
 
@@ -112,13 +115,16 @@ void main() {
       });
 
       test('returns ErrorResponse when remote data source throws', () async {
-        when(() => mockRemoteDataSource.getMusclesByGroupId(groupId))
-            .thenThrow(Exception('network error'));
+        when(
+          () => mockRemoteDataSource.getMusclesByGroupId(groupId),
+        ).thenThrow(Exception('network error'));
 
         final result = await repo.getMusclesByGroupId(groupId);
 
         expect(result, isA<ErrorResponse<List<MuscleEntity>>>());
-        verify(() => mockRemoteDataSource.getMusclesByGroupId(groupId)).called(1);
+        verify(
+          () => mockRemoteDataSource.getMusclesByGroupId(groupId),
+        ).called(1);
       });
     });
   });

@@ -22,8 +22,9 @@ void main() {
         MuscleGroupEntity(id: 'group_1', name: 'Chest'),
         MuscleGroupEntity(id: 'group_2', name: 'Back'),
       ];
-      when(() => mockRepo.getMuscleGroups())
-          .thenAnswer((_) async => const SuccessResponse(groups));
+      when(
+        () => mockRepo.getMuscleGroups(),
+      ).thenAnswer((_) async => const SuccessResponse(groups));
 
       final result = await useCase();
 
@@ -36,8 +37,7 @@ void main() {
       final error = ErrorResponse<List<MuscleGroupEntity>>(
         errMessage: 'failure',
       );
-      when(() => mockRepo.getMuscleGroups())
-          .thenAnswer((_) async => error);
+      when(() => mockRepo.getMuscleGroups()).thenAnswer((_) async => error);
 
       final result = await useCase();
 

@@ -5,9 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
-  Future<Map<ValidationError, String>> loadMessages(
-    WidgetTester tester,
-  ) async {
+  Future<Map<ValidationError, String>> loadMessages(WidgetTester tester) async {
     await tester.runAsync(() async {
       await tester.pumpWidget(
         EasyLocalization(

@@ -15,16 +15,16 @@ void main() {
     test('items list has 4 elements with correct properties and order', () {
       expect(items.length, equals(4));
 
-      expect(items[0].label, equals(LocaleKeys.home));
+      expect(items[0].label, equals(LocaleKeys.home_home));
       expect(items[0].icon, equals(AppAssets.home));
 
       expect(items[1].label, equals(LocaleKeys.chat_smart_coach));
       expect(items[1].icon, equals(AppAssets.chat));
 
-      expect(items[2].label, equals(LocaleKeys.workouts));
+      expect(items[2].label, equals(LocaleKeys.workouts_workouts));
       expect(items[2].icon, equals(AppAssets.exercise));
 
-      expect(items[3].label, equals(LocaleKeys.profile));
+      expect(items[3].label, equals(LocaleKeys.profile_profile));
       expect(items[3].icon, equals(AppAssets.person));
     });
   });

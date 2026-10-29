@@ -28,8 +28,9 @@ void main() {
             MuscleGroupDto(id: 'group_2', name: 'Back'),
           ],
         );
-        when(() => mockClient.getMuscleGroups())
-            .thenAnswer((_) async => response);
+        when(
+          () => mockClient.getMuscleGroups(),
+        ).thenAnswer((_) async => response);
 
         final result = await dataSource.getMuscleGroups();
 
@@ -38,8 +39,9 @@ void main() {
       });
 
       test('throws exception when client call throws', () async {
-        when(() => mockClient.getMuscleGroups())
-            .thenThrow(Exception('api error'));
+        when(
+          () => mockClient.getMuscleGroups(),
+        ).thenThrow(Exception('api error'));
 
         expect(() => dataSource.getMuscleGroups(), throwsException);
         verify(() => mockClient.getMuscleGroups()).called(1);
@@ -53,15 +55,12 @@ void main() {
           message: 'success',
           muscleGroup: MuscleGroupDto(id: groupId, name: 'Chest'),
           muscles: [
-            MuscleDto(
-              id: 'm_1',
-              name: 'Upper Chest',
-              image: 'https://img.png',
-            ),
+            MuscleDto(id: 'm_1', name: 'Upper Chest', image: 'https://img.png'),
           ],
         );
-        when(() => mockClient.getMusclesByGroupId(groupId))
-            .thenAnswer((_) async => response);
+        when(
+          () => mockClient.getMusclesByGroupId(groupId),
+        ).thenAnswer((_) async => response);
 
         final result = await dataSource.getMusclesByGroupId(groupId);
 
@@ -70,13 +69,11 @@ void main() {
       });
 
       test('throws exception when client call throws', () async {
-        when(() => mockClient.getMusclesByGroupId(groupId))
-            .thenThrow(Exception('api error'));
+        when(
+          () => mockClient.getMusclesByGroupId(groupId),
+        ).thenThrow(Exception('api error'));
 
-        expect(
-          () => dataSource.getMusclesByGroupId(groupId),
-          throwsException,
-        );
+        expect(() => dataSource.getMusclesByGroupId(groupId), throwsException);
         verify(() => mockClient.getMusclesByGroupId(groupId)).called(1);
       });
     });
