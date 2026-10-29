@@ -11,6 +11,8 @@ import '../features/auth/presentation/register/manager/cubit/register_cubit.dart
 import '../features/auth/presentation/register/view/muti_steps_regitration/multi_steps_registration_view.dart';
 import '../features/auth/presentation/register/view/register_first_sceen/register_view.dart';
 import '../features/chat/presentation/view/screens/smart_coach_screen.dart';
+import '../features/food/presentation/food_recommendation/view/food_recommendation_view.dart';
+import '../features/food/presentation/food_recommendation/view_model/food_recommendation_cubit.dart';
 import '../features/home/presentation/view/screens/home_screen.dart';
 import '../features/home/presentation/view/screens/workouts_screen.dart';
 import '../features/on_bording/views/onboarding_view.dart';
@@ -21,6 +23,7 @@ import 'routes_names.dart';
 
 final GoRouter appRouter = GoRouter(
   initialLocation: AppRoutes.splash,
+
   routes: [
     // Splash
     GoRoute(
@@ -92,6 +95,16 @@ final GoRouter appRouter = GoRouter(
               path: AppRoutes.home,
               name: AppRoutes.home,
               builder: (context, state) => const HomeScreen(),
+              routes: [
+                GoRoute(
+                  path: AppRoutes.foodRecommendationPath,
+                  name: AppRoutes.foodRecommendation,
+                  builder: (context, state) => BlocProvider(
+                    create: (_) => getIt<FoodRecommendationCubit>(),
+                    child: const FoodRecommendationView(),
+                  ),
+                ),
+              ],
             ),
           ],
         ),

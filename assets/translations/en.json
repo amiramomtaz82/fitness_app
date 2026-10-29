@@ -191,5 +191,9 @@
     "conflict_occurred": "A data conflict occurred. Please try again.",
     "invalid_fields": "Please check the entered data and correct any errors.",
     "internal_server_error": "Server error. Please try again later."
+  },
+  "food": {
+    "food_recommendation": "Food Recommendation",
+    "no_meals_found": "No meals found in this category."
   }
 }
