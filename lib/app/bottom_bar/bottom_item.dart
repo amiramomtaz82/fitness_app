@@ -9,8 +9,8 @@ class BottomItem {
 }
 
 const List<BottomItem> items = [
-  BottomItem(icon: AppAssets.home, label: LocaleKeys.home),
+  BottomItem(icon: AppAssets.home, label: LocaleKeys.home_home),
   BottomItem(icon: AppAssets.chat, label: LocaleKeys.chat_smart_coach),
-  BottomItem(icon: AppAssets.exercise, label: LocaleKeys.workouts),
-  BottomItem(icon: AppAssets.person, label: LocaleKeys.profile),
+  BottomItem(icon: AppAssets.exercise, label: LocaleKeys.workouts_workouts),
+  BottomItem(icon: AppAssets.person, label: LocaleKeys.profile_profile),
 ];

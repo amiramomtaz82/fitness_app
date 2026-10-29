@@ -60,27 +60,26 @@ void main() {
     await tester.pump();
   }
 
-  testWidgets(
-    'Verify SplashView displays the logo on the dark background',
-    (WidgetTester tester) async {
-      await tester.binding.setSurfaceSize(const Size(500, 1200));
+  testWidgets('Verify SplashView displays the logo on the dark background', (
+    WidgetTester tester,
+  ) async {
+    await tester.binding.setSurfaceSize(const Size(500, 1200));
 
-      await pumpApp(tester);
+    await pumpApp(tester);
 
-      expect(find.byType(SplashView), findsOneWidget);
-      expect(find.byType(OnboardingView), findsNothing);
+    expect(find.byType(SplashView), findsOneWidget);
+    expect(find.byType(OnboardingView), findsNothing);
 
-      final Scaffold scaffold = tester.widget<Scaffold>(find.byType(Scaffold));
-      debugPrint('SCAFFOLD BG: ${scaffold.backgroundColor}');
-      expect(scaffold.backgroundColor, const Color(0xFF1E1E1E));
+    final Scaffold scaffold = tester.widget<Scaffold>(find.byType(Scaffold));
+    debugPrint('SCAFFOLD BG: ${scaffold.backgroundColor}');
+    expect(scaffold.backgroundColor, AppColors.background);
 
-      final Image logoImage = tester.widget<Image>(find.byType(Image));
-      expect(logoImage.image, isA<AssetImage>());
-      expect((logoImage.image as AssetImage).assetName, AppAssets.logo);
+    final Image logoImage = tester.widget<Image>(find.byType(Image));
+    expect(logoImage.image, isA<AssetImage>());
+    expect((logoImage.image as AssetImage).assetName, AppAssets.logo);
 
-      await tester.binding.setSurfaceSize(null);
-    },
-  );
+    await tester.binding.setSurfaceSize(null);
+  });
 
   testWidgets(
     'Verify SplashView navigates to the onboarding screen after the animation',

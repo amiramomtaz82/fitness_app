@@ -59,10 +59,7 @@ void main() {
     await typeCode(tester, '7542');
     await settle(tester);
 
-    expect(
-      cubit.events,
-      contains(const VerifyResetCode(otp: '7542')),
-    );
+    expect(cubit.events, contains(const VerifyResetCode(otp: '7542')));
     expect(cubit.events.whereType<VerifyResetCode>().length, 1);
   });
 
@@ -82,9 +79,7 @@ void main() {
     expect(cubit.events, isEmpty);
   });
 
-  testWidgets('a valid code clears the previous inline error', (
-    tester,
-  ) async {
+  testWidgets('a valid code clears the previous inline error', (tester) async {
     await pumpOtpStep(tester);
 
     await typeCode(tester, '12');
@@ -102,10 +97,7 @@ void main() {
       find.text('Please enter the complete verification code.'),
       findsNothing,
     );
-    expect(
-      cubit.events,
-      contains(const VerifyResetCode(otp: '7542')),
-    );
+    expect(cubit.events, contains(const VerifyResetCode(otp: '7542')));
   });
 
   testWidgets('tapping resend emits ResendResetCode once', (tester) async {
@@ -194,9 +186,6 @@ void main() {
     await tester.tap(find.byKey(confirmKey));
     await settle(tester);
 
-    expect(
-      cubit.events.whereType<VerifyResetCode>().first.otp,
-      '7542',
-    );
+    expect(cubit.events.whereType<VerifyResetCode>().first.otp, '7542');
   });
 }

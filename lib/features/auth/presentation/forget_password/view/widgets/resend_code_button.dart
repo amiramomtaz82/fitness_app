@@ -31,9 +31,7 @@ class ResendCodeButton extends StatelessWidget {
     }
 
     final label = isCoolingDown
-        ? LocaleKeys.auth_resend_in.tr(
-            namedArgs: {'seconds': '$secondsLeft'},
-          )
+        ? LocaleKeys.auth_resend_in.tr(namedArgs: {'seconds': '$secondsLeft'})
         : LocaleKeys.auth_resend_code.tr();
 
     return TextButton(
