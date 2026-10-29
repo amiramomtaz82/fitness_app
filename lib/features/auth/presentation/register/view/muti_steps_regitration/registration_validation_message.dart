@@ -20,6 +20,7 @@ extension RegistrationValidationMessage on ValidationError {
       ValidationError.passwordsDoNotMatch ||
       ValidationError.invalidPhoneNumber =>
         LocaleKeys.validation_field_required,
+      ValidationError.incompleteOtp => LocaleKeys.validation_incomplete_otp,
     };
   }
 }
