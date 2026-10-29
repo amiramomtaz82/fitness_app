@@ -3,6 +3,7 @@ import 'package:retrofit/retrofit.dart';
 
 import '../../../../core/contants/endpoints/endpoints.dart';
 import '../models/meal_categories_response_dto.dart';
+import '../models/meals_response_dto.dart';
 
 part 'food_api_client.g.dart';
 
@@ -12,4 +13,7 @@ abstract class FoodApiClient {
 
   @GET(Endpoints.mealCategories)
   Future<MealCategoriesResponseDto> getMealCategories();
+
+  @GET(Endpoints.mealsByCategory)
+  Future<MealsResponseDto> getMealsByCategory(@Query('c') String category);
 }

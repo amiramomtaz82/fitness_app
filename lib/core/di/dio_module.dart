@@ -6,6 +6,13 @@ import '../contants/endpoints/endpoints.dart';
 import '../interceptors/auth_interceptor.dart';
 import '../interceptors/local_interceptor.dart';
 
+/// Names used with `@Named` to tell the app's Dio instances apart.
+abstract final class DioNames {
+  DioNames._();
+
+  static const String mealDb = 'mealDbDio';
+}
+
 @module
 abstract class DioModule {
   @singleton
@@ -30,6 +37,20 @@ abstract class DioModule {
         responseHeader: false,
       ),
     );
+    return dioInstance;
+  }
+
+  @Named(DioNames.mealDb)
+  @lazySingleton
+  Dio mealDbDio() {
+    final dioInstance = Dio(
+      BaseOptions(
+        baseUrl: Endpoints.mealDbBaseUrl,
+        connectTimeout: const Duration(seconds: 30),
+        receiveTimeout: const Duration(seconds: 30),
+      ),
+    );
+    dioInstance.interceptors.add(PrettyDioLogger(responseBody: false));
     return dioInstance;
   }
 }
