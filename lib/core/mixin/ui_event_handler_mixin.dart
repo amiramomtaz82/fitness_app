@@ -21,7 +21,7 @@ mixin UiEventMixin<W extends StatefulWidget, S, E extends BaseUiEvent>
 
   // ✅ 1. Restored: The method that listens to stream events
   void _handleUiEvent(E event) {
-    if (!mounted) return;
+    if (!mounted || !_routeIsCurrent) return;
 
     switch (event) {
       case final CommonUiEvent commonEvent:
@@ -29,6 +29,13 @@ mixin UiEventMixin<W extends StatefulWidget, S, E extends BaseUiEvent>
       default:
         handleCustomEvents(event);
     }
+  }
+
+  /// Covered routes stay mounted after a push and still hear the shared cubit.
+  /// Only the visible route should navigate or throw on an event it does not own.
+  bool get _routeIsCurrent {
+    final route = ModalRoute.of(context);
+    return route == null || route.isCurrent;
   }
 
   /// 2. Function to handle common UI events
