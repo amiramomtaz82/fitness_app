@@ -1,9 +1,7 @@
 import 'package:equatable/equatable.dart';
-
-import '../../../../../../core/resource/resource.dart';
-import '../../../../domain/entities/muscle_entity.dart';
-import '../../../../domain/entities/muscle_group_entity.dart';
-
+import 'package:fitness_app/core/resource/resource.dart';
+import 'package:fitness_app/features/exercise/domain/entities/muscle_entity.dart';
+import 'package:fitness_app/features/exercise/domain/entities/muscle_group_entity.dart';
 
 class WorkoutState extends Equatable {
   final Resource<List<MuscleGroupEntity>> groupsResource;

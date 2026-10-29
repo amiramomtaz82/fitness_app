@@ -2,14 +2,13 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:fitness_app/core/theme/text_styles.dart';
 import 'package:fitness_app/core/widgets/app_content_grid_view.dart';
 import 'package:fitness_app/features/exercise/domain/entities/muscle_entity.dart';
+import 'package:fitness_app/features/exercise/presentation/work_out/view_model/workout_cubit.dart';
+import 'package:fitness_app/features/exercise/presentation/work_out/view_model/workout_intent.dart';
+import 'package:fitness_app/features/exercise/presentation/work_out/view_model/workout_state.dart';
 import 'package:fitness_app/generated/locale_keys.g.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-
-import '../../manager/cubit/workout_cubit.dart';
-import '../../manager/cubit/workout_intent.dart';
-import '../../manager/cubit/workout_state.dart';
 
 class WorkoutMusclesGrid extends StatelessWidget {
   const WorkoutMusclesGrid({super.key});
@@ -36,16 +35,20 @@ class WorkoutMusclesGrid extends StatelessWidget {
         final items = muscles
             .map(
               (m) => ContentCardItem(
-            id: m.id,
-            title: m.name,
-            imageUrl: m.imageUrl,
-          ),
-        )
+                id: m.id,
+                title: m.name,
+                imageUrl: m.imageUrl,
+              ),
+            )
             .toList();
 
         return AppContentGridView(
           items: items,
-          onItemTap: (item) {},
+          onItemTap: (item) {
+            context.read<WorkoutCubit>().doIntent(
+              MuscleSelectedIntent(item.id),
+            );
+          },
         );
       },
     );

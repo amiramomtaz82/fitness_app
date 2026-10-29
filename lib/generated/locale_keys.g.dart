@@ -83,6 +83,7 @@ abstract class  LocaleKeys {
   static const profile_setup_advance = 'profile_setup.advance';
   static const profile_setup_true_beast = 'profile_setup.true_beast';
   static const profile_setup = 'profile_setup';
+  static const home_home = 'home.home';
   static const home_hi_user = 'home.hi_user';
   static const home_lets_start_your_day = 'home.lets_start_your_day';
   static const home_category = 'home.category';

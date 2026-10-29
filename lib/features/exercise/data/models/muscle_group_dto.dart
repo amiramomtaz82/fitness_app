@@ -14,8 +14,6 @@ class MuscleGroupDto {
   factory MuscleGroupDto.fromJson(Map<String, dynamic> json) =>
       _$MuscleGroupDtoFromJson(json);
 
-  MuscleGroupEntity toEntity() => MuscleGroupEntity(
-    id: id ?? '',
-    name: name ?? '',
-  );
+  MuscleGroupEntity toEntity() =>
+      MuscleGroupEntity(id: id ?? '', name: name ?? '');
 }

@@ -1,13 +1,13 @@
+import 'package:fitness_app/core/base/base_cubit.dart';
+import 'package:fitness_app/core/base/ui_events.dart';
+import 'package:fitness_app/core/base_response/base_response.dart';
+import 'package:fitness_app/core/resource/resource.dart';
+import 'package:fitness_app/features/exercise/domain/entities/muscle_entity.dart';
+import 'package:fitness_app/features/exercise/domain/entities/muscle_group_entity.dart';
+import 'package:fitness_app/features/exercise/domain/use_cases/get_muscle_groups_use_case.dart';
+import 'package:fitness_app/features/exercise/domain/use_cases/get_muscles_by_group_id_use_case.dart';
 import 'package:injectable/injectable.dart';
-
-import '../../../../../../core/base/base_cubit.dart';
-import '../../../../../../core/base/ui_events.dart';
-import '../../../../../../core/base_response/base_response.dart';
-import '../../../../../../core/resource/resource.dart';
-import '../../../../domain/entities/muscle_entity.dart';
-import '../../../../domain/entities/muscle_group_entity.dart';
-import '../../../../domain/use_cases/get_muscle_groups_use_case.dart';
-import '../../../../domain/use_cases/get_muscles_by_group_id_use_case.dart';
+import '../../../../../app/routes_names.dart';
 import 'workout_intent.dart';
 import 'workout_state.dart';
 
@@ -16,10 +16,9 @@ class WorkoutCubit extends BaseCubit<WorkoutState, BaseUiEvent> {
   final GetMuscleGroupsUseCase _getMuscleGroupsUseCase;
   final GetMusclesByGroupIdUseCase _getMusclesByGroupIdUseCase;
 
-  WorkoutCubit(
-      this._getMuscleGroupsUseCase,
-      this._getMusclesByGroupIdUseCase,
-      ) : super(const WorkoutState());
+
+  WorkoutCubit(this._getMuscleGroupsUseCase, this._getMusclesByGroupIdUseCase)
+    : super(const WorkoutState());
 
   void doIntent(WorkoutIntent intent) {
     switch (intent) {
@@ -29,6 +28,8 @@ class WorkoutCubit extends BaseCubit<WorkoutState, BaseUiEvent> {
         _onGroupSelected(group);
       case RetryFetchMusclesIntent():
         _retry();
+      case MuscleSelectedIntent(muscleId: final id):
+        emitEvent(NavigateEvent(AppRoutes.exercise, arguments: id));
     }
   }
 
