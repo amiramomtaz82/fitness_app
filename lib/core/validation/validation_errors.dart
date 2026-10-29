@@ -12,6 +12,7 @@ enum ValidationError {
   passwordsDoNotMatch,
   invalidPhoneNumber,
   invalidGender,
+  incompleteOtp,
 
   // Fitness App Specific (Weight, Reps, Calories, Height)
   notANumber,

@@ -52,7 +52,7 @@ class LoginCubit extends BaseCubit<LoginState, BaseUiEvent> {
       case NavigateToRegisterIntent():
         emitEvent(const NavigateEvent(AppRoutes.register));
       case NavigateToForgetPasswordIntent():
-        emitEvent(const NavigateEvent(AppRoutes.forgetPassword));
+        emitEvent(const NavigateEvent(AppRoutes.forgotPassword));
     }
   }
 

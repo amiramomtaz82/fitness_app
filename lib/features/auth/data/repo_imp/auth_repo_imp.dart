@@ -1,22 +1,28 @@
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:injectable/injectable.dart';
+
 import '../../../../core/base_response/base_response.dart';
 import '../../../../core/base_response/safe_call.dart';
 import '../../../../core/error/failures.dart';
-import '../../domain/entities/login_params.dart';
 import '../../domain/entities/email_provider_status.dart';
+import '../../domain/entities/forget_password/auth_action_result.dart';
+import '../../domain/entities/forget_password/forget_password_request.dart';
+import '../../domain/entities/forget_password/reset_password_request.dart';
+import '../../domain/entities/forget_password/verify_otp_request.dart';
+import '../../domain/entities/login_params.dart';
 import '../../domain/entities/register_parameters.dart';
 import '../../domain/entities/social_auth_user.dart';
 import '../../domain/entities/user_entity.dart';
 import '../../domain/repo/auth_repo.dart';
 import '../data_source/local/local_data_source.dart';
 import '../data_source/remote/auth_remote_data_source.dart';
-import '../mapper/user_mapper.dart';
-import '../models/login_request_dto.dart';
 import '../data_source/remote/firestore_user_data_source.dart';
 import '../data_source/remote/social_auth_data_source.dart';
-import '../models/register_request_dto.dart';
 import '../mapper/email_provider_status_mapper.dart';
+import '../mapper/forget_password_mapper.dart';
+import '../mapper/user_mapper.dart';
+import '../models/login_request_dto.dart';
+import '../models/register_request_dto.dart';
 import '../models/registered_user_dto.dart';
 
 @Injectable(as: AuthRepo)
@@ -151,4 +157,43 @@ class AuthRepoImp implements AuthRepo {
       () => _socialAuthService.signInWithFacebook(),
     );
   }
+
+  @override
+  Future<BaseResponse<AuthActionResult>> sendResetCode(
+    ForgetPasswordRequest request,
+  ) => safeCall(() async {
+    final result = (await _remoteDataSource.sendResetCode(
+      request.toDto(),
+    )).toEntity();
+    if (!result.success) {
+      throw ValidationFailure(serverMessage: result.message);
+    }
+    return result;
+  });
+
+  @override
+  Future<BaseResponse<AuthActionResult>> verifyResetCode(
+    VerifyOtpRequest request,
+  ) => safeCall(() async {
+    final result = (await _remoteDataSource.verifyResetCode(
+      request.toDto(),
+    )).toEntity();
+    if (!result.success) {
+      throw ValidationFailure(serverMessage: result.message);
+    }
+    return result;
+  });
+
+  @override
+  Future<BaseResponse<AuthActionResult>> resetPassword(
+    ResetPasswordRequest request,
+  ) => safeCall(() async {
+    final result = (await _remoteDataSource.resetPassword(
+      request.toDto(),
+    )).toEntity();
+    if (!result.success) {
+      throw ValidationFailure(serverMessage: result.message);
+    }
+    return result;
+  });
 }

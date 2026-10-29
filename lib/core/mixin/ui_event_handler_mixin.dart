@@ -77,6 +77,11 @@ mixin UiEventMixin<W extends StatefulWidget, S, E extends BaseUiEvent>
       NotFoundFailure() => LocaleKeys.errors_data_not_found.tr(),
       ValidationFailure() => LocaleKeys.errors_invalid_fields.tr(),
       ServerFailure() => LocaleKeys.errors_internal_server_error.tr(),
+      SocialAccountFailure(:final provider) => switch (provider) {
+        SocialProvider.google => LocaleKeys.auth_forgot_password_google.tr(),
+        SocialProvider.facebook =>
+          LocaleKeys.auth_forgot_password_facebook.tr(),
+      },
       UnknownFailure() => LocaleKeys.errors_something_went_wrong.tr(),
     };
   }

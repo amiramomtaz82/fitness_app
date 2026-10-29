@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'custom_colors.dart';
 import 'text_styles.dart';
 
@@ -13,7 +14,7 @@ abstract final class AppTheme {
     required CustomColors colors,
   }) {
     final baseInputBorder = OutlineInputBorder(
-      borderRadius: BorderRadius.circular(16),
+      borderRadius: BorderRadius.circular(30.r),
       gapPadding: 5,
     );
 
