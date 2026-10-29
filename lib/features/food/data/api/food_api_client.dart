@@ -16,4 +16,7 @@ abstract class FoodApiClient {
 
   @GET(Endpoints.mealsByCategory)
   Future<MealsResponseDto> getMealsByCategory(@Query('c') String category);
+
+  @GET(Endpoints.mealLookup)
+  Future<dynamic> lookupMeal(@Query('i') String mealId);
 }

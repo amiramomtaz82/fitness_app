@@ -2,6 +2,7 @@ import 'package:injectable/injectable.dart';
 
 import '../api/food_api_client.dart';
 import '../models/meal_categories_response_dto.dart';
+import '../models/meal_details_dto.dart';
 import '../models/meals_response_dto.dart';
 import 'food_remote_data_source.dart';
 
@@ -19,5 +20,14 @@ class FoodRemoteDataSourceImp implements FoodRemoteDataSource {
   @override
   Future<MealsResponseDto> getMealsByCategory(String category) {
     return _client.getMealsByCategory(category);
+  }
+
+  @override
+  Future<MealLookupDto> lookupMeal(String mealId) async {
+    final body = await _client.lookupMeal(mealId);
+    if (body is! Map) {
+      throw const FormatException('Meal lookup response is not an object');
+    }
+    return MealLookupDto.fromJson(Map<String, dynamic>.from(body));
   }
 }

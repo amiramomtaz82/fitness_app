@@ -13,4 +13,5 @@ const List<BottomItem> items = [
   BottomItem(icon: AppAssets.chat, label: LocaleKeys.chat_smart_coach),
   BottomItem(icon: AppAssets.exercise, label: LocaleKeys.workouts),
   BottomItem(icon: AppAssets.person, label: LocaleKeys.profile),
+  BottomItem(icon: AppAssets.food, label: LocaleKeys.food_tab),
 ];

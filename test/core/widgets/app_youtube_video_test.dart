@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:fitness_app/core/theme/app_colors.dart';
 import 'package:fitness_app/core/widgets/app_youtube_video.dart';
 import 'package:fitness_app/core/youtube/youtube_video_controller.dart';
 import 'package:flutter/material.dart';
@@ -13,6 +14,11 @@ const _shortsUrl = 'https://www.youtube.com/shorts/dQw4w9WgXcQ';
 const _playKey = Key('app_youtube_video_play');
 const _backKey = Key('app_youtube_video_back');
 const _unavailableKey = Key('app_youtube_video_unavailable');
+
+Color defaultUnavailableColor(WidgetTester tester) {
+  return tester.widget<ColoredBox>(find.byKey(_unavailableKey)).color;
+}
+
 const _playerKey = Key('app_youtube_video_player');
 const _errorKey = Key('app_youtube_video_error');
 const _retryKey = Key('app_youtube_video_retry');
@@ -68,6 +74,7 @@ void main() {
       await tester.pumpWidget(video(''));
 
       expect(find.byKey(_unavailableKey), findsOneWidget);
+      expect(defaultUnavailableColor(tester), AppColors.background);
       expect(find.byKey(_playKey), findsNothing);
       expect(find.byType(Image), findsNothing);
 

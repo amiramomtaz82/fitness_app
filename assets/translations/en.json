@@ -191,5 +191,18 @@
     "conflict_occurred": "A data conflict occurred. Please try again.",
     "invalid_fields": "Please check the entered data and correct any errors.",
     "internal_server_error": "Server error. Please try again later."
+  },
+  "food": {
+    "instructions": "Instructions",
+    "ingredients": "Ingredients",
+    "energy": "Energy",
+    "protein": "Protein",
+    "carbs": "Carbs",
+    "fat": "Fat",
+    "sample": "Sample",
+    "nutrition_note": "Sample estimated values, not verified nutrition for this meal.",
+    "tab": "Food",
+    "empty_categories": "No meal categories.",
+    "empty_meals": "No meals in this category."
   }
 }

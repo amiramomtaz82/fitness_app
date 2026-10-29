@@ -12,8 +12,8 @@ void main() {
       expect(item.label, equals('Test Label'));
     });
 
-    test('items list has 4 elements with correct properties and order', () {
-      expect(items.length, equals(4));
+    test('items list has 5 elements with correct properties and order', () {
+      expect(items.length, equals(5));
 
       expect(items[0].label, equals(LocaleKeys.home));
       expect(items[0].icon, equals(AppAssets.home));
@@ -26,6 +26,9 @@ void main() {
 
       expect(items[3].label, equals(LocaleKeys.profile));
       expect(items[3].icon, equals(AppAssets.person));
+
+      expect(items[4].label, equals(LocaleKeys.food_tab));
+      expect(items[4].icon, equals(AppAssets.food));
     });
   });
 }

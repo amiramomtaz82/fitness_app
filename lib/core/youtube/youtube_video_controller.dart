@@ -37,6 +37,8 @@ class IframeYoutubeVideoController implements YoutubeVideoController {
           showControls: true,
           showFullscreenButton: false,
           playsInline: true,
+          showVideoAnnotations: false,
+          strictRelatedVideos: true,
         ),
       ),
     );
