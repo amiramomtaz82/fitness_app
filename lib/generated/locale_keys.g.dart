@@ -205,4 +205,7 @@ abstract class LocaleKeys {
   static const errors_invalid_fields = 'errors.invalid_fields';
   static const errors_internal_server_error = 'errors.internal_server_error';
   static const errors = 'errors';
+  static const food_food_recommendation = 'food.food_recommendation';
+  static const food_no_meals_found = 'food.no_meals_found';
+  static const food = 'food';
 }
