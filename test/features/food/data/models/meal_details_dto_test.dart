@@ -8,7 +8,10 @@ void main() {
 
 void mealDtoTests() {
   mapsPairedIngredients();
+  mapsOneIngredient();
   dropsEmptyIngredientNames();
+  dropsNullIngredientNames();
+  keepsTheLastSupportedIngredient();
   readsNullOptionalFieldsAsNull();
   readsYoutubeSeparatelyFromThumbnail();
 }
@@ -23,11 +26,52 @@ void mapsPairedIngredients() {
   });
 }
 
+void mapsOneIngredient() {
+  test('keeps one ingredient with its measure', () {
+    final meal = MealDto.fromJson(const {
+      'strIngredient1': ' Salmon ',
+      'strMeasure1': ' 350g ',
+    });
+    expect(meal.ingredients, hasLength(1));
+    expect(meal.ingredients.single.name, 'Salmon');
+    expect(meal.ingredients.single.measure, '350g');
+    expect(meal.toEntity().ingredients.single.measure, '350g');
+  });
+}
+
 void dropsEmptyIngredientNames() {
   test('ignores blank ingredient names and keeps later pairs', () {
     final meal = MealDto.fromJson(pairedMealJson());
     expect(meal.ingredients.map((item) => item.name), ['Fennel', 'Salmon']);
     expect(meal.ingredients.map((item) => item.measure), ['2 medium', '350g']);
+  });
+}
+
+void dropsNullIngredientNames() {
+  test('ignores null names and does not shift later measures', () {
+    final meal = MealDto.fromJson(const {
+      'strIngredient1': null,
+      'strMeasure1': '1 cup',
+      'strIngredient2': 'Salt',
+      'strMeasure2': '   ',
+    });
+    expect(meal.ingredients, hasLength(1));
+    expect(meal.ingredients.single.name, 'Salt');
+    expect(meal.ingredients.single.measure, isNull);
+  });
+}
+
+void keepsTheLastSupportedIngredient() {
+  test('keeps ingredient 20 and ignores ingredient 21', () {
+    final meal = MealDto.fromJson(const {
+      'strIngredient20': 'Pepper',
+      'strMeasure20': '1 tsp',
+      'strIngredient21': 'Secret',
+      'strMeasure21': '1 pinch',
+    });
+    expect(meal.ingredients, hasLength(1));
+    expect(meal.ingredients.single.name, 'Pepper');
+    expect(meal.ingredients.single.measure, '1 tsp');
   });
 }
 

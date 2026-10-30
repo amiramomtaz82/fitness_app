@@ -152,10 +152,19 @@ Future<void> publishesTheFailure() async {
   stubOfflineMeal();
   final events = <BaseUiEvent>[];
   final subscription = cubit.eventStream.listen(events.add);
+  final published = expectLater(cubit.eventStream, emits(offlineFailure()));
   await cubit.loadMealDetails('9');
-  await Future<void>.delayed(Duration.zero);
+  await published;
   expectPublishedFailure(events);
   await subscription.cancel();
+}
+
+Matcher offlineFailure() {
+  return isA<ShowErrorSnackBarEvent>().having(
+    (event) => event.failure,
+    'failure',
+    offline,
+  );
 }
 
 void expectPublishedFailure(List<BaseUiEvent> events) {

@@ -200,7 +200,7 @@
     "carbs": "Carbs",
     "fat": "Fat",
     "sample": "Sample",
-    "nutrition_note": "Sample estimated values, not verified nutrition for this meal.",
+    "nutrition_note": "Nutrition information is not available for this meal.",
     "tab": "Food",
     "empty_categories": "No meal categories.",
     "empty_meals": "No meals in this category."

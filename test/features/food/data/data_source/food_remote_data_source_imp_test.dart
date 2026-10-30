@@ -20,6 +20,7 @@ void createFoodDataSource() {
 
 void registerFoodDataSourceTests() {
   test('parses a meal object returned by the client', parsesMealObject);
+  test('returns no meal when the payload is empty', returnsNoMeal);
   test(
     'throws when the client response is not an object',
     throwsWhenBodyIsNotAnObject,
@@ -39,6 +40,19 @@ Future<Map<String, dynamic>> salmonLookupBody(Invocation invocation) async {
       {'strMeal': 'Baked salmon', 'strIngredient1': 'Fennel'},
     ],
   };
+}
+
+Future<void> returnsNoMeal() async {
+  when(
+    () => client.lookupMeal('8'),
+  ).thenAnswer((invocation) async => const {'meals': null});
+  final missing = await dataSource.lookupMeal('8');
+  expect(missing.meal, isNull);
+  when(
+    () => client.lookupMeal('9'),
+  ).thenAnswer((invocation) async => const {'meals': <Object?>[]});
+  final empty = await dataSource.lookupMeal('9');
+  expect(empty.meal, isNull);
 }
 
 Future<void> throwsWhenBodyIsNotAnObject() async {

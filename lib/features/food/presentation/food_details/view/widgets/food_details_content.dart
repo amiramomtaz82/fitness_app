@@ -33,7 +33,6 @@ class FoodDetailsContent extends StatelessWidget {
           caption: FoodDetailsMediaCaption(meal: meal),
         ),
         FoodDetailsIngredientBlock(ingredients: meal.ingredients),
-        const FoodNutritionNote(),
       ],
     );
   }
@@ -70,7 +69,7 @@ class FoodDetailsCaptionColumn extends StatelessWidget {
         SizedBox(height: 6.h),
         FoodDetailsSummary(text: meal.instructions),
         SizedBox(height: 12.h),
-        const FoodNutritionRow(),
+        const FoodNutritionUnavailable(),
       ],
     );
   }

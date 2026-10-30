@@ -49,4 +49,5 @@ Future<void> returnsMealError(
   ).thenAnswer((invocation) async => response);
   final result = await useCase.call('52959');
   expect(result, same(response));
+  verify(() => repo.getMealDetails('52959')).called(1);
 }

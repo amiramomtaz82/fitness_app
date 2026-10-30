@@ -28,9 +28,11 @@ void registerFoodDetailsWidgetTests() {
     showUnsupportedVideo,
   );
   testWidgets('shows meal not found without meal details', showMissingMeal);
+  testWidgets('shows meal not found when success has no meal', showEmptyMeal);
   testWidgets('shows the use case failure', showFailure);
   testWidgets('dispatches the supplied meal id', showDispatchedMealId);
-  testWidgets('keeps Arabic nutrition labels visible', showArabicLabels);
+  testWidgets('pops when the back button is pressed', popOnBack);
+  testWidgets('shows the Arabic unavailable nutrition message', showArabicNote);
 }
 
 Future<void> showLoading(WidgetTester tester) async {
@@ -84,6 +86,12 @@ Future<void> showMissingMeal(WidgetTester tester) async {
   expectDetailsBackOnly(tester);
 }
 
+Future<void> showEmptyMeal(WidgetTester tester) async {
+  await pumpFoodDetails(tester, emptySuccessState(), '8');
+  expectMealMissing();
+  expectDetailsBackOnly(tester);
+}
+
 Future<void> showFailure(WidgetTester tester) async {
   await pumpFoodDetails(tester, offlineState(), '9');
   expect(find.text('offline'), findsOneWidget);
@@ -100,7 +108,7 @@ Future<void> showDispatchedMealId(WidgetTester tester) async {
 void expectSalmonDetails() {
   expectMealCopy();
   expectMealIngredients();
-  expectNutritionSamples();
+  expectNutritionUnavailable();
 }
 
 void expectMealCopy() {
@@ -117,16 +125,20 @@ void expectMealIngredients() {
   expect(find.text('2 medium'), findsOneWidget);
 }
 
-void expectNutritionSamples() {
-  expect(find.text('350 kcal'), findsOneWidget);
-  expect(find.text('25 g'), findsOneWidget);
-  expect(find.text('40 g'), findsOneWidget);
-  expect(find.text('12 g'), findsOneWidget);
-  expect(find.text(LocaleKeys.food_energy.tr()), findsOneWidget);
-  expect(find.text(LocaleKeys.food_protein.tr()), findsOneWidget);
-  expect(find.text(LocaleKeys.food_carbs.tr()), findsOneWidget);
-  expect(find.text(LocaleKeys.food_fat.tr()), findsOneWidget);
+void expectNutritionUnavailable() {
   expect(find.text(LocaleKeys.food_nutrition_note.tr()), findsOneWidget);
+  expectSampleNutritionAbsent();
+}
+
+void expectSampleNutritionAbsent() {
+  expect(find.text('350 kcal'), findsNothing);
+  expect(find.text('25 g'), findsNothing);
+  expect(find.text('40 g'), findsNothing);
+  expect(find.text('12 g'), findsNothing);
+  expect(find.text(LocaleKeys.food_energy.tr()), findsNothing);
+  expect(find.text(LocaleKeys.food_protein.tr()), findsNothing);
+  expect(find.text(LocaleKeys.food_carbs.tr()), findsNothing);
+  expect(find.text(LocaleKeys.food_fat.tr()), findsNothing);
   expect(find.text(LocaleKeys.food_sample.tr()), findsNothing);
 }
 
@@ -138,7 +150,7 @@ void expectClearPlayer(WidgetTester tester) {
   expect(find.byKey(const Key('app_youtube_video_play')), findsNothing);
 }
 
-Future<void> showArabicLabels(WidgetTester tester) async {
+Future<void> showArabicNote(WidgetTester tester) async {
   await pumpFoodDetails(
     tester,
     videoState(),
@@ -146,19 +158,20 @@ Future<void> showArabicLabels(WidgetTester tester) async {
     locale: const Locale('ar'),
     translations: arabicTranslations(),
   );
-  expect(find.text('الكربوهيدرات'), findsOneWidget);
+  expect(find.text('لا تتوفر معلومات غذائية لهذه الوجبة.'), findsOneWidget);
+  expect(find.text('الكربوهيدرات'), findsNothing);
   expect(find.text('عينة'), findsNothing);
-  expect(labelOverflow('الكربوهيدرات'), isNot(TextOverflow.ellipsis));
   expect(tester.takeException(), isNull);
 }
 
-TextOverflow? labelOverflow(String label) {
-  final text = testerWidget<Text>(find.text(label));
-  return text.overflow;
-}
-
-T testerWidget<T extends Widget>(Finder finder) {
-  return finder.evaluate().single.widget as T;
+Future<void> popOnBack(WidgetTester tester) async {
+  await pumpFoodDetailsRoute(tester, loadingState(), '52959');
+  expect(find.byType(FoodDetailsBackButton), findsOneWidget);
+  await tester.tap(find.byType(FoodDetailsBackButton));
+  await tester.pump();
+  await tester.pump(const Duration(milliseconds: 500));
+  expect(find.text('food-browse'), findsOneWidget);
+  expect(find.byType(FoodDetailsBackButton), findsNothing);
 }
 
 List<String> imageUrls(WidgetTester tester) {

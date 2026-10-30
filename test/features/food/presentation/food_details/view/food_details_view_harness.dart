@@ -3,6 +3,7 @@ import 'dart:io';
 
 import 'package:bloc_test/bloc_test.dart';
 import 'package:easy_localization/easy_localization.dart';
+import 'package:fitness_app/app/routes_names.dart';
 import 'package:fitness_app/core/base/ui_events.dart';
 import 'package:fitness_app/core/di/di.dart';
 import 'package:fitness_app/core/error/failures.dart';
@@ -17,6 +18,7 @@ import 'package:fitness_app/features/food/presentation/food_details/view_model/f
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:go_router/go_router.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -122,6 +124,12 @@ FoodDetailsState unsupportedVideoState() {
   );
 }
 
+FoodDetailsState emptySuccessState() {
+  return const FoodDetailsState(
+    mealResource: Resource<MealDetailsEntity>.success(null),
+  );
+}
+
 FoodDetailsState offlineState() {
   return const FoodDetailsState(
     mealResource: Resource.error(NetworkFailure(serverMessage: 'offline')),
@@ -190,5 +198,101 @@ Widget foodDetailsMaterialApp(BuildContext context, String mealId) {
     supportedLocales: context.supportedLocales,
     locale: context.locale,
     home: FoodDetailsView(mealId: mealId),
+  );
+}
+
+Future<void> pumpFoodDetailsRoute(
+  WidgetTester tester,
+  FoodDetailsState state,
+  String mealId,
+) async {
+  await prepareDetailsSurface(tester);
+  whenListen(
+    cubit,
+    const Stream<FoodDetailsState>.empty(),
+    initialState: state,
+  );
+  final router = foodDetailsRouter();
+  addTearDown(router.dispose);
+  await tester.pumpWidget(foodDetailsRouterApp(router));
+  await openMealDetails(tester, router, mealId);
+}
+
+Future<void> prepareDetailsSurface(WidgetTester tester) async {
+  await tester.binding.setSurfaceSize(const Size(375, 1200));
+  addTearDown(() => tester.binding.setSurfaceSize(null));
+}
+
+Future<void> openMealDetails(
+  WidgetTester tester,
+  GoRouter router,
+  String mealId,
+) async {
+  await tester.pump();
+  await tester.pump();
+  router.push('${AppRoutes.food}/meal/$mealId');
+  await tester.pump();
+  await tester.pump();
+}
+
+GoRouter foodDetailsRouter() {
+  return GoRouter(
+    initialLocation: AppRoutes.food,
+    routes: [foodDetailsBranch()],
+  );
+}
+
+GoRoute foodDetailsBranch() {
+  return GoRoute(
+    path: AppRoutes.food,
+    builder: (context, state) => const Scaffold(body: Text('food-browse')),
+    routes: [foodDetailsMealRoute()],
+  );
+}
+
+GoRoute foodDetailsMealRoute() {
+  return GoRoute(
+    path: 'meal/:mealId',
+    builder: (context, state) {
+      final mealId = state.pathParameters['mealId'] ?? '';
+      return FoodDetailsView(mealId: mealId);
+    },
+  );
+}
+
+Widget foodDetailsRouterApp(GoRouter router) {
+  return EasyLocalization(
+    supportedLocales: const [Locale('en'), Locale('ar')],
+    path: 'assets/translations',
+    fallbackLocale: const Locale('en'),
+    startLocale: const Locale('en'),
+    saveLocale: false,
+    useOnlyLangCode: true,
+    assetLoader: InMemoryAssetLoader(enTranslations),
+    child: FoodDetailsRouterHarness(router: router),
+  );
+}
+
+class FoodDetailsRouterHarness extends StatelessWidget {
+  const FoodDetailsRouterHarness({super.key, required this.router});
+
+  final GoRouter router;
+
+  @override
+  Widget build(BuildContext context) {
+    return ScreenUtilInit(
+      designSize: const Size(375, 812),
+      builder: (context, child) => routerMaterialApp(context, router),
+    );
+  }
+}
+
+Widget routerMaterialApp(BuildContext context, GoRouter router) {
+  return MaterialApp.router(
+    theme: AppTheme.darkTheme,
+    localizationsDelegates: context.localizationDelegates,
+    supportedLocales: context.supportedLocales,
+    locale: context.locale,
+    routerConfig: router,
   );
 }
