@@ -52,6 +52,12 @@ abstract final class AppAssets {
   static const String aerobics = '$_basePath/aerobics.png';
   static const String trainer = '$_basePath/trainer.png';
   static const String human = '$_basePath/human.png';
+  static const String chest = '$_basePath/chest.png';
+  static const String backk = '$_basePath/back.png';
+  static const String arm = '$_basePath/arm.png';
+    static const String leg = '$_basePath/leg.png';
+
+
   
 
 }

@@ -111,7 +111,10 @@
     "recommendation_for_you": "Recommendation For You",
     "breakfast": "Breakfast",
     "lunch": "Lunch",
-    "dinner": "Dinner"
+    "dinner": "Dinner",
+    "popular_training": "Popular Training",
+    "popular_training_title": "Popular Training: {}",
+    "tasks": "{} Tasks"
   },
   "workouts": {
     "workouts": "Workouts",
@@ -195,6 +198,4 @@
     "invalid_fields": "Please check the entered data and correct any errors.",
     "internal_server_error": "Server error. Please try again later."
   }
-
-
 }

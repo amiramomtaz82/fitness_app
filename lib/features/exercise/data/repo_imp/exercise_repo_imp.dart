@@ -2,8 +2,10 @@ import 'package:fitness_app/core/base_response/base_response.dart';
 import 'package:fitness_app/core/base_response/safe_call.dart';
 import 'package:fitness_app/features/exercise/data/data_source/exercise_remote_data_source.dart';
 import 'package:fitness_app/features/exercise/domain/entities/muscle_entity.dart';
-import 'package:fitness_app/features/exercise/domain/repo/exercise_repo.dart';
 import 'package:fitness_app/features/exercise/domain/entities/muscle_group_entity.dart';
+import 'package:fitness_app/features/exercise/domain/entities/difficulty_level_entity.dart';
+import 'package:fitness_app/features/exercise/domain/entities/exercise_entity.dart';
+import 'package:fitness_app/features/exercise/domain/repo/exercise_repo.dart';
 import 'package:injectable/injectable.dart';
 
 @Injectable(as: ExerciseRepo)
@@ -17,7 +19,8 @@ class ExerciseRepoImp implements ExerciseRepo {
     return safeCall<List<MuscleGroupEntity>>(() async {
       final response = await _remoteDataSource.getMuscleGroups();
       final groups = response.musclesGroup ?? [];
-      return groups.map((g) => g.toEntity()).toList();
+
+      return groups.map((group) => group.toEntity()).toList();
     });
   }
 
@@ -30,15 +33,44 @@ class ExerciseRepoImp implements ExerciseRepo {
         muscleGroupId,
       );
       final muscles = response.muscles ?? [];
-      return muscles.map((m) => m.toEntity()).toList();
+
+      return muscles.map((muscle) => muscle.toEntity()).toList();
     });
   }
-   @override
+
+  @override
   Future<BaseResponse<List<MuscleEntity>>> getRandomMuscles() {
-    return safeCall(() async {
+    return safeCall<List<MuscleEntity>>(() async {
       final response = await _remoteDataSource.getRandomMuscles();
 
       return response.muscles?.map((muscle) => muscle.toDomain()).toList() ??
+          [];
+    });
+  }
+
+  @override
+  Future<BaseResponse<List<DifficultyLevelEntity>>> getDifficultyLevels() {
+    return safeCall<List<DifficultyLevelEntity>>(() async {
+      final response = await _remoteDataSource.getDifficultyLevels();
+
+      return response.levels?.map((level) => level.toDomain()).toList() ?? [];
+    });
+  }
+
+  @override
+  Future<BaseResponse<List<ExerciseEntity>>> getExercisesByMuscleDifficulty({
+    required String primeMoverMuscleId,
+    required String difficultyLevelId,
+  }) {
+    return safeCall<List<ExerciseEntity>>(() async {
+      final response = await _remoteDataSource.getExercisesByMuscleDifficulty(
+        primeMoverMuscleId: primeMoverMuscleId,
+        difficultyLevelId: difficultyLevelId,
+      );
+
+      return response.exercises
+              ?.map((exercise) => exercise.toEntity())
+              .toList() ??
           [];
     });
   }

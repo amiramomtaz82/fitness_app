@@ -111,7 +111,10 @@
     "recommendation_for_you": "ترشيحات لك",
     "breakfast": "فطور",
     "lunch": "غداء",
-    "dinner": "عشاء"
+    "dinner": "عشاء",
+    "popular_training": "التمارين الشائعة",
+    "popular_training_title": "التمارين الشائعة: {}",
+    "tasks": "{} تمارين"
   },
   "workouts": {
     "workouts": "التمارين",
