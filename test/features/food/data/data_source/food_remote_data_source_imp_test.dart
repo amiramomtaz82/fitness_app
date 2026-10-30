@@ -1,5 +1,6 @@
 import 'package:fitness_app/features/food/data/api/food_api_client.dart';
 import 'package:fitness_app/features/food/data/data_source/food_remote_data_source_imp.dart';
+import 'package:fitness_app/features/food/data/models/meal_details_dto.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 
@@ -19,45 +20,25 @@ void createFoodDataSource() {
 }
 
 void registerFoodDataSourceTests() {
-  test('parses a meal object returned by the client', parsesMealObject);
-  test('returns no meal when the payload is empty', returnsNoMeal);
-  test(
-    'throws when the client response is not an object',
-    throwsWhenBodyIsNotAnObject,
-  );
+  test('returns the meal from the client', returnsClientMeal);
+  test('returns an empty lookup from the client', returnsEmptyLookup);
 }
 
-Future<void> parsesMealObject() async {
-  when(() => client.lookupMeal('52959')).thenAnswer(salmonLookupBody);
+Future<void> returnsClientMeal() async {
+  final lookup = MealLookupDto.fromJson(const {
+    'meals': [
+      {'strMeal': 'Baked salmon', 'strIngredient1': 'Fennel'},
+    ],
+  });
+  when(() => client.lookupMeal('52959')).thenAnswer((_) async => lookup);
   final result = await dataSource.lookupMeal('52959');
   expect(result.meal?.name, 'Baked salmon');
   expect(result.meal?.ingredients.single.name, 'Fennel');
 }
 
-Future<Map<String, dynamic>> salmonLookupBody(Invocation invocation) async {
-  return {
-    'meals': [
-      {'strMeal': 'Baked salmon', 'strIngredient1': 'Fennel'},
-    ],
-  };
-}
-
-Future<void> returnsNoMeal() async {
-  when(
-    () => client.lookupMeal('8'),
-  ).thenAnswer((invocation) async => const {'meals': null});
-  final missing = await dataSource.lookupMeal('8');
-  expect(missing.meal, isNull);
-  when(
-    () => client.lookupMeal('9'),
-  ).thenAnswer((invocation) async => const {'meals': <Object?>[]});
-  final empty = await dataSource.lookupMeal('9');
-  expect(empty.meal, isNull);
-}
-
-Future<void> throwsWhenBodyIsNotAnObject() async {
-  when(
-    () => client.lookupMeal('52959'),
-  ).thenAnswer((invocation) async => ['meals']);
-  expect(() => dataSource.lookupMeal('52959'), throwsA(isA<FormatException>()));
+Future<void> returnsEmptyLookup() async {
+  const lookup = MealLookupDto(null);
+  when(() => client.lookupMeal('8')).thenAnswer((_) async => lookup);
+  final result = await dataSource.lookupMeal('8');
+  expect(result.meal, isNull);
 }

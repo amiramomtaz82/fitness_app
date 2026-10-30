@@ -4,6 +4,7 @@ import 'package:pretty_dio_logger/pretty_dio_logger.dart';
 
 import '../contants/endpoints/endpoints.dart';
 import '../interceptors/auth_interceptor.dart';
+import '../interceptors/json_content_interceptor.dart';
 import '../interceptors/local_interceptor.dart';
 import '../interceptors/mock_forget_password_interceptor.dart';
 
@@ -52,6 +53,7 @@ abstract class DioModule {
         receiveTimeout: const Duration(seconds: 30),
       ),
     );
+    dioInstance.interceptors.add(JsonContentInterceptor());
     dioInstance.interceptors.add(PrettyDioLogger(responseBody: false));
     return dioInstance;
   }

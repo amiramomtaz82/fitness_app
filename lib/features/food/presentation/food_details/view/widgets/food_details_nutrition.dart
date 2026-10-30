@@ -108,40 +108,45 @@ class FoodNutritionChipLabel extends StatelessWidget {
       mainAxisSize: MainAxisSize.min,
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        nutritionValueText(sample.value),
+        FoodNutritionFittedLine(
+          text: sample.value,
+          style: AppTextStyles.white14bold.copyWith(height: 1),
+        ),
         SizedBox(height: 2.h),
-        nutritionLabelText(sample.label.tr()),
+        FoodNutritionFittedLine(
+          text: sample.label.tr(),
+          style: AppTextStyles.orange12regular.copyWith(
+            fontWeight: FontWeight.w600,
+            height: 1,
+          ),
+        ),
       ],
     );
   }
 }
 
-Widget nutritionValueText(String value) {
-  final style = AppTextStyles.white14bold.copyWith(height: 1);
-  return nutritionFittedLine(value, style);
-}
+class FoodNutritionFittedLine extends StatelessWidget {
+  const FoodNutritionFittedLine({
+    super.key,
+    required this.text,
+    required this.style,
+  });
 
-Widget nutritionLabelText(String label) {
-  return nutritionFittedLine(label, nutritionLabelStyle);
-}
+  final String text;
+  final TextStyle style;
 
-Widget nutritionFittedLine(String text, TextStyle style) {
-  return SizedBox(
-    width: double.infinity,
-    height: (style.fontSize ?? 12) + 3,
-    child: FittedBox(
-      fit: BoxFit.scaleDown,
-      alignment: Alignment.center,
-      child: Text(text, softWrap: false, style: style),
-    ),
-  );
-}
-
-TextStyle get nutritionLabelStyle {
-  return AppTextStyles.orange12regular.copyWith(
-    fontWeight: FontWeight.w600,
-    height: 1,
-  );
+  @override
+  Widget build(BuildContext context) {
+    return SizedBox(
+      width: double.infinity,
+      height: (style.fontSize ?? 12) + 3,
+      child: FittedBox(
+        fit: BoxFit.scaleDown,
+        alignment: Alignment.center,
+        child: Text(text, softWrap: false, style: style),
+      ),
+    );
+  }
 }
 
 class FoodNutritionNote extends StatelessWidget {

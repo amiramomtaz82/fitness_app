@@ -8,7 +8,6 @@ import '../../../../../../core/theme/app_colors.dart';
 import '../../../../../../core/theme/context.extension.dart';
 import '../../../../../../generated/locale_keys.g.dart';
 import '../../view_model/food_details_cubit.dart';
-import '../../view_model/food_details_state.dart';
 import 'food_details_back.dart';
 import 'food_details_content.dart';
 import 'food_details_media.dart';
@@ -21,54 +20,49 @@ class FoodDetailsStatus extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final state = context.watch<FoodDetailsCubit>().state;
-    final page = foodDetailsPage(state, onBack);
-    if (showsMeal(state)) return mealAmbient(state, page);
-    return FoodDetailsBackLayer(onBack: onBack, child: page);
+    final resource = context.watch<FoodDetailsCubit>().state.mealResource;
+    final meal = resource.data;
+    if (resource.isError) {
+      return FoodDetailsBackLayer(
+        onBack: onBack,
+        child: FoodDetailsFailure(failure: resource.failure),
+      );
+    }
+    if (resource.isSuccess && meal == null) {
+      return FoodDetailsBackLayer(
+        onBack: onBack,
+        child: FoodDetailsMessage(
+          message: LocaleKeys.errors_data_not_found.tr(),
+        ),
+      );
+    }
+    if (meal == null) {
+      return FoodDetailsBackLayer(
+        onBack: onBack,
+        child: const FoodDetailsLoading(),
+      );
+    }
+    return FoodDetailsAmbient(
+      videoUrl: meal.youtubeUrl,
+      thumbnailUrl: meal.thumbnailUrl,
+      child: FoodDetailsContent(meal: meal, onBack: onBack),
+    );
   }
 }
 
-Widget mealAmbient(FoodDetailsState state, Widget page) {
-  final meal = state.mealResource.data;
-  return FoodDetailsAmbient(
-    videoUrl: meal?.youtubeUrl,
-    thumbnailUrl: meal?.thumbnailUrl,
-    child: page,
-  );
-}
+class FoodDetailsFailure extends StatelessWidget {
+  const FoodDetailsFailure({super.key, required this.failure});
 
-bool showsMeal(FoodDetailsState state) {
-  return state.mealResource.isSuccess && state.mealResource.data != null;
-}
+  final Failure? failure;
 
-Widget foodDetailsPage(FoodDetailsState state, VoidCallback onBack) {
-  if (state.isMealNotFound || emptyMeal(state)) return missingMealMessage();
-  if (state.mealResource.isError) return failureMessage(state);
-  final meal = state.mealResource.data;
-  if (meal == null || !state.mealResource.isSuccess) {
-    return const FoodDetailsLoading();
+  @override
+  Widget build(BuildContext context) {
+    final message = failure?.serverMessage;
+    final text = message == null || message.isEmpty
+        ? LocaleKeys.errors_something_went_wrong.tr()
+        : message;
+    return FoodDetailsMessage(message: text);
   }
-  return FoodDetailsContent(meal: meal, onBack: onBack);
-}
-
-bool emptyMeal(FoodDetailsState state) {
-  return state.mealResource.isSuccess && state.mealResource.data == null;
-}
-
-Widget missingMealMessage() {
-  return FoodDetailsMessage(message: LocaleKeys.errors_data_not_found.tr());
-}
-
-Widget failureMessage(FoodDetailsState state) {
-  return FoodDetailsMessage(
-    message: foodDetailsFailureText(state.mealResource.failure),
-  );
-}
-
-String foodDetailsFailureText(Failure? failure) {
-  final message = failure?.serverMessage;
-  if (message != null && message.isNotEmpty) return message;
-  return LocaleKeys.errors_something_went_wrong.tr();
 }
 
 class FoodDetailsLoading extends StatelessWidget {
@@ -149,15 +143,19 @@ class FoodDetailsAmbientScrim extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const DecoratedBox(decoration: foodAmbientDecoration);
+    return DecoratedBox(decoration: foodAmbientDecoration);
   }
 }
 
-const foodAmbientDecoration = BoxDecoration(
+final foodAmbientDecoration = BoxDecoration(
   gradient: LinearGradient(
     begin: Alignment.topCenter,
     end: Alignment.bottomCenter,
-    colors: [Color(0x80242424), Color(0xE6242424), foodDetailsPanel],
-    stops: [0.32, 0.62, 0.94],
+    colors: [
+      foodDetailsPanel.withValues(alpha: 0x80 / 0xFF),
+      foodDetailsPanel.withValues(alpha: 0xE6 / 0xFF),
+      foodDetailsPanel,
+    ],
+    stops: const [0.32, 0.62, 0.94],
   ),
 );

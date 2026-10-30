@@ -5,23 +5,13 @@ import '../../../domain/entities/meal_details_entity.dart';
 
 class FoodDetailsState extends Equatable {
   final Resource<MealDetailsEntity> mealResource;
-  final bool isMealNotFound;
 
-  const FoodDetailsState({
-    this.mealResource = const Resource.initial(),
-    this.isMealNotFound = false,
-  });
+  const FoodDetailsState({this.mealResource = const Resource.initial()});
 
-  FoodDetailsState copyWith({
-    Resource<MealDetailsEntity>? mealResource,
-    bool? isMealNotFound,
-  }) {
-    return FoodDetailsState(
-      mealResource: mealResource ?? this.mealResource,
-      isMealNotFound: isMealNotFound ?? this.isMealNotFound,
-    );
+  FoodDetailsState copyWith({Resource<MealDetailsEntity>? mealResource}) {
+    return FoodDetailsState(mealResource: mealResource ?? this.mealResource);
   }
 
   @override
-  List<Object?> get props => [mealResource, isMealNotFound];
+  List<Object?> get props => [mealResource];
 }

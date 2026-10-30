@@ -4,7 +4,6 @@ import 'package:fitness_app/core/widgets/app_youtube_video.dart';
 import 'package:fitness_app/features/food/presentation/food_details/view/widgets/food_details_back.dart';
 import 'package:fitness_app/features/food/presentation/food_details/view/widgets/food_details_media.dart';
 import 'package:fitness_app/features/food/presentation/food_details/view_model/food_details_intent.dart';
-import 'package:fitness_app/features/food/presentation/food_details/view_model/food_details_state.dart';
 import 'package:fitness_app/generated/locale_keys.g.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -27,8 +26,7 @@ void registerFoodDetailsWidgetTests() {
     'keeps an unsupported video URL unavailable',
     showUnsupportedVideo,
   );
-  testWidgets('shows meal not found without meal details', showMissingMeal);
-  testWidgets('shows meal not found when success has no meal', showEmptyMeal);
+  testWidgets('shows meal not found when success has no meal', showMissingMeal);
   testWidgets('shows the use case failure', showFailure);
   testWidgets('dispatches the supplied meal id', showDispatchedMealId);
   testWidgets('pops when the back button is pressed', popOnBack);
@@ -59,7 +57,7 @@ Future<void> showPlayableVideo(WidgetTester tester) async {
   expect(videoWidget(tester).videoUrl, watchUrl);
   expect(videoWidget(tester).videoUrl.contains(mealThumb), isFalse);
   expect(imageUrls(tester), contains(mealThumb));
-  expect(imageUrls(tester), isNot(contains(foodThumbnailUrl('xvPR2Tfw5k0'))));
+  expect(imageUrls(tester), isNot(contains(foodThumbnail('xvPR2Tfw5k0').url)));
   expect(videoWidget(tester).showBackButton, isTrue);
   expect(find.byKey(const Key('app_youtube_video_play')), findsOneWidget);
   expectDetailsBackOnly(tester);
@@ -77,16 +75,6 @@ Future<void> showUnsupportedVideo(WidgetTester tester) async {
 }
 
 Future<void> showMissingMeal(WidgetTester tester) async {
-  await pumpFoodDetails(
-    tester,
-    const FoodDetailsState(isMealNotFound: true),
-    '8',
-  );
-  expectMealMissing();
-  expectDetailsBackOnly(tester);
-}
-
-Future<void> showEmptyMeal(WidgetTester tester) async {
   await pumpFoodDetails(tester, emptySuccessState(), '8');
   expectMealMissing();
   expectDetailsBackOnly(tester);

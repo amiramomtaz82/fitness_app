@@ -52,7 +52,14 @@ class FoodIngredientPanel extends StatelessWidget {
       decoration: ingredientPanelDecoration(),
       child: Padding(
         padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 8.h),
-        child: Column(children: ingredientRows(ingredients)),
+        child: Column(
+          children: [
+            for (final (index, ingredient) in ingredients.indexed) ...[
+              if (index > 0) const FoodIngredientDivider(),
+              FoodDetailsIngredientRow(ingredient: ingredient),
+            ],
+          ],
+        ),
       ),
     );
   }
@@ -67,20 +74,6 @@ BoxDecoration ingredientPanelDecoration() {
       width: 0.5,
     ),
   );
-}
-
-List<Widget> ingredientRows(List<MealIngredient> ingredients) {
-  return [
-    for (var index = 0; index < ingredients.length; index++)
-      ...ingredientBlock(ingredients[index], index == ingredients.length - 1),
-  ];
-}
-
-List<Widget> ingredientBlock(MealIngredient ingredient, bool isLast) {
-  return [
-    FoodDetailsIngredientRow(ingredient: ingredient),
-    if (!isLast) const FoodIngredientDivider(),
-  ];
 }
 
 class FoodDetailsIngredientRow extends StatelessWidget {

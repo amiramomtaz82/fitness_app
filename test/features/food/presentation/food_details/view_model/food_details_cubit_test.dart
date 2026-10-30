@@ -75,12 +75,12 @@ List<FoodDetailsState> salmonMealStates() {
 void verifyLoadedSalmon(FoodDetailsCubit current) {
   verify(() => useCase.call('52959')).called(1);
   expect(current.state.mealResource.isSuccess, isTrue);
-  expect(current.state.isMealNotFound, isFalse);
+  expect(current.state.mealResource.data, salmon);
 }
 
 void marksANullMealAsNotFound() {
   blocTest<FoodDetailsCubit, FoodDetailsState>(
-    'marks a null meal as not found',
+    'keeps an empty success when the meal is missing',
     build: () => cubit,
     setUp: stubMissingMeal,
     act: requestMissingMeal,
@@ -100,13 +100,13 @@ void requestMissingMeal(FoodDetailsCubit current) {
 List<FoodDetailsState> missingMealStates() {
   return const [
     FoodDetailsState(mealResource: Resource.loading()),
-    FoodDetailsState(isMealNotFound: true),
+    FoodDetailsState(mealResource: Resource.success(null)),
   ];
 }
 
 void verifyMissingMeal(FoodDetailsCubit current) {
   verify(() => useCase.call('8')).called(1);
-  expect(current.state.mealResource.isSuccess, isFalse);
+  expect(current.state.mealResource.isSuccess, isTrue);
   expect(current.state.mealResource.isError, isFalse);
   expect(current.state.mealResource.data, isNull);
 }
@@ -135,17 +135,14 @@ void requestOfflineMeal(FoodDetailsCubit current) {
 List<FoodDetailsState> offlineMealStates() {
   return const [
     FoodDetailsState(mealResource: Resource.loading()),
-    FoodDetailsState(
-      mealResource: Resource.error(offline),
-      isMealNotFound: false,
-    ),
+    FoodDetailsState(mealResource: Resource.error(offline)),
   ];
 }
 
 void verifyOfflineMeal(FoodDetailsCubit current) {
   expect(current.state.mealResource.failure, offline);
   expect(current.state.mealResource.isSuccess, isFalse);
-  expect(current.state.isMealNotFound, isFalse);
+  expect(current.state.mealResource.data, isNull);
 }
 
 Future<void> publishesTheFailure() async {
@@ -153,7 +150,7 @@ Future<void> publishesTheFailure() async {
   final events = <BaseUiEvent>[];
   final subscription = cubit.eventStream.listen(events.add);
   final published = expectLater(cubit.eventStream, emits(offlineFailure()));
-  await cubit.loadMealDetails('9');
+  cubit.doIntent(const LoadMealDetailsIntent('9'));
   await published;
   expectPublishedFailure(events);
   await subscription.cancel();

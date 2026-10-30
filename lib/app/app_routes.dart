@@ -1,4 +1,3 @@
-import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get_it/get_it.dart';
 import 'package:go_router/go_router.dart';
@@ -22,10 +21,7 @@ import '../features/splash/presentation/views/splash_view.dart';
 import 'bottom_bar/bottom_navigation_bar.dart';
 import 'routes_names.dart';
 
-final GlobalKey<NavigatorState> rootNavigatorKey = GlobalKey<NavigatorState>();
-
 final GoRouter appRouter = GoRouter(
-  navigatorKey: rootNavigatorKey,
   initialLocation: AppRoutes.splash,
   routes: [
     // Splash
@@ -134,24 +130,18 @@ final GoRouter appRouter = GoRouter(
             ),
           ],
         ),
+      ],
+    ),
 
-        StatefulShellBranch(
-          routes: [
-            GoRoute(
-              path: AppRoutes.food,
-              name: AppRoutes.food,
-              builder: (context, state) => const FoodBrowseView(),
-              routes: [
-                GoRoute(
-                  path: 'meal/:mealId',
-                  parentNavigatorKey: rootNavigatorKey,
-                  builder: (context, state) => FoodDetailsView(
-                    mealId: state.pathParameters['mealId'] ?? '',
-                  ),
-                ),
-              ],
-            ),
-          ],
+    GoRoute(
+      path: AppRoutes.food,
+      name: AppRoutes.food,
+      builder: (context, state) => const FoodBrowseView(),
+      routes: [
+        GoRoute(
+          path: 'meal/:mealId',
+          builder: (context, state) =>
+              FoodDetailsView(mealId: state.pathParameters['mealId'] ?? ''),
         ),
       ],
     ),

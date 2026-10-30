@@ -33,30 +33,21 @@ class FoodDetailsMedia extends StatelessWidget {
       borderRadius: BorderRadius.vertical(bottom: Radius.circular(20.r)),
       child: AspectRatio(
         aspectRatio: foodMediaAspectRatio,
-        child: foodMediaStack(videoUrl, thumbnailUrl, video, caption),
+        child: Stack(
+          children: [
+            Positioned.fill(
+              child: FoodDetailsPhoto(
+                image: foodBackdropImage(videoUrl, thumbnailUrl),
+              ),
+            ),
+            video,
+            const Positioned.fill(child: FoodDetailsShadeBand()),
+            caption,
+          ],
+        ),
       ),
     );
   }
-}
-
-Widget foodMediaStack(
-  String? videoUrl,
-  String? thumbnailUrl,
-  Widget video,
-  Widget caption,
-) {
-  return Stack(
-    children: [
-      Positioned.fill(
-        child: FoodDetailsPhoto(
-          image: foodBackdropImage(videoUrl, thumbnailUrl),
-        ),
-      ),
-      video,
-      const Positioned.fill(child: FoodDetailsShadeBand()),
-      caption,
-    ],
-  );
 }
 
 class FoodDetailsPhoto extends StatelessWidget {
@@ -71,22 +62,18 @@ class FoodDetailsPhoto extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final photo = foodPhotoFrame(image);
-    if (!blurred) {
-      return photo;
-    }
+    final image = this.image;
     return ClipRect(
-      child: ImageFiltered(imageFilter: foodCardBlur, child: photo),
+      clipBehavior: blurred ? Clip.hardEdge : Clip.none,
+      child: ImageFiltered(
+        enabled: blurred,
+        imageFilter: foodCardBlur,
+        child: image == null
+            ? const ColoredBox(color: foodDetailsPanel)
+            : FoodDetailsPhotoImage(image: image),
+      ),
     );
   }
-}
-
-Widget foodPhotoFrame(ImageProvider? image) {
-  final provider = image;
-  if (provider == null) {
-    return const ColoredBox(color: foodDetailsPanel);
-  }
-  return FoodDetailsPhotoImage(image: provider);
 }
 
 class FoodDetailsPhotoImage extends StatelessWidget {
@@ -127,16 +114,14 @@ ImageProvider? mealPhoto(String? thumbnailUrl) {
   return NetworkImage(url);
 }
 
-String foodThumbnailUrl(String videoId) {
-  return YoutubePlayerController.getThumbnail(
-    videoId: videoId,
-    quality: ThumbnailQuality.high,
-    format: ThumbnailFormat.jpeg,
-  );
-}
-
 NetworkImage foodThumbnail(String videoId) {
-  return NetworkImage(foodThumbnailUrl(videoId));
+  return NetworkImage(
+    YoutubePlayerController.getThumbnail(
+      videoId: videoId,
+      quality: ThumbnailQuality.high,
+      format: ThumbnailFormat.jpeg,
+    ),
+  );
 }
 
 Widget foodBackdropFallback(BuildContext context, Object error, StackTrace? _) {
@@ -180,17 +165,21 @@ class FoodDetailsShadeFill extends StatelessWidget {
     return ClipRect(
       child: BackdropFilter(
         filter: foodCaptionBlur,
-        child: const DecoratedBox(decoration: foodShadeDecoration),
+        child: DecoratedBox(decoration: foodShadeDecoration),
       ),
     );
   }
 }
 
-const foodShadeDecoration = BoxDecoration(
+final foodShadeDecoration = BoxDecoration(
   gradient: LinearGradient(
     begin: Alignment.topCenter,
     end: Alignment.bottomCenter,
-    colors: [Color(0x00242424), Color(0x99242424), Color(0xF2242424)],
-    stops: [0, 0.45, 1],
+    colors: [
+      foodDetailsPanel.withValues(alpha: 0),
+      foodDetailsPanel.withValues(alpha: 0x99 / 0xFF),
+      foodDetailsPanel.withValues(alpha: 0xF2 / 0xFF),
+    ],
+    stops: const [0, 0.45, 1],
   ),
 );

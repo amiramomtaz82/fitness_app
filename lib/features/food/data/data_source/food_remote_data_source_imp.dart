@@ -23,11 +23,7 @@ class FoodRemoteDataSourceImp implements FoodRemoteDataSource {
   }
 
   @override
-  Future<MealLookupDto> lookupMeal(String mealId) async {
-    final body = await _client.lookupMeal(mealId);
-    if (body is! Map) {
-      throw const FormatException('Meal lookup response is not an object');
-    }
-    return MealLookupDto.fromJson(Map<String, dynamic>.from(body));
+  Future<MealLookupDto> lookupMeal(String mealId) {
+    return _client.lookupMeal(mealId);
   }
 }
