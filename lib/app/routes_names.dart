@@ -10,7 +10,6 @@ class AppRoutes {
   static const String profile = '/profile';
   static const String workouts = '/workouts';
   static const String smartCoach = '/smart-coach';
-
-  // Step 1 (You)
   static const String multiStepRegistration = '/multi-step-registration';
+  static const String exercise = '/exercise';
 }

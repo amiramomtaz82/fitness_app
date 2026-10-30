@@ -86,6 +86,7 @@
     "true_beast": "وحش حقيقي (محترف)"
   },
   "home": {
+    "home":"الرئيسية",
     "hi_user": "مرحباً {} ،",
     "lets_start_your_day": "لنبدأ يومك",
     "category": "الفئات",
@@ -120,7 +121,9 @@
     "shoulder": "كتف",
     "back": "ظهر",
     "legs": "أرجل",
-    "high_chest_exercise": "تمرين أعلى الصدر"
+    "high_chest_exercise": "تمرين أعلى الصدر",
+    "stomach": "معدة",
+    "no_muscles_found": "لم يتم العثور على عضلات لهذا القسم."
   },
   "exercises": {
     "exercise": "التمرين",

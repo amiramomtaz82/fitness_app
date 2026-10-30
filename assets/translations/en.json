@@ -86,6 +86,7 @@
     "true_beast": "True Beast"
   },
   "home": {
+    "home": "Home",
     "hi_user": "Hi {} ,",
     "lets_start_your_day": "Let's Start Your Day",
     "category": "Category",
@@ -120,7 +121,9 @@
     "shoulder": "Shoulder",
     "back": "Back",
     "legs": "Legs",
-    "high_chest_exercise": "High Chest Exercise"
+    "high_chest_exercise": "High Chest Exercise",
+    "stomach": "Stomach",
+    "no_muscles_found": "No muscles found for this category."
   },
   "exercises": {
     "exercise": "Exercise",
@@ -192,4 +195,6 @@
     "invalid_fields": "Please check the entered data and correct any errors.",
     "internal_server_error": "Server error. Please try again later."
   }
+
+
 }

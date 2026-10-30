@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 class PopularTrainingExerciseView extends StatelessWidget {
-  const PopularTrainingExerciseView({Key? key}) : super(key: key);
+  const PopularTrainingExerciseView({super.key});
 
   @override
   Widget build(BuildContext context) {

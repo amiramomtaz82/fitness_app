@@ -35,58 +35,66 @@ void main() {
   });
 
   group('AuthRemoteDataSourceImp.sendResetCode', () {
-    test('forwards the dto to the client and returns its dto untouched',
-        () async {
-      const request = ForgetPasswordRequestDto(email: 'user@mail.com');
-      when(client.forgotPassword(request)).thenAnswer((_) async => okDto);
+    test(
+      'forwards the dto to the client and returns its dto untouched',
+      () async {
+        const request = ForgetPasswordRequestDto(email: 'user@mail.com');
+        when(client.forgotPassword(request)).thenAnswer((_) async => okDto);
 
-      final response = await dataSource.sendResetCode(request);
+        final response = await dataSource.sendResetCode(request);
 
-      expect(response, same(okDto));
-      verify(client.forgotPassword(request)).called(1);
-    });
+        expect(response, same(okDto));
+        verify(client.forgotPassword(request)).called(1);
+      },
+    );
   });
 
   group('AuthRemoteDataSourceImp.verifyResetCode', () {
-    test('forwards the dto to the client and returns its dto untouched',
-        () async {
-      const request = VerifyOtpRequestDto(resetCode: '7542');
-      when(client.verifyResetCode(request)).thenAnswer((_) async => okDto);
+    test(
+      'forwards the dto to the client and returns its dto untouched',
+      () async {
+        const request = VerifyOtpRequestDto(resetCode: '7542');
+        when(client.verifyResetCode(request)).thenAnswer((_) async => okDto);
 
-      final response = await dataSource.verifyResetCode(request);
+        final response = await dataSource.verifyResetCode(request);
 
-      expect(response, same(okDto));
-      verify(client.verifyResetCode(request)).called(1);
-    });
+        expect(response, same(okDto));
+        verify(client.verifyResetCode(request)).called(1);
+      },
+    );
 
-    test('passes a rejected code dto straight through without interpreting it',
-        () async {
-      const request = VerifyOtpRequestDto(resetCode: '0000');
-      when(client.verifyResetCode(request)).thenAnswer(
-        (_) async => rejectedDto,
-      );
+    test(
+      'passes a rejected code dto straight through without interpreting it',
+      () async {
+        const request = VerifyOtpRequestDto(resetCode: '0000');
+        when(
+          client.verifyResetCode(request),
+        ).thenAnswer((_) async => rejectedDto);
 
-      final response = await dataSource.verifyResetCode(request);
+        final response = await dataSource.verifyResetCode(request);
 
-      expect(response, same(rejectedDto));
-      expect(response.success, isFalse);
-      verify(client.verifyResetCode(request)).called(1);
-    });
+        expect(response, same(rejectedDto));
+        expect(response.success, isFalse);
+        verify(client.verifyResetCode(request)).called(1);
+      },
+    );
   });
 
   group('AuthRemoteDataSourceImp.resetPassword', () {
-    test('forwards the dto to the client and returns its dto untouched',
-        () async {
-      const request = ResetPasswordRequestDto(
-        email: 'user@mail.com',
-        newPassword: 'NewPass1',
-      );
-      when(client.resetPassword(request)).thenAnswer((_) async => okDto);
+    test(
+      'forwards the dto to the client and returns its dto untouched',
+      () async {
+        const request = ResetPasswordRequestDto(
+          email: 'user@mail.com',
+          newPassword: 'NewPass1',
+        );
+        when(client.resetPassword(request)).thenAnswer((_) async => okDto);
 
-      final response = await dataSource.resetPassword(request);
+        final response = await dataSource.resetPassword(request);
 
-      expect(response, same(okDto));
-      verify(client.resetPassword(request)).called(1);
-    });
+        expect(response, same(okDto));
+        verify(client.resetPassword(request)).called(1);
+      },
+    );
   });
 }

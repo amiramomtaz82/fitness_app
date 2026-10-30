@@ -31,7 +31,8 @@ dependencies:
   # UI, Storage & Utils
   pinput: ^6.0.2
   flutter_secure_storage: ^10.0.0
-  shared_preferences_android: 2.4.28
+  shared_preferences: ^2.5.3
+  shared_preferences_android: 2.4.23
 
   uuid: ^4.5.1
   image_picker: ^1.1.2

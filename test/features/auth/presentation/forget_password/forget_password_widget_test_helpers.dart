@@ -175,9 +175,7 @@ Future<void> pumpBareWidget(WidgetTester tester, Widget widget) async {
               localizationsDelegates: context.localizationDelegates,
               supportedLocales: context.supportedLocales,
               locale: context.locale,
-              home: Scaffold(
-                body: SingleChildScrollView(child: widget),
-              ),
+              home: Scaffold(body: SingleChildScrollView(child: widget)),
             ),
           ),
         ),

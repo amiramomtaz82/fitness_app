@@ -5,7 +5,9 @@ import 'package:fitness_app/features/auth/presentation/forget_password/view_mode
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
-  const sent = Resource<AuthActionResult>.success(AuthActionResult(success: true));
+  const sent = Resource<AuthActionResult>.success(
+    AuthActionResult(success: true),
+  );
   const failed = Resource<AuthActionResult>.error(NetworkFailure());
 
   group('ForgetPasswordState defaults', () {
@@ -25,14 +27,9 @@ void main() {
     test('isFirstStep is only true on the email step', () {
       const state = ForgetPasswordState();
       expect(state.isFirstStep, isTrue);
+      expect(state.copyWith(step: ForgetPasswordStep.otp).isFirstStep, isFalse);
       expect(
-        state.copyWith(step: ForgetPasswordStep.otp).isFirstStep,
-        isFalse,
-      );
-      expect(
-        state
-            .copyWith(step: ForgetPasswordStep.resetPassword)
-            .isFirstStep,
+        state.copyWith(step: ForgetPasswordStep.resetPassword).isFirstStep,
         isFalse,
       );
     });
@@ -41,10 +38,7 @@ void main() {
       const state = ForgetPasswordState();
       expect(state.isResendCoolingDown, isFalse);
       expect(state.copyWith(resendSecondsLeft: 1).isResendCoolingDown, isTrue);
-      expect(
-        state.copyWith(resendSecondsLeft: 30).isResendCoolingDown,
-        isTrue,
-      );
+      expect(state.copyWith(resendSecondsLeft: 30).isResendCoolingDown, isTrue);
     });
   });
 
