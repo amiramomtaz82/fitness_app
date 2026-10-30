@@ -155,6 +155,38 @@ void main() {
       expect(find.byType(CircularProgressIndicator), findsOneWidget);
     });
 
+    testWidgets('shows loading indicator when groups are loading', (
+      tester,
+    ) async {
+      await pumpWorkOutView(
+        tester,
+        state: const WorkoutState(groupsResource: Resource.loading()),
+      );
+
+      expect(find.byType(CircularProgressIndicator), findsOneWidget);
+    });
+
+    testWidgets(
+      'shows error state in tabs bar and dispatches InitWorkoutsIntent on retry tap',
+      (tester) async {
+        await pumpWorkOutView(
+          tester,
+          state: const WorkoutState(
+            groupsResource: Resource.error(ServerFailure()),
+          ),
+        );
+
+        expect(find.text(LocaleKeys.common_retry.tr()), findsOneWidget);
+
+        await tester.tap(find.text(LocaleKeys.common_retry.tr()));
+        await tester.pump();
+
+        verify(
+          () => mockWorkoutCubit.doIntent(const InitWorkoutsIntent()),
+        ).called(2);
+      },
+    );
+
     testWidgets(
       'shows error state and dispatches RetryFetchMusclesIntent on retry tap',
       (tester) async {

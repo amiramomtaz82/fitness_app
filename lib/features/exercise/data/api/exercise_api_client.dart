@@ -16,8 +16,8 @@ abstract class ExerciseApiClient {
   @GET(Endpoints.muscles)
   Future<MusclesGroupResponseDto> getMuscleGroups();
 
-  @GET('${Endpoints.musclesGroup}/{muscleGroupId}')
+  @GET(Endpoints.musclesGroupByGroupId)
   Future<MuscleGroupDetailResponseDto> getMusclesByGroupId(
-    @Path('muscleGroupId') String muscleGroupId,
+    @Path() String muscleGroupId,
   );
 }

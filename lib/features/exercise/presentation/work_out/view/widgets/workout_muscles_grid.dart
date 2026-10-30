@@ -1,4 +1,5 @@
 import 'package:easy_localization/easy_localization.dart';
+import 'package:fitness_app/core/resource/resource.dart';
 import 'package:fitness_app/core/theme/text_styles.dart';
 import 'package:fitness_app/core/widgets/app_content_grid_view.dart';
 import 'package:fitness_app/features/exercise/domain/entities/muscle_entity.dart';
@@ -19,36 +20,46 @@ class WorkoutMusclesGrid extends StatelessWidget {
       builder: (context, state) {
         final resource = state.musclesResource;
 
-        if (resource.isLoading) {
-          return const Center(child: CircularProgressIndicator.adaptive());
-        }
+        return switch (resource.status) {
+          ApiStatus.initial => const SizedBox.shrink(),
+          ApiStatus.loading =>
+            const Center(child: CircularProgressIndicator.adaptive()),
+          ApiStatus.error => const _WorkoutGridErrorState(),
+          ApiStatus.success => _WorkoutMusclesContent(
+              muscles: resource.data ?? const <MuscleEntity>[],
+            ),
+        };
+      },
+    );
+  }
+}
 
-        if (resource.isError) {
-          return const _WorkoutGridErrorState();
-        }
+class _WorkoutMusclesContent extends StatelessWidget {
+  final List<MuscleEntity> muscles;
 
-        final muscles = resource.data ?? <MuscleEntity>[];
-        if (muscles.isEmpty) {
-          return const _WorkoutGridEmptyState();
-        }
+  const _WorkoutMusclesContent({required this.muscles});
 
-        final items = muscles
-            .map(
-              (m) => ContentCardItem(
-                id: m.id,
-                title: m.name,
-                imageUrl: m.imageUrl,
-              ),
-            )
-            .toList();
+  @override
+  Widget build(BuildContext context) {
+    if (muscles.isEmpty) {
+      return const _WorkoutGridEmptyState();
+    }
 
-        return AppContentGridView(
-          items: items,
-          onItemTap: (item) {
-            context.read<WorkoutCubit>().doIntent(
-              MuscleSelectedIntent(item.id),
-            );
-          },
+    final items = muscles
+        .map(
+          (m) => ContentCardItem(
+            id: m.id,
+            title: m.name,
+            imageUrl: m.imageUrl,
+          ),
+        )
+        .toList();
+
+    return AppContentGridView(
+      items: items,
+      onItemTap: (item) {
+        context.read<WorkoutCubit>().doIntent(
+          MuscleSelectedIntent(item.id),
         );
       },
     );

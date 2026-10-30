@@ -21,6 +21,7 @@ class Endpoints {
   static const String levels = '/levels';
   static const String muscles = '/muscles';
   static const String musclesGroup = '/musclesGroup';
+  static const String musclesGroupByGroupId = '/musclesGroup/{muscleGroupId}';
 
   // Exercises
   static const String exercises = '/exercises';
