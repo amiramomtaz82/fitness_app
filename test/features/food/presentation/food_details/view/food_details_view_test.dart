@@ -32,7 +32,7 @@ void registerFoodDetailsWidgetTests() {
   testWidgets('shows the use case failure', showFailure);
   testWidgets('dispatches the supplied meal id', showDispatchedMealId);
   testWidgets('pops when the back button is pressed', popOnBack);
-  testWidgets('shows the Arabic unavailable nutrition message', showArabicNote);
+  testWidgets('shows Arabic nutrition placeholders', showArabicLabels);
 }
 
 Future<void> showLoading(WidgetTester tester) async {
@@ -108,7 +108,7 @@ Future<void> showDispatchedMealId(WidgetTester tester) async {
 void expectSalmonDetails() {
   expectMealCopy();
   expectMealIngredients();
-  expectNutritionUnavailable();
+  expectNutritionPlaceholders();
 }
 
 void expectMealCopy() {
@@ -125,21 +125,24 @@ void expectMealIngredients() {
   expect(find.text('2 medium'), findsOneWidget);
 }
 
-void expectNutritionUnavailable() {
-  expect(find.text(LocaleKeys.food_nutrition_note.tr()), findsOneWidget);
-  expectSampleNutritionAbsent();
+void expectNutritionPlaceholders() {
+  expect(find.text('350 kcal'), findsOneWidget);
+  expect(find.text('25 g'), findsOneWidget);
+  expect(find.text('40 g'), findsOneWidget);
+  expect(find.text('12 g'), findsOneWidget);
+  expectNutritionLabels();
 }
 
-void expectSampleNutritionAbsent() {
-  expect(find.text('350 kcal'), findsNothing);
-  expect(find.text('25 g'), findsNothing);
-  expect(find.text('40 g'), findsNothing);
-  expect(find.text('12 g'), findsNothing);
-  expect(find.text(LocaleKeys.food_energy.tr()), findsNothing);
-  expect(find.text(LocaleKeys.food_protein.tr()), findsNothing);
-  expect(find.text(LocaleKeys.food_carbs.tr()), findsNothing);
-  expect(find.text(LocaleKeys.food_fat.tr()), findsNothing);
-  expect(find.text(LocaleKeys.food_sample.tr()), findsNothing);
+void expectNutritionLabels() {
+  expect(find.text(LocaleKeys.food_energy.tr()), findsOneWidget);
+  expect(find.text(LocaleKeys.food_protein.tr()), findsOneWidget);
+  expect(find.text(LocaleKeys.food_carbs.tr()), findsOneWidget);
+  expect(find.text(LocaleKeys.food_fat.tr()), findsOneWidget);
+  expect(find.text(LocaleKeys.food_nutrition_note.tr()), findsOneWidget);
+  expect(
+    find.text('Nutrition information is not available for this meal.'),
+    findsNothing,
+  );
 }
 
 void expectClearPlayer(WidgetTester tester) {
@@ -150,7 +153,7 @@ void expectClearPlayer(WidgetTester tester) {
   expect(find.byKey(const Key('app_youtube_video_play')), findsNothing);
 }
 
-Future<void> showArabicNote(WidgetTester tester) async {
+Future<void> showArabicLabels(WidgetTester tester) async {
   await pumpFoodDetails(
     tester,
     videoState(),
@@ -158,10 +161,21 @@ Future<void> showArabicNote(WidgetTester tester) async {
     locale: const Locale('ar'),
     translations: arabicTranslations(),
   );
-  expect(find.text('لا تتوفر معلومات غذائية لهذه الوجبة.'), findsOneWidget);
-  expect(find.text('الكربوهيدرات'), findsNothing);
-  expect(find.text('عينة'), findsNothing);
+  expect(find.text('350 kcal'), findsOneWidget);
+  expect(find.text('الكربوهيدرات'), findsOneWidget);
+  expect(find.text('قيم غذائية للعرض'), findsOneWidget);
+  expect(find.text('لا تتوفر معلومات غذائية لهذه الوجبة.'), findsNothing);
+  expect(labelOverflow('الكربوهيدرات'), isNot(TextOverflow.ellipsis));
   expect(tester.takeException(), isNull);
+}
+
+TextOverflow? labelOverflow(String label) {
+  final text = testerWidget<Text>(find.text(label));
+  return text.overflow;
+}
+
+T testerWidget<T extends Widget>(Finder finder) {
+  return finder.evaluate().single.widget as T;
 }
 
 Future<void> popOnBack(WidgetTester tester) async {
