@@ -11,6 +11,7 @@ void mealDtoTests() {
   mapsOneIngredient();
   dropsEmptyIngredientNames();
   dropsNullIngredientNames();
+  dropsNonTextIngredientNames();
   keepsTheLastSupportedIngredient();
   readsNullOptionalFieldsAsNull();
   readsYoutubeSeparatelyFromThumbnail();
@@ -61,9 +62,25 @@ void dropsNullIngredientNames() {
   });
 }
 
-void keepsTheLastSupportedIngredient() {
-  test('keeps ingredient 20 and ignores ingredient 21', () {
+void dropsNonTextIngredientNames() {
+  test('ignores non-text ingredient names and measures', () {
     final meal = MealDto.fromJson(const {
+      'strIngredient1': 12,
+      'strMeasure1': '1 cup',
+      'strIngredient2': 'Salt',
+      'strMeasure2': 4,
+    });
+    expect(meal.ingredients, hasLength(1));
+    expect(meal.ingredients.single.name, 'Salt');
+    expect(meal.ingredients.single.measure, isNull);
+  });
+}
+
+void keepsTheLastSupportedIngredient() {
+  test('keeps ingredient 20 and ignores indexes outside 1..20', () {
+    final meal = MealDto.fromJson(const {
+      'strIngredient0': 'Hidden',
+      'strMeasure0': '9',
       'strIngredient20': 'Pepper',
       'strMeasure20': '1 tsp',
       'strIngredient21': 'Secret',
