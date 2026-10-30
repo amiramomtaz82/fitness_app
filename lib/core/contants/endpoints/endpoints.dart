@@ -27,6 +27,7 @@ class Endpoints {
   static const String mealDbBaseUrl = 'https://www.themealdb.com/api/json/v1/1';
   static const String mealCategories = '/categories.php';
   static const String mealsByCategory = '/filter.php';
+  static const String musclesGroupByGroupId = '/musclesGroup/{muscleGroupId}';
 
   // Exercises
   static const String exercises = '/exercises';

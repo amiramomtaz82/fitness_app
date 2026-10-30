@@ -26,6 +26,6 @@ class MuscleModel {
   MuscleEntity toDomain() => MuscleEntity(
         id: id ?? '',
         name: name ?? '',
-        image: image,
+        imageUrl: image ?? '',
       );
 }

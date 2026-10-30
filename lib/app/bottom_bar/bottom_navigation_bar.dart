@@ -12,6 +12,8 @@ class AppBottomNavigationBar extends StatelessWidget {
     final selectedIndex = navigationShell.currentIndex;
 
     return Scaffold(
+      extendBody:
+          true, // <-- Allows the background image to flow behind the floating bar
       body: navigationShell,
       bottomNavigationBar: FloatingBottomBar(
         items: items,
