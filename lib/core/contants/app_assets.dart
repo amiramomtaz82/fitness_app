@@ -30,6 +30,7 @@ abstract final class AppAssets {
   static const String home = '$_basePath/home.png';
   static const String chat = '$_basePath/chat.png';
   static const String exercise = '$_basePath/exercise.png';
+  static const String food = '$_basePath/food.png';
   static const String logout = '$_basePath/logout.png';
   static const String help = '$_basePath/Help.png';
   static const String back = '$_basePath/back.svg';
