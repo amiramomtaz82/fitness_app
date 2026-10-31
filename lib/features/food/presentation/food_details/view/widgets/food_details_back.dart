@@ -73,19 +73,28 @@ class FoodDetailsBackTap extends StatelessWidget {
     return InkWell(
       onTap: onPressed,
       customBorder: const CircleBorder(),
-      child: SizedBox(width: 44.r, height: 44.r, child: foodBackIcon(context)),
+      child: SizedBox(
+        width: 44.r,
+        height: 44.r,
+        child: const FoodDetailsBackIcon(),
+      ),
     );
   }
 }
 
-Widget foodBackIcon(BuildContext context) {
-  final icon = Icon(
-    Icons.arrow_back_ios_new,
-    color: AppColors.black,
-    size: 16.r,
-  );
-  if (Directionality.of(context) == ui.TextDirection.ltr) {
-    return icon;
+class FoodDetailsBackIcon extends StatelessWidget {
+  const FoodDetailsBackIcon({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    final icon = Icon(
+      Icons.arrow_back_ios_new,
+      color: AppColors.black,
+      size: 16.r,
+    );
+    if (Directionality.of(context) == ui.TextDirection.ltr) {
+      return icon;
+    }
+    return Transform.flip(flipX: true, child: icon);
   }
-  return Transform.flip(flipX: true, child: icon);
 }

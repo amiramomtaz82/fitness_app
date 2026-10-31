@@ -15,14 +15,15 @@ import 'widgets/food_details_nutrition.dart';
 import 'widgets/food_details_status.dart';
 
 class FoodDetailsView extends StatelessWidget {
-  const FoodDetailsView({super.key, required this.mealId});
+  const FoodDetailsView({super.key, required this.mealId, this.createCubit});
 
   final String mealId;
+  final FoodDetailsCubit Function()? createCubit;
 
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
-      create: (context) => getIt<FoodDetailsCubit>(),
+      create: (context) => createCubit?.call() ?? getIt<FoodDetailsCubit>(),
       child: FoodDetailsScreen(mealId: mealId),
     );
   }

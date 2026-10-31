@@ -5,7 +5,6 @@ import 'package:bloc_test/bloc_test.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:fitness_app/app/routes_names.dart';
 import 'package:fitness_app/core/base/ui_events.dart';
-import 'package:fitness_app/core/di/di.dart';
 import 'package:fitness_app/core/error/failures.dart';
 import 'package:fitness_app/core/resource/resource.dart';
 import 'package:fitness_app/core/theme/app_theme.dart';
@@ -85,20 +84,6 @@ void registerFoodDetailsCubit() {
     return const Stream<BaseUiEvent>.empty();
   });
   when(() => cubit.doIntent(any())).thenAnswer((invocation) {});
-  replaceFoodDetailsCubit();
-}
-
-void replaceFoodDetailsCubit() {
-  if (getIt.isRegistered<FoodDetailsCubit>()) {
-    getIt.unregister<FoodDetailsCubit>();
-  }
-  getIt.registerFactory<FoodDetailsCubit>(() => cubit);
-}
-
-void unregisterFoodDetailsCubit() {
-  if (getIt.isRegistered<FoodDetailsCubit>()) {
-    getIt.unregister<FoodDetailsCubit>();
-  }
 }
 
 FoodDetailsState loadingState() {
@@ -197,7 +182,7 @@ Widget foodDetailsMaterialApp(BuildContext context, String mealId) {
     localizationsDelegates: context.localizationDelegates,
     supportedLocales: context.supportedLocales,
     locale: context.locale,
-    home: FoodDetailsView(mealId: mealId),
+    home: FoodDetailsView(mealId: mealId, createCubit: () => cubit),
   );
 }
 
@@ -254,8 +239,8 @@ GoRoute foodDetailsMealRoute() {
   return GoRoute(
     path: 'meal/:mealId',
     builder: (context, state) {
-      final mealId = state.pathParameters['mealId'] ?? '';
-      return FoodDetailsView(mealId: mealId);
+      final mealId = state.pathParameters['mealId']?.trim() ?? '';
+      return FoodDetailsView(mealId: mealId, createCubit: () => cubit);
     },
   );
 }

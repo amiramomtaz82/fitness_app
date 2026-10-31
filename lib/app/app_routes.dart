@@ -140,8 +140,16 @@ final GoRouter appRouter = GoRouter(
       routes: [
         GoRoute(
           path: 'meal/:mealId',
-          builder: (context, state) =>
-              FoodDetailsView(mealId: state.pathParameters['mealId'] ?? ''),
+          redirect: (context, state) {
+            final mealId = state.pathParameters['mealId']?.trim() ?? '';
+            if (mealId.isEmpty) return AppRoutes.food;
+            return null;
+          },
+          builder: (context, state) {
+            return FoodDetailsView(
+              mealId: state.pathParameters['mealId']!.trim(),
+            );
+          },
         ),
       ],
     ),

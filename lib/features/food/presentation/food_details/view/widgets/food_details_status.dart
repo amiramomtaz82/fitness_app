@@ -21,25 +21,25 @@ class FoodDetailsStatus extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final resource = context.watch<FoodDetailsCubit>().state.mealResource;
-    final meal = resource.data;
+    if (resource.isLoading || resource.isInitial) {
+      return FoodDetailsBackLayer(
+        onBack: onBack,
+        child: const FoodDetailsLoading(),
+      );
+    }
     if (resource.isError) {
       return FoodDetailsBackLayer(
         onBack: onBack,
         child: FoodDetailsFailure(failure: resource.failure),
       );
     }
-    if (resource.isSuccess && meal == null) {
+    final meal = resource.data;
+    if (meal == null) {
       return FoodDetailsBackLayer(
         onBack: onBack,
         child: FoodDetailsMessage(
           message: LocaleKeys.errors_data_not_found.tr(),
         ),
-      );
-    }
-    if (meal == null) {
-      return FoodDetailsBackLayer(
-        onBack: onBack,
-        child: const FoodDetailsLoading(),
       );
     }
     return FoodDetailsAmbient(

@@ -17,8 +17,8 @@ class FoodDetailsCubit extends BaseCubit<FoodDetailsState, BaseUiEvent> {
 
   void doIntent(FoodDetailsIntent intent) {
     switch (intent) {
-      case LoadMealDetailsIntent():
-        _loadMealDetails(intent.mealId);
+      case LoadMealDetailsIntent(:final mealId):
+        _loadMealDetails(mealId);
     }
   }
 

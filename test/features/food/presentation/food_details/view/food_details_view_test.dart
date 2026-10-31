@@ -14,7 +14,6 @@ import 'food_details_view_harness.dart';
 void main() {
   setUpAll(prepareFoodDetailsTests);
   setUp(registerFoodDetailsCubit);
-  tearDown(unregisterFoodDetailsCubit);
   registerFoodDetailsWidgetTests();
 }
 
@@ -153,17 +152,12 @@ Future<void> showArabicLabels(WidgetTester tester) async {
   expect(find.text('الكربوهيدرات'), findsOneWidget);
   expect(find.text('قيم غذائية للعرض'), findsOneWidget);
   expect(find.text('لا تتوفر معلومات غذائية لهذه الوجبة.'), findsNothing);
-  expect(labelOverflow('الكربوهيدرات'), isNot(TextOverflow.ellipsis));
+  expect(labelOverflow(tester, 'الكربوهيدرات'), isNot(TextOverflow.ellipsis));
   expect(tester.takeException(), isNull);
 }
 
-TextOverflow? labelOverflow(String label) {
-  final text = testerWidget<Text>(find.text(label));
-  return text.overflow;
-}
-
-T testerWidget<T extends Widget>(Finder finder) {
-  return finder.evaluate().single.widget as T;
+TextOverflow? labelOverflow(WidgetTester tester, String label) {
+  return tester.widget<Text>(find.text(label)).overflow;
 }
 
 Future<void> popOnBack(WidgetTester tester) async {
