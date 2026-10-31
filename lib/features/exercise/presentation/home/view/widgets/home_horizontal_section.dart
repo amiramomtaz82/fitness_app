@@ -63,7 +63,7 @@ class HomeHorizontalSection<T> extends StatelessWidget {
     if (items.isEmpty) return const SizedBox.shrink();
 
     return SizedBox(
-      height: 125.h, // تعديل الارتفاع ليتطابق مع تصميم فيجما
+      height: 125.h, 
       child: ListView.separated(
         scrollDirection: Axis.horizontal,
         itemCount: items.length,
