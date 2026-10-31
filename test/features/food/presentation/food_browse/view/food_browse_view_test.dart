@@ -95,9 +95,15 @@ Future<void> pumpBrowse(WidgetTester tester, FoodBrowseCubit cubit) async {
   final router = browseRouter(cubit);
   addTearDown(router.dispose);
   await tester.pumpWidget(browseApp(router));
-  for (var frame = 0; frame < 8; frame++) {
-    await tester.pump(const Duration(milliseconds: 50));
-    if (find.text('Seafood').evaluate().isNotEmpty) return;
+  await pumpUntil(tester, find.text('Seafood'));
+}
+
+Future<void> pumpUntil(WidgetTester tester, Finder finder) async {
+  const step = Duration(milliseconds: 50);
+  var elapsed = Duration.zero;
+  while (finder.evaluate().isEmpty && elapsed < const Duration(seconds: 2)) {
+    await tester.pump(step);
+    elapsed += step;
   }
 }
 

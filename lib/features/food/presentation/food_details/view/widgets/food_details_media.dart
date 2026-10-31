@@ -42,7 +42,12 @@ class FoodDetailsMedia extends StatelessWidget {
             ),
             video,
             const Positioned.fill(child: FoodDetailsShadeBand()),
-            caption,
+            Positioned(
+              left: 16.w,
+              right: 16.w,
+              bottom: 20.h,
+              child: IgnorePointer(child: caption),
+            ),
           ],
         ),
       ),

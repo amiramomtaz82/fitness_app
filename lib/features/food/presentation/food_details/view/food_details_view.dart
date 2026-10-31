@@ -5,7 +5,6 @@ import 'package:go_router/go_router.dart';
 import '../../../../../core/base/base_cubit.dart';
 import '../../../../../core/base/ui_events.dart';
 import '../../../../../core/contants/app_assets.dart';
-import '../../../../../core/di/di.dart';
 import '../../../../../core/mixin/ui_event_handler_mixin.dart';
 import '../../../../../core/widgets/app_background_scaffold.dart';
 import '../view_model/food_details_cubit.dart';
@@ -15,15 +14,19 @@ import 'widgets/food_details_nutrition.dart';
 import 'widgets/food_details_status.dart';
 
 class FoodDetailsView extends StatelessWidget {
-  const FoodDetailsView({super.key, required this.mealId, this.createCubit});
+  const FoodDetailsView({
+    super.key,
+    required this.mealId,
+    required this.createCubit,
+  });
 
   final String mealId;
-  final FoodDetailsCubit Function()? createCubit;
+  final FoodDetailsCubit Function() createCubit;
 
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
-      create: (context) => createCubit?.call() ?? getIt<FoodDetailsCubit>(),
+      create: (context) => createCubit(),
       child: FoodDetailsScreen(mealId: mealId),
     );
   }

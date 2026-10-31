@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 import '../../../../../../core/theme/app_colors.dart';
-import '../../../../../../core/theme/context.extension.dart';
 import '../../../../../../core/widgets/app_youtube_video.dart';
 import '../../../../domain/entities/meal_details_entity.dart';
 import '../../../../domain/entities/meal_ingredient.dart';
@@ -30,27 +29,11 @@ class FoodDetailsContent extends StatelessWidget {
           videoUrl: meal.youtubeUrl,
           thumbnailUrl: meal.thumbnailUrl,
           video: FoodDetailsPlayer(videoUrl: meal.youtubeUrl, onBack: onBack),
-          caption: FoodDetailsMediaCaption(meal: meal),
+          caption: FoodDetailsCaptionColumn(meal: meal),
         ),
         FoodDetailsIngredientBlock(ingredients: meal.ingredients),
         const FoodNutritionNote(),
       ],
-    );
-  }
-}
-
-class FoodDetailsMediaCaption extends StatelessWidget {
-  const FoodDetailsMediaCaption({super.key, required this.meal});
-
-  final MealDetailsEntity meal;
-
-  @override
-  Widget build(BuildContext context) {
-    return Positioned(
-      left: 16.w,
-      right: 16.w,
-      bottom: 20.h,
-      child: IgnorePointer(child: FoodDetailsCaptionColumn(meal: meal)),
     );
   }
 }
@@ -81,13 +64,20 @@ class FoodDetailsName extends StatelessWidget {
 
   final String? name;
 
+  static const TextStyle style = TextStyle(
+    color: AppColors.white,
+    fontSize: 26,
+    height: 1.1,
+    fontWeight: FontWeight.w700,
+  );
+
   @override
   Widget build(BuildContext context) {
     return Text(
       name ?? '',
       maxLines: 2,
       overflow: TextOverflow.ellipsis,
-      style: foodNameStyle(context),
+      style: style,
     );
   }
 }
@@ -97,6 +87,13 @@ class FoodDetailsSummary extends StatelessWidget {
 
   final String? text;
 
+  static const TextStyle style = TextStyle(
+    color: AppColors.grey,
+    fontSize: 14,
+    height: 1.3,
+    fontWeight: FontWeight.w400,
+  );
+
   @override
   Widget build(BuildContext context) {
     final value = text?.trim() ?? '';
@@ -105,7 +102,7 @@ class FoodDetailsSummary extends StatelessWidget {
       value,
       maxLines: 2,
       overflow: TextOverflow.ellipsis,
-      style: foodSummaryStyle(context),
+      style: style,
     );
   }
 }
@@ -149,19 +146,4 @@ class FoodDetailsPlayer extends StatelessWidget {
       ),
     );
   }
-}
-
-TextStyle foodNameStyle(BuildContext context) {
-  final style = context.textTheme.headlineLarge ?? const TextStyle();
-  return style.copyWith(
-    color: AppColors.white,
-    fontSize: 26,
-    height: 1.1,
-    fontWeight: FontWeight.w700,
-  );
-}
-
-TextStyle foodSummaryStyle(BuildContext context) {
-  final style = context.textTheme.bodyMedium ?? const TextStyle();
-  return style.copyWith(color: AppColors.grey, fontSize: 14, height: 1.3);
 }

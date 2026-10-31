@@ -13,6 +13,7 @@ import '../features/auth/presentation/register/view/register_first_sceen/registe
 import '../features/chat/presentation/view/screens/smart_coach_screen.dart';
 import '../features/food/presentation/food_browse/view/food_browse_view.dart';
 import '../features/food/presentation/food_details/view/food_details_view.dart';
+import '../features/food/presentation/food_details/view_model/food_details_cubit.dart';
 import '../features/home/presentation/view/screens/home_screen.dart';
 import '../features/home/presentation/view/screens/workouts_screen.dart';
 import '../features/on_bording/views/onboarding_view.dart';
@@ -148,6 +149,7 @@ final GoRouter appRouter = GoRouter(
           builder: (context, state) {
             return FoodDetailsView(
               mealId: state.pathParameters['mealId']!.trim(),
+              createCubit: () => getIt<FoodDetailsCubit>(),
             );
           },
         ),

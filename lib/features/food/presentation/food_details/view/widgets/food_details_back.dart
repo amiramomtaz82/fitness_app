@@ -1,5 +1,3 @@
-import 'dart:ui' as ui;
-
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -87,14 +85,6 @@ class FoodDetailsBackIcon extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final icon = Icon(
-      Icons.arrow_back_ios_new,
-      color: AppColors.black,
-      size: 16.r,
-    );
-    if (Directionality.of(context) == ui.TextDirection.ltr) {
-      return icon;
-    }
-    return Transform.flip(flipX: true, child: icon);
+    return Icon(Icons.arrow_back_ios_new, color: AppColors.black, size: 16.r);
   }
 }

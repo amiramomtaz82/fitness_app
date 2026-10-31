@@ -63,18 +63,20 @@ const salmonVideo = MealDetailsEntity(
 );
 
 late Map<String, dynamic> enTranslations;
+late Map<String, dynamic> arTranslations;
 late MockFoodDetailsCubit cubit;
 
 Future<void> prepareFoodDetailsTests() async {
   TestWidgetsFlutterBinding.ensureInitialized();
   SharedPreferences.setMockInitialValues({});
-  enTranslations = mealTranslations();
+  enTranslations = await readTranslations('assets/translations/en.json');
+  arTranslations = await readTranslations('assets/translations/ar.json');
   await EasyLocalization.ensureInitialized();
   registerFallbackValue(const LoadMealDetailsIntent('0'));
 }
 
-Map<String, dynamic> mealTranslations() {
-  final json = File('assets/translations/en.json').readAsStringSync();
+Future<Map<String, dynamic>> readTranslations(String path) async {
+  final json = await File(path).readAsString();
   return jsonDecode(json) as Map<String, dynamic>;
 }
 
@@ -138,11 +140,6 @@ Future<void> pumpFoodDetails(
   await tester.pumpWidget(foodDetailsApp(mealId, locale, translations));
   await tester.pump();
   await tester.pump();
-}
-
-Map<String, dynamic> arabicTranslations() {
-  final json = File('assets/translations/ar.json').readAsStringSync();
-  return jsonDecode(json) as Map<String, dynamic>;
 }
 
 Widget foodDetailsApp(

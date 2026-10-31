@@ -146,7 +146,7 @@ Future<void> showArabicLabels(WidgetTester tester) async {
     videoState(),
     '52959',
     locale: const Locale('ar'),
-    translations: arabicTranslations(),
+    translations: arTranslations,
   );
   expect(find.text('350 kcal'), findsOneWidget);
   expect(find.text('الكربوهيدرات'), findsOneWidget);
@@ -173,7 +173,7 @@ Future<void> popOnBack(WidgetTester tester) async {
 List<String> imageUrls(WidgetTester tester) {
   return [
     for (final image in tester.widgetList<Image>(find.byType(Image)))
-      if (image.image case NetworkImage(:final url)) url,
+      if (image.image is NetworkImage) (image.image as NetworkImage).url,
   ];
 }
 

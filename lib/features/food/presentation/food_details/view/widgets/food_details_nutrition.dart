@@ -137,9 +137,11 @@ class FoodNutritionFittedLine extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final fontSize = style.fontSize ?? 12;
+    final lineHeight = fontSize * (style.height ?? 1);
     return SizedBox(
       width: double.infinity,
-      height: (style.fontSize ?? 12) + 3,
+      height: lineHeight,
       child: FittedBox(
         fit: BoxFit.scaleDown,
         alignment: Alignment.center,
