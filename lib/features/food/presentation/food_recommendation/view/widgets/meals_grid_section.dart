@@ -3,6 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
+import '../../../../../../core/error/failure_message_mapper.dart';
+import '../../../../../../core/error/failures.dart';
 import '../../../../../../core/resource/resource.dart';
 import '../../../../../../core/theme/context.extension.dart';
 import '../../../../../../core/theme/text_styles.dart';
@@ -21,10 +23,11 @@ class MealsGridSection extends StatelessWidget {
     return BlocBuilder<FoodRecommendationCubit, FoodRecommendationState>(
       buildWhen: (previous, current) =>
           previous.meals != current.meals ||
-          previous.categories.isError != current.categories.isError,
+          previous.categories.status != current.categories.status,
       builder: (context, state) {
-        if (state.categories.isError || state.meals.isError) {
-          return const _RetryMessage();
+        final categoriesFailure = state.categories.failure;
+        if (state.categories.isError && categoriesFailure != null) {
+          return _ErrorMessage(failure: categoriesFailure);
         }
         return _MealsContent(meals: state.meals);
       },
@@ -39,18 +42,29 @@ class _MealsContent extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final list = meals.data;
-    if (list == null) {
-      return Center(
-        child: CircularProgressIndicator(color: context.colors.primary),
-      );
-    }
-    if (list.isEmpty) {
+    return switch (meals.status) {
+      ApiStatus.initial || ApiStatus.loading => const _Loader(),
+      ApiStatus.error => _ErrorMessage(
+        failure: meals.failure ?? const UnknownFailure(),
+      ),
+      ApiStatus.success => _MealsGrid(meals: meals.data ?? const []),
+    };
+  }
+}
+
+class _MealsGrid extends StatelessWidget {
+  final List<MealSummaryEntity> meals;
+
+  const _MealsGrid({required this.meals});
+
+  @override
+  Widget build(BuildContext context) {
+    if (meals.isEmpty) {
       return _Message(text: LocaleKeys.food_no_meals_found.tr());
     }
     return AppContentGridView(
       key: const Key('mealsGrid'),
-      items: list.map(_toCardItem).toList(),
+      items: meals.map(_toCardItem).toList(),
     );
   }
 
@@ -63,15 +77,28 @@ class _MealsContent extends StatelessWidget {
   }
 }
 
-class _RetryMessage extends StatelessWidget {
-  const _RetryMessage();
+class _Loader extends StatelessWidget {
+  const _Loader();
+
+  @override
+  Widget build(BuildContext context) {
+    return Center(
+      child: CircularProgressIndicator(color: context.colors.primary),
+    );
+  }
+}
+
+class _ErrorMessage extends StatelessWidget {
+  final Failure failure;
+
+  const _ErrorMessage({required this.failure});
 
   @override
   Widget build(BuildContext context) {
     return Column(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
-        _Message(text: LocaleKeys.errors_something_went_wrong.tr()),
+        _Message(text: failure.toMessage()),
         SizedBox(height: 16.h),
         TextButton(
           key: const Key('mealsRetryBtn'),

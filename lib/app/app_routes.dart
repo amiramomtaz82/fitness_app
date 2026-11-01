@@ -1,3 +1,4 @@
+import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get_it/get_it.dart';
 import 'package:go_router/go_router.dart';
@@ -21,7 +22,10 @@ import '../features/splash/presentation/views/splash_view.dart';
 import 'bottom_bar/bottom_navigation_bar.dart';
 import 'routes_names.dart';
 
+final GlobalKey<NavigatorState> rootNavigatorKey = GlobalKey<NavigatorState>();
+
 final GoRouter appRouter = GoRouter(
+  navigatorKey: rootNavigatorKey,
   initialLocation: AppRoutes.splash,
 
   routes: [
@@ -99,9 +103,14 @@ final GoRouter appRouter = GoRouter(
                 GoRoute(
                   path: AppRoutes.foodRecommendationPath,
                   name: AppRoutes.foodRecommendation,
+                  parentNavigatorKey: rootNavigatorKey,
                   builder: (context, state) => BlocProvider(
                     create: (_) => getIt<FoodRecommendationCubit>(),
-                    child: const FoodRecommendationView(),
+                    child: FoodRecommendationView(
+                      initialCategoryId: state.extra is String
+                          ? state.extra! as String
+                          : null,
+                    ),
                   ),
                 ),
               ],

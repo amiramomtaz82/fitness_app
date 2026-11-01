@@ -14,9 +14,10 @@ import 'widgets/food_recommendation_header.dart';
 import 'widgets/meal_categories_tabs.dart';
 import 'widgets/meals_grid_section.dart';
 
-/// Expects a [FoodRecommendationCubit] provided above it (see the route).
 class FoodRecommendationView extends StatefulWidget {
-  const FoodRecommendationView({super.key});
+  final String? initialCategoryId;
+
+  const FoodRecommendationView({super.key, this.initialCategoryId});
 
   @override
   State<FoodRecommendationView> createState() => _FoodRecommendationViewState();
@@ -37,7 +38,7 @@ class _FoodRecommendationViewState extends State<FoodRecommendationView>
   void initState() {
     super.initState();
     context.read<FoodRecommendationCubit>().doIntent(
-      const LoadFoodRecommendationIntent(),
+      LoadFoodRecommendationIntent(initialCategoryId: widget.initialCategoryId),
     );
   }
 

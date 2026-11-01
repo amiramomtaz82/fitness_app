@@ -53,11 +53,11 @@ void main() {
     );
   }
 
-  Widget makeTestable() {
+  Widget makeTestable({String? initialCategoryId}) {
     return makeTestableWidget(
       BlocProvider<FoodRecommendationCubit>.value(
         value: mockCubit,
-        child: const FoodRecommendationView(),
+        child: FoodRecommendationView(initialCategoryId: initialCategoryId),
       ),
     );
   }
@@ -80,6 +80,25 @@ void main() {
         () =>
             mockCubit.doIntent(any(that: isA<LoadFoodRecommendationIntent>())),
       ).called(1);
+    });
+
+    testWidgets('passes the initial category id to the load intent', (
+      tester,
+    ) async {
+      await tester.pumpWidget(makeTestable(initialCategoryId: '2'));
+
+      expect(
+        verify(
+          () => mockCubit.doIntent(
+            captureAny(that: isA<LoadFoodRecommendationIntent>()),
+          ),
+        ).captured.single,
+        isA<LoadFoodRecommendationIntent>().having(
+          (i) => i.initialCategoryId,
+          'initialCategoryId',
+          '2',
+        ),
+      );
     });
 
     testWidgets('renders the header with back button and title', (
@@ -162,6 +181,39 @@ void main() {
       await tester.tap(find.byKey(const Key('mealsRetryBtn')));
 
       verify(() => mockCubit.doIntent(any(that: isA<RetryIntent>()))).called(1);
+    });
+
+    testWidgets('shows the mapped message of the categories failure', (
+      tester,
+    ) async {
+      givenStates(
+        const FoodRecommendationState(
+          categories: Resource.error(NetworkFailure()),
+        ),
+      );
+
+      await tester.pumpWidget(makeTestable());
+
+      expect(
+        find.text(LocaleKeys.errors_no_internet_connection),
+        findsOneWidget,
+      );
+    });
+
+    testWidgets('shows the server message of the meals failure', (
+      tester,
+    ) async {
+      givenStates(
+        const FoodRecommendationState(
+          categories: Resource.success(_categories),
+          meals: Resource.error(ServerFailure(serverMessage: 'Meals failed')),
+        ),
+      );
+
+      await tester.pumpWidget(makeTestable());
+
+      expect(find.text('Meals failed'), findsOneWidget);
+      expect(find.byKey(const Key('mealsRetryBtn')), findsOneWidget);
     });
   });
 }

@@ -3,7 +3,9 @@ sealed class FoodRecommendationIntent {
 }
 
 class LoadFoodRecommendationIntent extends FoodRecommendationIntent {
-  const LoadFoodRecommendationIntent();
+  final String? initialCategoryId;
+
+  const LoadFoodRecommendationIntent({this.initialCategoryId});
 }
 
 class SelectCategoryIntent extends FoodRecommendationIntent {

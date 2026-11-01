@@ -11,7 +11,6 @@ class AppRoutes {
   static const String workouts = '/workouts';
   static const String smartCoach = '/smart-coach';
 
-  // Nested under home so the bottom bar stays visible
   static const String foodRecommendationPath = 'food-recommendation';
   static const String foodRecommendation = '$home/$foodRecommendationPath';
 

@@ -136,6 +136,39 @@ void main() {
       );
 
       blocTest<FoodRecommendationCubit, FoodRecommendationState>(
+        'selects the initial category when its id is found',
+        build: () {
+          givenCategories(const SuccessResponse(_categories));
+          givenMeals('Chicken', const SuccessResponse(_chickenMeals));
+          return cubit;
+        },
+        act: (c) => c.doIntent(
+          const LoadFoodRecommendationIntent(initialCategoryId: '2'),
+        ),
+        verify: (c) {
+          expect(c.state.selectedIndex, 1);
+          expect(c.state.meals, const Resource.success(_chickenMeals));
+          verify(() => mockMealsUseCase('Chicken')).called(1);
+        },
+      );
+
+      blocTest<FoodRecommendationCubit, FoodRecommendationState>(
+        'falls back to the first category when the id is not found',
+        build: () {
+          givenCategories(const SuccessResponse(_categories));
+          givenMeals('Beef', const SuccessResponse(_beefMeals));
+          return cubit;
+        },
+        act: (c) => c.doIntent(
+          const LoadFoodRecommendationIntent(initialCategoryId: '99'),
+        ),
+        verify: (c) {
+          expect(c.state, _loaded);
+          verify(() => mockMealsUseCase('Beef')).called(1);
+        },
+      );
+
+      blocTest<FoodRecommendationCubit, FoodRecommendationState>(
         'ignores the intent while categories are loading',
         build: () => cubit,
         seed: () =>
