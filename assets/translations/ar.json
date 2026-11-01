@@ -114,7 +114,8 @@
     "dinner": "عشاء",
     "popular_training": "التمارين الشائعة",
     "popular_training_title": "التمارين الشائعة: {}",
-    "tasks": "{} تمارين"
+    "tasks": "{} تمارين",
+    "home_no_muscles_found": "لا توجد تمارين متاحة حاليًا"
   },
   "workouts": {
     "workouts": "التمارين",

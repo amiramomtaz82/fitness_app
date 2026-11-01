@@ -12,7 +12,7 @@ class HomeHorizontalSection<T> extends StatelessWidget {
   final String Function(T item) getTitle;
   final String Function(T item) getImage;
   final VoidCallback? onSeeAllTap;
-  final void Function(T item)? onItemTap; 
+  final void Function(T item)? onItemTap;
 
   const HomeHorizontalSection({
     super.key,
@@ -37,8 +37,7 @@ class HomeHorizontalSection<T> extends StatelessWidget {
               TextButton(
                 onPressed: onSeeAllTap,
                 child: Text(
-                  LocaleKeys.home_see_all
-                      .tr(), 
+                  LocaleKeys.home_see_all.tr(),
                   style: TextStyle(color: Colors.orange, fontSize: 14.sp),
                 ),
               ),
@@ -53,28 +52,51 @@ class HomeHorizontalSection<T> extends StatelessWidget {
           ApiStatus.error => Center(
             child: Text(LocaleKeys.errors_something_went_wrong.tr()),
           ),
-          ApiStatus.success => _buildList(resource.data ?? []),
+          ApiStatus.success => HomeHorizontalItems<T>(
+            items: resource.data ?? [],
+            getTitle: getTitle,
+            getImage: getImage,
+            onItemTap: onItemTap,
+          ),
         },
       ],
     );
   }
+}
 
-  Widget _buildList(List<T> items) {
-    if (items.isEmpty) return const SizedBox.shrink();
+class HomeHorizontalItems<T> extends StatelessWidget {
+  final List<T> items;
+  final String Function(T item) getTitle;
+  final String Function(T item) getImage;
+  final void Function(T item)? onItemTap;
+
+  const HomeHorizontalItems({
+    super.key,
+    required this.items,
+    required this.getTitle,
+    required this.getImage,
+    this.onItemTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    if (items.isEmpty) {
+      return const SizedBox.shrink();
+    }
 
     return SizedBox(
-      height: 125.h, 
+      height: 125.h,
       child: ListView.separated(
         scrollDirection: Axis.horizontal,
         itemCount: items.length,
-        separatorBuilder: (_, __) => SizedBox(width: 12.w),
+        separatorBuilder: (_, _) => SizedBox(width: 12.w),
         itemBuilder: (context, index) {
           final item = items[index];
+
           return HomeImageCard(
             title: getTitle(item),
             imageUrl: getImage(item),
-            width: 135
-                .w, 
+            width: 135.w,
             height: 125.h,
             onTap: onItemTap != null ? () => onItemTap!(item) : null,
           );

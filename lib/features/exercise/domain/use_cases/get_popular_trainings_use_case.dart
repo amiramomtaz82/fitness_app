@@ -11,9 +11,9 @@ import 'package:injectable/injectable.dart';
 @injectable
 class GetPopularTrainingsUseCase {
   final ExerciseRepo _exerciseRepo;
-  final Random _random = Random();
+  final Random _random;
 
-  GetPopularTrainingsUseCase(this._exerciseRepo);
+  GetPopularTrainingsUseCase(this._exerciseRepo, this._random);
 
   Future<BaseResponse<List<PopularTrainingEntity>>> call() async {
     // 1. Get all difficulty levels.
@@ -29,7 +29,7 @@ class GetPopularTrainingsUseCase {
     final levels =
         (levelsResult as SuccessResponse<List<DifficultyLevelEntity>>).data;
 
-    // 2. Get 20 random muscles.
+    // 2. Get random muscles.
     final musclesResult = await _exerciseRepo.getRandomMuscles();
 
     if (musclesResult is ErrorResponse<List<MuscleEntity>>) {
@@ -50,6 +50,7 @@ class GetPopularTrainingsUseCase {
     final popularTrainings = <PopularTrainingEntity>[];
 
     var attempts = 0;
+
     while (popularTrainings.length < 2 && attempts < 8) {
       attempts++;
 
@@ -62,27 +63,23 @@ class GetPopularTrainingsUseCase {
             difficultyLevelId: level.id,
           );
 
-      if (exercisesResult is ErrorResponse<List<ExerciseEntity>>) {
-        return ErrorResponse(
-          failure: exercisesResult.failure,
-          error: exercisesResult.error,
-        );
+      switch (exercisesResult) {
+        case ErrorResponse<List<ExerciseEntity>>(:final failure, :final error):
+          return ErrorResponse(failure: failure, error: error);
+
+        case SuccessResponse<List<ExerciseEntity>>(:final data):
+          // Skip pairs that have no exercises and keep looking.
+          if (data.isEmpty) continue;
+
+          popularTrainings.add(
+            PopularTrainingEntity(
+              muscleName: muscle.name,
+              levelName: level.name,
+              exercisesCount: data.length,
+              imageUrl: muscle.imageUrl,
+            ),
+          );
       }
-
-      final exercises =
-          (exercisesResult as SuccessResponse<List<ExerciseEntity>>).data;
-
-      // Skip pairs that have no exercises and keep looking for a valid pair.
-      if (exercises.isEmpty) continue;
-
-      popularTrainings.add(
-        PopularTrainingEntity(
-          muscleName: muscle.name,
-          levelName: level.name,
-          exercisesCount: exercises.length,
-          imageUrl: muscle.imageUrl,
-        ),
-      );
     }
 
     // 5. Return the selected popular trainings.

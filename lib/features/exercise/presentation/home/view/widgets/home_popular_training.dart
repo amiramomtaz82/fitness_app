@@ -37,8 +37,10 @@ class HomePopularTraining extends StatelessWidget {
               ApiStatus.error => Center(
                 child: Text(LocaleKeys.errors_something_went_wrong.tr()),
               ),
-              ApiStatus.success => _buildList(
-                (resource.data ?? []).whereType<PopularTrainingEntity>().toList(),
+              ApiStatus.success => PopularTrainingsList(
+                trainings: (resource.data ?? [])
+                    .whereType<PopularTrainingEntity>()
+                    .toList(),
               ),
             },
           ],
@@ -46,16 +48,25 @@ class HomePopularTraining extends StatelessWidget {
       },
     );
   }
+}
 
-  Widget _buildList(List<PopularTrainingEntity> trainings) {
-    if (trainings.isEmpty) return const SizedBox.shrink();
+class PopularTrainingsList extends StatelessWidget {
+  final List<PopularTrainingEntity> trainings;
+
+  const PopularTrainingsList({super.key, required this.trainings});
+
+  @override
+  Widget build(BuildContext context) {
+    if (trainings.isEmpty) {
+      return const SizedBox.shrink();
+    }
 
     return SizedBox(
       height: 150.h,
       child: ListView.separated(
         scrollDirection: Axis.horizontal,
         itemCount: trainings.length,
-        separatorBuilder: (_, __) => SizedBox(width: 12.w),
+        separatorBuilder: (_, _) => SizedBox(width: 12.w),
         itemBuilder: (context, index) {
           final training = trainings[index];
 

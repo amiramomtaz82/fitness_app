@@ -109,6 +109,9 @@ abstract class  LocaleKeys {
   static const home_breakfast = 'home.breakfast';
   static const home_lunch = 'home.lunch';
   static const home_dinner = 'home.dinner';
+  static const home_popular_training = 'home.popular_training';
+  static const home_popular_training_title = 'home.popular_training_title';
+  static const home_tasks = 'home.tasks';
   static const home = 'home';
   static const workouts_workouts = 'workouts.workouts';
   static const workouts_full_body = 'workouts.full_body';
@@ -186,8 +189,5 @@ abstract class  LocaleKeys {
   static const errors_invalid_fields = 'errors.invalid_fields';
   static const errors_internal_server_error = 'errors.internal_server_error';
   static const errors = 'errors';
-  static const home_popular_training_title = 'home.popular_training_title';
-  static const home_popular_training = 'home.popular_training';
-  static const home_tasks = 'home.tasks';
 
 }

@@ -45,7 +45,6 @@ class HomeUpcomingWorkouts extends StatelessWidget {
               ],
             ),
             SizedBox(height: 8.h),
-
             if (state.groupsResource.isLoading)
               const Center(child: CircularProgressIndicator.adaptive())
             else if (groups.isNotEmpty) ...[
@@ -59,17 +58,22 @@ class HomeUpcomingWorkouts extends StatelessWidget {
                 },
               ),
               SizedBox(height: 16.h),
-              _buildMusclesContent(state),
+              GroupMusclesContent(resource: state.groupMusclesResource),
             ],
           ],
         );
       },
     );
   }
+}
 
-  Widget _buildMusclesContent(HomeState state) {
-    final resource = state.groupMusclesResource;
+class GroupMusclesContent extends StatelessWidget {
+  final Resource<List<MuscleEntity>> resource;
 
+  const GroupMusclesContent({super.key, required this.resource});
+
+  @override
+  Widget build(BuildContext context) {
     switch (resource.status) {
       case ApiStatus.initial:
         return const SizedBox.shrink();
@@ -81,10 +85,15 @@ class HomeUpcomingWorkouts extends StatelessWidget {
         return Center(child: Text(LocaleKeys.errors_something_went_wrong.tr()));
 
       case ApiStatus.success:
-        final muscles = resource.data ?? <MuscleEntity>[];
+        final muscles = resource.data ?? [];
 
         if (muscles.isEmpty) {
-          return const SizedBox.shrink();
+          return Center(
+            child: Text(
+              'home_no_muscles_found'.tr(),
+              style: AppTextStyles.white20bold,
+            ),
+          );
         }
 
         return SizedBox(
@@ -92,7 +101,7 @@ class HomeUpcomingWorkouts extends StatelessWidget {
           child: ListView.separated(
             scrollDirection: Axis.horizontal,
             itemCount: muscles.length,
-            separatorBuilder: (_, __) => SizedBox(width: 12.w),
+            separatorBuilder: (_, _) => SizedBox(width: 12.w),
             itemBuilder: (context, index) {
               final muscle = muscles[index];
 
