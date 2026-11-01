@@ -10,7 +10,9 @@ import 'package:fitness_app/features/auth/presentation/register/view/muti_steps_
 import 'package:fitness_app/features/auth/presentation/register/view/register_first_sceen/register_view.dart';
 import 'package:fitness_app/features/chat/presentation/view/screens/smart_coach_screen.dart';
 import 'package:fitness_app/features/exercise/presentation/exercise/view/exercise_view.dart';
+import 'package:fitness_app/features/exercise/presentation/exercise_video/view/exercise_video_view.dart';
 import 'package:fitness_app/features/exercise/presentation/home/view/home_screen.dart';
+import 'package:fitness_app/features/exercise/presentation/popular_training_exercise/view/popular_training_exercise_view.dart';
 import 'package:fitness_app/features/exercise/presentation/work_out/view/work_out_view.dart';
 import 'package:fitness_app/features/on_bording/views/onboarding_view.dart';
 import 'package:fitness_app/features/profile/presentation/view/screens/profile_screen.dart';
@@ -74,6 +76,22 @@ final GoRouter appRouter = GoRouter(
       builder: (context, state) {
         final muscleId = state.extra as String? ?? '';
         return ExerciseView(muscleId: muscleId);
+      },
+    ),
+    GoRoute(
+      path: AppRoutes.popularTrainingExercise,
+      name: AppRoutes.popularTrainingExercise,
+      builder: (context, state) {
+        final exerciseId = state.extra as String? ?? '';
+        return PopularTrainingExerciseView(exerciseId: exerciseId);
+      },
+    ),
+    GoRoute(
+      path: AppRoutes.exerciseVideo,
+      name: AppRoutes.exerciseVideo,
+      builder: (context, state) {
+        final videoUrl = state.extra as String? ?? '';
+        return ExerciseVideoView(videoUrl: videoUrl);
       },
     ),
     StatefulShellRoute.indexedStack(

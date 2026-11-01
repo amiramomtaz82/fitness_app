@@ -132,6 +132,7 @@ abstract class LocaleKeys {
   static const exercises_exercise = 'exercises.exercise';
   static const exercises_min_30 = 'exercises.min_30';
   static const exercises_beginner = 'exercises.beginner';
+  static const exercises_no_exercises_found = 'exercises.no_exercises_found';
   static const exercises = 'exercises';
   static const chat_hi_user = 'chat.hi_user';
   static const chat_i_am_your_smart_coach = 'chat.i_am_your_smart_coach';

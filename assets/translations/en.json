@@ -128,7 +128,8 @@
   "exercises": {
     "exercise": "Exercise",
     "min_30": "30 MIN",
-    "beginner": "Beginner"
+    "beginner": "Beginner",
+    "no_exercises_found": "No exercises found for this level."
   },
   "chat": {
     "hi_user": "Hi {} ,",

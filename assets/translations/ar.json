@@ -128,7 +128,8 @@
   "exercises": {
     "exercise": "التمرين",
     "min_30": "30 دقيقة",
-    "beginner": "مبتدئ"
+    "beginner": "مبتدئ",
+    "no_exercises_found": "لا توجد تمارين لهذا المستوى."
   },
   "chat": {
     "hi_user": "مرحباً {} ،",

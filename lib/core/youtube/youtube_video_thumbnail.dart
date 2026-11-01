@@ -38,18 +38,25 @@ class ThumbnailImage extends StatelessWidget {
     final devicePixelRatio = MediaQuery.devicePixelRatioOf(context);
     return LayoutBuilder(
       builder: (context, constraints) {
-        return Image.network(
-          YoutubePlayerController.getThumbnail(
-            videoId: videoId,
-            quality: ThumbnailQuality.high,
-          ),
-          fit: BoxFit.cover,
-          gaplessPlayback: true,
-          cacheWidth: cachePixels(constraints.maxWidth, devicePixelRatio),
-          cacheHeight: cachePixels(constraints.maxHeight, devicePixelRatio),
-          loadingBuilder: (_, child, progress) =>
-              progress == null ? child : surface(context),
-          errorBuilder: (_, _, _) => surface(context),
+        Widget image(ThumbnailQuality quality, Widget Function() onError) {
+          return Image.network(
+            YoutubePlayerController.getThumbnail(
+              videoId: videoId,
+              quality: quality,
+            ),
+            fit: BoxFit.cover,
+            gaplessPlayback: true,
+            cacheWidth: cachePixels(constraints.maxWidth, devicePixelRatio),
+            cacheHeight: cachePixels(constraints.maxHeight, devicePixelRatio),
+            loadingBuilder: (_, child, progress) =>
+                progress == null ? child : surface(context),
+            errorBuilder: (_, _, _) => onError(),
+          );
+        }
+
+        return image(
+          ThumbnailQuality.max,
+          () => image(ThumbnailQuality.high, () => surface(context)),
         );
       },
     );
