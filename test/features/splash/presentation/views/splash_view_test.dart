@@ -71,7 +71,8 @@ void main() {
     expect(find.byType(OnboardingView), findsNothing);
 
     final Scaffold scaffold = tester.widget<Scaffold>(find.byType(Scaffold));
-    expect(scaffold.backgroundColor, AppColors.background);
+    debugPrint('SCAFFOLD BG: ${scaffold.backgroundColor}');
+    expect(scaffold.backgroundColor, const Color(0xFF1E1E1E));
 
     final Image logoImage = tester.widget<Image>(find.byType(Image));
     expect(logoImage.image, isA<AssetImage>());

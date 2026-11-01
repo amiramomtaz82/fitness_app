@@ -86,7 +86,7 @@
     "true_beast": "وحش حقيقي (محترف)"
   },
   "home": {
-    "home":"الرئيسية",
+    "home": "الرئيسية",
     "hi_user": "مرحباً {} ،",
     "lets_start_your_day": "لنبدأ يومك",
     "category": "الفئات",
@@ -111,7 +111,11 @@
     "recommendation_for_you": "ترشيحات لك",
     "breakfast": "فطور",
     "lunch": "غداء",
-    "dinner": "عشاء"
+    "dinner": "عشاء",
+    "popular_training": "التمارين الشائعة",
+    "popular_training_title": "التمارين الشائعة: {}",
+    "tasks": "{} تمارين",
+    "home_no_muscles_found": "لا توجد تمارين متاحة حاليًا"
   },
   "workouts": {
     "workouts": "التمارين",

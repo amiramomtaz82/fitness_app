@@ -11,6 +11,8 @@ import 'package:fitness_app/features/auth/presentation/register/view/register_fi
 import 'package:fitness_app/features/chat/presentation/view/screens/smart_coach_screen.dart';
 import 'package:fitness_app/features/exercise/presentation/exercise/view/exercise_view.dart';
 import 'package:fitness_app/features/exercise/presentation/home/view/home_screen.dart';
+import 'package:fitness_app/features/exercise/presentation/home/view/home_view_model/home_intent.dart';
+import 'package:fitness_app/features/exercise/presentation/home/view/home_view_model/home_view_model.dart';
 import 'package:fitness_app/features/exercise/presentation/work_out/view/work_out_view.dart';
 import 'package:fitness_app/features/on_bording/views/onboarding_view.dart';
 import 'package:fitness_app/features/profile/presentation/view/screens/profile_screen.dart';
@@ -86,7 +88,11 @@ final GoRouter appRouter = GoRouter(
             GoRoute(
               path: AppRoutes.home,
               name: AppRoutes.home,
-              builder: (context, state) => const HomeScreen(),
+              builder: (context, state) => BlocProvider(
+                create: (context) =>
+                    getIt<HomeViewModel>()..doIntent(const InitHomeIntent()),
+                child: const HomeScreen(),
+              ),
             ),
           ],
         ),
