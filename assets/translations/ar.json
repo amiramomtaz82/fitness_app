@@ -86,6 +86,7 @@
     "true_beast": "وحش حقيقي (محترف)"
   },
   "home": {
+    "home": "الرئيسية",
     "hi_user": "مرحباً {} ،",
     "lets_start_your_day": "لنبدأ يومك",
     "category": "الفئات",
@@ -200,6 +201,8 @@
     "carbs": "الكربوهيدرات",
     "fat": "الدهون",
     "sample": "عينة",
-    "nutrition_note": "قيم غذائية للعرض"
+    "nutrition_note": "قيم غذائية للعرض",
+    "food_recommendation": "الوجبات المقترحة",
+    "no_meals_found": "لا توجد وجبات في هذا القسم."
   }
 }

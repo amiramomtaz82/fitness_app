@@ -86,6 +86,7 @@
     "true_beast": "True Beast"
   },
   "home": {
+    "home": "Home",
     "hi_user": "Hi {} ,",
     "lets_start_your_day": "Let's Start Your Day",
     "category": "Category",
@@ -200,6 +201,8 @@
     "carbs": "Carbs",
     "fat": "Fat",
     "sample": "Sample",
-    "nutrition_note": "Sample nutrition values"
+    "nutrition_note": "Sample nutrition values",
+    "food_recommendation": "Food Recommendation",
+    "no_meals_found": "No meals found in this category."
   }
 }
