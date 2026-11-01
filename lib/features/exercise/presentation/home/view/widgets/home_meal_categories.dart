@@ -1,4 +1,5 @@
 import 'package:easy_localization/easy_localization.dart';
+import 'package:fitness_app/features/exercise/presentation/home/view/home_view_model/home_intent.dart';
 import 'package:fitness_app/features/exercise/presentation/home/view/home_view_model/home_state.dart';
 import 'package:fitness_app/features/exercise/presentation/home/view/home_view_model/home_view_model.dart';
 import 'package:fitness_app/features/exercise/presentation/home/view/widgets/home_horizontal_section.dart';
@@ -21,6 +22,12 @@ class HomeMealCategories extends StatelessWidget {
           resource: state.mealCategoriesResource,
           getTitle: (category) => category.name,
           getImage: (category) => category.thumbnail,
+          onSeeAllTap: () => context.read<HomeViewModel>().doIntent(
+            const SeeAllMealCategoriesIntent(),
+          ),
+          onItemTap: (category) => context.read<HomeViewModel>().doIntent(
+            OpenMealCategoryIntent(category.id),
+          ),
         );
       },
     );

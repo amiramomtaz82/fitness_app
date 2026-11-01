@@ -11,3 +11,13 @@ class SelectMuscleGroupIntent extends HomeIntent {
 
   const SelectMuscleGroupIntent(this.index);
 }
+
+class OpenMealCategoryIntent extends HomeIntent {
+  final String categoryId;
+
+  const OpenMealCategoryIntent(this.categoryId);
+}
+
+class SeeAllMealCategoriesIntent extends HomeIntent {
+  const SeeAllMealCategoriesIntent();
+}

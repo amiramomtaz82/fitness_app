@@ -112,6 +112,7 @@ abstract class  LocaleKeys {
   static const home_popular_training = 'home.popular_training';
   static const home_popular_training_title = 'home.popular_training_title';
   static const home_tasks = 'home.tasks';
+  static const home_home_no_muscles_found = 'home.home_no_muscles_found';
   static const home = 'home';
   static const workouts_workouts = 'workouts.workouts';
   static const workouts_full_body = 'workouts.full_body';
@@ -189,5 +190,8 @@ abstract class  LocaleKeys {
   static const errors_invalid_fields = 'errors.invalid_fields';
   static const errors_internal_server_error = 'errors.internal_server_error';
   static const errors = 'errors';
+  static const food_food_recommendation = 'food.food_recommendation';
+  static const food_no_meals_found = 'food.no_meals_found';
+  static const food = 'food';
 
 }

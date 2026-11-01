@@ -1,4 +1,5 @@
 import 'package:bloc_test/bloc_test.dart';
+import 'package:fitness_app/app/routes_names.dart';
 import 'package:fitness_app/core/base/ui_events.dart';
 import 'package:fitness_app/core/base_response/base_response.dart';
 import 'package:fitness_app/core/error/failures.dart';
@@ -260,6 +261,44 @@ void main() {
         act: (c) => c.doIntent(const SelectMuscleGroupIntent(5)),
         expect: () => <HomeState>[],
         verify: (_) => verifyNever(() => mockGetMusclesByGroupId(any())),
+      );
+    });
+
+    group('meal categories navigation', () {
+      test(
+        'OpenMealCategoryIntent navigates to food with the category id',
+        () async {
+          final events = <BaseUiEvent>[];
+          final subscription = cubit.eventStream.listen(events.add);
+
+          cubit.doIntent(const OpenMealCategoryIntent('1'));
+          await pumpEventQueue();
+          await subscription.cancel();
+
+          expect(events, [
+            isA<NavigateEvent>()
+                .having((e) => e.route, 'route', AppRoutes.foodRecommendation)
+                .having((e) => e.arguments, 'arguments', '1'),
+          ]);
+        },
+      );
+
+      test(
+        'SeeAllMealCategoriesIntent navigates to food without a category',
+        () async {
+          final events = <BaseUiEvent>[];
+          final subscription = cubit.eventStream.listen(events.add);
+
+          cubit.doIntent(const SeeAllMealCategoriesIntent());
+          await pumpEventQueue();
+          await subscription.cancel();
+
+          expect(events, [
+            isA<NavigateEvent>()
+                .having((e) => e.route, 'route', AppRoutes.foodRecommendation)
+                .having((e) => e.arguments, 'arguments', isNull),
+          ]);
+        },
       );
     });
 

@@ -3,6 +3,7 @@ import 'package:fitness_app/core/resource/resource.dart';
 import 'package:fitness_app/core/error/failures.dart';
 import 'package:fitness_app/features/food/domain/entities/meal_category_entity.dart';
 import 'package:fitness_app/features/exercise/presentation/home/view/home_view_model/home_view_model.dart';
+import 'package:fitness_app/features/exercise/presentation/home/view/home_view_model/home_intent.dart';
 import 'package:fitness_app/features/exercise/presentation/home/view/home_view_model/home_state.dart';
 import 'package:fitness_app/features/exercise/presentation/home/view/widgets/home_meal_categories.dart';
 import 'package:fitness_app/generated/locale_keys.g.dart';
@@ -77,6 +78,66 @@ void main() {
     // Assert
     expect(find.text('Vegetarian'), findsOneWidget);
     expect(find.byType(ListView), findsOneWidget);
+  });
+
+  testWidgets('tapping See All sends SeeAllMealCategoriesIntent', (
+    tester,
+  ) async {
+    const successState = HomeState(
+      mealCategoriesResource: Resource.success([
+        MealCategoryEntity(
+          id: '1',
+          name: 'Vegetarian',
+          thumbnail: '',
+          description: '',
+        ),
+      ]),
+    );
+    when(mockHomeViewModel.state).thenReturn(successState);
+    when(
+      mockHomeViewModel.stream,
+    ).thenAnswer((_) => Stream.value(successState));
+    await tester.pumpWidget(createWidgetUnderTest());
+
+    await tester.tap(find.text(LocaleKeys.home_see_all.tr()));
+
+    verify(
+      mockHomeViewModel.doIntent(argThat(isA<SeeAllMealCategoriesIntent>())),
+    ).called(1);
+  });
+
+  testWidgets('tapping a category sends OpenMealCategoryIntent with its id', (
+    tester,
+  ) async {
+    const successState = HomeState(
+      mealCategoriesResource: Resource.success([
+        MealCategoryEntity(
+          id: '7',
+          name: 'Vegetarian',
+          thumbnail: '',
+          description: '',
+        ),
+      ]),
+    );
+    when(mockHomeViewModel.state).thenReturn(successState);
+    when(
+      mockHomeViewModel.stream,
+    ).thenAnswer((_) => Stream.value(successState));
+    await tester.pumpWidget(createWidgetUnderTest());
+
+    await tester.tap(find.text('Vegetarian'));
+
+    verify(
+      mockHomeViewModel.doIntent(
+        argThat(
+          isA<OpenMealCategoryIntent>().having(
+            (i) => i.categoryId,
+            'categoryId',
+            '7',
+          ),
+        ),
+      ),
+    ).called(1);
   });
 
   testWidgets('error state displays error message', (tester) async {
