@@ -91,6 +91,7 @@ abstract class LocaleKeys {
   static const profile_setup_advance = 'profile_setup.advance';
   static const profile_setup_true_beast = 'profile_setup.true_beast';
   static const profile_setup = 'profile_setup';
+  static const home_home = 'home.home';
   static const home_hi_user = 'home.hi_user';
   static const home_lets_start_your_day = 'home.lets_start_your_day';
   static const home_category = 'home.category';
@@ -205,4 +206,7 @@ abstract class LocaleKeys {
   static const errors_invalid_fields = 'errors.invalid_fields';
   static const errors_internal_server_error = 'errors.internal_server_error';
   static const errors = 'errors';
+  static const food_food_recommendation = 'food.food_recommendation';
+  static const food_no_meals_found = 'food.no_meals_found';
+  static const food = 'food';
 }

@@ -1,3 +1,4 @@
+import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get_it/get_it.dart';
 import 'package:go_router/go_router.dart';
@@ -11,6 +12,8 @@ import '../features/auth/presentation/register/manager/cubit/register_cubit.dart
 import '../features/auth/presentation/register/view/muti_steps_regitration/multi_steps_registration_view.dart';
 import '../features/auth/presentation/register/view/register_first_sceen/register_view.dart';
 import '../features/chat/presentation/view/screens/smart_coach_screen.dart';
+import '../features/food/presentation/food_recommendation/view/food_recommendation_view.dart';
+import '../features/food/presentation/food_recommendation/view_model/food_recommendation_cubit.dart';
 import '../features/home/presentation/view/screens/home_screen.dart';
 import '../features/home/presentation/view/screens/workouts_screen.dart';
 import '../features/on_bording/views/onboarding_view.dart';
@@ -19,8 +22,12 @@ import '../features/splash/presentation/views/splash_view.dart';
 import 'bottom_bar/bottom_navigation_bar.dart';
 import 'routes_names.dart';
 
+final GlobalKey<NavigatorState> rootNavigatorKey = GlobalKey<NavigatorState>();
+
 final GoRouter appRouter = GoRouter(
+  navigatorKey: rootNavigatorKey,
   initialLocation: AppRoutes.splash,
+
   routes: [
     // Splash
     GoRoute(
@@ -92,6 +99,21 @@ final GoRouter appRouter = GoRouter(
               path: AppRoutes.home,
               name: AppRoutes.home,
               builder: (context, state) => const HomeScreen(),
+              routes: [
+                GoRoute(
+                  path: AppRoutes.foodRecommendationPath,
+                  name: AppRoutes.foodRecommendation,
+                  parentNavigatorKey: rootNavigatorKey,
+                  builder: (context, state) => BlocProvider(
+                    create: (_) => getIt<FoodRecommendationCubit>(),
+                    child: FoodRecommendationView(
+                      initialCategoryId: state.extra is String
+                          ? state.extra! as String
+                          : null,
+                    ),
+                  ),
+                ),
+              ],
             ),
           ],
         ),
