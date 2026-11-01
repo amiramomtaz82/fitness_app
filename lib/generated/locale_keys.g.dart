@@ -191,9 +191,6 @@ abstract class  LocaleKeys {
   static const food_fat = 'food.fat';
   static const food_sample = 'food.sample';
   static const food_nutrition_note = 'food.nutrition_note';
-  static const food_tab = 'food.tab';
-  static const food_empty_categories = 'food.empty_categories';
-  static const food_empty_meals = 'food.empty_meals';
   static const food = 'food';
 
 }

@@ -200,9 +200,6 @@
     "carbs": "Carbs",
     "fat": "Fat",
     "sample": "Sample",
-    "nutrition_note": "Sample nutrition values",
-    "tab": "Food",
-    "empty_categories": "No meal categories.",
-    "empty_meals": "No meals in this category."
+    "nutrition_note": "Sample nutrition values"
   }
 }

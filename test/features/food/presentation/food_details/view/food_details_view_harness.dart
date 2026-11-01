@@ -227,7 +227,7 @@ GoRouter foodDetailsRouter() {
 GoRoute foodDetailsBranch() {
   return GoRoute(
     path: AppRoutes.food,
-    builder: (context, state) => const Scaffold(body: Text('food-browse')),
+    builder: (context, state) => const Scaffold(body: Text('previous')),
     routes: [foodDetailsMealRoute()],
   );
 }

@@ -166,7 +166,7 @@ Future<void> popOnBack(WidgetTester tester) async {
   await tester.tap(find.byType(FoodDetailsBackButton));
   await tester.pump();
   await tester.pump(const Duration(milliseconds: 500));
-  expect(find.text('food-browse'), findsOneWidget);
+  expect(find.text('previous'), findsOneWidget);
   expect(find.byType(FoodDetailsBackButton), findsNothing);
 }
 

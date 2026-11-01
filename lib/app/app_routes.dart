@@ -11,7 +11,6 @@ import '../features/auth/presentation/register/manager/cubit/register_cubit.dart
 import '../features/auth/presentation/register/view/muti_steps_regitration/multi_steps_registration_view.dart';
 import '../features/auth/presentation/register/view/register_first_sceen/register_view.dart';
 import '../features/chat/presentation/view/screens/smart_coach_screen.dart';
-import '../features/food/presentation/food_browse/view/food_browse_view.dart';
 import '../features/food/presentation/food_details/view/food_details_view.dart';
 import '../features/food/presentation/food_details/view_model/food_details_cubit.dart';
 import '../features/home/presentation/view/screens/home_screen.dart';
@@ -135,25 +134,18 @@ final GoRouter appRouter = GoRouter(
     ),
 
     GoRoute(
-      path: AppRoutes.food,
-      name: AppRoutes.food,
-      builder: (context, state) => const FoodBrowseView(),
-      routes: [
-        GoRoute(
-          path: 'meal/:mealId',
-          redirect: (context, state) {
-            final mealId = state.pathParameters['mealId']?.trim() ?? '';
-            if (mealId.isEmpty) return AppRoutes.food;
-            return null;
-          },
-          builder: (context, state) {
-            return FoodDetailsView(
-              mealId: state.pathParameters['mealId']!.trim(),
-              createCubit: () => getIt<FoodDetailsCubit>(),
-            );
-          },
-        ),
-      ],
+      path: '${AppRoutes.food}/meal/:mealId',
+      redirect: (context, state) {
+        final mealId = state.pathParameters['mealId']?.trim() ?? '';
+        if (mealId.isEmpty) return AppRoutes.home;
+        return null;
+      },
+      builder: (context, state) {
+        return FoodDetailsView(
+          mealId: state.pathParameters['mealId']!.trim(),
+          createCubit: () => getIt<FoodDetailsCubit>(),
+        );
+      },
     ),
   ],
 );
