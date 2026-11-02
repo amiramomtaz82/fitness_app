@@ -10,12 +10,14 @@ class PlayerOverlay extends StatefulWidget {
     required this.onBack,
     required this.playFailed,
     required this.onRetry,
+    this.backButton,
   });
 
   final bool showBackButton;
   final VoidCallback? onBack;
   final bool playFailed;
   final VoidCallback onRetry;
+  final Widget? backButton;
 
   @override
   State<PlayerOverlay> createState() => _PlayerOverlayState();
@@ -53,7 +55,8 @@ class _PlayerOverlayState extends State<PlayerOverlay> {
               fit: StackFit.expand,
               children: [
                 if (widget.playFailed) PlaybackFailure(onRetry: widget.onRetry),
-                if (widget.showBackButton) BackOverlay(onBack: widget.onBack),
+                if (widget.showBackButton)
+                  BackOverlay(onBack: widget.onBack, button: widget.backButton),
               ],
             ),
           ),
@@ -68,16 +71,18 @@ class _PlayerOverlayState extends State<PlayerOverlay> {
 }
 
 class BackOverlay extends StatelessWidget {
-  const BackOverlay({super.key, required this.onBack});
+  const BackOverlay({super.key, required this.onBack, this.button});
 
   final VoidCallback? onBack;
+  final Widget? button;
 
   @override
   Widget build(BuildContext context) {
+    final top = MediaQuery.paddingOf(context).top + 16.h;
     return PositionedDirectional(
-      top: 12.h,
-      start: 12.w,
-      child: VideoBackButton(onPressed: onBack),
+      top: top,
+      start: 16.w,
+      child: button ?? VideoBackButton(onPressed: onBack),
     );
   }
 }

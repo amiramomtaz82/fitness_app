@@ -194,6 +194,14 @@
     "internal_server_error": "خطأ في الخادم. يرجى المحاولة لاحقاً."
   },
   "food": {
+    "instructions": "طريقة التحضير",
+    "ingredients": "المكونات",
+    "energy": "الطاقة",
+    "protein": "البروتين",
+    "carbs": "الكربوهيدرات",
+    "fat": "الدهون",
+    "sample": "عينة",
+    "nutrition_note": "قيم غذائية للعرض",
     "food_recommendation": "الوجبات المقترحة",
     "no_meals_found": "لا توجد وجبات في هذا القسم."
   }

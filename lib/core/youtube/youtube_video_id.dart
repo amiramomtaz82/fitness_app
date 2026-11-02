@@ -4,8 +4,6 @@ const Set<String> _youtubeHosts = {'youtube.com', 'm.youtube.com'};
 
 const Set<String> _pathKinds = {'embed', 'shorts', 'live'};
 
-/// The 11-character id in [input], or null when it is not a supported link
-/// or raw id. A match is only the text shape, not proof that the video exists.
 String? extractYoutubeVideoId(String input) {
   final value = input.trim();
   if (value.isEmpty) return null;
