@@ -156,7 +156,7 @@ final GoRouter appRouter = GoRouter(
     ),
 
     GoRoute(
-      path: '${AppRoutes.food}/meal/:mealId',
+      path: AppRoutes.foodMeal,
       redirect: (context, state) {
         final mealId = state.pathParameters['mealId']?.trim() ?? '';
         if (mealId.isEmpty) return AppRoutes.home;

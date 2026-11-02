@@ -11,6 +11,11 @@ class AppRoutes {
   static const String workouts = '/workouts';
   static const String smartCoach = '/smart-coach';
   static const String food = '/food';
+  static const String foodMealSegment = 'meal';
+  static const String foodMeal = '$food/$foodMealSegment/:mealId';
+
+  static String foodMealLocation(String mealId) =>
+      '$food/$foodMealSegment/$mealId';
 
   static const String foodRecommendationPath = 'food-recommendation';
   static const String foodRecommendation = '$home/$foodRecommendationPath';

@@ -212,7 +212,7 @@ Future<void> openMealDetails(
 ) async {
   await tester.pump();
   await tester.pump();
-  router.push('${AppRoutes.food}/meal/$mealId');
+  router.push(AppRoutes.foodMealLocation(mealId));
   await tester.pump();
   await tester.pump();
 }
@@ -234,7 +234,7 @@ GoRoute foodDetailsBranch() {
 
 GoRoute foodDetailsMealRoute() {
   return GoRoute(
-    path: 'meal/:mealId',
+    path: '${AppRoutes.foodMealSegment}/:mealId',
     builder: (context, state) {
       final mealId = state.pathParameters['mealId']?.trim() ?? '';
       return FoodDetailsView(mealId: mealId, createCubit: () => cubit);
