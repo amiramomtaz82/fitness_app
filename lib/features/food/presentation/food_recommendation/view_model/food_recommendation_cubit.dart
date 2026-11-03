@@ -1,5 +1,6 @@
 import 'package:injectable/injectable.dart';
 
+import '../../../../../app/routes_names.dart';
 import '../../../../../core/base/base_cubit.dart';
 import '../../../../../core/base/ui_events.dart';
 import '../../../../../core/base_response/base_response.dart';
@@ -31,6 +32,8 @@ class FoodRecommendationCubit
         _selectCategory(index);
       case RetryIntent():
         _retry();
+      case OpenMealDetailsIntent(:final mealId):
+        emitEvent(NavigateEvent(AppRoutes.foodMealLocation(mealId)));
     }
   }
 

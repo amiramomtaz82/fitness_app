@@ -65,6 +65,9 @@ class _MealsGrid extends StatelessWidget {
     return AppContentGridView(
       key: const Key('mealsGrid'),
       items: meals.map(_toCardItem).toList(),
+      onItemTap: (item) => context.read<FoodRecommendationCubit>().doIntent(
+        OpenMealDetailsIntent(item.id),
+      ),
     );
   }
 
