@@ -13,7 +13,8 @@ class GetPopularTrainingsUseCase {
   final ExerciseRepo _exerciseRepo;
   final Random _random;
 
-  GetPopularTrainingsUseCase(this._exerciseRepo, this._random);
+  GetPopularTrainingsUseCase(this._exerciseRepo, [Random? random])
+    : _random = random ?? Random();
 
   Future<BaseResponse<List<PopularTrainingEntity>>> call() async {
     // 1. Get all difficulty levels.
