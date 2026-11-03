@@ -200,6 +200,14 @@
     "internal_server_error": "Server error. Please try again later."
   },
   "food": {
+    "instructions": "Instructions",
+    "ingredients": "Ingredients",
+    "energy": "Energy",
+    "protein": "Protein",
+    "carbs": "Carbs",
+    "fat": "Fat",
+    "sample": "Sample",
+    "nutrition_note": "Sample nutrition values",
     "food_recommendation": "Food Recommendation",
     "no_meals_found": "No meals found in this category."
   }

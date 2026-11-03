@@ -21,25 +21,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get_it/get_it.dart';
 import 'package:go_router/go_router.dart';
-
-// import '../core/di/di.dart';
-// import '../features/auth/presentation/forget_password/view/forget_password_view.dart';
-// import '../features/auth/presentation/forget_password/view_model/forget_password_cubit.dart';
-// import '../features/auth/presentation/login/view/login_view.dart';
-// import '../features/auth/presentation/login/view_model/login_cubit.dart';
-// import '../features/auth/presentation/register/manager/cubit/register_cubit.dart';
-// import '../features/auth/presentation/register/view/muti_steps_regitration/multi_steps_registration_view.dart';
-// import '../features/auth/presentation/register/view/register_first_sceen/register_view.dart';
-// import '../features/chat/presentation/view/screens/smart_coach_screen.dart';
+import '../features/food/presentation/food_details/view/food_details_view.dart';
+import '../features/food/presentation/food_details/view_model/food_details_cubit.dart';
 import '../features/food/presentation/food_recommendation/view/food_recommendation_view.dart';
 import '../features/food/presentation/food_recommendation/view_model/food_recommendation_cubit.dart';
-// import '../features/home/presentation/view/screens/home_screen.dart';
-// import '../features/home/presentation/view/screens/workouts_screen.dart';
-// import '../features/on_bording/views/onboarding_view.dart';
-// import '../features/profile/presentation/view/screens/profile_screen.dart';
-// import '../features/splash/presentation/views/splash_view.dart';
-// import 'bottom_bar/bottom_navigation_bar.dart';
-// import 'routes_names.dart';
+
 
 final GlobalKey<NavigatorState> rootNavigatorKey = GlobalKey<NavigatorState>();
 
@@ -164,6 +150,21 @@ final GoRouter appRouter = GoRouter(
           ],
         ),
       ],
+    ),
+
+    GoRoute(
+      path: AppRoutes.foodMeal,
+      redirect: (context, state) {
+        final mealId = state.pathParameters['mealId']?.trim() ?? '';
+        if (mealId.isEmpty) return AppRoutes.home;
+        return null;
+      },
+      builder: (context, state) {
+        return FoodDetailsView(
+          mealId: state.pathParameters['mealId']!.trim(),
+          createCubit: () => getIt<FoodDetailsCubit>(),
+        );
+      },
     ),
   ],
 );

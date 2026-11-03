@@ -135,6 +135,25 @@ void main() {
       expect(find.text('Beef Pie'), findsOneWidget);
     });
 
+    testWidgets('tapping a meal sends OpenMealDetailsIntent with its id', (
+      tester,
+    ) async {
+      givenStates(_loaded);
+      await tester.pumpWidget(makeTestable());
+      await tester.pump();
+
+      await tester.tap(find.text('Beef Stew'));
+
+      expect(
+        verify(
+          () => mockCubit.doIntent(
+            captureAny(that: isA<OpenMealDetailsIntent>()),
+          ),
+        ).captured.single,
+        isA<OpenMealDetailsIntent>().having((i) => i.mealId, 'mealId', '1'),
+      );
+    });
+
     testWidgets('tapping a tab sends SelectCategoryIntent with its index', (
       tester,
     ) async {

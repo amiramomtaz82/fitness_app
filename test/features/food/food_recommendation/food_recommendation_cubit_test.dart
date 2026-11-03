@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:bloc_test/bloc_test.dart';
+import 'package:fitness_app/app/routes_names.dart';
 import 'package:fitness_app/core/base/ui_events.dart';
 import 'package:fitness_app/core/base_response/base_response.dart';
 import 'package:fitness_app/core/error/failures.dart';
@@ -280,6 +281,23 @@ void main() {
     });
 
     group('ui events', () {
+      test('OpenMealDetailsIntent navigates to the meal details', () async {
+        final events = <BaseUiEvent>[];
+        cubit.eventStream.listen(events.add);
+
+        cubit.doIntent(const OpenMealDetailsIntent('52874'));
+        await pumpEventQueue();
+
+        expect(events, [
+          isA<NavigateEvent>().having(
+            (e) => e.route,
+            'route',
+            AppRoutes.foodMealLocation('52874'),
+          ),
+        ]);
+        verifyNever(() => mockMealsUseCase(any()));
+      });
+
       test('emits an error snackbar event with the failure', () async {
         givenCategories(ErrorResponse(failure: const NetworkFailure()));
         final events = <BaseUiEvent>[];
