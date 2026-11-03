@@ -17,3 +17,9 @@ class SelectCategoryIntent extends FoodRecommendationIntent {
 class RetryIntent extends FoodRecommendationIntent {
   const RetryIntent();
 }
+
+class OpenMealDetailsIntent extends FoodRecommendationIntent {
+  final String mealId;
+
+  const OpenMealDetailsIntent(this.mealId);
+}
