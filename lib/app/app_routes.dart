@@ -22,7 +22,7 @@ import 'package:get_it/get_it.dart';
 import 'package:go_router/go_router.dart';
 
 final GoRouter appRouter = GoRouter(
-  initialLocation: AppRoutes.splash,
+  initialLocation: AppRoutes.popularTrainingExercise,
   routes: [
     GoRoute(
       path: AppRoutes.splash,
