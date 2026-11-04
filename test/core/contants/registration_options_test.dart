@@ -16,6 +16,12 @@ void main() {
       );
       expect(labels.toSet(), hasLength(RegistrationGender.values.length));
     });
+
+    test('reads the api key back as the value name', () {
+      for (final gender in RegistrationGender.values) {
+        expect(gender.apiKey, gender.name);
+      }
+    });
   });
 
   group('RegistrationGoal', () {
@@ -51,12 +57,6 @@ void main() {
         (activity) => activity.displayText,
       );
       expect(labels.toSet(), hasLength(RegistrationActivity.values.length));
-    });
-
-    test('reads the api key back as the value name for genders', () {
-      for (final gender in RegistrationGender.values) {
-        expect(gender.apiKey, gender.name);
-      }
     });
   });
 }

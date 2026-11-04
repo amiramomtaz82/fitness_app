@@ -26,6 +26,14 @@ void main() {
 
       expect(dto.id, isNull);
       expect(dto.firstName, isNull);
+      expect(dto.lastName, isNull);
+      expect(dto.email, isNull);
+      expect(dto.gender, isNull);
+      expect(dto.age, isNull);
+      expect(dto.weight, isNull);
+      expect(dto.height, isNull);
+      expect(dto.activityLevel, isNull);
+      expect(dto.goal, isNull);
       expect(dto.photo, isNull);
     });
   });
