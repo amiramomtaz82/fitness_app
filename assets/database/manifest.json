@@ -1,0 +1,10 @@
+{
+    "exercises.db": {
+        "version": 1,
+        "hash": "2B356AA1912AC91207BE28706792F080052339AA7D89514220C9FCD5CB57BDFF"
+    },
+    "meals.db": {
+        "version": 1,
+        "hash": "8AF8A4E177178F0AFB456B05E17C9924400CC24789ACDCDDA4528AB5A8D7F946"
+    }
+}
