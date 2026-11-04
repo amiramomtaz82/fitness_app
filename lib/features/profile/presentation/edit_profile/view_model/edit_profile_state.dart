@@ -22,6 +22,13 @@ class EditProfileState extends Equatable {
 
   bool get isSaving => saveResource.isLoading;
 
+  bool get hasChanges {
+    final current = draft;
+    final original = saved;
+    if (current == null || original == null) return false;
+    return current != ProfileParams.fromEntity(original);
+  }
+
   String get firstName => saved?.firstName ?? '';
 
   String get lastName => saved?.lastName ?? '';

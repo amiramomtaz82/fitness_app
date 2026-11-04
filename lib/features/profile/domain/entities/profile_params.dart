@@ -1,4 +1,5 @@
 import 'package:equatable/equatable.dart';
+import 'profile_entity.dart';
 
 class ProfileParams extends Equatable {
   final String firstName;
@@ -20,6 +21,19 @@ class ProfileParams extends Equatable {
     required this.activityLevel,
     required this.goal,
   });
+
+  factory ProfileParams.fromEntity(ProfileEntity entity) {
+    return ProfileParams(
+      firstName: entity.firstName,
+      lastName: entity.lastName,
+      gender: entity.gender,
+      age: entity.age,
+      weight: entity.weight,
+      height: entity.height,
+      activityLevel: entity.activityLevel,
+      goal: entity.goal,
+    );
+  }
 
   ProfileParams copyWith({
     String? firstName,

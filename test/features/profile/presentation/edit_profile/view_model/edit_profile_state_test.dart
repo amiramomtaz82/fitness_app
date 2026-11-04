@@ -42,6 +42,28 @@ void main() {
       expect(state.draft, testProfileParams);
     });
 
+    test('reports no change before anything is loaded', () {
+      expect(initial.hasChanges, isFalse);
+    });
+
+    test('reports no change while the draft mirrors the saved profile', () {
+      final state = initial.copyWith(
+        saved: testProfileEntity,
+        draft: testProfileParams,
+      );
+
+      expect(state.hasChanges, isFalse);
+    });
+
+    test('reports a change once the draft differs from the saved profile', () {
+      final state = initial.copyWith(
+        saved: testProfileEntity,
+        draft: testProfileParams.copyWith(age: 30),
+      );
+
+      expect(state.hasChanges, isTrue);
+    });
+
     test('exposes the error of a single field', () {
       final state = initial.copyWith(
         fieldErrors: const {

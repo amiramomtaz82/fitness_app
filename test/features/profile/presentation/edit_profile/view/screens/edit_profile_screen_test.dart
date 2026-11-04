@@ -65,6 +65,13 @@ void main() {
     await settleUi(tester, steps: 8);
   }
 
+  bool saveEnabled(WidgetTester tester) {
+    return tester
+            .widget<FilledButton>(find.byKey(const Key('editSaveButton')))
+            .onPressed !=
+        null;
+  }
+
   void stubSave(
     MockEditProfileUseCase editProfile,
     BaseResponse<ProfileEntity> response,
@@ -101,6 +108,18 @@ void main() {
     expect(fieldValue(tester, EditProfileField.height), '178 cm');
     expect(fieldValue(tester, EditProfileField.goal), 'Gain Weight');
     expect(fieldValue(tester, EditProfileField.activityLevel), 'Rookie');
+  });
+
+  testWidgets('the save stays asleep until something is edited', (
+    tester,
+  ) async {
+    await startLoadedEditForm(tester);
+    expect(saveEnabled(tester), isFalse);
+
+    await openField(tester, EditProfileField.age);
+    await submitNumber(tester, '30');
+
+    expect(saveEnabled(tester), isTrue);
   });
 
   testWidgets('a number field opens its own unit and value', (tester) async {
@@ -205,6 +224,8 @@ void main() {
     );
     final cubit = await startLoadedEditForm(tester, editProfile: editProfile);
 
+    await openField(tester, EditProfileField.age);
+    await submitNumber(tester, '30');
     await tapSave(tester);
 
     expect(lockedField(tester, 'firstName').hintText, 'Mohamed');
@@ -221,6 +242,8 @@ void main() {
     );
     final cubit = await startLoadedEditForm(tester, editProfile: editProfile);
 
+    await openField(tester, EditProfileField.age);
+    await submitNumber(tester, '30');
     await tapSave(tester);
 
     expect(find.byType(SnackBar), findsOneWidget);
@@ -228,7 +251,7 @@ void main() {
     expect(lockedField(tester, 'firstName').hintText, 'Ahmed');
   });
 
-  testWidgets('a form with nothing valid to send never reaches the server', (
+  testWidgets('an edit that is still invalid never reaches the server', (
     tester,
   ) async {
     final editProfile = MockEditProfileUseCase();
@@ -238,11 +261,13 @@ void main() {
       editProfile: editProfile,
     );
 
+    await openField(tester, EditProfileField.age);
+    await submitNumber(tester, '20');
     await tapSave(tester);
 
     verifyNever(() => editProfile.call(any()));
     expect(find.byType(SnackBar), findsOneWidget);
-    expect(cubit.state.fieldErrors, hasLength(EditProfileField.values.length));
+    expect(cubit.state.fieldErrors, isNotEmpty);
   });
 
   testWidgets('a profile the app cannot read leaves the form closed', (

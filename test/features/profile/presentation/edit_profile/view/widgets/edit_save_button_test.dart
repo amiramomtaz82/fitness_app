@@ -11,10 +11,15 @@ void main() {
     WidgetTester tester, {
     required VoidCallback onPressed,
     bool isLoading = false,
+    bool enabled = true,
   }) {
     return pumpLocalizedWidget(
       tester,
-      EditSaveButton(onPressed: onPressed, isLoading: isLoading),
+      EditSaveButton(
+        onPressed: onPressed,
+        isLoading: isLoading,
+        enabled: enabled,
+      ),
     );
   }
 
@@ -55,5 +60,18 @@ void main() {
 
     expect(taps, 0);
     expect(saveButton(tester).onPressed, isNull);
+  });
+
+  testWidgets('a button waits while nothing has changed', (tester) async {
+    var taps = 0;
+    await pumpButton(tester, onPressed: () => taps++, enabled: false);
+
+    expect(find.text('Save'), findsOneWidget);
+    expect(saveButton(tester).onPressed, isNull);
+
+    await tester.tap(find.byKey(buttonKey));
+    await settleUi(tester);
+
+    expect(taps, 0);
   });
 }

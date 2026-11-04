@@ -5,6 +5,9 @@ import '../../profile_test_helper.dart';
 
 void main() {
   group('ProfileParams', () {
+    test('is built from a saved profile', () {
+      expect(ProfileParams.fromEntity(testProfileEntity), testProfileParams);
+    });
     test('is value equal through Equatable', () {
       expect(
         testProfileParams,

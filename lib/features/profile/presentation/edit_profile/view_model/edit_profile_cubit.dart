@@ -44,16 +44,7 @@ class EditProfileCubit extends BaseCubit<EditProfileState, BaseUiEvent> {
     _emit(
       state.copyWith(
         saved: profile,
-        draft: ProfileParams(
-          firstName: profile.firstName,
-          lastName: profile.lastName,
-          gender: profile.gender,
-          age: profile.age,
-          weight: profile.weight,
-          height: profile.height,
-          activityLevel: profile.activityLevel,
-          goal: profile.goal,
-        ),
+        draft: ProfileParams.fromEntity(profile),
         fieldErrors: const {},
       ),
     );

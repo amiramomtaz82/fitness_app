@@ -114,6 +114,7 @@ class _EditProfileScreenState extends State<EditProfileScreen>
                 ],
                 EditSaveButton(
                   isLoading: state.isSaving,
+                  enabled: state.hasChanges,
                   onPressed: () => cubit.doIntent(const SaveProfileIntent()),
                 ),
               ],
