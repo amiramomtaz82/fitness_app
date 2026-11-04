@@ -82,6 +82,7 @@ mixin UiEventMixin<W extends StatefulWidget, S, E extends BaseUiEvent>
         SocialProvider.facebook =>
           LocaleKeys.auth_forgot_password_facebook.tr(),
       },
+      ChatTokenLimitFailure() => LocaleKeys.chat_token_limit_reached.tr(),
       UnknownFailure() => LocaleKeys.errors_something_went_wrong.tr(),
     };
   }

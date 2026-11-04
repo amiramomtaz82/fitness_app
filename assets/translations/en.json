@@ -135,7 +135,9 @@
     "get_started": "Get Started",
     "smart_coach": "Smart Coach",
     "hello_how_can_i_assist": "Hello How Can I Assist You Today ?",
-    "previous_conversations": "Previous Conversations"
+    "previous_conversations": "Previous Conversations",
+    "token_limit_reached": "Conversation limit reached. Please start a new session.",
+    "token_limit_warning": "You are approaching the conversation limit. Please start a new session soon."
   },
   "profile": {
     "profile": "Profile",

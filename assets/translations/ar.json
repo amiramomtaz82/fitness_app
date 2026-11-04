@@ -135,7 +135,9 @@
     "get_started": "ابدأ الآن",
     "smart_coach": "المدرب الذكي",
     "hello_how_can_i_assist": "مرحباً، كيف يمكنني مساعدتك اليوم؟",
-    "previous_conversations": "المحادثات السابقة"
+    "previous_conversations": "المحادثات السابقة",
+    "token_limit_reached": "تم الوصول للحد الأقصى للمحادثة. يرجى بدء جلسة جديدة.",
+    "token_limit_warning": "أنت تقترب من الحد الأقصى للمحادثة. يُفضل بدء جلسة جديدة قريباً."
   },
   "profile": {
     "profile": "الملف الشخصي",
