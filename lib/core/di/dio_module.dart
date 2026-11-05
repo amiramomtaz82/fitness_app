@@ -12,6 +12,7 @@ abstract final class DioNames {
   DioNames._();
 
   static const String mealDb = 'mealDbDio';
+  static const String ollama = 'ollamaDio';
 }
 
 @module
@@ -42,6 +43,25 @@ abstract class DioModule {
     return dioInstance;
   }
 
+  @Named(DioNames.ollama)
+  @lazySingleton
+  Dio ollamaDio() {
+    final dioInstance = Dio(
+      BaseOptions(
+        connectTimeout: const Duration(seconds: 60),
+        receiveTimeout: const Duration(seconds: 60),
+      ),
+    );
+    dioInstance.interceptors.add(
+      PrettyDioLogger(
+        requestBody: true,
+        requestHeader: true,
+        responseBody: true,
+      ),
+    );
+    return dioInstance;
+  }
+
   @Named(DioNames.mealDb)
   @lazySingleton
   Dio mealDbDio() {
@@ -55,4 +75,7 @@ abstract class DioModule {
     dioInstance.interceptors.add(PrettyDioLogger(responseBody: false));
     return dioInstance;
   }
+
+  
 }
+
