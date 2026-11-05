@@ -12,6 +12,8 @@ class OllamaChatResponseDto {
   final OllamaMessageDto? message;
   @JsonKey(name: 'prompt_eval_count')
   final int? promptEvalCount;
+  @JsonKey(name: 'prompt_eval_cached_count')
+  final int? promptEvalCachedCount;
   @JsonKey(name: 'eval_count')
   final int? evalCount;
   final bool? done;
@@ -20,6 +22,7 @@ class OllamaChatResponseDto {
     this.model,
     this.message,
     this.promptEvalCount,
+    this.promptEvalCachedCount,
     this.evalCount,
     this.done,
   });
@@ -30,6 +33,8 @@ class OllamaChatResponseDto {
   Map<String, dynamic> toJson() => _$OllamaChatResponseDtoToJson(this);
 
   int get totalTokens => (promptEvalCount ?? 0) + (evalCount ?? 0);
+
+  int get cachedTokens => promptEvalCachedCount ?? 0;
 
   bool get hasToolCalls => message?.toolCalls != null && message!.toolCalls!.isNotEmpty;
 

@@ -82,7 +82,9 @@ class SendSmartCoachMessageUseCase {
       currentTokens: currentSessionTokens,
     );
   }
-
+///======================path one=========================
+  ///(1-convert message to entity and 2- save it with total tokens to fire store
+  ///3-return message to user and new token status)
   Future<BaseResponse<SendMessageResult>> _handleDirectResponse(
       String sessionId,
       OllamaChatResponseDto aDto,
@@ -102,7 +104,7 @@ class SendSmartCoachMessageUseCase {
       ),
     );
   }
-
+///========================= path two ==================================================
   Future<BaseResponse<SendMessageResult>> _handleToolCallingTurn({
     required String sessionId,
     required OllamaChatResponseDto aDto,
@@ -112,16 +114,18 @@ class SendSmartCoachMessageUseCase {
     final candidateBlocks = <String>[];
     final toolCalls = aDto.message!.toolCalls!;
 
+    // 1. Loop through tool calls requested by the AI & query local database
     for (final call in toolCalls) {
       final fn = call.function?.name;
       final args = call.function?.arguments ?? {};
       await _processToolCall(fn, args, candidateBlocks);
     }
 
+    // 2. Add search results to message history with role: 'tool'
     messagesPayload.add(aDto.message!.toJson());
     messagesPayload.add({'role': 'tool', 'content': candidateBlocks.join('\n\n')});
 
-    // Execute Turn B with structured schema constraint
+    // 3. Execute Turn B: Send search results to AI and enforce JSON output schema
     final turnBRes = await _chatRepo.requestTurnB(
       messages: messagesPayload,
       formatSchema: _formatSchema,
@@ -131,12 +135,13 @@ class SendSmartCoachMessageUseCase {
       return ErrorResponse(failure: turnBRes.failure);
     }
 
+    // 4. Parse JSON response to extract exercise_ids & meal_ids
     final bDto = (turnBRes as SuccessResponse<OllamaChatResponseDto>).data;
     final totalTurnTokens = aDto.totalTokens + bDto.totalTokens;
     final parsedJson = jsonDecode(bDto.message?.content ?? '{}') as Map<String, dynamic>;
     final turnBDto = SmartCoachTurnBContentDto.fromJson(parsedJson);
 
-    // Hydrate catalog items
+    // 5. Hydrate: Fetch complete exercise & meal card entities from database by ID
     final exercises = turnBDto.exerciseIds.isNotEmpty
         ? (await _catalogRepo.getExercisesByIds(turnBDto.exerciseIds)).data ?? []
         : const <ExerciseCardEntity>[];
@@ -151,6 +156,7 @@ class SendSmartCoachMessageUseCase {
       meals: meals,
     );
 
+    // 6. Save final coach message to DB & return result to UI
     await _chatRepo.saveMessage(sessionId, coachMsg, totalTurnTokens);
     return SuccessResponse(
       SendMessageResult(
@@ -228,7 +234,7 @@ class SendSmartCoachMessageUseCase {
       {'role': 'user', 'content': userText},
     ];
   }
-
+///=======================Ai configuration ==================================================
   String _buildSystemPrompt({
     String? goal,
     String? activityLevel,
@@ -253,7 +259,7 @@ class SendSmartCoachMessageUseCase {
       'muscle_group: Abdominals | Chest | Glutes | Hamstrings | Shoulders. '
       'equipment: Bodyweight | Dumbbell | Barbell | Cable. '
       'max_difficulty: Beginner=1 | Novice=2 | Intermediate=3 | Advanced=4.';
-
+//-----------------------------------------------------------------------------
   static const List<Map<String, dynamic>> _toolsSchema = [
     {
       'type': 'function',
@@ -288,7 +294,7 @@ class SendSmartCoachMessageUseCase {
       },
     },
   ];
-
+//----------------------------------------------------------------
   static const Map<String, dynamic> _formatSchema = {
     'type': 'object',
     'properties': {
