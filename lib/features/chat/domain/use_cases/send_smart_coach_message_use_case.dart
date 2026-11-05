@@ -280,11 +280,18 @@ class SendSmartCoachMessageUseCase {
         weight != null ||
         height != null) {
       buffer.write('\nUSER PROFILE: ');
-      if (goal != null && goal.isNotEmpty) buffer.write('Goal: $goal. ');
-      if (activityLevel != null && activityLevel.isNotEmpty)
+      if (goal != null && goal.isNotEmpty) {
+        buffer.write('Goal: $goal. ');
+      }
+      if (activityLevel != null && activityLevel.isNotEmpty) {
         buffer.write('Level: $activityLevel. ');
-      if (weight != null) buffer.write('Weight: ${weight}kg. ');
-      if (height != null) buffer.write('Height: ${height}cm. ');
+      }
+      if (weight != null) {
+        buffer.write('Weight: ${weight}kg. ');
+      }
+      if (height != null) {
+        buffer.write('Height: ${height}cm. ');
+      }
     }
     return buffer.toString();
   }
