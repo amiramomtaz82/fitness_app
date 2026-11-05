@@ -10,7 +10,7 @@ abstract class ChatApiClient {
 
   @POST('/chat')
   Future<OllamaChatResponseDto> chat(
-      @Header('Authorization') String authorization,
-      @Body() Map<String, dynamic> body,
-      );
+    @Header('Authorization') String authorization,
+    @Body() Map<String, dynamic> body,
+  );
 }

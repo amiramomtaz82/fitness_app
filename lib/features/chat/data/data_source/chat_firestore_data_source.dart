@@ -19,9 +19,9 @@ class ChatFirestoreDataSource {
         .doc(_userId)
         .collection('chat_sessions')
         .withConverter<ChatSessionDto>(
-      fromFirestore: (s, _) => ChatSessionDto.fromJson(s.data()!),
-      toFirestore: (m, _) => m.toJson(),
-    );
+          fromFirestore: (s, _) => ChatSessionDto.fromJson(s.data()!),
+          toFirestore: (m, _) => m.toJson(),
+        );
   }
 
   CollectionReference<ChatMessageDto> _messagesRef(String sessionId) {
@@ -32,15 +32,17 @@ class ChatFirestoreDataSource {
         .doc(sessionId)
         .collection('messages')
         .withConverter<ChatMessageDto>(
-      fromFirestore: (s, _) => ChatMessageDto.fromJson(s.data()!),
-      toFirestore: (m, _) => m.toJson(),
-    );
+          fromFirestore: (s, _) => ChatMessageDto.fromJson(s.data()!),
+          toFirestore: (m, _) => m.toJson(),
+        );
   }
-//---------------------save session--------------------------------
+
+  //---------------------save session--------------------------------
   Future<void> saveSession(ChatSessionDto session) async {
     await _sessionsRef().doc(session.id).set(session);
   }
-//-------------------save message--------------------------------
+
+  //-------------------save message--------------------------------
   Future<void> saveMessage(String sessionId, ChatMessageDto message) async {
     await _messagesRef(sessionId).doc(message.id).set(message);
     await _sessionsRef().doc(sessionId).update({
@@ -48,7 +50,8 @@ class ChatFirestoreDataSource {
       'totalTokens': FieldValue.increment(message.tokens),
     });
   }
-// ---------------------- get sessions---------------------------
+
+  // ---------------------- get sessions---------------------------
   Future<List<ChatSessionDto>> getSessions() async {
     final snap = await _sessionsRef()
         .orderBy('updatedAtMillis', descending: true)
@@ -56,11 +59,12 @@ class ChatFirestoreDataSource {
         .get();
     return snap.docs.map((d) => d.data()).toList();
   }
-//-----------------------get messages--------------------------------
+
+  //-----------------------get messages--------------------------------
   Future<List<ChatMessageDto>> getMessages(String sessionId) async {
-    final snap = await _messagesRef(sessionId)
-        .orderBy('createdAtMillis', descending: false)
-        .get();
+    final snap = await _messagesRef(
+      sessionId,
+    ).orderBy('createdAtMillis', descending: false).get();
     return snap.docs.map((d) => d.data()).toList();
   }
 }

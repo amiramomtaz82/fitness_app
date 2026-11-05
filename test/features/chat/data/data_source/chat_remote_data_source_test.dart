@@ -32,59 +32,65 @@ void main() {
   group('ChatRemoteDataSource —', () {
     group('sendTurnA', () {
       final tMessages = [
-        {'role': 'user', 'content': 'Hi'}
+        {'role': 'user', 'content': 'Hi'},
       ];
       final tTools = [
         {
           'type': 'function',
-          'function': {'name': 'search_exercises'}
-        }
+          'function': {'name': 'search_exercises'},
+        },
       ];
 
-      test('resolves API key and calls client.chat with expected payload', () async {
-        when(
-          () => mockSecureStorage.read(key: 'OLLAMA_API_KEY'),
-        ).thenAnswer((_) async => 'test_api_key');
+      test(
+        'resolves API key and calls client.chat with expected payload',
+        () async {
+          when(
+            () => mockSecureStorage.read(key: 'OLLAMA_API_KEY'),
+          ).thenAnswer((_) async => 'test_api_key');
 
-        when(
-          () => mockApiClient.chat(any(), any()),
-        ).thenAnswer((_) async => tResponse);
+          when(
+            () => mockApiClient.chat(any(), any()),
+          ).thenAnswer((_) async => tResponse);
 
-        final result = await dataSource.sendTurnA(
-          messages: tMessages,
-          tools: tTools,
-        );
+          final result = await dataSource.sendTurnA(
+            messages: tMessages,
+            tools: tTools,
+          );
 
-        expect(result, equals(tResponse));
-        verify(
-          () => mockApiClient.chat('Bearer test_api_key', {
-            'model': 'gemma4:31b',
-            'messages': tMessages,
-            'tools': tTools,
-            'stream': false,
-            'think': false,
-            'options': {'temperature': 0.6, 'num_predict': 512},
-          }),
-        ).called(1);
-      });
+          expect(result, equals(tResponse));
+          verify(
+            () => mockApiClient.chat('Bearer test_api_key', {
+              'model': 'gemma4:31b',
+              'messages': tMessages,
+              'tools': tTools,
+              'stream': false,
+              'think': false,
+              'options': {'temperature': 0.6, 'num_predict': 512},
+            }),
+          ).called(1);
+        },
+      );
 
-      test('uses empty bearer token if key is null in secure storage', () async {
-        when(
-          () => mockSecureStorage.read(key: any(named: 'key')),
-        ).thenAnswer((_) async => null);
+      test(
+        'uses empty bearer token if key is null in secure storage',
+        () async {
+          when(
+            () => mockSecureStorage.read(key: any(named: 'key')),
+          ).thenAnswer((_) async => null);
 
-        when(
-          () => mockApiClient.chat(any(), any()),
-        ).thenAnswer((_) async => tResponse);
+          when(
+            () => mockApiClient.chat(any(), any()),
+          ).thenAnswer((_) async => tResponse);
 
-        final result = await dataSource.sendTurnA(
-          messages: tMessages,
-          tools: tTools,
-        );
+          final result = await dataSource.sendTurnA(
+            messages: tMessages,
+            tools: tTools,
+          );
 
-        expect(result, equals(tResponse));
-        verify(() => mockApiClient.chat('Bearer ', any())).called(1);
-      });
+          expect(result, equals(tResponse));
+          verify(() => mockApiClient.chat('Bearer ', any())).called(1);
+        },
+      );
 
       test('propagates exception when client throws', () async {
         when(
@@ -104,41 +110,44 @@ void main() {
 
     group('sendTurnB', () {
       final tMessages = [
-        {'role': 'user', 'content': 'Hi'}
+        {'role': 'user', 'content': 'Hi'},
       ];
       final tFormat = {
         'type': 'object',
         'properties': {
-          'reply': {'type': 'string'}
-        }
+          'reply': {'type': 'string'},
+        },
       };
 
-      test('resolves API key and calls client.chat with format schema', () async {
-        when(
-          () => mockSecureStorage.read(key: 'OLLAMA_API_KEY'),
-        ).thenAnswer((_) async => 'test_api_key');
+      test(
+        'resolves API key and calls client.chat with format schema',
+        () async {
+          when(
+            () => mockSecureStorage.read(key: 'OLLAMA_API_KEY'),
+          ).thenAnswer((_) async => 'test_api_key');
 
-        when(
-          () => mockApiClient.chat(any(), any()),
-        ).thenAnswer((_) async => tResponse);
+          when(
+            () => mockApiClient.chat(any(), any()),
+          ).thenAnswer((_) async => tResponse);
 
-        final result = await dataSource.sendTurnB(
-          messages: tMessages,
-          formatSchema: tFormat,
-        );
+          final result = await dataSource.sendTurnB(
+            messages: tMessages,
+            formatSchema: tFormat,
+          );
 
-        expect(result, equals(tResponse));
-        verify(
-          () => mockApiClient.chat('Bearer test_api_key', {
-            'model': 'gemma4:31b',
-            'messages': tMessages,
-            'format': tFormat,
-            'stream': false,
-            'think': false,
-            'options': {'temperature': 0.6, 'num_predict': 512},
-          }),
-        ).called(1);
-      });
+          expect(result, equals(tResponse));
+          verify(
+            () => mockApiClient.chat('Bearer test_api_key', {
+              'model': 'gemma4:31b',
+              'messages': tMessages,
+              'format': tFormat,
+              'stream': false,
+              'think': false,
+              'options': {'temperature': 0.6, 'num_predict': 512},
+            }),
+          ).called(1);
+        },
+      );
 
       test('propagates exception when client throws', () async {
         when(
@@ -150,7 +159,8 @@ void main() {
         ).thenThrow(Exception('Ollama Timeout'));
 
         expect(
-          () => dataSource.sendTurnB(messages: tMessages, formatSchema: tFormat),
+          () =>
+              dataSource.sendTurnB(messages: tMessages, formatSchema: tFormat),
           throwsException,
         );
       });

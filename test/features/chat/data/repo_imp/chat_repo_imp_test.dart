@@ -56,10 +56,10 @@ void main() {
   group('ChatRepoImp —', () {
     group('requestTurnA', () {
       final messages = [
-        {'role': 'user', 'content': 'Hello'}
+        {'role': 'user', 'content': 'Hello'},
       ];
       final tools = [
-        {'type': 'function'}
+        {'type': 'function'},
       ];
 
       test('returns SuccessResponse on remote success', () async {
@@ -95,7 +95,7 @@ void main() {
 
     group('requestTurnB', () {
       final messages = [
-        {'role': 'user', 'content': 'Hello'}
+        {'role': 'user', 'content': 'Hello'},
       ];
       final format = {'type': 'object'};
 
@@ -184,12 +184,15 @@ void main() {
           mealRefs: ['ml1'],
         );
 
-        when(() => mockFirestore.getMessages('s1'))
-            .thenAnswer((_) async => [messageDto]);
-        when(() => mockCatalog.getExercisesByIds(['ex1']))
-            .thenAnswer((_) async => const SuccessResponse([exDto]));
-        when(() => mockCatalog.getMealsByIds(['ml1']))
-            .thenAnswer((_) async => const SuccessResponse([mlDto]));
+        when(
+          () => mockFirestore.getMessages('s1'),
+        ).thenAnswer((_) async => [messageDto]);
+        when(
+          () => mockCatalog.getExercisesByIds(['ex1']),
+        ).thenAnswer((_) async => const SuccessResponse([exDto]));
+        when(
+          () => mockCatalog.getMealsByIds(['ml1']),
+        ).thenAnswer((_) async => const SuccessResponse([mlDto]));
 
         final result = await repo.getMessages('s1');
 
@@ -202,8 +205,9 @@ void main() {
       });
 
       test('returns ErrorResponse when firestore throws', () async {
-        when(() => mockFirestore.getMessages('s1'))
-            .thenThrow(Exception('Get Messages Failed'));
+        when(
+          () => mockFirestore.getMessages('s1'),
+        ).thenThrow(Exception('Get Messages Failed'));
 
         final result = await repo.getMessages('s1');
 
@@ -220,8 +224,9 @@ void main() {
       );
 
       test('returns mapped session entities on success', () async {
-        when(() => mockFirestore.getSessions())
-            .thenAnswer((_) async => [sessionDto]);
+        when(
+          () => mockFirestore.getSessions(),
+        ).thenAnswer((_) async => [sessionDto]);
 
         final result = await repo.getPreviousSessions();
 
@@ -234,8 +239,9 @@ void main() {
       });
 
       test('returns ErrorResponse when firestore throws', () async {
-        when(() => mockFirestore.getSessions())
-            .thenThrow(Exception('Get Sessions Failed'));
+        when(
+          () => mockFirestore.getSessions(),
+        ).thenThrow(Exception('Get Sessions Failed'));
 
         final result = await repo.getPreviousSessions();
 

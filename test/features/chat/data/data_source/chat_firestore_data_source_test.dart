@@ -86,8 +86,9 @@ void main() {
 
     when(() => mockFirestore.collection('users')).thenReturn(mockUsersCol);
     when(() => mockUsersCol.doc('test_uid')).thenReturn(mockUserDoc);
-    when(() => mockUserDoc.collection('chat_sessions'))
-        .thenReturn(mockChatSessionsCol);
+    when(
+      () => mockUserDoc.collection('chat_sessions'),
+    ).thenReturn(mockChatSessionsCol);
 
     when(
       () => mockChatSessionsCol.withConverter<ChatSessionDto>(
@@ -97,7 +98,9 @@ void main() {
     ).thenReturn(mockConvertedSessionsCol);
 
     when(() => mockChatSessionsCol.doc(any())).thenReturn(mockSessionDoc);
-    when(() => mockSessionDoc.collection('messages')).thenReturn(mockMessagesCol);
+    when(
+      () => mockSessionDoc.collection('messages'),
+    ).thenReturn(mockMessagesCol);
 
     when(
       () => mockMessagesCol.withConverter<ChatMessageDto>(
@@ -118,10 +121,10 @@ void main() {
         totalTokens: 50,
       );
 
-      when(() => mockConvertedSessionsCol.doc('session_1'))
-          .thenReturn(mockConvertedSessionDoc);
-      when(() => mockConvertedSessionDoc.set(session))
-          .thenAnswer((_) async {});
+      when(
+        () => mockConvertedSessionsCol.doc('session_1'),
+      ).thenReturn(mockConvertedSessionDoc);
+      when(() => mockConvertedSessionDoc.set(session)).thenAnswer((_) async {});
 
       await dataSource.saveSession(session);
 
@@ -137,14 +140,16 @@ void main() {
         tokens: 15,
       );
 
-      when(() => mockConvertedMessagesCol.doc('msg_1'))
-          .thenReturn(mockConvertedMessageDoc);
-      when(() => mockConvertedMessageDoc.set(message))
-          .thenAnswer((_) async {});
-      when(() => mockConvertedSessionsCol.doc('session_1'))
-          .thenReturn(mockConvertedSessionDoc);
-      when(() => mockConvertedSessionDoc.update(any()))
-          .thenAnswer((_) async {});
+      when(
+        () => mockConvertedMessagesCol.doc('msg_1'),
+      ).thenReturn(mockConvertedMessageDoc);
+      when(() => mockConvertedMessageDoc.set(message)).thenAnswer((_) async {});
+      when(
+        () => mockConvertedSessionsCol.doc('session_1'),
+      ).thenReturn(mockConvertedSessionDoc);
+      when(
+        () => mockConvertedSessionDoc.update(any()),
+      ).thenAnswer((_) async {});
 
       await dataSource.saveMessage('session_1', message);
 
@@ -164,8 +169,12 @@ void main() {
         totalTokens: 100,
       );
 
-      when(() => mockConvertedSessionsCol.orderBy('updatedAtMillis', descending: true))
-          .thenReturn(mockQuery);
+      when(
+        () => mockConvertedSessionsCol.orderBy(
+          'updatedAtMillis',
+          descending: true,
+        ),
+      ).thenReturn(mockQuery);
       when(() => mockQuery.limit(20)).thenReturn(mockQuery);
       when(() => mockQuery.get()).thenAnswer((_) async => mockSnapshot);
       when(() => mockSnapshot.docs).thenReturn([mockDocSnapshot]);
@@ -176,28 +185,35 @@ void main() {
       expect(result, equals([session]));
     });
 
-    test('getMessages returns mapped list ordered by createdAtMillis', () async {
-      final mockSnapshot = MockQuerySnapshot<ChatMessageDto>();
-      final mockDocSnapshot = MockQueryDocumentSnapshot<ChatMessageDto>();
-      final mockQuery = MockQuery<ChatMessageDto>();
+    test(
+      'getMessages returns mapped list ordered by createdAtMillis',
+      () async {
+        final mockSnapshot = MockQuerySnapshot<ChatMessageDto>();
+        final mockDocSnapshot = MockQueryDocumentSnapshot<ChatMessageDto>();
+        final mockQuery = MockQuery<ChatMessageDto>();
 
-      const message = ChatMessageDto(
-        id: 'msg_1',
-        sender: 'user',
-        text: 'hello',
-        createdAtMillis: 1000,
-      );
+        const message = ChatMessageDto(
+          id: 'msg_1',
+          sender: 'user',
+          text: 'hello',
+          createdAtMillis: 1000,
+        );
 
-      when(() => mockConvertedMessagesCol.orderBy('createdAtMillis', descending: false))
-          .thenReturn(mockQuery);
-      when(() => mockQuery.get()).thenAnswer((_) async => mockSnapshot);
-      when(() => mockSnapshot.docs).thenReturn([mockDocSnapshot]);
-      when(() => mockDocSnapshot.data()).thenReturn(message);
+        when(
+          () => mockConvertedMessagesCol.orderBy(
+            'createdAtMillis',
+            descending: false,
+          ),
+        ).thenReturn(mockQuery);
+        when(() => mockQuery.get()).thenAnswer((_) async => mockSnapshot);
+        when(() => mockSnapshot.docs).thenReturn([mockDocSnapshot]);
+        when(() => mockDocSnapshot.data()).thenReturn(message);
 
-      final result = await dataSource.getMessages('session_1');
+        final result = await dataSource.getMessages('session_1');
 
-      expect(result, equals([message]));
-    });
+        expect(result, equals([message]));
+      },
+    );
 
     test('falls back to guest_user when auth currentUser is null', () async {
       when(() => mockAuth.currentUser).thenReturn(null);
@@ -210,10 +226,10 @@ void main() {
         totalTokens: 0,
       );
 
-      when(() => mockConvertedSessionsCol.doc('s_guest'))
-          .thenReturn(mockConvertedSessionDoc);
-      when(() => mockConvertedSessionDoc.set(session))
-          .thenAnswer((_) async {});
+      when(
+        () => mockConvertedSessionsCol.doc('s_guest'),
+      ).thenReturn(mockConvertedSessionDoc);
+      when(() => mockConvertedSessionDoc.set(session)).thenAnswer((_) async {});
 
       await dataSource.saveSession(session);
 

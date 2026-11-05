@@ -15,7 +15,10 @@ import '../repo/chat_repo.dart';
 class SendMessageResult {
   final ChatMessageEntity assistantMessage;
   final TokenStatusEntity tokenStatus;
-  const SendMessageResult({required this.assistantMessage, required this.tokenStatus});
+  const SendMessageResult({
+    required this.assistantMessage,
+    required this.tokenStatus,
+  });
 }
 
 @lazySingleton
@@ -82,14 +85,15 @@ class SendSmartCoachMessageUseCase {
       currentTokens: currentSessionTokens,
     );
   }
-///======================path one=========================
+
+  ///======================path one=========================
   ///(1-convert message to entity and 2- save it with total tokens to fire store
   ///3-return message to user and new token status)
   Future<BaseResponse<SendMessageResult>> _handleDirectResponse(
-      String sessionId,
-      OllamaChatResponseDto aDto,
-      int currentTokens,
-      ) async {
+    String sessionId,
+    OllamaChatResponseDto aDto,
+    int currentTokens,
+  ) async {
     final totalTokens = currentTokens + aDto.totalTokens;
     final coachMsg = aDto.toEntity(
       id: 'cch_${DateTime.now().millisecondsSinceEpoch}',
@@ -104,7 +108,8 @@ class SendSmartCoachMessageUseCase {
       ),
     );
   }
-///========================= path two ==================================================
+
+  ///========================= path two ==================================================
   Future<BaseResponse<SendMessageResult>> _handleToolCallingTurn({
     required String sessionId,
     required OllamaChatResponseDto aDto,
@@ -123,7 +128,10 @@ class SendSmartCoachMessageUseCase {
 
     // 2. Add search results to message history with role: 'tool'
     messagesPayload.add(aDto.message!.toJson());
-    messagesPayload.add({'role': 'tool', 'content': candidateBlocks.join('\n\n')});
+    messagesPayload.add({
+      'role': 'tool',
+      'content': candidateBlocks.join('\n\n'),
+    });
 
     // 3. Execute Turn B: Send search results to AI and enforce JSON output schema
     final turnBRes = await _chatRepo.requestTurnB(
@@ -138,12 +146,14 @@ class SendSmartCoachMessageUseCase {
     // 4. Parse JSON response to extract exercise_ids & meal_ids
     final bDto = (turnBRes as SuccessResponse<OllamaChatResponseDto>).data;
     final totalTurnTokens = aDto.totalTokens + bDto.totalTokens;
-    final parsedJson = jsonDecode(bDto.message?.content ?? '{}') as Map<String, dynamic>;
+    final parsedJson =
+        jsonDecode(bDto.message?.content ?? '{}') as Map<String, dynamic>;
     final turnBDto = SmartCoachTurnBContentDto.fromJson(parsedJson);
 
     // 5. Hydrate: Fetch complete exercise & meal card entities from database by ID
     final exercises = turnBDto.exerciseIds.isNotEmpty
-        ? (await _catalogRepo.getExercisesByIds(turnBDto.exerciseIds)).data ?? []
+        ? (await _catalogRepo.getExercisesByIds(turnBDto.exerciseIds)).data ??
+              []
         : const <ExerciseCardEntity>[];
     final meals = turnBDto.mealIds.isNotEmpty
         ? (await _catalogRepo.getMealsByIds(turnBDto.mealIds)).data ?? []
@@ -167,25 +177,29 @@ class SendSmartCoachMessageUseCase {
   }
 
   Future<void> _processToolCall(
-      String? fn,
-      Map<String, dynamic> args,
-      List<String> candidateBlocks,
-      ) async {
+    String? fn,
+    Map<String, dynamic> args,
+    List<String> candidateBlocks,
+  ) async {
     if (fn == 'search_exercises') {
-      final res = await _catalogRepo.getExercises(ExerciseFilterParams(
-        muscleGroup: args['muscle_group'] as String?,
-        equipment: args['equipment'] as String?,
-        maxDifficulty: args['max_difficulty'] as int?,
-      ));
+      final res = await _catalogRepo.getExercises(
+        ExerciseFilterParams(
+          muscleGroup: args['muscle_group'] as String?,
+          equipment: args['equipment'] as String?,
+          maxDifficulty: args['max_difficulty'] as int?,
+        ),
+      );
       if (res is SuccessResponse<List<ExerciseCardEntity>>) {
         candidateBlocks.add(_formatExerciseBlock(res.data));
       }
     } else if (fn == 'search_meals') {
-      final res = await _catalogRepo.getMeals(MealFilterParams(
-        category: args['category'] as String?,
-        minProtein: (args['min_protein'] as num?)?.toDouble(),
-        maxKcal: (args['max_kcal'] as num?)?.toDouble(),
-      ));
+      final res = await _catalogRepo.getMeals(
+        MealFilterParams(
+          category: args['category'] as String?,
+          minProtein: (args['min_protein'] as num?)?.toDouble(),
+          maxKcal: (args['max_kcal'] as num?)?.toDouble(),
+        ),
+      );
       if (res is SuccessResponse<List<MealCardEntity>>) {
         candidateBlocks.add(_formatMealBlock(res.data));
       }
@@ -194,21 +208,34 @@ class SendSmartCoachMessageUseCase {
 
   TokenStatusEntity _calculateTokenStatus(int totalTokens) {
     if (totalTokens >= 8000) {
-      return TokenStatusEntity(totalTokens: totalTokens, level: TokenLimitLevel.locked8k);
+      return TokenStatusEntity(
+        totalTokens: totalTokens,
+        level: TokenLimitLevel.locked8k,
+      );
     }
     if (totalTokens >= 7000) {
-      return TokenStatusEntity(totalTokens: totalTokens, level: TokenLimitLevel.warning7k);
+      return TokenStatusEntity(
+        totalTokens: totalTokens,
+        level: TokenLimitLevel.warning7k,
+      );
     }
-    return TokenStatusEntity(totalTokens: totalTokens, level: TokenLimitLevel.normal);
+    return TokenStatusEntity(
+      totalTokens: totalTokens,
+      level: TokenLimitLevel.normal,
+    );
   }
 
   String _formatExerciseBlock(List<ExerciseCardEntity> items) {
-    final lines = items.map((e) => 'id=${e.id} | ${e.name} | ${e.muscleGroup ?? '-'}').join('\n');
+    final lines = items
+        .map((e) => 'id=${e.id} | ${e.name} | ${e.muscleGroup ?? '-'}')
+        .join('\n');
     return 'CANDIDATE EXERCISES:\n$lines';
   }
 
   String _formatMealBlock(List<MealCardEntity> items) {
-    final lines = items.map((m) => 'id=${m.id} | ${m.name} | ~${m.proteinG ?? 0}g protein').join('\n');
+    final lines = items
+        .map((m) => 'id=${m.id} | ${m.name} | ~${m.proteinG ?? 0}g protein')
+        .join('\n');
     return 'CANDIDATE MEALS:\n$lines';
   }
 
@@ -230,11 +257,17 @@ class SendSmartCoachMessageUseCase {
           height: height,
         ),
       },
-      ...h.map((m) => {'role': m.sender == ChatSender.user ? 'user' : 'assistant', 'content': m.text}),
+      ...h.map(
+        (m) => {
+          'role': m.sender == ChatSender.user ? 'user' : 'assistant',
+          'content': m.text,
+        },
+      ),
       {'role': 'user', 'content': userText},
     ];
   }
-///=======================Ai configuration ==================================================
+
+  ///=======================Ai configuration ==================================================
   String _buildSystemPrompt({
     String? goal,
     String? activityLevel,
@@ -242,10 +275,14 @@ class SendSmartCoachMessageUseCase {
     num? height,
   }) {
     final buffer = StringBuffer(_baseSystemPrompt);
-    if (goal != null || activityLevel != null || weight != null || height != null) {
+    if (goal != null ||
+        activityLevel != null ||
+        weight != null ||
+        height != null) {
       buffer.write('\nUSER PROFILE: ');
       if (goal != null && goal.isNotEmpty) buffer.write('Goal: $goal. ');
-      if (activityLevel != null && activityLevel.isNotEmpty) buffer.write('Level: $activityLevel. ');
+      if (activityLevel != null && activityLevel.isNotEmpty)
+        buffer.write('Level: $activityLevel. ');
       if (weight != null) buffer.write('Weight: ${weight}kg. ');
       if (height != null) buffer.write('Height: ${height}cm. ');
     }
@@ -259,13 +296,14 @@ class SendSmartCoachMessageUseCase {
       'muscle_group: Abdominals | Chest | Glutes | Hamstrings | Shoulders. '
       'equipment: Bodyweight | Dumbbell | Barbell | Cable. '
       'max_difficulty: Beginner=1 | Novice=2 | Intermediate=3 | Advanced=4.';
-//-----------------------------------------------------------------------------
+  //-----------------------------------------------------------------------------
   static const List<Map<String, dynamic>> _toolsSchema = [
     {
       'type': 'function',
       'function': {
         'name': 'search_exercises',
-        'description': 'Find exercises in catalog using exact vocabulary values.',
+        'description':
+            'Find exercises in catalog using exact vocabulary values.',
         'parameters': {
           'type': 'object',
           'properties': {
@@ -294,13 +332,19 @@ class SendSmartCoachMessageUseCase {
       },
     },
   ];
-//----------------------------------------------------------------
+  //----------------------------------------------------------------
   static const Map<String, dynamic> _formatSchema = {
     'type': 'object',
     'properties': {
       'reply': {'type': 'string'},
-      'exercise_ids': {'type': 'array', 'items': {'type': 'string'}},
-      'meal_ids': {'type': 'array', 'items': {'type': 'string'}},
+      'exercise_ids': {
+        'type': 'array',
+        'items': {'type': 'string'},
+      },
+      'meal_ids': {
+        'type': 'array',
+        'items': {'type': 'string'},
+      },
     },
     'required': ['reply', 'exercise_ids', 'meal_ids'],
   };

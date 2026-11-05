@@ -14,7 +14,11 @@ abstract interface class ChatRepo {
     required Map<String, dynamic> formatSchema,
   });
 
-  Future<BaseResponse<void>> saveMessage(String sessionId, ChatMessageEntity msg, int tokens);
+  Future<BaseResponse<void>> saveMessage(
+    String sessionId,
+    ChatMessageEntity msg,
+    int tokens,
+  );
   Future<BaseResponse<List<ChatMessageEntity>>> getMessages(String sessionId);
   Future<BaseResponse<List<ChatSessionEntity>>> getPreviousSessions();
 }

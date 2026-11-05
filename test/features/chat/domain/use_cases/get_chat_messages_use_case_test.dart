@@ -29,8 +29,9 @@ void main() {
     ];
 
     test('returns SuccessResponse with messages when repo succeeds', () async {
-      when(() => mockChatRepo.getMessages(tSessionId))
-          .thenAnswer((_) async => SuccessResponse(tMessages));
+      when(
+        () => mockChatRepo.getMessages(tSessionId),
+      ).thenAnswer((_) async => SuccessResponse(tMessages));
 
       final result = await useCase(tSessionId);
 
@@ -41,8 +42,9 @@ void main() {
 
     test('returns ErrorResponse when repo fails', () async {
       const failure = ServerFailure(serverMessage: 'Database read error');
-      when(() => mockChatRepo.getMessages(tSessionId))
-          .thenAnswer((_) async => ErrorResponse(failure: failure));
+      when(
+        () => mockChatRepo.getMessages(tSessionId),
+      ).thenAnswer((_) async => ErrorResponse(failure: failure));
 
       final result = await useCase(tSessionId);
 

@@ -28,8 +28,9 @@ void main() {
     ];
 
     test('returns SuccessResponse with sessions when repo succeeds', () async {
-      when(() => mockChatRepo.getPreviousSessions())
-          .thenAnswer((_) async => SuccessResponse(tSessions));
+      when(
+        () => mockChatRepo.getPreviousSessions(),
+      ).thenAnswer((_) async => SuccessResponse(tSessions));
 
       final result = await useCase();
 
@@ -40,8 +41,9 @@ void main() {
 
     test('returns ErrorResponse when repo fails', () async {
       const failure = ServerFailure(serverMessage: 'Firestore unavailable');
-      when(() => mockChatRepo.getPreviousSessions())
-          .thenAnswer((_) async => ErrorResponse(failure: failure));
+      when(
+        () => mockChatRepo.getPreviousSessions(),
+      ).thenAnswer((_) async => ErrorResponse(failure: failure));
 
       final result = await useCase();
 

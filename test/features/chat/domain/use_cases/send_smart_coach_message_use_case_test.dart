@@ -44,77 +44,109 @@ void main() {
   });
 
   group('SendSmartCoachMessageUseCase —', () {
-    test('returns ChatTokenLimitFailure when currentSessionTokens >= 8000', () async {
-      final result = await useCase(
-        sessionId: tSessionId,
-        userText: 'Hello',
-        history: const [],
-        currentSessionTokens: 8000,
-      );
+    test(
+      'returns ChatTokenLimitFailure when currentSessionTokens >= 8000',
+      () async {
+        final result = await useCase(
+          sessionId: tSessionId,
+          userText: 'Hello',
+          history: const [],
+          currentSessionTokens: 8000,
+        );
 
-      expect(result, isA<ErrorResponse<SendMessageResult>>());
-      final failure = (result as ErrorResponse).failure;
-      expect(failure, isA<ChatTokenLimitFailure>());
-      verifyNever(() => mockChatRepo.requestTurnA(messages: any(named: 'messages'), tools: any(named: 'tools')));
-    });
+        expect(result, isA<ErrorResponse<SendMessageResult>>());
+        final failure = (result as ErrorResponse).failure;
+        expect(failure, isA<ChatTokenLimitFailure>());
+        verifyNever(
+          () => mockChatRepo.requestTurnA(
+            messages: any(named: 'messages'),
+            tools: any(named: 'tools'),
+          ),
+        );
+      },
+    );
 
-    test('returns direct assistant response and saves user/coach messages', () async {
-      const aDto = OllamaChatResponseDto(
-        message: OllamaMessageDto(role: 'assistant', content: 'You can do this!'),
-        promptEvalCount: 50,
-        evalCount: 30,
-      );
+    test(
+      'returns direct assistant response and saves user/coach messages',
+      () async {
+        const aDto = OllamaChatResponseDto(
+          message: OllamaMessageDto(
+            role: 'assistant',
+            content: 'You can do this!',
+          ),
+          promptEvalCount: 50,
+          evalCount: 30,
+        );
 
-      when(() => mockChatRepo.saveMessage(any(), any(), any()))
-          .thenAnswer((_) async => const SuccessResponse(null));
-      when(() => mockChatRepo.requestTurnA(messages: any(named: 'messages'), tools: any(named: 'tools')))
-          .thenAnswer((_) async => const SuccessResponse(aDto));
+        when(
+          () => mockChatRepo.saveMessage(any(), any(), any()),
+        ).thenAnswer((_) async => const SuccessResponse(null));
+        when(
+          () => mockChatRepo.requestTurnA(
+            messages: any(named: 'messages'),
+            tools: any(named: 'tools'),
+          ),
+        ).thenAnswer((_) async => const SuccessResponse(aDto));
 
-      final result = await useCase(
-        sessionId: tSessionId,
-        userText: 'Inspire me',
-        history: const [],
-        currentSessionTokens: 1000,
-      );
+        final result = await useCase(
+          sessionId: tSessionId,
+          userText: 'Inspire me',
+          history: const [],
+          currentSessionTokens: 1000,
+        );
 
-      expect(result, isA<SuccessResponse<SendMessageResult>>());
-      final data = (result as SuccessResponse<SendMessageResult>).data;
-      expect(data.assistantMessage.text, equals('You can do this!'));
-      expect(data.tokenStatus.level, equals(TokenLimitLevel.normal));
-      verify(() => mockChatRepo.saveMessage(tSessionId, any(), 0)).called(1);
-      verify(() => mockChatRepo.saveMessage(tSessionId, any(), 80)).called(1);
-    });
+        expect(result, isA<SuccessResponse<SendMessageResult>>());
+        final data = (result as SuccessResponse<SendMessageResult>).data;
+        expect(data.assistantMessage.text, equals('You can do this!'));
+        expect(data.tokenStatus.level, equals(TokenLimitLevel.normal));
+        verify(() => mockChatRepo.saveMessage(tSessionId, any(), 0)).called(1);
+        verify(() => mockChatRepo.saveMessage(tSessionId, any(), 80)).called(1);
+      },
+    );
 
-    test('calculates token warning level when total tokens reach 7000', () async {
-      const aDto = OllamaChatResponseDto(
-        message: OllamaMessageDto(role: 'assistant', content: 'Almost full!'),
-        promptEvalCount: 100,
-        evalCount: 50,
-      );
+    test(
+      'calculates token warning level when total tokens reach 7000',
+      () async {
+        const aDto = OllamaChatResponseDto(
+          message: OllamaMessageDto(role: 'assistant', content: 'Almost full!'),
+          promptEvalCount: 100,
+          evalCount: 50,
+        );
 
-      when(() => mockChatRepo.saveMessage(any(), any(), any()))
-          .thenAnswer((_) async => const SuccessResponse(null));
-      when(() => mockChatRepo.requestTurnA(messages: any(named: 'messages'), tools: any(named: 'tools')))
-          .thenAnswer((_) async => const SuccessResponse(aDto));
+        when(
+          () => mockChatRepo.saveMessage(any(), any(), any()),
+        ).thenAnswer((_) async => const SuccessResponse(null));
+        when(
+          () => mockChatRepo.requestTurnA(
+            messages: any(named: 'messages'),
+            tools: any(named: 'tools'),
+          ),
+        ).thenAnswer((_) async => const SuccessResponse(aDto));
 
-      final result = await useCase(
-        sessionId: tSessionId,
-        userText: 'Inspire me',
-        history: const [],
-        currentSessionTokens: 6900,
-      );
+        final result = await useCase(
+          sessionId: tSessionId,
+          userText: 'Inspire me',
+          history: const [],
+          currentSessionTokens: 6900,
+        );
 
-      expect(result, isA<SuccessResponse<SendMessageResult>>());
-      final data = (result as SuccessResponse<SendMessageResult>).data;
-      expect(data.tokenStatus.level, equals(TokenLimitLevel.warning7k));
-    });
+        expect(result, isA<SuccessResponse<SendMessageResult>>());
+        final data = (result as SuccessResponse<SendMessageResult>).data;
+        expect(data.tokenStatus.level, equals(TokenLimitLevel.warning7k));
+      },
+    );
 
     test('returns ErrorResponse when Turn A fails', () async {
       const failure = ServerFailure(serverMessage: 'Ollama server 500');
-      when(() => mockChatRepo.saveMessage(any(), any(), any()))
-          .thenAnswer((_) async => const SuccessResponse(null));
-      when(() => mockChatRepo.requestTurnA(messages: any(named: 'messages'), tools: any(named: 'tools')))
-          .thenAnswer((_) async => ErrorResponse(failure: failure));
+      when(
+        () => mockChatRepo.saveMessage(any(), any(), any()),
+      ).thenAnswer((_) async => const SuccessResponse(null));
+      when(
+        () => mockChatRepo.requestTurnA(
+          messages: any(named: 'messages'),
+          tools: any(named: 'tools'),
+        ),
+      ).thenAnswer((_) async => ErrorResponse(failure: failure));
 
       final result = await useCase(
         sessionId: tSessionId,
@@ -153,7 +185,8 @@ void main() {
       const bDto = OllamaChatResponseDto(
         message: OllamaMessageDto(
           role: 'assistant',
-          content: '{"reply":"Try bench press and eggs!","exercise_ids":["bench-press"],"meal_ids":["egg-toast"]}',
+          content:
+              '{"reply":"Try bench press and eggs!","exercise_ids":["bench-press"],"meal_ids":["egg-toast"]}',
         ),
         promptEvalCount: 40,
         evalCount: 20,
@@ -162,20 +195,33 @@ void main() {
       const exCard = ExerciseCardEntity(id: 'bench-press', name: 'Bench Press');
       const mlCard = MealCardEntity(id: 'egg-toast', name: 'Egg Toast');
 
-      when(() => mockChatRepo.saveMessage(any(), any(), any()))
-          .thenAnswer((_) async => const SuccessResponse(null));
-      when(() => mockChatRepo.requestTurnA(messages: any(named: 'messages'), tools: any(named: 'tools')))
-          .thenAnswer((_) async => const SuccessResponse(aDto));
-      when(() => mockCatalogRepo.getExercises(any()))
-          .thenAnswer((_) async => const SuccessResponse([exCard]));
-      when(() => mockCatalogRepo.getMeals(any()))
-          .thenAnswer((_) async => const SuccessResponse([mlCard]));
-      when(() => mockChatRepo.requestTurnB(messages: any(named: 'messages'), formatSchema: any(named: 'formatSchema')))
-          .thenAnswer((_) async => const SuccessResponse(bDto));
-      when(() => mockCatalogRepo.getExercisesByIds(['bench-press']))
-          .thenAnswer((_) async => const SuccessResponse([exCard]));
-      when(() => mockCatalogRepo.getMealsByIds(['egg-toast']))
-          .thenAnswer((_) async => const SuccessResponse([mlCard]));
+      when(
+        () => mockChatRepo.saveMessage(any(), any(), any()),
+      ).thenAnswer((_) async => const SuccessResponse(null));
+      when(
+        () => mockChatRepo.requestTurnA(
+          messages: any(named: 'messages'),
+          tools: any(named: 'tools'),
+        ),
+      ).thenAnswer((_) async => const SuccessResponse(aDto));
+      when(
+        () => mockCatalogRepo.getExercises(any()),
+      ).thenAnswer((_) async => const SuccessResponse([exCard]));
+      when(
+        () => mockCatalogRepo.getMeals(any()),
+      ).thenAnswer((_) async => const SuccessResponse([mlCard]));
+      when(
+        () => mockChatRepo.requestTurnB(
+          messages: any(named: 'messages'),
+          formatSchema: any(named: 'formatSchema'),
+        ),
+      ).thenAnswer((_) async => const SuccessResponse(bDto));
+      when(
+        () => mockCatalogRepo.getExercisesByIds(['bench-press']),
+      ).thenAnswer((_) async => const SuccessResponse([exCard]));
+      when(
+        () => mockCatalogRepo.getMealsByIds(['egg-toast']),
+      ).thenAnswer((_) async => const SuccessResponse([mlCard]));
 
       final result = await useCase(
         sessionId: tSessionId,
@@ -208,14 +254,24 @@ void main() {
       );
 
       const failure = ServerFailure(serverMessage: 'Turn B timeout');
-      when(() => mockChatRepo.saveMessage(any(), any(), any()))
-          .thenAnswer((_) async => const SuccessResponse(null));
-      when(() => mockChatRepo.requestTurnA(messages: any(named: 'messages'), tools: any(named: 'tools')))
-          .thenAnswer((_) async => const SuccessResponse(aDto));
-      when(() => mockCatalogRepo.getExercises(any()))
-          .thenAnswer((_) async => const SuccessResponse([]));
-      when(() => mockChatRepo.requestTurnB(messages: any(named: 'messages'), formatSchema: any(named: 'formatSchema')))
-          .thenAnswer((_) async => ErrorResponse(failure: failure));
+      when(
+        () => mockChatRepo.saveMessage(any(), any(), any()),
+      ).thenAnswer((_) async => const SuccessResponse(null));
+      when(
+        () => mockChatRepo.requestTurnA(
+          messages: any(named: 'messages'),
+          tools: any(named: 'tools'),
+        ),
+      ).thenAnswer((_) async => const SuccessResponse(aDto));
+      when(
+        () => mockCatalogRepo.getExercises(any()),
+      ).thenAnswer((_) async => const SuccessResponse([]));
+      when(
+        () => mockChatRepo.requestTurnB(
+          messages: any(named: 'messages'),
+          formatSchema: any(named: 'formatSchema'),
+        ),
+      ).thenAnswer((_) async => ErrorResponse(failure: failure));
 
       final result = await useCase(
         sessionId: tSessionId,
@@ -233,10 +289,15 @@ void main() {
         message: OllamaMessageDto(role: 'assistant', content: 'Personalized!'),
       );
 
-      when(() => mockChatRepo.saveMessage(any(), any(), any()))
-          .thenAnswer((_) async => const SuccessResponse(null));
-      when(() => mockChatRepo.requestTurnA(messages: any(named: 'messages'), tools: any(named: 'tools')))
-          .thenAnswer((_) async => const SuccessResponse(aDto));
+      when(
+        () => mockChatRepo.saveMessage(any(), any(), any()),
+      ).thenAnswer((_) async => const SuccessResponse(null));
+      when(
+        () => mockChatRepo.requestTurnA(
+          messages: any(named: 'messages'),
+          tools: any(named: 'tools'),
+        ),
+      ).thenAnswer((_) async => const SuccessResponse(aDto));
 
       await useCase(
         sessionId: tSessionId,
@@ -249,12 +310,14 @@ void main() {
         userHeight: 175,
       );
 
-      final captured = verify(
-        () => mockChatRepo.requestTurnA(
-          messages: captureAny(named: 'messages'),
-          tools: any(named: 'tools'),
-        ),
-      ).captured.first as List<Map<String, dynamic>>;
+      final captured =
+          verify(
+                () => mockChatRepo.requestTurnA(
+                  messages: captureAny(named: 'messages'),
+                  tools: any(named: 'tools'),
+                ),
+              ).captured.first
+              as List<Map<String, dynamic>>;
 
       final systemContent = captured.first['content'] as String;
       expect(systemContent, contains('Goal: fat_loss'));

@@ -21,35 +21,44 @@ class ChatRepoImp implements ChatRepo {
   final CatalogRepo _catalogRepo;
 
   const ChatRepoImp(
-      this._remoteDataSource,
-      this._fireStoreDataSource,
-      this._catalogRepo,
-      );
-///------------------requestTurnA----------------------------------------------------
+    this._remoteDataSource,
+    this._fireStoreDataSource,
+    this._catalogRepo,
+  );
+
+  ///------------------requestTurnA----------------------------------------------------
   @override
   Future<BaseResponse<OllamaChatResponseDto>> requestTurnA({
     required List<Map<String, dynamic>> messages,
     required List<Map<String, dynamic>> tools,
-  }) => safeCall(() => _remoteDataSource.sendTurnA(messages: messages, tools: tools));
+  }) => safeCall(
+    () => _remoteDataSource.sendTurnA(messages: messages, tools: tools),
+  );
 
-
-///-------------------------requestTurnB----------------------------------------------------
+  ///-------------------------requestTurnB----------------------------------------------------
   @override
   Future<BaseResponse<OllamaChatResponseDto>> requestTurnB({
     required List<Map<String, dynamic>> messages,
     required Map<String, dynamic> formatSchema,
-  }) => safeCall(() => _remoteDataSource.sendTurnB(messages: messages, formatSchema: formatSchema));
-
-
+  }) => safeCall(
+    () => _remoteDataSource.sendTurnB(
+      messages: messages,
+      formatSchema: formatSchema,
+    ),
+  );
 
   ///----------------------saveMessage----------------------------------------------------
   @override
-  Future<BaseResponse<void>> saveMessage(String sessionId, ChatMessageEntity msg, int tokens) =>
-      safeCall(() => _fireStoreDataSource.saveMessage(
-        sessionId,
-        ChatMessageDto.fromEntity(msg, tokens),
-      ));
-
+  Future<BaseResponse<void>> saveMessage(
+    String sessionId,
+    ChatMessageEntity msg,
+    int tokens,
+  ) => safeCall(
+    () => _fireStoreDataSource.saveMessage(
+      sessionId,
+      ChatMessageDto.fromEntity(msg, tokens),
+    ),
+  );
 
   ///-------------------------------get messages----------------------------------------------------
   @override
@@ -60,7 +69,8 @@ class ChatRepoImp implements ChatRepo {
 
         for (final dto in dtos) {
           final exercises = dto.exerciseRefs.isNotEmpty
-              ? (await _catalogRepo.getExercisesByIds(dto.exerciseRefs)).data ?? []
+              ? (await _catalogRepo.getExercisesByIds(dto.exerciseRefs)).data ??
+                    []
               : const <ExerciseCardEntity>[];
           final meals = dto.mealRefs.isNotEmpty
               ? (await _catalogRepo.getMealsByIds(dto.mealRefs)).data ?? []
@@ -70,7 +80,6 @@ class ChatRepoImp implements ChatRepo {
         }
         return messages;
       });
-
 
   ///-----------get previous sessions----------------------------------------------------
   @override

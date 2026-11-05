@@ -5,9 +5,9 @@ sealed class BaseResponse<T> {
   const BaseResponse();
 
   T? get data => switch (this) {
-        SuccessResponse(:final data) => data,
-        ErrorResponse() => null,
-      };
+    SuccessResponse(:final data) => data,
+    ErrorResponse() => null,
+  };
 }
 
 class SuccessResponse<T> extends BaseResponse<T> {

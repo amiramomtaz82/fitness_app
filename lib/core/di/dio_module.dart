@@ -75,7 +75,4 @@ abstract class DioModule {
     dioInstance.interceptors.add(PrettyDioLogger(responseBody: false));
     return dioInstance;
   }
-
-  
 }
-

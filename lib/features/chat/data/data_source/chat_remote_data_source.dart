@@ -15,7 +15,8 @@ class ChatRemoteDataSource {
     final key = await _secureStorage.read(key: 'OLLAMA_API_KEY');
     return 'Bearer ${key ?? ''}';
   }
-//------------------turn A----------------------------------------------------
+
+  //------------------turn A----------------------------------------------------
   Future<OllamaChatResponseDto> sendTurnA({
     required List<Map<String, dynamic>> messages,
     required List<Map<String, dynamic>> tools,
@@ -30,7 +31,8 @@ class ChatRemoteDataSource {
       'options': {'temperature': 0.6, 'num_predict': 512},
     });
   }
-//------------------turn B----------------------------------------------------
+
+  //------------------turn B----------------------------------------------------
   Future<OllamaChatResponseDto> sendTurnB({
     required List<Map<String, dynamic>> messages,
     required Map<String, dynamic> formatSchema,

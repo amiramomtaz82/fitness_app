@@ -36,7 +36,8 @@ class OllamaChatResponseDto {
 
   int get cachedTokens => promptEvalCachedCount ?? 0;
 
-  bool get hasToolCalls => message?.toolCalls != null && message!.toolCalls!.isNotEmpty;
+  bool get hasToolCalls =>
+      message?.toolCalls != null && message!.toolCalls!.isNotEmpty;
 
   /// Directly converts coach direct response to Domain Entity
   ChatMessageEntity toEntity({
