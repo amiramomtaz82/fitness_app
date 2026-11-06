@@ -3,6 +3,8 @@ import 'package:get_it/get_it.dart';
 import 'package:go_router/go_router.dart';
 
 import '../core/di/di.dart';
+import '../core/contants/web_pages.dart';
+import '../core/widgets/web_view/web_view_screen.dart';
 import '../features/auth/presentation/forget_password/view/forget_password_view.dart';
 import '../features/auth/presentation/forget_password/view_model/forget_password_cubit.dart';
 import '../features/auth/presentation/login/view/login_view.dart';
@@ -14,7 +16,11 @@ import '../features/chat/presentation/view/screens/smart_coach_screen.dart';
 import '../features/home/presentation/view/screens/home_screen.dart';
 import '../features/home/presentation/view/screens/workouts_screen.dart';
 import '../features/on_bording/views/onboarding_view.dart';
-import '../features/profile/presentation/view/screens/profile_screen.dart';
+import '../features/profile/presentation/edit_profile/view/screens/edit_profile_screen.dart';
+import '../features/profile/presentation/edit_profile/view_model/edit_profile_cubit.dart';
+import '../features/profile/presentation/profile/view/screens/profile_screen.dart';
+import '../features/profile/presentation/profile/view_model/profile_cubit.dart';
+import '../features/profile/presentation/profile_scope.dart';
 import '../features/splash/presentation/views/splash_view.dart';
 import 'bottom_bar/bottom_navigation_bar.dart';
 import 'routes_names.dart';
@@ -79,6 +85,25 @@ final GoRouter appRouter = GoRouter(
       ),
     ),
 
+    // Static web content (security, privacy policy, help)
+    GoRoute(
+      path: AppRoutes.webView,
+      name: AppRoutes.webView,
+      builder: (context, state) => WebViewScreen(page: state.extra! as WebPage),
+    ),
+
+    GoRoute(
+      path: AppRoutes.editProfile,
+      name: AppRoutes.editProfile,
+      builder: (context, state) => MultiBlocProvider(
+        providers: [
+          BlocProvider.value(value: getIt<ProfileCubit>()),
+          BlocProvider(create: (_) => getIt<EditProfileCubit>()),
+        ],
+        child: const EditProfileScreen(),
+      ),
+    ),
+
     // Main app with bottom navigation
     StatefulShellRoute.indexedStack(
       builder: (context, state, navigationShell) {
@@ -124,7 +149,8 @@ final GoRouter appRouter = GoRouter(
             GoRoute(
               path: AppRoutes.profile,
               name: AppRoutes.profile,
-              builder: (context, state) => const ProfileScreen(),
+              builder: (context, state) =>
+                  const ProfileScope(child: ProfileScreen()),
             ),
           ],
         ),
