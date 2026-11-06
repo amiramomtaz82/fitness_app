@@ -24,3 +24,6 @@ final class MenuTapIntent extends ProfileIntent {
 
   const MenuTapIntent(this.item);
 }
+final class ConfirmLogoutIntent extends ProfileIntent {
+  const ConfirmLogoutIntent();
+}

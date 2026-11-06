@@ -9,6 +9,7 @@ import '../../../../../core/error/failures.dart';
 import '../../../../../core/resource/resource.dart';
 import '../../../domain/entities/profile_entity.dart';
 import '../../../domain/use_cases/get_profile_use_case.dart';
+import '../../../domain/use_cases/logout_use_case.dart';
 import '../../../domain/use_cases/pick_photo_use_case.dart';
 import '../../../domain/use_cases/upload_photo_use_case.dart';
 import '../view/models/profile_menu_action.dart';
@@ -22,6 +23,7 @@ class ProfileCubit extends BaseCubit<ProfileState, BaseUiEvent> {
   final GetProfileUseCase _getProfileUseCase;
   final UploadPhotoUseCase _uploadPhotoUseCase;
   final PickPhotoUseCase _pickPhotoUseCase;
+  final LogoutUseCase _logoutUseCase;
 
   Future<void>? _pendingFetch;
   int _fetchId = 0;
@@ -30,6 +32,7 @@ class ProfileCubit extends BaseCubit<ProfileState, BaseUiEvent> {
     this._getProfileUseCase,
     this._uploadPhotoUseCase,
     this._pickPhotoUseCase,
+      this._logoutUseCase,
   ) : super(const ProfileState());
 
   void doIntent(ProfileIntent intent) {
@@ -42,9 +45,21 @@ class ProfileCubit extends BaseCubit<ProfileState, BaseUiEvent> {
         _pickAndUpload();
       case MenuTapIntent(:final item):
         _onMenuTap(item);
+      case ConfirmLogoutIntent():
+        _logout();
     }
   }
-
+  Future<void> _logout() async {
+    final response = await _logoutUseCase();
+    switch (response) {
+      case SuccessResponse<void>():
+        _clearCache();
+        emitSuccess(CubitMessageType.logoutSuccess);
+        emitEvent(const NavigateReplacementEvent(AppRoutes.login));
+      case ErrorResponse<void>(:final failure):
+        emitFailure(failure);
+    }
+  }
   void _onMenuTap(ProfileMenuItem item) {
     switch (item.action) {
       case ProfileMenuAction.editProfile:
