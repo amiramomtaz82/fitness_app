@@ -1,5 +1,5 @@
-import 'package:fitness_app/core/constants/catalog_db_constants.dart';
-import 'package:fitness_app/core/local/local_database_service.dart';
+import 'package:fitness_app/features/chat/data/local/exercises_database.dart';
+import 'package:fitness_app/features/chat/data/local/meals_database.dart';
 import 'package:fitness_app/features/chat/data/models/exercise_card_model.dart';
 import 'package:fitness_app/features/chat/data/models/meal_card_model.dart';
 import 'package:fitness_app/features/chat/domain/entites/catalog_entities/filter_params.dart';
@@ -9,17 +9,19 @@ import 'catalog_local_data_source.dart';
 
 @Injectable(as: CatalogLocalDataSource)
 class CatalogLocalDataSourceImpl implements CatalogLocalDataSource {
-  final LocalDatabaseService _databaseService;
+  final ExercisesDatabase _exercisesDatabase;
+  final MealsDatabase _mealsDatabase;
 
-  const CatalogLocalDataSourceImpl(this._databaseService);
+  const CatalogLocalDataSourceImpl(
+    this._exercisesDatabase,
+    this._mealsDatabase,
+  );
 
   Future<List<ExerciseCardModel>> _queryExercises(
     String where,
     List<Object?> arguments,
   ) async {
-    final database = await _databaseService.openLocalDatabase(
-      CatalogDbConstants.exercisesDb,
-    );
+    final database = await _exercisesDatabase.instance;
 
     final result = await database.rawQuery('''
       SELECT
@@ -44,38 +46,46 @@ class CatalogLocalDataSourceImpl implements CatalogLocalDataSource {
   Future<List<ExerciseCardModel>> getExercises(
     ExerciseFilterParams params,
   ) async {
-    final result = await _queryExercises(
-      '''
-      WHERE (? IS NULL OR mg.name = ? OR mg.name_ar = ?)
-        AND (
-          ? IS NULL
-          OR e.primary_equipment_id IN (
-            SELECT id FROM equipment WHERE name = ? OR name_ar = ?
-          )
-          OR e.secondary_equipment_id IN (
-            SELECT id FROM equipment WHERE name = ? OR name_ar = ?
-          )
+    final conditions = <String>[];
+    final arguments = <Object?>[];
+
+    if (params.muscleGroup != null) {
+      conditions.add('(mg.name = ? OR mg.name_ar = ?)');
+      arguments.addAll([params.muscleGroup, params.muscleGroup]);
+    }
+
+    if (params.equipment != null) {
+      conditions.add('''(
+        e.primary_equipment_id IN (
+          SELECT id FROM equipment WHERE name = ? OR name_ar = ?
         )
-        AND (? IS NULL OR e.difficulty_rank <= ?)
+        OR e.secondary_equipment_id IN (
+          SELECT id FROM equipment WHERE name = ? OR name_ar = ?
+        )
+      )''');
+      arguments.addAll([
+        params.equipment,
+        params.equipment,
+        params.equipment,
+        params.equipment,
+      ]);
+    }
+
+    if (params.maxDifficulty != null) {
+      conditions.add('e.difficulty_rank <= ?');
+      arguments.add(params.maxDifficulty);
+    }
+
+    final where = conditions.isEmpty ? '' : 'WHERE ${conditions.join(' AND ')}';
+
+    return _queryExercises(
+      '''
+      $where
       ORDER BY e.popularity DESC
       LIMIT ?
       ''',
-      [
-        params.muscleGroup,
-        params.muscleGroup,
-        params.muscleGroup,
-        params.equipment,
-        params.equipment,
-        params.equipment,
-        params.equipment,
-        params.equipment,
-        params.maxDifficulty,
-        params.maxDifficulty,
-        params.limit,
-      ],
+      [...arguments, params.limit],
     );
-
-    return result;
   }
 
   @override
@@ -89,9 +99,27 @@ class CatalogLocalDataSourceImpl implements CatalogLocalDataSource {
 
   @override
   Future<List<MealCardModel>> getMeals(MealFilterParams params) async {
-    final database = await _databaseService.openLocalDatabase(
-      CatalogDbConstants.mealsDb,
-    );
+    final database = await _mealsDatabase.instance;
+
+    final conditions = <String>[];
+    final arguments = <Object?>[];
+
+    if (params.category != null) {
+      conditions.add('(mc.name = ? OR mc.name_ar = ?)');
+      arguments.addAll([params.category, params.category]);
+    }
+
+    if (params.minProtein != null) {
+      conditions.add('m.protein_g >= ?');
+      arguments.add(params.minProtein);
+    }
+
+    if (params.maxKcal != null) {
+      conditions.add('m.kcal <= ?');
+      arguments.add(params.maxKcal);
+    }
+
+    final where = conditions.isEmpty ? '' : 'WHERE ${conditions.join(' AND ')}';
 
     final result = await database.rawQuery(
       '''
@@ -105,22 +133,11 @@ class CatalogLocalDataSourceImpl implements CatalogLocalDataSource {
       FROM meal m
       LEFT JOIN meal_category mc
         ON m.category_id = mc.id
-      WHERE (? IS NULL OR mc.name = ? OR mc.name_ar = ?)
-        AND (? IS NULL OR m.protein_g >= ?)
-        AND (? IS NULL OR m.kcal <= ?)
+      $where
       ORDER BY m.popularity DESC
       LIMIT ?
       ''',
-      [
-        params.category,
-        params.category,
-        params.category,
-        params.minProtein,
-        params.minProtein,
-        params.maxKcal,
-        params.maxKcal,
-        params.limit,
-      ],
+      [...arguments, params.limit],
     );
 
     return result.map(MealCardModel.fromJson).toList();
@@ -130,9 +147,7 @@ class CatalogLocalDataSourceImpl implements CatalogLocalDataSource {
   Future<List<MealCardModel>> getMealsByIds(List<String> ids) async {
     if (ids.isEmpty) return [];
 
-    final database = await _databaseService.openLocalDatabase(
-      CatalogDbConstants.mealsDb,
-    );
+    final database = await _mealsDatabase.instance;
 
     final placeholders = List.filled(ids.length, '?').join(',');
 

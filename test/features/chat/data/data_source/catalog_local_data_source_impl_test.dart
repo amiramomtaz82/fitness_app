@@ -4,16 +4,17 @@ import 'package:mockito/annotations.dart';
 import 'package:mockito/mockito.dart';
 import 'package:sqflite/sqflite.dart';
 
-import 'package:fitness_app/core/constants/catalog_db_constants.dart';
-import 'package:fitness_app/core/local/local_database_service.dart';
 import 'package:fitness_app/features/chat/data/data_source/catalog_local_data_source_impl.dart';
+import 'package:fitness_app/features/chat/data/local/exercises_database.dart';
+import 'package:fitness_app/features/chat/data/local/meals_database.dart';
 
 import 'catalog_local_data_source_impl_test.mocks.dart';
 
-@GenerateMocks([LocalDatabaseService, Database])
+@GenerateMocks([ExercisesDatabase, MealsDatabase, Database])
 void main() {
   late CatalogLocalDataSourceImpl dataSource;
-  late MockLocalDatabaseService mockDatabaseService;
+  late MockExercisesDatabase mockExercisesDatabase;
+  late MockMealsDatabase mockMealsDatabase;
   late MockDatabase mockDatabase;
 
   final exerciseRow = <String, Object?>{
@@ -35,18 +36,17 @@ void main() {
   };
 
   setUp(() {
-    mockDatabaseService = MockLocalDatabaseService();
+    mockExercisesDatabase = MockExercisesDatabase();
+    mockMealsDatabase = MockMealsDatabase();
     mockDatabase = MockDatabase();
 
-    dataSource = CatalogLocalDataSourceImpl(mockDatabaseService);
+    dataSource = CatalogLocalDataSourceImpl(
+      mockExercisesDatabase,
+      mockMealsDatabase,
+    );
 
-    when(
-      mockDatabaseService.openLocalDatabase(CatalogDbConstants.exercisesDb),
-    ).thenAnswer((_) async => mockDatabase);
-
-    when(
-      mockDatabaseService.openLocalDatabase(CatalogDbConstants.mealsDb),
-    ).thenAnswer((_) async => mockDatabase);
+    when(mockExercisesDatabase.instance).thenAnswer((_) async => mockDatabase);
+    when(mockMealsDatabase.instance).thenAnswer((_) async => mockDatabase);
   });
 
   group('getExercises', () {
@@ -64,9 +64,7 @@ void main() {
       expect(result.first.id, '1');
       expect(result.first.name, 'Push Up');
 
-      verify(
-        mockDatabaseService.openLocalDatabase(CatalogDbConstants.exercisesDb),
-      ).called(1);
+      verify(mockExercisesDatabase.instance).called(1);
     });
 
     test('should return empty list when no exercises found', () async {
@@ -110,9 +108,7 @@ void main() {
       expect(result, hasLength(1));
       expect(result.first.id, '1');
 
-      verify(
-        mockDatabaseService.openLocalDatabase(CatalogDbConstants.exercisesDb),
-      ).called(1);
+      verify(mockExercisesDatabase.instance).called(1);
     });
 
     test('should return empty list when ids are empty', () async {
@@ -122,7 +118,7 @@ void main() {
       // Assert
       expect(result, isEmpty);
 
-      verifyNever(mockDatabaseService.openLocalDatabase(any));
+      verifyNever(mockExercisesDatabase.instance);
     });
   });
 
@@ -139,9 +135,7 @@ void main() {
       expect(result.first.id, '1');
       expect(result.first.name, 'Chicken');
 
-      verify(
-        mockDatabaseService.openLocalDatabase(CatalogDbConstants.mealsDb),
-      ).called(1);
+      verify(mockMealsDatabase.instance).called(1);
     });
 
     test('should return empty list when no meals found', () async {
@@ -180,9 +174,7 @@ void main() {
       expect(result, hasLength(1));
       expect(result.first.id, '1');
 
-      verify(
-        mockDatabaseService.openLocalDatabase(CatalogDbConstants.mealsDb),
-      ).called(1);
+      verify(mockMealsDatabase.instance).called(1);
     });
 
     test('should return empty list when ids are empty', () async {
@@ -192,7 +184,7 @@ void main() {
       // Assert
       expect(result, isEmpty);
 
-      verifyNever(mockDatabaseService.openLocalDatabase(any));
+      verifyNever(mockMealsDatabase.instance);
     });
   });
 }
