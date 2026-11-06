@@ -2,18 +2,21 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:fitness_app/core/theme/context.extension.dart';
-import 'package:fitness_app/core/theme/text_styles.dart';
 import 'package:fitness_app/generated/locale_keys.g.dart';
 
 class NumberPickerSheet extends StatefulWidget {
-  final String initialValue;
+  final num initialValue;
   final String unit;
+  final int min;
+  final int max;
   final ValueChanged<num> onSubmit;
 
   const NumberPickerSheet({
     super.key,
     required this.initialValue,
     required this.unit,
+    required this.min,
+    required this.max,
     required this.onSubmit,
   });
 
@@ -22,9 +25,16 @@ class NumberPickerSheet extends StatefulWidget {
 }
 
 class _NumberPickerSheetState extends State<NumberPickerSheet> {
-  late final TextEditingController _controller = TextEditingController(
-    text: widget.initialValue,
+  late int _index = _indexOf(widget.initialValue);
+  late final PageController _controller = PageController(
+    viewportFraction: 0.28,
+    initialPage: _index,
   );
+
+  int _indexOf(num value) {
+    final rounded = value.round().clamp(widget.min, widget.max);
+    return rounded - widget.min;
+  }
 
   @override
   void dispose() {
@@ -32,71 +42,66 @@ class _NumberPickerSheetState extends State<NumberPickerSheet> {
     super.dispose();
   }
 
-  num? get _value => num.tryParse(_controller.text.trim().replaceAll(',', '.'));
-
   void _submit() {
-    final value = _value;
-    if (value == null) return;
     FocusScope.of(context).unfocus();
-    widget.onSubmit(value);
+    widget.onSubmit(widget.min + _index);
   }
 
   @override
   Widget build(BuildContext context) {
     final colors = context.colors;
+    final count = widget.max - widget.min + 1;
     return Padding(
       padding: EdgeInsets.only(bottom: MediaQuery.viewInsetsOf(context).bottom),
       child: Column(
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          Row(
-            children: [
-              Expanded(
-                child: TextField(
+          Text(
+            widget.unit,
+            textAlign: TextAlign.center,
+            style: TextStyle(color: colors.primary, fontSize: 14.sp),
+          ),
+          SizedBox(height: 12.h),
+          SizedBox(
+            height: 64.h,
+            child: Stack(
+              alignment: Alignment.center,
+              children: [
+                PageView.builder(
                   controller: _controller,
-                  autofocus: true,
-                  keyboardType: const TextInputType.numberWithOptions(
-                    decimal: true,
-                  ),
-                  style: AppTextStyles.white14regular,
-                  cursorColor: colors.primary,
-                  onChanged: (_) => setState(() {}),
-                  onSubmitted: (_) => _submit(),
-                  decoration: InputDecoration(
-                    contentPadding: EdgeInsets.symmetric(
-                      horizontal: 16.w,
-                      vertical: 12.h,
-                    ),
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(30.r),
-                      borderSide: BorderSide(color: colors.border),
-                    ),
-                    enabledBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(30.r),
-                      borderSide: BorderSide(color: colors.border),
-                    ),
-                    focusedBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(30.r),
-                      borderSide: BorderSide(color: colors.primary),
-                    ),
+                  itemCount: count,
+                  onPageChanged: (index) => setState(() => _index = index),
+                  itemBuilder: (context, index) {
+                    final isSelected = index == _index;
+                    return Center(
+                      child: Text(
+                        '${widget.min + index}',
+                        style: TextStyle(
+                          fontSize: isSelected ? 28.sp : 18.sp,
+                          fontWeight: isSelected
+                              ? FontWeight.bold
+                              : FontWeight.normal,
+                          color: isSelected ? colors.primary : colors.white,
+                        ),
+                      ),
+                    );
+                  },
+                ),
+                Positioned(
+                  bottom: 0,
+                  child: Icon(
+                    Icons.arrow_drop_up,
+                    color: colors.primary,
+                    size: 22.w,
                   ),
                 ),
-              ),
-              SizedBox(width: 12.w),
-              Text(widget.unit, style: AppTextStyles.white14bold),
-            ],
+              ],
+            ),
           ),
           SizedBox(height: 20.h),
           FilledButton(
-            onPressed: _value == null ? null : _submit,
-            style: FilledButton.styleFrom(
-              backgroundColor: colors.primary,
-              padding: EdgeInsets.symmetric(vertical: 14.h),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(30.r),
-              ),
-            ),
+            onPressed: _submit,
             child: Text(LocaleKeys.profile_done.tr()),
           ),
           SizedBox(height: 8.h),

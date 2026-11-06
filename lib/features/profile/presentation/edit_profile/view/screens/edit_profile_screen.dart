@@ -22,6 +22,7 @@ import '../widgets/read_only_identity_fields.dart';
 import '../../view_model/edit_profile_cubit.dart';
 import '../../view_model/edit_profile_field.dart';
 import '../../view_model/edit_profile_intent.dart';
+import '../../view_model/edit_profile_saved_event.dart';
 import '../../view_model/edit_profile_state.dart';
 import '../../view_model/edit_profile_value_formatter.dart';
 
@@ -42,7 +43,18 @@ class _EditProfileScreenState extends State<EditProfileScreen>
   @override
   void initState() {
     super.initState();
-    cubit.doIntent(const StartEditProfileIntent());
+    _profileCubit.doIntent(const LoadProfileIntent());
+    final profile = _profileCubit.state.profile;
+    if (profile != null) {
+      cubit.doIntent(StartEditProfileIntent(profile));
+    }
+  }
+
+  @override
+  void handleCustomEvents(BaseUiEvent event) {
+    if (event case ProfileSavedEvent(:final profile)) {
+      _profileCubit.doIntent(SyncProfileIntent(profile));
+    }
   }
 
   void _openSheet(EditProfileField field, ProfileParams draft) {
@@ -51,10 +63,10 @@ class _EditProfileScreenState extends State<EditProfileScreen>
       title: field.sheetTitleKey.tr(),
       child: field.isNumeric
           ? NumberPickerSheet(
-              initialValue: EditProfileValueFormatter.formatNumber(
-                EditProfileValueFormatter.number(field, draft),
-              ),
+              initialValue: EditProfileValueFormatter.number(field, draft),
               unit: field.unitKey.tr(),
+              min: field.min,
+              max: field.max,
               onSubmit: (value) {
                 cubit.doIntent(UpdateNumberFieldIntent(field, value));
                 Navigator.pop(context);
@@ -91,12 +103,25 @@ class _EditProfileScreenState extends State<EditProfileScreen>
                   showBackButton: true,
                 ),
                 SizedBox(height: 24.h),
-                BlocBuilder<ProfileCubit, ProfileState>(
-                  builder: (context, profileState) => ProfileHeader(
-                    profile: profileState.profile,
-                    pickedPhotoPath: profileState.pendingPhotoPath,
-                    onPickPhoto: () =>
-                        _profileCubit.doIntent(const PickPhotoIntent()),
+                BlocListener<ProfileCubit, ProfileState>(
+                  listenWhen: (previous, current) =>
+                      current.profile != null && state.saved == null,
+                  listener: (context, profileState) {
+                    final profile = profileState.profile;
+                    if (profile != null) {
+                      cubit.doIntent(StartEditProfileIntent(profile));
+                    }
+                  },
+                  child: BlocBuilder<ProfileCubit, ProfileState>(
+                    buildWhen: (previous, current) =>
+                        previous.profile != current.profile ||
+                        previous.pendingPhotoPath != current.pendingPhotoPath,
+                    builder: (context, profileState) => ProfileHeader(
+                      profile: profileState.profile,
+                      pickedPhotoPath: profileState.pendingPhotoPath,
+                      onPickPhoto: () =>
+                          _profileCubit.doIntent(const PickPhotoIntent()),
+                    ),
                   ),
                 ),
                 SizedBox(height: 28.h),
@@ -104,6 +129,7 @@ class _EditProfileScreenState extends State<EditProfileScreen>
                   firstName: state.firstName,
                   lastName: state.lastName,
                   email: state.email,
+                  gender: EditProfileValueFormatter.genderLabel(state.gender),
                 ),
                 if (draft != null) ...[
                   SizedBox(height: 24.h),

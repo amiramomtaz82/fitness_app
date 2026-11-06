@@ -1,3 +1,4 @@
+import '../../../domain/entities/profile_entity.dart';
 import 'edit_profile_field.dart';
 
 sealed class EditProfileIntent {
@@ -5,7 +6,9 @@ sealed class EditProfileIntent {
 }
 
 final class StartEditProfileIntent extends EditProfileIntent {
-  const StartEditProfileIntent();
+  final ProfileEntity profile;
+
+  const StartEditProfileIntent(this.profile);
 }
 
 final class SelectOptionIntent extends EditProfileIntent {

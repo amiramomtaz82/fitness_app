@@ -10,11 +10,6 @@ abstract final class EditProfileValueFormatter {
   static List<PickerOption> options(EditProfileField field) {
     assert(!field.isNumeric);
     return switch (field) {
-      EditProfileField.gender => _from(
-        RegistrationGender.values,
-        (value) => value.displayText,
-        (value) => value.apiKey,
-      ),
       EditProfileField.goal => _from(
         RegistrationGoal.values,
         (value) => value.displayText,
@@ -37,22 +32,26 @@ abstract final class EditProfileValueFormatter {
       EditProfileField.age => draft.age,
       EditProfileField.weight => draft.weight,
       EditProfileField.height => draft.height,
-      EditProfileField.gender ||
-      EditProfileField.goal ||
-      EditProfileField.activityLevel => 0,
+      EditProfileField.goal || EditProfileField.activityLevel => 0,
     };
   }
 
   static String optionValue(EditProfileField field, ProfileParams draft) {
     assert(!field.isNumeric);
     return switch (field) {
-      EditProfileField.gender => draft.gender,
       EditProfileField.goal => draft.goal,
       EditProfileField.activityLevel => draft.activityLevel,
       EditProfileField.age ||
       EditProfileField.weight ||
       EditProfileField.height => '',
     };
+  }
+
+  static String genderLabel(String apiKey) {
+    for (final gender in RegistrationGender.values) {
+      if (gender.apiKey == apiKey) return gender.displayText;
+    }
+    return apiKey;
   }
 
   static String value(EditProfileField field, ProfileParams draft) {

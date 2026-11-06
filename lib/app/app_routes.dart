@@ -107,9 +107,7 @@ final GoRouter appRouter = GoRouter(
     // Main app with bottom navigation
     StatefulShellRoute.indexedStack(
       builder: (context, state, navigationShell) {
-        return ProfileScope(
-          child: AppBottomNavigationBar(navigationShell: navigationShell),
-        );
+        return AppBottomNavigationBar(navigationShell: navigationShell);
       },
       branches: [
         // Home
@@ -151,7 +149,8 @@ final GoRouter appRouter = GoRouter(
             GoRoute(
               path: AppRoutes.profile,
               name: AppRoutes.profile,
-              builder: (context, state) => const ProfileScreen(),
+              builder: (context, state) =>
+                  const ProfileScope(child: ProfileScreen()),
             ),
           ],
         ),

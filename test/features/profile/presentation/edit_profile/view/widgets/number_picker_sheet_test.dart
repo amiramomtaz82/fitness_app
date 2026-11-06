@@ -7,102 +7,96 @@ import '../../../../../../helpers/test_app.dart';
 void main() {
   final submitted = <num>[];
 
-  Future<void> pumpSheet(WidgetTester tester, {required String initialValue}) {
+  Future<void> pumpSheet(
+    WidgetTester tester, {
+    required num initialValue,
+    int min = 10,
+    int max = 100,
+    String unit = 'years',
+  }) {
     return pumpLocalizedWidget(
       tester,
       NumberPickerSheet(
         initialValue: initialValue,
-        unit: 'years',
+        unit: unit,
+        min: min,
+        max: max,
         onSubmit: submitted.add,
       ),
     );
   }
 
-  TextField numberField(WidgetTester tester) {
-    return tester.widget<TextField>(find.byType(TextField));
+  PageController wheelController(WidgetTester tester) {
+    return tester.widget<PageView>(find.byType(PageView)).controller!;
   }
 
-  FilledButton doneButton(WidgetTester tester) {
-    return tester.widget<FilledButton>(
-      find.widgetWithText(FilledButton, 'Done'),
-    );
+  Future<void> scrollTo(WidgetTester tester, int value, {int min = 10}) async {
+    wheelController(tester).jumpToPage(value - min);
+    await settleUi(tester);
   }
 
-  Future<void> typeValue(WidgetTester tester, String text) async {
-    await tester.showKeyboard(find.byType(TextField));
-    await tester.enterText(find.byType(TextField), text);
+  Future<void> tapDone(WidgetTester tester) async {
+    await tester.tap(find.widgetWithText(FilledButton, 'Done'));
     await settleUi(tester);
   }
 
   setUp(() => submitted.clear());
 
-  testWidgets('opens on the value the user is editing', (tester) async {
-    await pumpSheet(tester, initialValue: '25');
+  testWidgets('opens on the value the user is editing and shows its unit', (
+    tester,
+  ) async {
+    await pumpSheet(tester, initialValue: 25);
 
-    expect(numberField(tester).controller!.text, '25');
     expect(find.text('years'), findsOneWidget);
+    expect(find.text('25'), findsOneWidget);
+    expect(wheelController(tester).page!.round(), 15);
   });
 
-  testWidgets('an empty value cannot be submitted', (tester) async {
-    await pumpSheet(tester, initialValue: '');
+  testWidgets('Done submits the number sitting in the wheel', (tester) async {
+    await pumpSheet(tester, initialValue: 25);
 
-    expect(doneButton(tester).onPressed, isNull);
+    await tapDone(tester);
 
-    await tester.tap(find.text('Done'));
-    await settleUi(tester);
-
-    expect(submitted, isEmpty);
+    expect(submitted, [25]);
   });
 
-  testWidgets('text that is not a number cannot be submitted', (tester) async {
-    await pumpSheet(tester, initialValue: '25');
-    await typeValue(tester, 'not a number');
+  testWidgets('a scroll moves the selection before it is submitted', (
+    tester,
+  ) async {
+    await pumpSheet(tester, initialValue: 25);
 
-    expect(doneButton(tester).onPressed, isNull);
-    expect(submitted, isEmpty);
-  });
-
-  testWidgets('Done submits the number the user typed', (tester) async {
-    await pumpSheet(tester, initialValue: '25');
-    await typeValue(tester, '30');
-
-    await tester.tap(find.text('Done'));
-    await settleUi(tester);
+    await scrollTo(tester, 30);
+    await tapDone(tester);
 
     expect(submitted, [30]);
   });
 
-  testWidgets('a decimal value reaches the form as it was written', (
-    tester,
-  ) async {
-    await pumpSheet(tester, initialValue: '70');
-    await typeValue(tester, '75.5');
+  testWidgets('a value below the range lands on the minimum', (tester) async {
+    await pumpSheet(tester, initialValue: 5);
 
-    await tester.tap(find.text('Done'));
-    await settleUi(tester);
+    await tapDone(tester);
 
-    expect(submitted, [75.5]);
+    expect(submitted, [10]);
   });
 
-  testWidgets('a comma is accepted as the decimal mark', (tester) async {
-    await pumpSheet(tester, initialValue: '70');
-    await typeValue(tester, '75,5');
+  testWidgets('a value above the range lands on the maximum', (tester) async {
+    await pumpSheet(tester, initialValue: 500);
 
-    await tester.tap(find.text('Done'));
-    await settleUi(tester);
+    await tapDone(tester);
 
-    expect(submitted, [75.5]);
+    expect(submitted, [100]);
   });
 
-  testWidgets('the keyboard return submits the same as the button', (
+  testWidgets('the wheel is bounded to the range the field declares', (
     tester,
   ) async {
-    await pumpSheet(tester, initialValue: '25');
-    await typeValue(tester, '80');
+    await pumpSheet(tester, initialValue: 70, min: 30, max: 40);
 
-    await tester.testTextInput.receiveAction(TextInputAction.done);
-    await settleUi(tester);
+    await scrollTo(tester, 30, min: 30);
+    expect(find.text('30'), findsOneWidget);
+    await scrollTo(tester, 40, min: 30);
+    await tapDone(tester);
 
-    expect(submitted, [80]);
+    expect(submitted, [40]);
   });
 }

@@ -11,23 +11,21 @@ import '../../../../../core/validation/validation_errors.dart';
 import '../../../domain/entities/profile_entity.dart';
 import '../../../domain/entities/profile_params.dart';
 import '../../../domain/use_cases/edit_profile_use_case.dart';
-import '../../profile/view_model/profile_cubit.dart';
 import 'edit_profile_field.dart';
 import 'edit_profile_intent.dart';
+import 'edit_profile_saved_event.dart';
 import 'edit_profile_state.dart';
 
 @injectable
 class EditProfileCubit extends BaseCubit<EditProfileState, BaseUiEvent> {
-  final ProfileCubit _profileCubit;
   final EditProfileUseCase _editProfileUseCase;
 
-  EditProfileCubit(this._profileCubit, this._editProfileUseCase)
-    : super(const EditProfileState());
+  EditProfileCubit(this._editProfileUseCase) : super(const EditProfileState());
 
   void doIntent(EditProfileIntent intent) {
     switch (intent) {
-      case StartEditProfileIntent():
-        _start();
+      case StartEditProfileIntent(:final profile):
+        _start(profile);
       case SelectOptionIntent(:final field, :final value):
         _update(field, (draft) => _withOption(draft, field, value));
       case UpdateNumberFieldIntent(:final field, :final value):
@@ -37,10 +35,7 @@ class EditProfileCubit extends BaseCubit<EditProfileState, BaseUiEvent> {
     }
   }
 
-  Future<void> _start() async {
-    await _profileCubit.ensureLoaded();
-    final profile = _profileCubit.profile;
-    if (profile == null) return;
+  void _start(ProfileEntity profile) {
     _emit(
       state.copyWith(
         saved: profile,
@@ -77,10 +72,10 @@ class EditProfileCubit extends BaseCubit<EditProfileState, BaseUiEvent> {
     final response = await _editProfileUseCase(draft);
     switch (response) {
       case SuccessResponse<ProfileEntity>(:final data):
-        _profileCubit.applyProfile(data);
         _emit(
           state.copyWith(saved: data, saveResource: Resource.success(data)),
         );
+        emitEvent(ProfileSavedEvent(data));
         emitSuccess(CubitMessageType.profileUpdated);
         emitEvent(const PopEvent());
       case ErrorResponse<ProfileEntity>(:final failure):
@@ -98,7 +93,6 @@ class EditProfileCubit extends BaseCubit<EditProfileState, BaseUiEvent> {
 
   Map<EditProfileField, ValidationError> _validate(ProfileParams draft) {
     final checks = <EditProfileField, ValidationError?>{
-      EditProfileField.gender: FormValidators.validateGender(draft.gender),
       EditProfileField.age: FormValidators.validateAge('${draft.age}'),
       EditProfileField.weight: FormValidators.validateWeight('${draft.weight}'),
       EditProfileField.height: FormValidators.validateHeight('${draft.height}'),
@@ -120,7 +114,6 @@ class EditProfileCubit extends BaseCubit<EditProfileState, BaseUiEvent> {
   ) {
     if (field.isNumeric) return draft;
     return switch (field) {
-      EditProfileField.gender => draft.copyWith(gender: value),
       EditProfileField.activityLevel => draft.copyWith(activityLevel: value),
       EditProfileField.goal => draft.copyWith(goal: value),
       EditProfileField.age ||
@@ -139,9 +132,7 @@ class EditProfileCubit extends BaseCubit<EditProfileState, BaseUiEvent> {
       EditProfileField.age => draft.copyWith(age: value.toInt()),
       EditProfileField.weight => draft.copyWith(weight: value),
       EditProfileField.height => draft.copyWith(height: value),
-      EditProfileField.gender ||
-      EditProfileField.goal ||
-      EditProfileField.activityLevel => draft,
+      EditProfileField.goal || EditProfileField.activityLevel => draft,
     };
   }
 

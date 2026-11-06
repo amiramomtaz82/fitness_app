@@ -2,11 +2,13 @@ import 'package:fitness_app/app/routes_names.dart';
 import 'package:fitness_app/core/base/ui_events.dart';
 import 'package:fitness_app/core/contants/app_language.dart';
 import 'package:fitness_app/core/contants/web_pages.dart';
+import 'package:fitness_app/core/local/locale_cubit.dart';
 import 'package:fitness_app/features/profile/presentation/profile/view/models/profile_menu_action.dart';
 import 'package:fitness_app/features/profile/presentation/profile/view/models/profile_menu_item.dart';
 import 'package:fitness_app/features/profile/presentation/profile/view/widgets/profile_menu_list.dart';
 import 'package:fitness_app/features/profile/presentation/profile/view/widgets/profile_menu_tile.dart';
 import 'package:fitness_app/features/profile/presentation/profile/view_model/profile_cubit.dart';
+import 'package:fitness_app/features/profile/presentation/profile/view_model/toggle_locale_event.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -16,16 +18,21 @@ import '../../../../profile_widget_test_helper.dart';
 
 void main() {
   late ProfileCubit cubit;
+  late LocaleCubit localeCubit;
 
   setUp(() async {
     cubit = await startProfileCubit(profile: testProfileEntity);
   });
 
-  Future<void> pumpMenuList(WidgetTester tester) async {
+  Future<void> pumpMenuList(WidgetTester tester, {String? language}) async {
+    localeCubit = await startLocaleCubit(language: language);
     await pumpProfileRoute(
       tester,
-      screen: BlocProvider.value(
-        value: cubit,
+      screen: MultiBlocProvider(
+        providers: [
+          BlocProvider.value(value: cubit),
+          BlocProvider.value(value: localeCubit),
+        ],
         child: const Scaffold(body: Center(child: ProfileMenuList())),
       ),
     );
@@ -56,7 +63,7 @@ void main() {
     expect(find.byType(Divider), findsNWidgets(profileMenuItems.length - 1));
   });
 
-  testWidgets('titles every row in the language of the state', (tester) async {
+  testWidgets('titles every row in the language of the locale', (tester) async {
     await pumpMenuList(tester);
 
     expect(find.text('Edit Profile'), findsOneWidget);
@@ -64,6 +71,15 @@ void main() {
     expect(find.text('Security'), findsOneWidget);
     expect(find.text('Logout'), findsOneWidget);
     expect(find.text('Select Language (English)'), findsOneWidget);
+  });
+
+  testWidgets('renders the saved language in the row and switch', (
+    tester,
+  ) async {
+    await pumpMenuList(tester, language: AppLanguage.arabic.code);
+
+    expect(tester.widget<Switch>(find.byType(Switch)).value, isFalse);
+    expect(find.text('Select Language (Arabic)'), findsOneWidget);
   });
 
   testWidgets('a tap on a row asks the cubit to open its page', (tester) async {
@@ -110,30 +126,16 @@ void main() {
     );
   });
 
-  testWidgets('the language row shows and applies the saved language', (
+  testWidgets('the language row hands a toggle to the profile cubit', (
     tester,
   ) async {
+    final events = recordUiEvents(cubit.eventStream);
     await pumpMenuList(tester);
-
-    expect(tester.widget<Switch>(find.byType(Switch)).value, isTrue);
 
     await tester.tap(find.byType(Switch));
     await settleUi(tester);
 
-    expect(cubit.state.language, AppLanguage.arabic);
-    expect(tester.widget<Switch>(find.byType(Switch)).value, isFalse);
-    expect(find.text('Select Language (Arabic)'), findsOneWidget);
-  });
-
-  testWidgets('a tap on the language row is the same as the switch', (
-    tester,
-  ) async {
-    await pumpMenuList(tester);
-
-    await tester.tap(find.byKey(const Key('menu_selectLanguage')));
-    await settleUi(tester);
-
-    expect(cubit.state.language, AppLanguage.arabic);
+    expect(events, contains(isA<ToggleLocaleEvent>()));
   });
 
   testWidgets('rows without an action stay inert', (tester) async {
@@ -143,7 +145,6 @@ void main() {
     await tester.tap(find.byKey(const Key('menu_changePassword')));
     await settleUi(tester);
 
-    expect(cubit.state.language, AppLanguage.english);
     expect(events, isEmpty);
   });
 }

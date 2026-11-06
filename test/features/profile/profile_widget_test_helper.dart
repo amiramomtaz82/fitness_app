@@ -1,5 +1,6 @@
 import 'package:fitness_app/core/base_response/base_response.dart';
 import 'package:fitness_app/core/error/failures.dart';
+import 'package:fitness_app/core/local/locale_cubit.dart';
 import 'package:fitness_app/features/profile/domain/entities/profile_entity.dart';
 import 'package:fitness_app/features/profile/presentation/edit_profile/view/screens/edit_profile_screen.dart';
 import 'package:fitness_app/features/profile/presentation/edit_profile/view_model/edit_profile_cubit.dart';
@@ -27,9 +28,7 @@ const avatarKey = Key('profileAvatar');
 
 Future<ProfileCubit> startProfileCubit({
   ProfileEntity? profile,
-  String? language,
   MockPickPhotoUseCase? pickPhoto,
-  MockLocaleService? localeService,
 }) async {
   final getProfile = MockGetProfileUseCase();
   when(() => getProfile.call()).thenAnswer(
@@ -41,8 +40,14 @@ Future<ProfileCubit> startProfileCubit({
     getProfile,
     MockUploadPhotoUseCase(),
     pickPhoto ?? MockPickPhotoUseCase(),
+  );
+  addTearDown(cubit.close);
+  return cubit;
+}
+
+Future<LocaleCubit> startLocaleCubit({String? language}) async {
+  final cubit = buildLocaleCubit(
     await localePreferencesWith(language: language),
-    localeService: localeService,
   );
   addTearDown(cubit.close);
   return cubit;
@@ -58,10 +63,7 @@ Future<EditProfileCubit> startLoadedEditForm(
     profile: profile,
     pickPhoto: pickPhoto,
   );
-  final cubit = EditProfileCubit(
-    profileCubit,
-    editProfile ?? MockEditProfileUseCase(),
-  );
+  final cubit = EditProfileCubit(editProfile ?? MockEditProfileUseCase());
   addTearDown(cubit.close);
   await pumpProfileRoute(
     tester,

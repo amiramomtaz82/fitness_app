@@ -13,6 +13,7 @@ void main() {
         firstName: 'Ahmed',
         lastName: 'Sukkary',
         email: 'ahmed@test.com',
+        gender: 'Male',
       ),
     );
   }
@@ -27,6 +28,7 @@ void main() {
     expect(field(tester, 'firstName').enabled, isFalse);
     expect(field(tester, 'lastName').enabled, isFalse);
     expect(field(tester, 'email').enabled, isFalse);
+    expect(field(tester, 'gender').enabled, isFalse);
   });
 
   testWidgets('shows what the account already holds', (tester) async {
@@ -35,11 +37,12 @@ void main() {
     expect(field(tester, 'firstName').hintText, 'Ahmed');
     expect(field(tester, 'lastName').hintText, 'Sukkary');
     expect(field(tester, 'email').hintText, 'ahmed@test.com');
+    expect(field(tester, 'gender').hintText, 'Male');
   });
 
-  testWidgets('offers exactly the three locked identity lines', (tester) async {
+  testWidgets('offers exactly the four locked identity lines', (tester) async {
     await pumpFields(tester);
 
-    expect(find.byType(AppTextFormField), findsNWidgets(3));
+    expect(find.byType(AppTextFormField), findsNWidgets(4));
   });
 }

@@ -35,6 +35,8 @@ class EditProfileState extends Equatable {
 
   String get email => saved?.email ?? '';
 
+  String get gender => saved?.gender ?? '';
+
   ValidationError? errorOf(EditProfileField field) => fieldErrors[field];
 
   EditProfileState copyWith({

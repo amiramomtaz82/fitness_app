@@ -1,5 +1,4 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:fitness_app/core/contants/app_language.dart';
 import 'package:fitness_app/core/error/failures.dart';
 import 'package:fitness_app/core/resource/resource.dart';
 import 'package:fitness_app/features/profile/domain/entities/profile_entity.dart';
@@ -86,43 +85,18 @@ void main() {
       expect(updated.profile, testProfileEntity);
     });
 
-    test('withLanguage keeps the profile and the pending photo', () {
-      final uploading = initial.withUpload('/tmp/a.jpg');
-
-      final arabic = uploading.withLanguage(AppLanguage.arabic);
-
-      expect(arabic.language, AppLanguage.arabic);
-      expect(arabic.profile, uploading.profile);
-      expect(arabic.pendingPhotoPath, '/tmp/a.jpg');
-    });
-
-    test('other updates leave the language in place', () {
-      final arabic = initial.withLanguage(AppLanguage.arabic);
-
-      final loaded = arabic.copyWith(
+    test('is value equal to an identical state', () {
+      const a = ProfileState();
+      const b = ProfileState();
+      final loaded = a.copyWith(
         profileResource: const Resource<ProfileEntity>.success(
           testProfileEntity,
         ),
       );
 
-      expect(loaded.language, AppLanguage.arabic);
-    });
-
-    test('the language switch reads on only while english is active', () {
-      expect(initial.isLanguageSwitchOn, isTrue);
-      expect(
-        initial.withLanguage(AppLanguage.arabic).isLanguageSwitchOn,
-        isFalse,
-      );
-    });
-
-    test('is value equal to an identical state', () {
-      const a = ProfileState();
-      const b = ProfileState();
-
       expect(a, b);
-      expect(a, isNot(a.withLanguage(AppLanguage.arabic)));
-      expect(a.props, [a.profileResource, a.pendingPhotoPath, a.language]);
+      expect(a, isNot(loaded));
+      expect(a.props, [a.profileResource, a.pendingPhotoPath]);
     });
   });
 }

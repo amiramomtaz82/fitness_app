@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:dio/dio.dart';
 import 'package:fitness_app/core/base/ui_events.dart';
+import 'package:fitness_app/core/local/locale_cubit.dart';
 import 'package:fitness_app/core/local/locale_preferences.dart';
 import 'package:fitness_app/core/local/local_service.dart';
 import 'package:fitness_app/features/profile/data/client/profile_client.dart';
@@ -173,14 +174,13 @@ ProfileCubit buildProfileCubit(
   GetProfileUseCase getProfile,
   UploadPhotoUseCase uploadPhoto,
   PickPhotoUseCase pickPhoto,
+) {
+  return ProfileCubit(getProfile, uploadPhoto, pickPhoto);
+}
+
+LocaleCubit buildLocaleCubit(
   LocalePreferences localePreferences, {
   LocaleService? localeService,
 }) {
-  return ProfileCubit(
-    getProfile,
-    uploadPhoto,
-    pickPhoto,
-    localePreferences,
-    localeService ?? MockLocaleService(),
-  );
+  return LocaleCubit(localePreferences, localeService ?? MockLocaleService());
 }

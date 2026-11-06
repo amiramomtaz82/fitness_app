@@ -6,6 +6,8 @@ import 'package:fitness_app/core/theme/context.extension.dart';
 import 'package:fitness_app/core/widgets/app_title_bar.dart';
 import 'package:webview_flutter/webview_flutter.dart';
 
+import 'web_view_error_view.dart';
+
 class WebViewScreen extends StatefulWidget {
   final WebPage page;
 
@@ -17,7 +19,8 @@ class WebViewScreen extends StatefulWidget {
 
 class _WebViewScreenState extends State<WebViewScreen> {
   late final WebViewController _controller;
-  int _loadingProgress = 0;
+  final ValueNotifier<int> _progress = ValueNotifier<int>(0);
+  final ValueNotifier<bool> _failed = ValueNotifier<bool>(false);
 
   @override
   void initState() {
@@ -27,21 +30,41 @@ class _WebViewScreenState extends State<WebViewScreen> {
       ..setJavaScriptMode(JavaScriptMode.disabled)
       ..setNavigationDelegate(
         NavigationDelegate(
-          onProgress: _updateProgress,
-          onPageFinished: _dismissProgress,
-          onWebResourceError: _dismissProgress,
+          onProgress: _onProgress,
+          onPageFinished: _onPageFinished,
+          onWebResourceError: _onResourceError,
         ),
       )
       ..loadRequest(Uri.parse(widget.page.url));
   }
 
-  void _updateProgress(int progress) {
-    if (!mounted) return;
-    setState(() => _loadingProgress = progress);
+  void _onProgress(int progress) {
+    if (progress < 100) _progress.value = progress;
   }
 
-  void _dismissProgress(Object? _) {
-    _updateProgress(0);
+  void _onPageFinished(String _) {
+    _progress.value = 0;
+    _failed.value = false;
+  }
+
+  void _onResourceError(WebResourceError error) {
+    if (error.isForMainFrame ?? false) {
+      _progress.value = 0;
+      _failed.value = true;
+    }
+  }
+
+  void _retry() {
+    _failed.value = false;
+    _progress.value = 0;
+    _controller.loadRequest(Uri.parse(widget.page.url));
+  }
+
+  @override
+  void dispose() {
+    _progress.dispose();
+    _failed.dispose();
+    super.dispose();
   }
 
   @override
@@ -59,14 +82,29 @@ class _WebViewScreenState extends State<WebViewScreen> {
                 showBackButton: true,
               ),
             ),
-            if (_loadingProgress > 0 && _loadingProgress < 100)
-              LinearProgressIndicator(
-                minHeight: 2,
-                value: _loadingProgress / 100,
-                backgroundColor: AppColors.surface,
-                color: colors.primary,
+            ValueListenableBuilder<int>(
+              valueListenable: _progress,
+              builder: (context, progress, _) {
+                if (progress <= 0 || progress >= 100) {
+                  return const SizedBox.shrink();
+                }
+                return LinearProgressIndicator(
+                  minHeight: 2,
+                  value: progress / 100,
+                  backgroundColor: AppColors.surface,
+                  color: colors.primary,
+                );
+              },
+            ),
+            Expanded(
+              child: ValueListenableBuilder<bool>(
+                valueListenable: _failed,
+                builder: (context, failed, _) {
+                  if (failed) return WebViewErrorView(onRetry: _retry);
+                  return WebViewWidget(controller: _controller);
+                },
               ),
-            Expanded(child: WebViewWidget(controller: _controller)),
+            ),
           ],
         ),
       ),

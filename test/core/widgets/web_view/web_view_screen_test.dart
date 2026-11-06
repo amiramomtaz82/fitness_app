@@ -1,6 +1,7 @@
 import 'package:fitness_app/core/contants/web_pages.dart';
 import 'package:fitness_app/core/theme/app_colors.dart';
 import 'package:fitness_app/core/widgets/app_back_button.dart';
+import 'package:fitness_app/core/widgets/web_view/web_view_error_view.dart';
 import 'package:fitness_app/core/widgets/web_view/web_view_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -80,17 +81,68 @@ void main() {
     expect(find.byType(LinearProgressIndicator), findsNothing);
   });
 
-  testWidgets('hides the bar when the page fails to load', (tester) async {
+  testWidgets('ignores a sub-resource error and keeps the page loading', (
+    tester,
+  ) async {
     await pumpPage(tester, WebPage.security);
 
     delegate().onProgress!(20);
     await settleUi(tester, steps: 2);
     delegate().onWebResourceError!(
-      const WebResourceError(errorCode: -1, description: 'offline'),
+      const WebResourceError(
+        errorCode: -1,
+        description: 'image failed',
+        isForMainFrame: false,
+      ),
     );
     await settleUi(tester, steps: 2);
 
+    expect(find.byType(WebViewErrorView), findsNothing);
+    expect(find.byType(WebViewWidget), findsOneWidget);
+  });
+
+  testWidgets('a main-frame failure swaps the page for a retry view', (
+    tester,
+  ) async {
+    await pumpPage(tester, WebPage.security);
+
+    delegate().onProgress!(20);
+    await settleUi(tester, steps: 2);
+    delegate().onWebResourceError!(
+      const WebResourceError(
+        errorCode: -1,
+        description: 'offline',
+        isForMainFrame: true,
+      ),
+    );
+    await settleUi(tester, steps: 2);
+
+    expect(find.byType(WebViewErrorView), findsOneWidget);
+    expect(find.byType(WebViewWidget), findsNothing);
     expect(find.byType(LinearProgressIndicator), findsNothing);
+  });
+
+  testWidgets('retry loads the same address again', (tester) async {
+    await pumpPage(tester, WebPage.security);
+    delegate().onWebResourceError!(
+      const WebResourceError(
+        errorCode: -1,
+        description: 'offline',
+        isForMainFrame: true,
+      ),
+    );
+    await settleUi(tester, steps: 2);
+
+    await tester.tap(
+      find.descendant(
+        of: find.byType(WebViewErrorView),
+        matching: find.byType(FilledButton),
+      ),
+    );
+    await settleUi(tester, steps: 2);
+
+    expect(platform.controllers.single.loadedUrls.length, 2);
+    expect(find.byType(WebViewWidget), findsOneWidget);
   });
 }
 

@@ -5,10 +5,7 @@ import '../../../../../core/base/base_cubit.dart';
 import '../../../../../core/base/cubit_message.dart';
 import '../../../../../core/base/ui_events.dart';
 import '../../../../../core/base_response/base_response.dart';
-import '../../../../../core/contants/app_language.dart';
 import '../../../../../core/error/failures.dart';
-import '../../../../../core/local/locale_preferences.dart';
-import '../../../../../core/local/local_service.dart';
 import '../../../../../core/resource/resource.dart';
 import '../../../domain/entities/profile_entity.dart';
 import '../../../domain/use_cases/get_profile_use_case.dart';
@@ -18,15 +15,13 @@ import '../view/models/profile_menu_action.dart';
 import '../view/models/profile_menu_item.dart';
 import 'profile_intent.dart';
 import 'profile_state.dart';
-import 'profile_ui_event.dart';
+import 'toggle_locale_event.dart';
 
 @lazySingleton
 class ProfileCubit extends BaseCubit<ProfileState, BaseUiEvent> {
   final GetProfileUseCase _getProfileUseCase;
   final UploadPhotoUseCase _uploadPhotoUseCase;
   final PickPhotoUseCase _pickPhotoUseCase;
-  final LocalePreferences _localePreferences;
-  final LocaleService _localeService;
 
   Future<void>? _pendingFetch;
   int _fetchId = 0;
@@ -35,16 +30,16 @@ class ProfileCubit extends BaseCubit<ProfileState, BaseUiEvent> {
     this._getProfileUseCase,
     this._uploadPhotoUseCase,
     this._pickPhotoUseCase,
-    this._localePreferences,
-    this._localeService,
-  ) : super(ProfileState(language: _localePreferences.readLanguage()));
-
-  ProfileEntity? get profile => state.profile;
+  ) : super(const ProfileState());
 
   void doIntent(ProfileIntent intent) {
     switch (intent) {
+      case LoadProfileIntent():
+        _ensureLoaded();
+      case SyncProfileIntent(:final profile):
+        _sync(profile);
       case PickPhotoIntent():
-        pickAndUploadPhoto();
+        _pickAndUpload();
       case MenuTapIntent(:final item):
         _onMenuTap(item);
     }
@@ -55,7 +50,7 @@ class ProfileCubit extends BaseCubit<ProfileState, BaseUiEvent> {
       case ProfileMenuAction.editProfile:
         emitEvent(const NavigateEvent(AppRoutes.editProfile));
       case ProfileMenuAction.selectLanguage:
-        toggleLanguage();
+        emitEvent(const ToggleLocaleEvent());
       case ProfileMenuAction.security:
       case ProfileMenuAction.privacyPolicy:
       case ProfileMenuAction.help:
@@ -66,33 +61,12 @@ class ProfileCubit extends BaseCubit<ProfileState, BaseUiEvent> {
     }
   }
 
-  Future<void> applySavedLanguage() async {
-    final language = _localePreferences.readLanguage();
-    _localeService.setLanguageCode(language.code);
-    _emit(state.withLanguage(language));
-  }
-
-  Future<void> toggleLanguage() => changeLanguage(
-    state.language == AppLanguage.english
-        ? AppLanguage.arabic
-        : AppLanguage.english,
-  );
-
-  Future<void> changeLanguage(AppLanguage language) async {
-    await _localePreferences.saveLanguage(language);
-    _localeService.setLanguageCode(language.code);
-    _emit(state.withLanguage(language));
-    emitEvent(ProfileUiEvent(language));
-  }
-
-  Future<void> ensureLoaded() async {
+  Future<void> _ensureLoaded() async {
     if (state.hasProfile) return;
-    await fetch();
+    await _fetch();
   }
 
-  Future<void> refresh() => fetch();
-
-  Future<void> fetch() async {
+  Future<void> _fetch() async {
     final pending = _pendingFetch;
     if (pending != null) return pending;
     final running = _load();
@@ -121,35 +95,35 @@ class ProfileCubit extends BaseCubit<ProfileState, BaseUiEvent> {
     }
   }
 
-  void applyProfile(ProfileEntity profile) {
+  void _sync(ProfileEntity profile) {
     _emit(state.copyWith(profileResource: Resource.success(profile)));
   }
 
-  void clearCache() {
+  void _clearCache() {
     _fetchId++;
     _pendingFetch = null;
     _emit(const ProfileState());
   }
 
-  Future<void> pickAndUploadPhoto() async {
+  Future<void> _pickAndUpload() async {
     if (state.isUploadingPhoto) return;
     final picked = await _pickPhotoUseCase();
     switch (picked) {
       case SuccessResponse<String?>(:final data):
         if (data == null) return;
-        await uploadPhoto(data);
+        await _upload(data);
       case ErrorResponse<String?>(:final failure):
         emitFailure(failure);
     }
   }
 
-  Future<void> uploadPhoto(String photoPath) async {
+  Future<void> _upload(String photoPath) async {
     if (state.isUploadingPhoto) return;
     _emit(state.withUpload(photoPath));
     final response = await _uploadPhotoUseCase(photoPath);
     switch (response) {
       case SuccessResponse<ProfileEntity>(:final data):
-        applyProfile(data);
+        _sync(data);
         _emit(state.withUpload(null));
         emitSuccess(CubitMessageType.profileUpdated);
       case ErrorResponse<ProfileEntity>(:final failure):
@@ -160,7 +134,7 @@ class ProfileCubit extends BaseCubit<ProfileState, BaseUiEvent> {
 
   void _onProfileFailure(Failure failure) {
     if (failure is UnauthorizedFailure) {
-      clearCache();
+      _clearCache();
       emitFailure(failure);
       return;
     }

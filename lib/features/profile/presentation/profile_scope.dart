@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../core/di/di.dart';
 import 'profile/view_model/profile_cubit.dart';
+import 'profile/view_model/profile_intent.dart';
 
 class ProfileScope extends StatefulWidget {
   const ProfileScope({required this.child, super.key});
@@ -20,8 +21,7 @@ class _ProfileScopeState extends State<ProfileScope> {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (!mounted) return;
-      _cubit.applySavedLanguage();
-      _cubit.refresh();
+      _cubit.doIntent(const LoadProfileIntent());
     });
   }
 

@@ -6,9 +6,7 @@ import 'package:fitness_app/core/base/cubit_message.dart';
 import 'package:fitness_app/core/base/ui_events.dart';
 import 'package:fitness_app/core/base_response/base_response.dart';
 import 'package:fitness_app/core/error/failures.dart';
-import 'package:fitness_app/core/contants/app_language.dart';
 import 'package:fitness_app/core/contants/web_pages.dart';
-import 'package:fitness_app/core/local/locale_preferences.dart';
 import 'package:fitness_app/core/resource/resource.dart';
 import 'package:fitness_app/features/profile/domain/entities/profile_entity.dart';
 import 'package:fitness_app/features/profile/presentation/profile/view/models/profile_menu_action.dart';
@@ -16,7 +14,7 @@ import 'package:fitness_app/features/profile/presentation/profile/view/models/pr
 import 'package:fitness_app/features/profile/presentation/profile/view_model/profile_cubit.dart';
 import 'package:fitness_app/features/profile/presentation/profile/view_model/profile_intent.dart';
 import 'package:fitness_app/features/profile/presentation/profile/view_model/profile_state.dart';
-import 'package:fitness_app/features/profile/presentation/profile/view_model/profile_ui_event.dart';
+import 'package:fitness_app/features/profile/presentation/profile/view_model/toggle_locale_event.dart';
 import 'package:mocktail/mocktail.dart';
 
 import '../../../profile_test_helper.dart';
@@ -25,25 +23,15 @@ void main() {
   late MockGetProfileUseCase mockGetProfile;
   late MockUploadPhotoUseCase mockUploadPhoto;
   late MockPickPhotoUseCase mockPickPhoto;
-  late MockLocaleService mockLocaleService;
-  late LocalePreferences localePreferences;
   late ProfileCubit cubit;
 
   setUpAll(registerProfileFallbacks);
 
-  setUp(() async {
+  setUp(() {
     mockGetProfile = MockGetProfileUseCase();
     mockUploadPhoto = MockUploadPhotoUseCase();
     mockPickPhoto = MockPickPhotoUseCase();
-    mockLocaleService = MockLocaleService();
-    localePreferences = await localePreferencesWith();
-    cubit = buildProfileCubit(
-      mockGetProfile,
-      mockUploadPhoto,
-      mockPickPhoto,
-      localePreferences,
-      localeService: mockLocaleService,
-    );
+    cubit = buildProfileCubit(mockGetProfile, mockUploadPhoto, mockPickPhoto);
   });
 
   tearDown(() => cubit.close());
@@ -90,32 +78,35 @@ void main() {
   group('ProfileCubit initial state', () {
     test('holds no profile and idle resources', () {
       expect(cubit.state, const ProfileState());
-      expect(cubit.profile, isNull);
+      expect(cubit.state.profile, isNull);
       expect(cubit.state.hasProfile, isFalse);
       expect(cubit.state.isProfileLoading, isFalse);
       expect(cubit.state.isUploadingPhoto, isFalse);
     });
   });
 
-  group('loading the profile', () {
+  group('LoadProfileIntent', () {
     test('fetches and publishes the profile', () async {
       stubGetProfile();
 
-      await cubit.ensureLoaded();
+      cubit.doIntent(const LoadProfileIntent());
+      await Future<void>.delayed(Duration.zero);
 
       expect(
         cubit.state.profileResource,
         const Resource<ProfileEntity>.success(testProfileEntity),
       );
-      expect(cubit.profile, testProfileEntity);
+      expect(cubit.state.profile, testProfileEntity);
       verify(() => mockGetProfile.call()).called(1);
     });
 
     test('serves the cached profile without a second request', () async {
       stubGetProfile();
-      await cubit.ensureLoaded();
+      cubit.doIntent(const LoadProfileIntent());
+      await Future<void>.delayed(Duration.zero);
 
-      await cubit.ensureLoaded();
+      cubit.doIntent(const LoadProfileIntent());
+      await Future<void>.delayed(Duration.zero);
 
       verify(() => mockGetProfile.call()).called(1);
     });
@@ -124,62 +115,26 @@ void main() {
       final completer = Completer<BaseResponse<ProfileEntity>>();
       when(() => mockGetProfile.call()).thenAnswer((_) => completer.future);
 
-      final first = cubit.ensureLoaded();
-      final second = cubit.ensureLoaded();
+      cubit.doIntent(const LoadProfileIntent());
+      cubit.doIntent(const LoadProfileIntent());
       completer.complete(
         const SuccessResponse<ProfileEntity>(testProfileEntity),
       );
-      await Future.wait([first, second]);
+      await Future<void>.delayed(Duration.zero);
 
       verify(() => mockGetProfile.call()).called(1);
-      expect(cubit.profile, testProfileEntity);
+      expect(cubit.state.profile, testProfileEntity);
     });
 
-    test('refresh reads the server again after a cache hit', () async {
-      stubGetProfile();
-      await cubit.ensureLoaded();
-
-      await cubit.refresh();
-
-      verify(() => mockGetProfile.call()).called(2);
-    });
-
-    test('refresh joins a request that is already running', () async {
-      final completer = Completer<BaseResponse<ProfileEntity>>();
-      when(() => mockGetProfile.call()).thenAnswer((_) => completer.future);
-
-      final loading = cubit.ensureLoaded();
-      final refreshing = cubit.refresh();
-      completer.complete(
-        const SuccessResponse<ProfileEntity>(testProfileEntity),
-      );
-      await Future.wait([loading, refreshing]);
-
-      verify(() => mockGetProfile.call()).called(1);
-    });
-
-    test('keeps showing the cached profile while refreshing', () async {
-      stubGetProfile();
-      await cubit.ensureLoaded();
-      final running = cubit.refresh();
-
-      expect(cubit.state.isProfileLoading, isTrue);
-      expect(cubit.profile, testProfileEntity);
-
-      await running;
-    });
-
-    test('reports a network failure but keeps the cached profile', () async {
-      stubGetProfile();
-      await cubit.ensureLoaded();
+    test('reports a network failure on the loaded resource', () async {
       stubGetProfileFailure(const NetworkFailure());
       final events = recordUiEvents(cubit.eventStream);
 
-      await cubit.refresh();
+      cubit.doIntent(const LoadProfileIntent());
       await Future<void>.delayed(Duration.zero);
 
       expect(cubit.state.profileResource.isError, isTrue);
-      expect(cubit.profile, testProfileEntity);
+      expect(cubit.state.profile, isNull);
       expect(
         events,
         contains(
@@ -192,29 +147,43 @@ void main() {
       );
     });
 
-    test('drops the cached user when the session is no longer valid', () async {
-      stubGetProfile();
-      await cubit.ensureLoaded();
-      stubGetProfileFailure(const UnauthorizedFailure());
-      final events = recordUiEvents(cubit.eventStream);
+    test(
+      'an expired session is reported and leaves the profile empty',
+      () async {
+        stubGetProfileFailure(const UnauthorizedFailure());
+        final events = recordUiEvents(cubit.eventStream);
 
-      await cubit.refresh();
-      await Future<void>.delayed(Duration.zero);
+        cubit.doIntent(const LoadProfileIntent());
+        await Future<void>.delayed(Duration.zero);
 
-      expect(cubit.state, const ProfileState());
-      expect(cubit.profile, isNull);
-      expect(events, hasLength(1));
-      final event = events.single as ShowErrorSnackBarEvent;
-      expect(event.failure, isA<UnauthorizedFailure>());
+        expect(cubit.state, const ProfileState());
+        expect(cubit.state.profile, isNull);
+        expect(events, hasLength(1));
+        final event = events.single as ShowErrorSnackBarEvent;
+        expect(event.failure, isA<UnauthorizedFailure>());
+      },
+    );
+  });
+
+  group('SyncProfileIntent', () {
+    test('publishes an already saved profile without a request', () {
+      cubit.doIntent(const SyncProfileIntent(testProfileEntityEdited));
+
+      expect(cubit.state.profile, testProfileEntityEdited);
+      expect(
+        cubit.state.profileResource,
+        const Resource<ProfileEntity>.success(testProfileEntityEdited),
+      );
+      verifyNever(() => mockGetProfile.call());
     });
   });
 
-  group('photo', () {
+  group('PickPhotoIntent', () {
     test('a cancelled pick uploads nothing and stays quiet', () async {
       stubPick();
       final events = recordUiEvents(cubit.eventStream);
 
-      await cubit.pickAndUploadPhoto();
+      cubit.doIntent(const PickPhotoIntent());
       await Future<void>.delayed(Duration.zero);
 
       expect(cubit.state, const ProfileState());
@@ -225,14 +194,13 @@ void main() {
     test(
       'a picked photo is previewed, uploaded and the profile is published',
       () async {
-        stubGetProfile();
         stubPick(photoPath: '/tmp/a.jpg');
         final uploaded = Completer<BaseResponse<ProfileEntity>>();
         when(
           () => mockUploadPhoto.call(any()),
         ).thenAnswer((_) => uploaded.future);
 
-        final running = cubit.pickAndUploadPhoto();
+        cubit.doIntent(const PickPhotoIntent());
         await Future<void>.delayed(Duration.zero);
 
         expect(cubit.state.isUploadingPhoto, isTrue);
@@ -241,9 +209,9 @@ void main() {
         uploaded.complete(
           const SuccessResponse<ProfileEntity>(testProfileEntityEdited),
         );
-        await running;
+        await Future<void>.delayed(Duration.zero);
 
-        expect(cubit.profile, testProfileEntityEdited);
+        expect(cubit.state.profile, testProfileEntityEdited);
         expect(cubit.state.isUploadingPhoto, isFalse);
         expect(cubit.state.pendingPhotoPath, isNull);
       },
@@ -254,7 +222,7 @@ void main() {
       stubUpload();
       final events = recordUiEvents(cubit.eventStream);
 
-      await cubit.pickAndUploadPhoto();
+      cubit.doIntent(const PickPhotoIntent());
       await Future<void>.delayed(Duration.zero);
 
       verify(() => mockUploadPhoto.call('/tmp/a.jpg')).called(1);
@@ -274,16 +242,17 @@ void main() {
       'an upload failure keeps the profile and clears the preview',
       () async {
         stubGetProfile();
-        await cubit.ensureLoaded();
+        cubit.doIntent(const LoadProfileIntent());
+        await Future<void>.delayed(Duration.zero);
         stubPick(photoPath: '/tmp/a.jpg');
         stubUploadFailure(const ServerFailure());
         final events = recordUiEvents(cubit.eventStream);
 
-        await cubit.pickAndUploadPhoto();
+        cubit.doIntent(const PickPhotoIntent());
         await Future<void>.delayed(Duration.zero);
 
         expect(cubit.state.isUploadingPhoto, isFalse);
-        expect(cubit.profile, testProfileEntity);
+        expect(cubit.state.profile, testProfileEntity);
         expect(
           events,
           contains(
@@ -301,7 +270,7 @@ void main() {
       stubPickFailure(const UnknownFailure());
       final events = recordUiEvents(cubit.eventStream);
 
-      await cubit.pickAndUploadPhoto();
+      cubit.doIntent(const PickPhotoIntent());
       await Future<void>.delayed(Duration.zero);
 
       expect(cubit.state.isUploadingPhoto, isFalse);
@@ -323,7 +292,7 @@ void main() {
       stubUploadFailure(const PhotoTooLargeFailure());
       final events = recordUiEvents(cubit.eventStream);
 
-      await cubit.pickAndUploadPhoto();
+      cubit.doIntent(const PickPhotoIntent());
       await Future<void>.delayed(Duration.zero);
 
       expect(
@@ -343,51 +312,22 @@ void main() {
       when(
         () => mockUploadPhoto.call(any()),
       ).thenAnswer((_) => completer.future);
+      stubPick(photoPath: '/tmp/a.jpg');
 
-      final first = cubit.uploadPhoto('/tmp/a.jpg');
-      final second = cubit.uploadPhoto('/tmp/b.jpg');
+      cubit.doIntent(const PickPhotoIntent());
+      await Future<void>.delayed(Duration.zero);
+      cubit.doIntent(const PickPhotoIntent());
+      await Future<void>.delayed(Duration.zero);
       completer.complete(
         const SuccessResponse<ProfileEntity>(testProfileEntityEdited),
       );
-      await Future.wait([first, second]);
-
-      verify(() => mockUploadPhoto.call('/tmp/a.jpg')).called(1);
-      verifyNever(() => mockUploadPhoto.call('/tmp/b.jpg'));
-    });
-
-    test('PickPhotoIntent runs the pick and upload flow', () async {
-      stubPick(photoPath: '/tmp/a.jpg');
-      stubUpload();
-
-      cubit.doIntent(const PickPhotoIntent());
       await Future<void>.delayed(Duration.zero);
 
       verify(() => mockUploadPhoto.call('/tmp/a.jpg')).called(1);
     });
   });
 
-  group('cache control', () {
-    test('applyProfile publishes an already saved profile', () {
-      cubit.applyProfile(testProfileEntityEdited);
-
-      expect(cubit.profile, testProfileEntityEdited);
-      expect(
-        cubit.state.profileResource,
-        const Resource<ProfileEntity>.success(testProfileEntityEdited),
-      );
-      verifyNever(() => mockGetProfile.call());
-    });
-
-    test('clearCache forgets the user', () async {
-      stubGetProfile();
-      await cubit.ensureLoaded();
-
-      cubit.clearCache();
-
-      expect(cubit.state, const ProfileState());
-      expect(cubit.profile, isNull);
-    });
-
+  group('MenuTapIntent', () {
     test('the edit row asks the UI to open the edit route', () async {
       final events = recordUiEvents(cubit.eventStream);
 
@@ -405,9 +345,16 @@ void main() {
         ),
       );
     });
-  });
 
-  group('menu links', () {
+    test('the language row hands the toggle to the UI', () async {
+      final events = recordUiEvents(cubit.eventStream);
+
+      cubit.doIntent(MenuTapIntent(menuRow(ProfileMenuAction.selectLanguage)));
+      await Future<void>.delayed(Duration.zero);
+
+      expect(events, contains(isA<ToggleLocaleEvent>()));
+    });
+
     test('security, privacy and help open their web page', () async {
       for (final action in [
         ProfileMenuAction.security,
@@ -437,57 +384,6 @@ void main() {
 
         expect(events, isEmpty);
       }
-    });
-  });
-
-  group('language', () {
-    test('starts with the saved language', () async {
-      final arabicCubit = buildProfileCubit(
-        mockGetProfile,
-        mockUploadPhoto,
-        mockPickPhoto,
-        await localePreferencesWith(language: 'ar'),
-      );
-
-      expect(arabicCubit.state.language, AppLanguage.arabic);
-      await arabicCubit.close();
-    });
-
-    test('applySavedLanguage syncs the request language', () async {
-      await cubit.applySavedLanguage();
-
-      expect(cubit.state.language, AppLanguage.english);
-      verify(() => mockLocaleService.setLanguageCode('en')).called(1);
-    });
-
-    test(
-      'tapping the language row flips, saves and notifies the screen',
-      () async {
-        final events = recordUiEvents(cubit.eventStream);
-
-        cubit.doIntent(
-          MenuTapIntent(menuRow(ProfileMenuAction.selectLanguage)),
-        );
-        await Future<void>.delayed(Duration.zero);
-
-        expect(cubit.state.language, AppLanguage.arabic);
-        expect(
-          cubit.state.profileResource,
-          const Resource<ProfileEntity>.initial(),
-        );
-        verify(() => mockLocaleService.setLanguageCode('ar')).called(1);
-        expect(localePreferences.readLanguage(), AppLanguage.arabic);
-        expect(events, contains(isA<ProfileUiEvent>()));
-      },
-    );
-
-    test('a second tap returns to English', () async {
-      await cubit.toggleLanguage();
-
-      await cubit.toggleLanguage();
-
-      expect(cubit.state.language, AppLanguage.english);
-      expect(localePreferences.readLanguage(), AppLanguage.english);
     });
   });
 }

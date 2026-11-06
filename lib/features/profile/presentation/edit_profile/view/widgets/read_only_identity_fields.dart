@@ -7,12 +7,14 @@ class ReadOnlyIdentityFields extends StatelessWidget {
   final String firstName;
   final String lastName;
   final String email;
+  final String gender;
 
   const ReadOnlyIdentityFields({
     super.key,
     required this.firstName,
     required this.lastName,
     required this.email,
+    required this.gender,
   });
 
   @override
@@ -38,6 +40,13 @@ class ReadOnlyIdentityFields extends StatelessWidget {
           key: const Key('emailField'),
           hintText: email,
           prefixIcon: AppAssets.mail,
+          enabled: false,
+        ),
+        SizedBox(height: 16.h),
+        AppTextFormField(
+          key: const Key('genderField'),
+          hintText: gender,
+          prefixIcon: AppAssets.person,
           enabled: false,
         ),
       ],

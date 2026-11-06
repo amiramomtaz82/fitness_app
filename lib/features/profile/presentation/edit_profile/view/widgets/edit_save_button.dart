@@ -23,14 +23,6 @@ class EditSaveButton extends StatelessWidget {
     return FilledButton(
       key: const Key('editSaveButton'),
       onPressed: actionable ? onPressed : null,
-      style: FilledButton.styleFrom(
-        backgroundColor: colors.primary,
-        disabledBackgroundColor: colors.primary.withValues(alpha: 0.6),
-        padding: EdgeInsets.symmetric(vertical: 16.h),
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(30.r),
-        ),
-      ),
       child: isLoading
           ? SizedBox(
               width: 22.w,

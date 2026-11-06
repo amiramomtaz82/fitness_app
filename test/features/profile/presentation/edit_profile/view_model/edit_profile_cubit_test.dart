@@ -12,53 +12,27 @@ import 'package:fitness_app/features/profile/domain/entities/profile_params.dart
 import 'package:fitness_app/features/profile/presentation/edit_profile/view_model/edit_profile_cubit.dart';
 import 'package:fitness_app/features/profile/presentation/edit_profile/view_model/edit_profile_field.dart';
 import 'package:fitness_app/features/profile/presentation/edit_profile/view_model/edit_profile_intent.dart';
+import 'package:fitness_app/features/profile/presentation/edit_profile/view_model/edit_profile_saved_event.dart';
 import 'package:fitness_app/features/profile/presentation/edit_profile/view_model/edit_profile_state.dart';
-import 'package:fitness_app/features/profile/presentation/profile/view_model/profile_cubit.dart';
 import 'package:mocktail/mocktail.dart';
 
 import '../../../profile_test_helper.dart';
 
 void main() {
-  late MockGetProfileUseCase mockGetProfile;
-  late MockUploadPhotoUseCase mockUploadPhoto;
-  late MockPickPhotoUseCase mockPickPhoto;
   late MockEditProfileUseCase mockEditProfile;
-  late ProfileCubit profileCubit;
   late EditProfileCubit cubit;
 
   setUpAll(registerProfileFallbacks);
 
-  setUp(() async {
-    mockGetProfile = MockGetProfileUseCase();
-    mockUploadPhoto = MockUploadPhotoUseCase();
-    mockPickPhoto = MockPickPhotoUseCase();
+  setUp(() {
     mockEditProfile = MockEditProfileUseCase();
-    profileCubit = buildProfileCubit(
-      mockGetProfile,
-      mockUploadPhoto,
-      mockPickPhoto,
-      await localePreferencesWith(),
-    );
-    cubit = EditProfileCubit(profileCubit, mockEditProfile);
+    cubit = EditProfileCubit(mockEditProfile);
   });
 
-  tearDown(() async {
-    await cubit.close();
-    await profileCubit.close();
-  });
+  tearDown(() => cubit.close());
 
-  void stubSavedProfile(ProfileEntity? profile) {
-    when(() => mockGetProfile.call()).thenAnswer(
-      (_) async => profile == null
-          ? ErrorResponse<ProfileEntity>(failure: const NetworkFailure())
-          : SuccessResponse<ProfileEntity>(profile),
-    );
-  }
-
-  Future<void> startForm({ProfileEntity profile = testProfileEntity}) async {
-    stubSavedProfile(profile);
-    cubit.doIntent(const StartEditProfileIntent());
-    await Future<void>.delayed(Duration.zero);
+  void startForm({ProfileEntity profile = testProfileEntity}) {
+    cubit.doIntent(StartEditProfileIntent(profile));
   }
 
   void stubSaveSuccess([ProfileEntity profile = testProfileEntityEdited]) {
@@ -68,8 +42,8 @@ void main() {
   }
 
   group('EditProfileCubit prefill', () {
-    test('loads the saved profile into a draft', () async {
-      await startForm();
+    test('loads the handed profile into a draft', () {
+      startForm();
 
       expect(cubit.state.saved, testProfileEntity);
       expect(cubit.state.draft, testProfileParams);
@@ -80,46 +54,34 @@ void main() {
       expect(cubit.state.fieldErrors, isEmpty);
     });
 
-    test('keeps the locked fields out of an unloaded form', () async {
-      stubSavedProfile(null);
-
-      cubit.doIntent(const StartEditProfileIntent());
-      await Future<void>.delayed(Duration.zero);
-
+    test('the locked fields read empty until a profile is handed in', () {
       expect(cubit.state.saved, isNull);
       expect(cubit.state.firstName, isEmpty);
       expect(cubit.state.lastName, isEmpty);
       expect(cubit.state.email, isEmpty);
+      expect(cubit.state.gender, isEmpty);
     });
 
-    test('copies measurements the server never sent as zeroes', () async {
-      await startForm(profile: const ProfileEntity());
+    test('the locked fields are served from the handed profile', () {
+      startForm();
+
+      expect(cubit.state.firstName, 'Ahmed');
+      expect(cubit.state.lastName, 'Sukkary');
+      expect(cubit.state.email, 'ahmed@test.com');
+      expect(cubit.state.gender, 'male');
+    });
+
+    test('copies measurements the server never sent as zeroes', () {
+      startForm(profile: const ProfileEntity());
 
       expect(cubit.state.draft?.age, 0);
       expect(cubit.state.draft?.weight, 0);
       expect(cubit.state.draft?.height, 0);
     });
-
-    test('reads the profile once and reuses the shared cache', () async {
-      await startForm();
-
-      expect(profileCubit.profile, testProfileEntity);
-      verify(() => mockGetProfile.call()).called(1);
-    });
-
-    test('leaves the form unusable when the profile cannot be read', () async {
-      stubSavedProfile(null);
-
-      cubit.doIntent(const StartEditProfileIntent());
-      await Future<void>.delayed(Duration.zero);
-
-      expect(cubit.state.isDraftReady, isFalse);
-      expect(cubit.state.draft, isNull);
-    });
   });
 
   group('draft editing', () {
-    setUp(() => startForm());
+    setUp(startForm);
 
     test('an option pick updates the draft and leaves the rest untouched', () {
       cubit.doIntent(
@@ -174,53 +136,54 @@ void main() {
   });
 
   group('saving', () {
-    test(
-      'sends the draft, publishes it to the shared profile and pops',
-      () async {
-        await startForm();
-        cubit.doIntent(const UpdateNumberFieldIntent(EditProfileField.age, 30));
-        stubSaveSuccess();
-        final events = recordUiEvents(cubit.eventStream);
+    test('sends the draft, hands the result back and pops', () async {
+      startForm();
+      cubit.doIntent(const UpdateNumberFieldIntent(EditProfileField.age, 30));
+      stubSaveSuccess();
+      final events = recordUiEvents(cubit.eventStream);
 
-        cubit.doIntent(const SaveProfileIntent());
-        await Future<void>.delayed(Duration.zero);
+      cubit.doIntent(const SaveProfileIntent());
+      await Future<void>.delayed(Duration.zero);
 
-        final saved =
-            verify(() => mockEditProfile.call(captureAny())).captured.single
-                as ProfileParams;
-        expect(saved.firstName, 'Ahmed');
-        expect(saved.lastName, 'Sukkary');
-        expect(saved.age, 30);
-        expect(cubit.state.saveResource.isSuccess, isTrue);
-        expect(cubit.state.saved, testProfileEntityEdited);
-        expect(cubit.state.firstName, 'Mohamed');
-        expect(profileCubit.profile, testProfileEntityEdited);
-        expect(events, contains(isA<PopEvent>()));
-        expect(
-          events,
-          contains(
-            isA<ShowSuccessSnackBarEvent>().having(
-              (event) => event.type,
-              'type',
-              CubitMessageType.profileUpdated,
-            ),
+      final saved =
+          verify(() => mockEditProfile.call(captureAny())).captured.single
+              as ProfileParams;
+      expect(saved.firstName, 'Ahmed');
+      expect(saved.age, 30);
+      expect(cubit.state.saveResource.isSuccess, isTrue);
+      expect(cubit.state.saved, testProfileEntityEdited);
+      expect(cubit.state.firstName, 'Mohamed');
+      expect(
+        events,
+        contains(
+          isA<ProfileSavedEvent>().having(
+            (event) => event.profile,
+            'profile',
+            testProfileEntityEdited,
           ),
-        );
-      },
-    );
+        ),
+      );
+      expect(events, contains(isA<PopEvent>()));
+      expect(
+        events,
+        contains(
+          isA<ShowSuccessSnackBarEvent>().having(
+            (event) => event.type,
+            'type',
+            CubitMessageType.profileUpdated,
+          ),
+        ),
+      );
+    });
 
-    test('blocks an empty profile and reports every editable field', () async {
-      await startForm(profile: const ProfileEntity());
+    test('blocks an empty profile and reports every editable field', () {
+      startForm(profile: const ProfileEntity());
 
       cubit.doIntent(const SaveProfileIntent());
 
       expect(
         cubit.state.fieldErrors.keys,
         unorderedEquals(EditProfileField.values),
-      );
-      expect(
-        cubit.state.fieldErrors[EditProfileField.gender],
-        ValidationError.empty,
       );
       expect(
         cubit.state.fieldErrors[EditProfileField.age],
@@ -230,8 +193,8 @@ void main() {
       verifyNever(() => mockEditProfile.call(any()));
     });
 
-    test('rejects out-of-range numbers before hitting the API', () async {
-      await startForm();
+    test('rejects out-of-range numbers before hitting the API', () {
+      startForm();
 
       cubit.doIntent(const UpdateNumberFieldIntent(EditProfileField.age, 5));
       cubit.doIntent(
@@ -250,21 +213,8 @@ void main() {
       verifyNever(() => mockEditProfile.call(any()));
     });
 
-    test('rejects a gender the backend does not accept', () async {
-      await startForm();
-
-      cubit.doIntent(const SelectOptionIntent(EditProfileField.gender, 'x'));
-      cubit.doIntent(const SaveProfileIntent());
-
-      expect(
-        cubit.state.fieldErrors[EditProfileField.gender],
-        ValidationError.invalidGender,
-      );
-      verifyNever(() => mockEditProfile.call(any()));
-    });
-
     test('emits a failure event when the server rejects the changes', () async {
-      await startForm();
+      startForm();
       when(() => mockEditProfile.call(any())).thenAnswer(
         (_) async =>
             ErrorResponse<ProfileEntity>(failure: const ServerFailure()),
@@ -276,8 +226,8 @@ void main() {
 
       expect(cubit.state.saveResource.isError, isTrue);
       expect(cubit.state.saved, testProfileEntity);
-      expect(profileCubit.profile, testProfileEntity);
       expect(events.any((event) => event is PopEvent), isFalse);
+      expect(events.any((event) => event is ProfileSavedEvent), isFalse);
       expect(
         events,
         contains(
@@ -291,7 +241,7 @@ void main() {
     });
 
     test('ignores a second save while one is running', () async {
-      await startForm();
+      startForm();
       final completer = Completer<BaseResponse<ProfileEntity>>();
       when(
         () => mockEditProfile.call(any()),
@@ -307,14 +257,14 @@ void main() {
       verify(() => mockEditProfile.call(any())).called(1);
     });
 
-    test('does nothing before the draft exists', () async {
+    test('does nothing before the draft exists', () {
       cubit.doIntent(const SaveProfileIntent());
 
       expect(cubit.state, const EditProfileState());
       verifyNever(() => mockEditProfile.call(any()));
     });
 
-    test('editing before the draft exists is ignored', () async {
+    test('editing before the draft exists is ignored', () {
       cubit.doIntent(const SelectOptionIntent(EditProfileField.goal, 'x'));
       cubit.doIntent(
         const UpdateNumberFieldIntent(EditProfileField.weight, 90),
@@ -325,48 +275,46 @@ void main() {
   });
 
   group('error clearing', () {
-    test('fixing a field removes only that field error', () async {
-      await startForm(profile: const ProfileEntity());
+    test('fixing a field removes only that field error', () {
+      startForm(profile: const ProfileEntity());
       cubit.doIntent(const SaveProfileIntent());
       expect(
         cubit.state.fieldErrors,
         hasLength(EditProfileField.values.length),
       );
 
-      cubit.doIntent(const SelectOptionIntent(EditProfileField.gender, 'male'));
+      cubit.doIntent(
+        const SelectOptionIntent(EditProfileField.goal, 'Lose weight'),
+      );
 
       expect(
-        cubit.state.fieldErrors.containsKey(EditProfileField.gender),
+        cubit.state.fieldErrors.containsKey(EditProfileField.goal),
         isFalse,
       );
       expect(cubit.state.fieldErrors.containsKey(EditProfileField.age), isTrue);
     });
 
     test(
-      'a failed save followed by a valid save publishes the new profile',
+      'a rejected edit followed by a fixed edit publishes the profile',
       () async {
-        await startForm();
-        cubit.doIntent(
-          const SelectOptionIntent(EditProfileField.gender, 'other'),
-        );
+        startForm();
+        cubit.doIntent(const UpdateNumberFieldIntent(EditProfileField.age, 5));
 
         cubit.doIntent(const SaveProfileIntent());
         expect(
-          cubit.state.fieldErrors[EditProfileField.gender],
-          ValidationError.invalidGender,
+          cubit.state.fieldErrors[EditProfileField.age],
+          ValidationError.valueBelowMinimum,
         );
 
-        cubit.doIntent(
-          const SelectOptionIntent(EditProfileField.gender, 'female'),
-        );
+        cubit.doIntent(const UpdateNumberFieldIntent(EditProfileField.age, 26));
         stubSaveSuccess(
           const ProfileEntity(
             id: '123',
             firstName: 'Ahmed',
             lastName: 'Sukkary',
             email: 'ahmed@test.com',
-            gender: 'female',
-            age: 25,
+            gender: 'male',
+            age: 26,
             weight: 75.5,
             height: 178,
             activityLevel: 'level1',
@@ -378,7 +326,7 @@ void main() {
         await Future<void>.delayed(Duration.zero);
 
         expect(cubit.state.fieldErrors, isEmpty);
-        expect(profileCubit.profile?.gender, 'female');
+        expect(cubit.state.saved?.age, 26);
       },
     );
   });

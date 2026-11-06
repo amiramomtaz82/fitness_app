@@ -10,18 +10,6 @@ void main() {
   const draft = testProfileParams;
 
   group('EditProfileValueFormatter.options', () {
-    test('lists the genders with the label the api key behind it', () {
-      final options = EditProfileValueFormatter.options(
-        EditProfileField.gender,
-      );
-
-      expect(options.map((option) => option.value), ['male', 'female']);
-      expect(
-        options.map((option) => option.label),
-        RegistrationGender.values.map((gender) => gender.displayText),
-      );
-    });
-
     test('lists the goals in the order the registration step shows them', () {
       final options = EditProfileValueFormatter.options(EditProfileField.goal);
 
@@ -72,7 +60,6 @@ void main() {
 
     test('refuses to read a measurement off a choice field', () {
       for (final field in [
-        EditProfileField.gender,
         EditProfileField.goal,
         EditProfileField.activityLevel,
       ]) {
@@ -87,10 +74,6 @@ void main() {
   group('EditProfileValueFormatter.optionValue', () {
     test('returns the stored key the sheet has to preselect', () {
       expect(
-        EditProfileValueFormatter.optionValue(EditProfileField.gender, draft),
-        'male',
-      );
-      expect(
         EditProfileValueFormatter.optionValue(EditProfileField.goal, draft),
         'Gain weight',
       );
@@ -104,12 +87,23 @@ void main() {
     });
   });
 
+  group('EditProfileValueFormatter.genderLabel', () {
+    test('reads the stored key back as its display label', () {
+      for (final gender in RegistrationGender.values) {
+        expect(
+          EditProfileValueFormatter.genderLabel(gender.apiKey),
+          gender.displayText,
+        );
+      }
+    });
+
+    test('shows the stored text when the server sent an unknown gender', () {
+      expect(EditProfileValueFormatter.genderLabel('other'), 'other');
+    });
+  });
+
   group('EditProfileValueFormatter.value', () {
     test('shows an option field with its readable label', () {
-      expect(
-        EditProfileValueFormatter.value(EditProfileField.gender, draft),
-        RegistrationGender.male.displayText,
-      );
       expect(
         EditProfileValueFormatter.value(EditProfileField.goal, draft),
         RegistrationGoal.gainWeight.displayText,
@@ -146,13 +140,6 @@ void main() {
     });
 
     test('shows the stored text when the server sent an unknown value', () {
-      expect(
-        EditProfileValueFormatter.value(
-          EditProfileField.gender,
-          draft.copyWith(gender: 'other'),
-        ),
-        'other',
-      );
       expect(
         EditProfileValueFormatter.value(
           EditProfileField.goal,

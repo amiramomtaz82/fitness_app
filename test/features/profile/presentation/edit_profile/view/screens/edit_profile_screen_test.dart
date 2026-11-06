@@ -42,16 +42,15 @@ void main() {
     await settleUi(tester);
   }
 
-  Finder numberField() {
-    return find.descendant(
-      of: find.byType(NumberPickerSheet),
-      matching: find.byType(TextField),
-    );
-  }
-
-  Future<void> submitNumber(WidgetTester tester, String text) async {
-    await tester.showKeyboard(numberField());
-    await tester.enterText(numberField(), text);
+  Future<void> pickNumber(
+    WidgetTester tester,
+    int value, {
+    required int min,
+  }) async {
+    final controller = tester
+        .widget<PageView>(find.byType(PageView))
+        .controller!;
+    controller.jumpToPage(value - min);
     await settleUi(tester);
     await tester.tap(find.text('Done'));
     await settleUi(tester, steps: 8);
@@ -90,6 +89,16 @@ void main() {
     expect(lockedField(tester, 'email').enabled, isFalse);
   });
 
+  testWidgets('shows the gender as a locked line the user cannot edit', (
+    tester,
+  ) async {
+    await startLoadedEditForm(tester);
+
+    expect(lockedField(tester, 'gender').hintText, 'Male');
+    expect(lockedField(tester, 'gender').enabled, isFalse);
+    expect(find.byKey(const Key('field_gender')), findsNothing);
+  });
+
   testWidgets('shows the photo of the account being edited', (tester) async {
     await startLoadedEditForm(tester);
 
@@ -102,7 +111,6 @@ void main() {
   ) async {
     await startLoadedEditForm(tester);
 
-    expect(fieldValue(tester, EditProfileField.gender), 'Male');
     expect(fieldValue(tester, EditProfileField.age), '25 years');
     expect(fieldValue(tester, EditProfileField.weight), '75.5 kg');
     expect(fieldValue(tester, EditProfileField.height), '178 cm');
@@ -117,7 +125,7 @@ void main() {
     expect(saveEnabled(tester), isFalse);
 
     await openField(tester, EditProfileField.age);
-    await submitNumber(tester, '30');
+    await pickNumber(tester, 30, min: 10);
 
     expect(saveEnabled(tester), isTrue);
   });
@@ -130,7 +138,6 @@ void main() {
     expect(find.text('WHAT IS YOUR WEIGHT ?'), findsOneWidget);
     expect(find.byType(NumberPickerSheet), findsOneWidget);
     expect(find.byType(OptionPickerSheet), findsNothing);
-    expect(tester.widget<TextField>(numberField()).controller!.text, '75.5');
     expect(cubit.state.draft?.weight, 75.5);
   });
 
@@ -140,7 +147,7 @@ void main() {
     final cubit = await startLoadedEditForm(tester);
     await openField(tester, EditProfileField.age);
 
-    await submitNumber(tester, '30');
+    await pickNumber(tester, 30, min: 10);
 
     expect(fieldValue(tester, EditProfileField.age), '30 years');
     expect(cubit.state.draft?.age, 30);
@@ -201,7 +208,7 @@ void main() {
     );
     await startLoadedEditForm(tester, editProfile: editProfile);
     await openField(tester, EditProfileField.age);
-    await submitNumber(tester, '30');
+    await pickNumber(tester, 30, min: 10);
 
     await tapSave(tester);
 
@@ -214,7 +221,7 @@ void main() {
     ).called(1);
   });
 
-  testWidgets('a saved change replaces the identity the page shows', (
+  testWidgets('a saved change hands the profile back to the list', (
     tester,
   ) async {
     final editProfile = MockEditProfileUseCase();
@@ -225,7 +232,7 @@ void main() {
     final cubit = await startLoadedEditForm(tester, editProfile: editProfile);
 
     await openField(tester, EditProfileField.age);
-    await submitNumber(tester, '30');
+    await pickNumber(tester, 30, min: 10);
     await tapSave(tester);
 
     expect(lockedField(tester, 'firstName').hintText, 'Mohamed');
@@ -243,7 +250,7 @@ void main() {
     final cubit = await startLoadedEditForm(tester, editProfile: editProfile);
 
     await openField(tester, EditProfileField.age);
-    await submitNumber(tester, '30');
+    await pickNumber(tester, 30, min: 10);
     await tapSave(tester);
 
     expect(find.byType(SnackBar), findsOneWidget);
@@ -262,7 +269,7 @@ void main() {
     );
 
     await openField(tester, EditProfileField.age);
-    await submitNumber(tester, '20');
+    await pickNumber(tester, 20, min: 10);
     await tapSave(tester);
 
     verifyNever(() => editProfile.call(any()));

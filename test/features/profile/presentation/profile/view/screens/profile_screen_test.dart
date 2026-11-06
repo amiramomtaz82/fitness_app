@@ -1,14 +1,15 @@
-import 'package:easy_localization/easy_localization.dart';
 import 'package:fitness_app/app/routes_names.dart';
 import 'package:fitness_app/core/base_response/base_response.dart';
 import 'package:fitness_app/core/contants/app_language.dart';
 import 'package:fitness_app/core/contants/web_pages.dart';
+import 'package:fitness_app/core/local/locale_cubit.dart';
 import 'package:fitness_app/features/profile/domain/entities/profile_entity.dart';
 import 'package:fitness_app/features/profile/presentation/profile/view/models/profile_menu_item.dart';
 import 'package:fitness_app/features/profile/presentation/profile/view/screens/profile_screen.dart';
 import 'package:fitness_app/features/profile/presentation/profile/view/widgets/profile_header.dart';
 import 'package:fitness_app/features/profile/presentation/profile/view/widgets/profile_menu_list.dart';
 import 'package:fitness_app/features/profile/presentation/profile/view_model/profile_cubit.dart';
+import 'package:fitness_app/features/profile/presentation/profile/view_model/profile_intent.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -19,7 +20,7 @@ import '../../../../../../helpers/test_app.dart';
 import '../../../../profile_widget_test_helper.dart';
 
 void main() {
-  Future<ProfileCubit> openProfileScreen(
+  Future<({ProfileCubit profile, LocaleCubit locale})> openProfileScreen(
     WidgetTester tester, {
     ProfileEntity? profile,
     MockPickPhotoUseCase? pickPhoto,
@@ -29,13 +30,21 @@ void main() {
       profile: profile,
       pickPhoto: pickPhoto,
     );
-    await cubit.refresh();
+    final localeCubit = await startLocaleCubit();
+    cubit.doIntent(const LoadProfileIntent());
+    await settleUi(tester);
     await pumpProfileRoute(
       tester,
       extraRoutes: extraRoutes,
-      screen: BlocProvider.value(value: cubit, child: const ProfileScreen()),
+      screen: MultiBlocProvider(
+        providers: [
+          BlocProvider.value(value: cubit),
+          BlocProvider.value(value: localeCubit),
+        ],
+        child: const ProfileScreen(),
+      ),
     );
-    return cubit;
+    return (profile: cubit, locale: localeCubit);
   }
 
   GoRoute webMarkerRoute() {
@@ -119,19 +128,18 @@ void main() {
     verify(() => pickPhoto.call()).called(1);
   });
 
-  testWidgets('the language switch moves the whole page to arabic', (
+  testWidgets('flipping the language switch hands the toggle to the locale', (
     tester,
   ) async {
-    final cubit = await openProfileScreen(tester, profile: testProfileEntity);
+    final scope = await openProfileScreen(tester, profile: testProfileEntity);
 
-    await tester.tap(find.byType(Switch));
-    await tester.runAsync(() => settleUi(tester, steps: 12));
+    await tester.runAsync(() async {
+      await tester.tap(find.byType(Switch));
+      for (var i = 0; i < 8; i++) {
+        await tester.pump(const Duration(milliseconds: 100));
+      }
+    });
 
-    expect(cubit.state.language, AppLanguage.arabic);
-    expect(
-      tester.element(find.byType(ProfileScreen)).locale,
-      const Locale('ar'),
-    );
-    expect(find.text('Profile'), findsNothing);
+    expect(scope.locale.state.language, AppLanguage.arabic);
   });
 }

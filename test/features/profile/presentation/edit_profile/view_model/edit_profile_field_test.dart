@@ -5,7 +5,6 @@ void main() {
   group('EditProfileField', () {
     test('covers only the fields the user may change', () {
       expect(EditProfileField.values, [
-        EditProfileField.gender,
         EditProfileField.age,
         EditProfileField.weight,
         EditProfileField.height,
@@ -37,11 +36,26 @@ void main() {
       }
     });
 
+    test('only the measured fields carry a scroll range', () {
+      const measured = [
+        EditProfileField.age,
+        EditProfileField.weight,
+        EditProfileField.height,
+      ];
+
+      for (final field in EditProfileField.values) {
+        expect(
+          field.min < field.max,
+          measured.contains(field),
+          reason: field.name,
+        );
+      }
+    });
+
     test('the kind of a field is decided by its unit', () {
       expect(EditProfileField.age.isNumeric, isTrue);
       expect(EditProfileField.weight.isNumeric, isTrue);
       expect(EditProfileField.height.isNumeric, isTrue);
-      expect(EditProfileField.gender.isNumeric, isFalse);
       expect(EditProfileField.goal.isNumeric, isFalse);
       expect(EditProfileField.activityLevel.isNumeric, isFalse);
     });

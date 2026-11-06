@@ -25,6 +25,7 @@ void main() {
       expect(initial.firstName, isEmpty);
       expect(initial.lastName, isEmpty);
       expect(initial.email, isEmpty);
+      expect(initial.gender, isEmpty);
     });
 
     test('the locked fields are served from the saved profile', () {
@@ -33,6 +34,7 @@ void main() {
       expect(state.firstName, 'Ahmed');
       expect(state.lastName, 'Sukkary');
       expect(state.email, 'ahmed@test.com');
+      expect(state.gender, 'male');
     });
 
     test('the draft is ready once the profile has been copied into it', () {
@@ -66,15 +68,10 @@ void main() {
 
     test('exposes the error of a single field', () {
       final state = initial.copyWith(
-        fieldErrors: const {
-          EditProfileField.gender: ValidationError.invalidGender,
-        },
+        fieldErrors: const {EditProfileField.goal: ValidationError.empty},
       );
 
-      expect(
-        state.errorOf(EditProfileField.gender),
-        ValidationError.invalidGender,
-      );
+      expect(state.errorOf(EditProfileField.goal), ValidationError.empty);
       expect(state.errorOf(EditProfileField.age), isNull);
     });
 
