@@ -1,19 +1,18 @@
 import 'package:easy_localization/easy_localization.dart';
 
-import '../../../../generated/locale_keys.g.dart';
+import '../../generated/locale_keys.g.dart';
 
 enum RegistrationGender { male, female }
-
-const _genderMaleKey = 'profile_setup.male';
-const _genderFemaleKey = 'profile_setup.female';
 
 extension RegistrationGenderLabel on RegistrationGender {
   String get displayText {
     return switch (this) {
-      RegistrationGender.male => _genderMaleKey.tr(),
-      RegistrationGender.female => _genderFemaleKey.tr(),
+      RegistrationGender.male => LocaleKeys.profile_setup_gender_male.tr(),
+      RegistrationGender.female => LocaleKeys.profile_setup_gender_female.tr(),
     };
   }
+
+  String get apiKey => name;
 }
 
 enum RegistrationGoal {
@@ -54,7 +53,6 @@ extension RegistrationActivityLabel on RegistrationActivity {
   }
 }
 
-// 1. Backend contract mapping for Goal (Fixed English strings)
 extension RegistrationGoalApiKey on RegistrationGoal {
   String get apiKey => switch (this) {
     RegistrationGoal.gainWeight => 'Gain weight',
@@ -65,7 +63,6 @@ extension RegistrationGoalApiKey on RegistrationGoal {
   };
 }
 
-// 2. Backend contract mapping for Activity Level ('level1' to 'level5')
 extension RegistrationActivityApiKey on RegistrationActivity {
   String get apiKey => switch (this) {
     RegistrationActivity.rookie => 'level1',

@@ -3,6 +3,13 @@
 import 'package:fitness_app/core/validation/validation_errors.dart';
 
 class FormValidators {
+  static const int minimumAge = 16;
+  static const int maximumAge = 100;
+  static const num minimumWeightKg = 20;
+  static const num maximumWeightKg = 350;
+  static const num minimumHeightCm = 100;
+  static const num maximumHeightCm = 250;
+
   /// Validates standard required text
   static ValidationError? validateRequired(String? value) {
     if (value == null || value.trim().isEmpty) {
@@ -110,10 +117,46 @@ class FormValidators {
     if (weight == null) {
       return ValidationError.notANumber;
     }
-    if (weight < 20.0) {
+    if (weight < minimumWeightKg) {
       return ValidationError.valueBelowMinimum;
     }
-    if (weight > 350.0) {
+    if (weight > maximumWeightKg) {
+      return ValidationError.valueAboveMaximum;
+    }
+    return null;
+  }
+
+  /// Validates age (between [minimumAge] and [maximumAge])
+  static ValidationError? validateAge(String? value) {
+    if (value == null || value.trim().isEmpty) {
+      return ValidationError.empty;
+    }
+    final age = int.tryParse(value.trim());
+    if (age == null) {
+      return ValidationError.notANumber;
+    }
+    if (age < minimumAge) {
+      return ValidationError.valueBelowMinimum;
+    }
+    if (age > maximumAge) {
+      return ValidationError.valueAboveMaximum;
+    }
+    return null;
+  }
+
+  /// Validates height (between [minimumHeightCm] and [maximumHeightCm])
+  static ValidationError? validateHeight(String? value) {
+    if (value == null || value.trim().isEmpty) {
+      return ValidationError.empty;
+    }
+    final height = double.tryParse(value.trim());
+    if (height == null) {
+      return ValidationError.notANumber;
+    }
+    if (height < minimumHeightCm) {
+      return ValidationError.valueBelowMinimum;
+    }
+    if (height > maximumHeightCm) {
       return ValidationError.valueAboveMaximum;
     }
     return null;
