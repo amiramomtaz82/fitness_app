@@ -1,5 +1,6 @@
 import 'package:fitness_app/features/chat/data/client/chat_api_client.dart';
 import 'package:fitness_app/features/chat/data/data_source/chat_remote_data_source.dart';
+import 'package:fitness_app/features/chat/data/data_source/chat_remote_data_source_imp.dart';
 import 'package:fitness_app/features/chat/data/models/ollama_chat_request_dto.dart';
 import 'package:fitness_app/features/chat/data/models/ollama_chat_response_dto.dart';
 import 'package:fitness_app/features/chat/data/models/ollama_message_dto.dart';
@@ -30,10 +31,10 @@ void main() {
 
   setUp(() {
     mockApiClient = MockChatApiClient();
-    dataSource = ChatRemoteDataSource(mockApiClient);
+    dataSource = ChatRemoteDataSourceImp(mockApiClient);
   });
 
-  group('ChatRemoteDataSource —', () {
+  group('ChatRemoteDataSourceImp —', () {
     test('calls client.chat with request dto and returns response', () async {
       when(() => mockApiClient.chat(any())).thenAnswer((_) async => tResponse);
 

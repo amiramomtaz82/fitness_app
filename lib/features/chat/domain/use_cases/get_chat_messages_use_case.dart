@@ -6,23 +6,25 @@ import '../entites/chat_entities/chat_message_entity.dart';
 import '../repo/catalog_repo.dart';
 import '../repo/chat_repo.dart';
 
-@lazySingleton
+@injectable
 class GetChatMessagesUseCase {
   final ChatRepo _chatRepo;
   final CatalogRepo
-  _catalogRepo; // ✅ UseCases CAN coordinate multiple repositories!
+  _catalogRepo; // ✅ UseCases coordinate multiple repositories!
 
   const GetChatMessagesUseCase(this._chatRepo, this._catalogRepo);
 
   Future<BaseResponse<List<ChatMessageEntity>>> call(String sessionId) async {
     // 1. Fetch the raw messages
     final messagesRes = await _chatRepo.getMessages(sessionId);
-    if (messagesRes is ErrorResponse<List<ChatMessageEntity>>) {
-      return messagesRes;
-    }
+    final List<ChatMessageEntity> messages;
 
-    final messages =
-        (messagesRes as SuccessResponse<List<ChatMessageEntity>>).data;
+    switch (messagesRes) {
+      case ErrorResponse(:final failure):
+        return ErrorResponse(failure: failure);
+      case SuccessResponse(:final data):
+        messages = data;
+    }
 
     // 2. Collect all unique IDs across all messages using a Set
     final allExerciseIds = <String>{};
@@ -36,10 +38,13 @@ class GetChatMessagesUseCase {
     final exerciseMap = <String, ExerciseCardEntity>{};
     if (allExerciseIds.isNotEmpty) {
       final res = await _catalogRepo.getExercisesByIds(allExerciseIds.toList());
-      if (res is SuccessResponse<List<ExerciseCardEntity>>) {
-        for (final item in res.data) {
-          exerciseMap[item.id] = item;
-        }
+      switch (res) {
+        case SuccessResponse(:final data):
+          for (final item in data) {
+            exerciseMap[item.id] = item;
+          }
+        case ErrorResponse():
+          break;
       }
     }
 
@@ -47,10 +52,13 @@ class GetChatMessagesUseCase {
     final mealMap = <String, MealCardEntity>{};
     if (allMealIds.isNotEmpty) {
       final res = await _catalogRepo.getMealsByIds(allMealIds.toList());
-      if (res is SuccessResponse<List<MealCardEntity>>) {
-        for (final item in res.data) {
-          mealMap[item.id] = item;
-        }
+      switch (res) {
+        case SuccessResponse(:final data):
+          for (final item in data) {
+            mealMap[item.id] = item;
+          }
+        case ErrorResponse():
+          break;
       }
     }
 

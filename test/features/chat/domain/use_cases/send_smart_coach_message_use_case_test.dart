@@ -58,7 +58,7 @@ void main() {
         final failure = (result as ErrorResponse).failure;
         expect(failure, isA<ChatTokenLimitFailure>());
         verifyNever(
-          () => mockChatRepo.requestTurnA(
+          () => mockChatRepo.requestCoachResponseWithTools(
             history: any(named: 'history'),
             userText: any(named: 'userText'),
           ),
@@ -69,7 +69,7 @@ void main() {
     test(
       'returns direct assistant response and saves user/coach messages',
       () async {
-        const turnAResult = CoachTurnAResultEntity(
+        const coachResponse = CoachResponseWithToolsEntity(
           text: 'You can do this!',
           toolCalls: [],
           totalTokens: 80,
@@ -79,7 +79,7 @@ void main() {
           () => mockChatRepo.saveMessage(any(), any(), any()),
         ).thenAnswer((_) async => const SuccessResponse(null));
         when(
-          () => mockChatRepo.requestTurnA(
+          () => mockChatRepo.requestCoachResponseWithTools(
             history: any(named: 'history'),
             userText: any(named: 'userText'),
             toolResults: any(named: 'toolResults'),
@@ -88,7 +88,7 @@ void main() {
             userWeight: any(named: 'userWeight'),
             userHeight: any(named: 'userHeight'),
           ),
-        ).thenAnswer((_) async => const SuccessResponse(turnAResult));
+        ).thenAnswer((_) async => const SuccessResponse(coachResponse));
 
         final result = await useCase(
           sessionId: tSessionId,
@@ -109,7 +109,7 @@ void main() {
     test(
       'calculates token warning level when total tokens reach 7000',
       () async {
-        const turnAResult = CoachTurnAResultEntity(
+        const coachResponse = CoachResponseWithToolsEntity(
           text: 'Almost full!',
           toolCalls: [],
           totalTokens: 150,
@@ -119,7 +119,7 @@ void main() {
           () => mockChatRepo.saveMessage(any(), any(), any()),
         ).thenAnswer((_) async => const SuccessResponse(null));
         when(
-          () => mockChatRepo.requestTurnA(
+          () => mockChatRepo.requestCoachResponseWithTools(
             history: any(named: 'history'),
             userText: any(named: 'userText'),
             toolResults: any(named: 'toolResults'),
@@ -128,7 +128,7 @@ void main() {
             userWeight: any(named: 'userWeight'),
             userHeight: any(named: 'userHeight'),
           ),
-        ).thenAnswer((_) async => const SuccessResponse(turnAResult));
+        ).thenAnswer((_) async => const SuccessResponse(coachResponse));
 
         final result = await useCase(
           sessionId: tSessionId,
@@ -143,33 +143,36 @@ void main() {
       },
     );
 
-    test('returns ErrorResponse when Turn A fails', () async {
-      const failure = ServerFailure(serverMessage: 'Ollama server 500');
-      when(
-        () => mockChatRepo.saveMessage(any(), any(), any()),
-      ).thenAnswer((_) async => const SuccessResponse(null));
-      when(
-        () => mockChatRepo.requestTurnA(
-          history: any(named: 'history'),
-          userText: any(named: 'userText'),
-          toolResults: any(named: 'toolResults'),
-          userGoal: any(named: 'userGoal'),
-          userActivityLevel: any(named: 'userActivityLevel'),
-          userWeight: any(named: 'userWeight'),
-          userHeight: any(named: 'userHeight'),
-        ),
-      ).thenAnswer((_) async => ErrorResponse(failure: failure));
+    test(
+      'returns ErrorResponse when requestCoachResponseWithTools fails',
+      () async {
+        const failure = ServerFailure(serverMessage: 'Ollama server 500');
+        when(
+          () => mockChatRepo.saveMessage(any(), any(), any()),
+        ).thenAnswer((_) async => const SuccessResponse(null));
+        when(
+          () => mockChatRepo.requestCoachResponseWithTools(
+            history: any(named: 'history'),
+            userText: any(named: 'userText'),
+            toolResults: any(named: 'toolResults'),
+            userGoal: any(named: 'userGoal'),
+            userActivityLevel: any(named: 'userActivityLevel'),
+            userWeight: any(named: 'userWeight'),
+            userHeight: any(named: 'userHeight'),
+          ),
+        ).thenAnswer((_) async => ErrorResponse(failure: failure));
 
-      final result = await useCase(
-        sessionId: tSessionId,
-        userText: 'Hello',
-        history: const [],
-        currentSessionTokens: 0,
-      );
+        final result = await useCase(
+          sessionId: tSessionId,
+          userText: 'Hello',
+          history: const [],
+          currentSessionTokens: 0,
+        );
 
-      expect(result, isA<ErrorResponse<SendMessageResult>>());
-      expect((result as ErrorResponse).failure, equals(failure));
-    });
+        expect(result, isA<ErrorResponse<SendMessageResult>>());
+        expect((result as ErrorResponse).failure, equals(failure));
+      },
+    );
 
     test('executes tool calling and hydrates catalog cards', () async {
       const toolCall1 = SearchExercisesToolCall(
@@ -181,19 +184,19 @@ void main() {
         minProtein: 25.0,
       );
 
-      const turnAResultWithTools = CoachTurnAResultEntity(
+      const responseWithTools = CoachResponseWithToolsEntity(
         text: '',
         toolCalls: [toolCall1, toolCall2],
         totalTokens: 50,
       );
 
-      const turnAResultFinished = CoachTurnAResultEntity(
+      const responseFinished = CoachResponseWithToolsEntity(
         text: 'All tools done',
         toolCalls: [],
         totalTokens: 30,
       );
 
-      const turnBResult = CoachTurnBResultEntity(
+      const structuredResult = CoachStructuredResultEntity(
         reply: 'Try bench press and eggs!',
         exerciseIds: ['bench-press'],
         mealIds: ['egg-toast'],
@@ -207,9 +210,9 @@ void main() {
         () => mockChatRepo.saveMessage(any(), any(), any()),
       ).thenAnswer((_) async => const SuccessResponse(null));
 
-      var turnACallCount = 0;
+      var callCount = 0;
       when(
-        () => mockChatRepo.requestTurnA(
+        () => mockChatRepo.requestCoachResponseWithTools(
           history: any(named: 'history'),
           userText: any(named: 'userText'),
           toolResults: any(named: 'toolResults'),
@@ -219,11 +222,11 @@ void main() {
           userHeight: any(named: 'userHeight'),
         ),
       ).thenAnswer((_) async {
-        turnACallCount++;
-        if (turnACallCount == 1) {
-          return const SuccessResponse(turnAResultWithTools);
+        callCount++;
+        if (callCount == 1) {
+          return const SuccessResponse(responseWithTools);
         }
-        return const SuccessResponse(turnAResultFinished);
+        return const SuccessResponse(responseFinished);
       });
 
       when(
@@ -233,7 +236,7 @@ void main() {
         () => mockCatalogRepo.getMeals(any()),
       ).thenAnswer((_) async => const SuccessResponse([mlCard]));
       when(
-        () => mockChatRepo.requestTurnB(
+        () => mockChatRepo.requestStructuredCoachResponse(
           history: any(named: 'history'),
           userText: any(named: 'userText'),
           toolResults: any(named: 'toolResults'),
@@ -242,7 +245,7 @@ void main() {
           userWeight: any(named: 'userWeight'),
           userHeight: any(named: 'userHeight'),
         ),
-      ).thenAnswer((_) async => const SuccessResponse(turnBResult));
+      ).thenAnswer((_) async => const SuccessResponse(structuredResult));
       when(
         () => mockCatalogRepo.getExercisesByIds(['bench-press']),
       ).thenAnswer((_) async => const SuccessResponse([exCard]));
@@ -265,74 +268,79 @@ void main() {
       verify(() => mockChatRepo.saveMessage(tSessionId, any(), 60)).called(1);
     });
 
-    test('returns ErrorResponse when Turn B fails', () async {
-      const toolCall1 = SearchExercisesToolCall(
-        toolCallId: 'call_1',
-        muscleGroup: 'Glutes',
-      );
-      const turnAResultWithTools = CoachTurnAResultEntity(
-        text: '',
-        toolCalls: [toolCall1],
-        totalTokens: 30,
-      );
-      const turnAResultFinished = CoachTurnAResultEntity(
-        text: '',
-        toolCalls: [],
-        totalTokens: 20,
-      );
+    test(
+      'returns ErrorResponse when requestStructuredCoachResponse fails',
+      () async {
+        const toolCall1 = SearchExercisesToolCall(
+          toolCallId: 'call_1',
+          muscleGroup: 'Glutes',
+        );
+        const responseWithTools = CoachResponseWithToolsEntity(
+          text: '',
+          toolCalls: [toolCall1],
+          totalTokens: 30,
+        );
+        const responseFinished = CoachResponseWithToolsEntity(
+          text: '',
+          toolCalls: [],
+          totalTokens: 20,
+        );
 
-      const failure = ServerFailure(serverMessage: 'Turn B timeout');
-      when(
-        () => mockChatRepo.saveMessage(any(), any(), any()),
-      ).thenAnswer((_) async => const SuccessResponse(null));
+        const failure = ServerFailure(
+          serverMessage: 'Structured response timeout',
+        );
+        when(
+          () => mockChatRepo.saveMessage(any(), any(), any()),
+        ).thenAnswer((_) async => const SuccessResponse(null));
 
-      var turnACallCount = 0;
-      when(
-        () => mockChatRepo.requestTurnA(
-          history: any(named: 'history'),
-          userText: any(named: 'userText'),
-          toolResults: any(named: 'toolResults'),
-          userGoal: any(named: 'userGoal'),
-          userActivityLevel: any(named: 'userActivityLevel'),
-          userWeight: any(named: 'userWeight'),
-          userHeight: any(named: 'userHeight'),
-        ),
-      ).thenAnswer((_) async {
-        turnACallCount++;
-        if (turnACallCount == 1) {
-          return const SuccessResponse(turnAResultWithTools);
-        }
-        return const SuccessResponse(turnAResultFinished);
-      });
+        var callCount = 0;
+        when(
+          () => mockChatRepo.requestCoachResponseWithTools(
+            history: any(named: 'history'),
+            userText: any(named: 'userText'),
+            toolResults: any(named: 'toolResults'),
+            userGoal: any(named: 'userGoal'),
+            userActivityLevel: any(named: 'userActivityLevel'),
+            userWeight: any(named: 'userWeight'),
+            userHeight: any(named: 'userHeight'),
+          ),
+        ).thenAnswer((_) async {
+          callCount++;
+          if (callCount == 1) {
+            return const SuccessResponse(responseWithTools);
+          }
+          return const SuccessResponse(responseFinished);
+        });
 
-      when(
-        () => mockCatalogRepo.getExercises(any()),
-      ).thenAnswer((_) async => const SuccessResponse([]));
-      when(
-        () => mockChatRepo.requestTurnB(
-          history: any(named: 'history'),
-          userText: any(named: 'userText'),
-          toolResults: any(named: 'toolResults'),
-          userGoal: any(named: 'userGoal'),
-          userActivityLevel: any(named: 'userActivityLevel'),
-          userWeight: any(named: 'userWeight'),
-          userHeight: any(named: 'userHeight'),
-        ),
-      ).thenAnswer((_) async => ErrorResponse(failure: failure));
+        when(
+          () => mockCatalogRepo.getExercises(any()),
+        ).thenAnswer((_) async => const SuccessResponse([]));
+        when(
+          () => mockChatRepo.requestStructuredCoachResponse(
+            history: any(named: 'history'),
+            userText: any(named: 'userText'),
+            toolResults: any(named: 'toolResults'),
+            userGoal: any(named: 'userGoal'),
+            userActivityLevel: any(named: 'userActivityLevel'),
+            userWeight: any(named: 'userWeight'),
+            userHeight: any(named: 'userHeight'),
+          ),
+        ).thenAnswer((_) async => ErrorResponse(failure: failure));
 
-      final result = await useCase(
-        sessionId: tSessionId,
-        userText: 'Glute exercises',
-        history: const [],
-        currentSessionTokens: 0,
-      );
+        final result = await useCase(
+          sessionId: tSessionId,
+          userText: 'Glute exercises',
+          history: const [],
+          currentSessionTokens: 0,
+        );
 
-      expect(result, isA<ErrorResponse<SendMessageResult>>());
-      expect((result as ErrorResponse).failure, equals(failure));
-    });
+        expect(result, isA<ErrorResponse<SendMessageResult>>());
+        expect((result as ErrorResponse).failure, equals(failure));
+      },
+    );
 
     test('forwards user profile metadata to chat repository', () async {
-      const turnAResult = CoachTurnAResultEntity(
+      const coachResponse = CoachResponseWithToolsEntity(
         text: 'Personalized!',
         toolCalls: [],
         totalTokens: 50,
@@ -342,7 +350,7 @@ void main() {
         () => mockChatRepo.saveMessage(any(), any(), any()),
       ).thenAnswer((_) async => const SuccessResponse(null));
       when(
-        () => mockChatRepo.requestTurnA(
+        () => mockChatRepo.requestCoachResponseWithTools(
           history: any(named: 'history'),
           userText: any(named: 'userText'),
           toolResults: any(named: 'toolResults'),
@@ -351,7 +359,7 @@ void main() {
           userWeight: any(named: 'userWeight'),
           userHeight: any(named: 'userHeight'),
         ),
-      ).thenAnswer((_) async => const SuccessResponse(turnAResult));
+      ).thenAnswer((_) async => const SuccessResponse(coachResponse));
 
       await useCase(
         sessionId: tSessionId,
@@ -365,7 +373,7 @@ void main() {
       );
 
       verify(
-        () => mockChatRepo.requestTurnA(
+        () => mockChatRepo.requestCoachResponseWithTools(
           history: any(named: 'history'),
           userText: any(named: 'userText'),
           toolResults: any(named: 'toolResults'),

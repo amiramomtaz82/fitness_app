@@ -4,8 +4,9 @@ import '../entites/chat_entities/chat_session_entity.dart';
 import '../entites/chat_entities/coach_turn_results.dart';
 
 abstract interface class ChatRepo {
-  /// Turn A: Model conversation with tools enabled
-  Future<BaseResponse<CoachTurnAResultEntity>> requestTurnA({
+  /// Model conversation with tools enabled
+  Future<BaseResponse<CoachResponseWithToolsEntity>>
+  requestCoachResponseWithTools({
     required List<ChatMessageEntity> history,
     required String userText,
     List<ToolExecutionResultEntity> toolResults = const [],
@@ -15,8 +16,9 @@ abstract interface class ChatRepo {
     num? userHeight,
   });
 
-  /// Turn B: Model gives final reply formatted as structured JSON
-  Future<BaseResponse<CoachTurnBResultEntity>> requestTurnB({
+  /// Model gives final reply formatted as structured JSON
+  Future<BaseResponse<CoachStructuredResultEntity>>
+  requestStructuredCoachResponse({
     required List<ChatMessageEntity> history,
     required String userText,
     required List<ToolExecutionResultEntity> toolResults,

@@ -62,24 +62,25 @@ void main() {
   });
 
   group('ChatRepoImp —', () {
-    group('requestTurnA', () {
+    group('requestCoachResponseWithTools', () {
       final history = <ChatMessageEntity>[];
       const userText = 'Hello coach';
 
       test(
-        'returns SuccessResponse with CoachTurnAResultEntity on success',
+        'returns SuccessResponse with CoachResponseWithToolsEntity on success',
         () async {
           when(
             () => mockRemote.chat(any()),
           ).thenAnswer((_) async => tOllamaResponse);
 
-          final result = await repo.requestTurnA(
+          final result = await repo.requestCoachResponseWithTools(
             history: history,
             userText: userText,
           );
 
-          expect(result, isA<SuccessResponse<CoachTurnAResultEntity>>());
-          final data = (result as SuccessResponse<CoachTurnAResultEntity>).data;
+          expect(result, isA<SuccessResponse<CoachResponseWithToolsEntity>>());
+          final data =
+              (result as SuccessResponse<CoachResponseWithToolsEntity>).data;
           expect(data.text, equals('Coach reply'));
           expect(data.totalTokens, equals(30));
           verify(() => mockRemote.chat(any())).called(1);
@@ -91,34 +92,35 @@ void main() {
           () => mockRemote.chat(any()),
         ).thenThrow(Exception('Turn A Failed'));
 
-        final result = await repo.requestTurnA(
+        final result = await repo.requestCoachResponseWithTools(
           history: history,
           userText: userText,
         );
 
-        expect(result, isA<ErrorResponse<CoachTurnAResultEntity>>());
+        expect(result, isA<ErrorResponse<CoachResponseWithToolsEntity>>());
       });
     });
 
-    group('requestTurnB', () {
+    group('requestStructuredCoachResponse', () {
       final history = <ChatMessageEntity>[];
       const userText = 'Hello coach';
 
       test(
-        'returns SuccessResponse with CoachTurnBResultEntity on success',
+        'returns SuccessResponse with CoachStructuredResultEntity on success',
         () async {
           when(
             () => mockRemote.chat(any()),
           ).thenAnswer((_) async => tOllamaTurnBResponse);
 
-          final result = await repo.requestTurnB(
+          final result = await repo.requestStructuredCoachResponse(
             history: history,
             userText: userText,
             toolResults: const [],
           );
 
-          expect(result, isA<SuccessResponse<CoachTurnBResultEntity>>());
-          final data = (result as SuccessResponse<CoachTurnBResultEntity>).data;
+          expect(result, isA<SuccessResponse<CoachStructuredResultEntity>>());
+          final data =
+              (result as SuccessResponse<CoachStructuredResultEntity>).data;
           expect(data.reply, equals('Great job!'));
           expect(data.exerciseIds, equals(['ex1']));
           expect(data.mealIds, equals(['ml1']));
@@ -131,13 +133,13 @@ void main() {
           () => mockRemote.chat(any()),
         ).thenThrow(Exception('Turn B Failed'));
 
-        final result = await repo.requestTurnB(
+        final result = await repo.requestStructuredCoachResponse(
           history: history,
           userText: userText,
           toolResults: const [],
         );
 
-        expect(result, isA<ErrorResponse<CoachTurnBResultEntity>>());
+        expect(result, isA<ErrorResponse<CoachStructuredResultEntity>>());
       });
     });
 

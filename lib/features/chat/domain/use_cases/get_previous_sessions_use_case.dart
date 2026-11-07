@@ -3,7 +3,7 @@ import '../../../../core/base_response/base_response.dart';
 import '../entites/chat_entities/chat_session_entity.dart';
 import '../repo/chat_repo.dart';
 
-@lazySingleton
+@injectable
 class GetPreviousSessionsUseCase {
   final ChatRepo _chatRepo;
   const GetPreviousSessionsUseCase(this._chatRepo);
@@ -11,10 +11,8 @@ class GetPreviousSessionsUseCase {
   Future<BaseResponse<List<ChatSessionEntity>>> call({
     int limit = 20,
     int? lastUpdatedAtMillis,
-  }) {
-    return _chatRepo.getPreviousSessions(
-      limit: limit,
-      lastUpdatedAtMillis: lastUpdatedAtMillis,
-    );
-  }
+  }) => _chatRepo.getPreviousSessions(
+    limit: limit,
+    lastUpdatedAtMillis: lastUpdatedAtMillis,
+  );
 }

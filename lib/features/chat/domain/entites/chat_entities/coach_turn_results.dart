@@ -1,13 +1,13 @@
 import 'package:equatable/equatable.dart';
 import 'coach_tool_call_entity.dart';
 
-/// Entity returned to the UseCase from Turn A (tools ON)
-class CoachTurnAResultEntity extends Equatable {
+/// Entity returned to the UseCase when requesting coach response with tools enabled
+class CoachResponseWithToolsEntity extends Equatable {
   final String text;
   final List<CoachToolCallEntity> toolCalls;
   final int totalTokens;
 
-  const CoachTurnAResultEntity({
+  const CoachResponseWithToolsEntity({
     required this.text,
     this.toolCalls = const [],
     required this.totalTokens,
@@ -18,6 +18,9 @@ class CoachTurnAResultEntity extends Equatable {
   @override
   List<Object?> get props => [text, toolCalls, totalTokens];
 }
+
+/// Backward compatibility typedef
+typedef CoachTurnAResultEntity = CoachResponseWithToolsEntity;
 
 /// Entity representing the result of executing a tool call
 class ToolExecutionResultEntity extends Equatable {
@@ -35,14 +38,14 @@ class ToolExecutionResultEntity extends Equatable {
   List<Object?> get props => [toolCallId, toolName, content];
 }
 
-/// Entity returned to the UseCase from Turn B (format ON, structured JSON)
-class CoachTurnBResultEntity extends Equatable {
+/// Entity returned to the UseCase for structured coach recommendation
+class CoachStructuredResultEntity extends Equatable {
   final String reply;
   final List<String> exerciseIds;
   final List<String> mealIds;
   final int totalTokens;
 
-  const CoachTurnBResultEntity({
+  const CoachStructuredResultEntity({
     required this.reply,
     this.exerciseIds = const [],
     this.mealIds = const [],
@@ -52,3 +55,6 @@ class CoachTurnBResultEntity extends Equatable {
   @override
   List<Object?> get props => [reply, exerciseIds, mealIds, totalTokens];
 }
+
+/// Backward compatibility typedef
+typedef CoachTurnBResultEntity = CoachStructuredResultEntity;

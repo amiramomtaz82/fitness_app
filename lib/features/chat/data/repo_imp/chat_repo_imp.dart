@@ -24,9 +24,10 @@ class ChatRepoImp implements ChatRepo {
 
   const ChatRepoImp(this._remoteDataSource, this._fireStoreDataSource);
 
-  ///------------------ Turn A (tools ON, format OFF) --------------------
+  ///------------------ Coach Response (tools ON, format OFF) --------------------
   @override
-  Future<BaseResponse<CoachTurnAResultEntity>> requestTurnA({
+  Future<BaseResponse<CoachResponseWithToolsEntity>>
+  requestCoachResponseWithTools({
     required List<ChatMessageEntity> history,
     required String userText,
     List<ToolExecutionResultEntity> toolResults = const [],
@@ -61,16 +62,17 @@ class ChatRepoImp implements ChatRepo {
       }
     }
 
-    return CoachTurnAResultEntity(
+    return CoachResponseWithToolsEntity(
       text: dto.message?.content ?? '',
       toolCalls: toolCalls,
       totalTokens: dto.totalTokens,
     );
   });
 
-  ///------------------ Turn B (tools OFF, format ON) --------------------
+  ///------------------ Structured Response (tools OFF, format ON) --------------------
   @override
-  Future<BaseResponse<CoachTurnBResultEntity>> requestTurnB({
+  Future<BaseResponse<CoachStructuredResultEntity>>
+  requestStructuredCoachResponse({
     required List<ChatMessageEntity> history,
     required String userText,
     required List<ToolExecutionResultEntity> toolResults,
@@ -101,7 +103,7 @@ class ChatRepoImp implements ChatRepo {
         jsonDecode(dto.message?.content ?? '{}') as Map<String, dynamic>;
     final turnBDto = SmartCoachTurnBContentDto.fromJson(parsed);
 
-    return CoachTurnBResultEntity(
+    return CoachStructuredResultEntity(
       reply: turnBDto.reply,
       exerciseIds: turnBDto.exerciseIds,
       mealIds: turnBDto.mealIds,

@@ -22,7 +22,7 @@ class SendMessageResult {
   });
 }
 
-@lazySingleton
+@injectable
 class SendSmartCoachMessageUseCase {
   final ChatRepo _chatRepo;
   final CatalogRepo _catalogRepo;
@@ -54,38 +54,39 @@ class SendSmartCoachMessageUseCase {
     await _chatRepo.saveMessage(sessionId, userMsg, 0);
 
     // -------------------------------------------------------------------------
-    // 3. Turn A Loop: (tools ON, format OFF)
+    // 3. Coach Response Loop: (tools ON, format OFF)
     // -------------------------------------------------------------------------
     final accumulatedToolResults = <ToolExecutionResultEntity>[];
     int totalTokens = currentSessionTokens;
-    CoachTurnAResultEntity? latestTurnA;
+    CoachResponseWithToolsEntity? latestCoachResponse;
 
-    const maxTurnAIterations = 5; // Safety guard
+    const maxIterations = 5; // Safety guard
     int iteration = 0;
 
-    while (iteration < maxTurnAIterations) {
+    while (iteration < maxIterations) {
       iteration++;
 
-      final turnARes = await _chatRepo.requestTurnA(
-        history: history,
-        userText: userText,
-        toolResults: accumulatedToolResults,
-        userGoal: userGoal,
-        userActivityLevel: userActivityLevel,
-        userWeight: userWeight,
-        userHeight: userHeight,
-      );
+      final responseWithToolsRes = await _chatRepo
+          .requestCoachResponseWithTools(
+            history: history,
+            userText: userText,
+            toolResults: accumulatedToolResults,
+            userGoal: userGoal,
+            userActivityLevel: userActivityLevel,
+            userWeight: userWeight,
+            userHeight: userHeight,
+          );
 
       // ✅ Use switch pattern matching on BaseResponse
-      switch (turnARes) {
+      switch (responseWithToolsRes) {
         case ErrorResponse(:final failure):
           return ErrorResponse(failure: failure);
 
         case SuccessResponse(:final data):
-          latestTurnA = data;
+          latestCoachResponse = data;
           totalTokens += data.totalTokens;
 
-          // If the model does not require any tool calls, exit Turn A loop!
+          // If the model does not require any tool calls, exit loop!
           if (!data.hasToolCalls) {
             break;
           }
@@ -97,8 +98,8 @@ class SendSmartCoachMessageUseCase {
           }
       }
 
-      // Exit loop if Turn A has no tool calls
-      if (!latestTurnA.hasToolCalls) {
+      // Exit loop if coach response has no tool calls
+      if (!latestCoachResponse.hasToolCalls) {
         break;
       }
     }
@@ -106,15 +107,19 @@ class SendSmartCoachMessageUseCase {
     // -------------------------------------------------------------------------
     // Fast-path: Answered directly without needing any tools
     // -------------------------------------------------------------------------
-    if (accumulatedToolResults.isEmpty && latestTurnA != null) {
+    if (accumulatedToolResults.isEmpty && latestCoachResponse != null) {
       final coachMsg = ChatMessageEntity(
         id: 'cch_${DateTime.now().millisecondsSinceEpoch}',
         sender: ChatSender.coach,
-        text: latestTurnA.text,
+        text: latestCoachResponse.text,
         createdAt: DateTime.now(),
       );
 
-      await _chatRepo.saveMessage(sessionId, coachMsg, latestTurnA.totalTokens);
+      await _chatRepo.saveMessage(
+        sessionId,
+        coachMsg,
+        latestCoachResponse.totalTokens,
+      );
 
       return SuccessResponse(
         SendMessageResult(
@@ -125,9 +130,9 @@ class SendSmartCoachMessageUseCase {
     }
 
     // -------------------------------------------------------------------------
-    // 4. Turn B: (tools OFF, format ON) -> Enforce structured JSON for UI Cards
+    // 4. Structured Response: (tools OFF, format ON) -> Enforce structured JSON for UI Cards
     // -------------------------------------------------------------------------
-    final turnBRes = await _chatRepo.requestTurnB(
+    final structuredRes = await _chatRepo.requestStructuredCoachResponse(
       history: history,
       userText: userText,
       toolResults: accumulatedToolResults,
@@ -138,7 +143,7 @@ class SendSmartCoachMessageUseCase {
     );
 
     // ✅ Use switch pattern matching on BaseResponse
-    switch (turnBRes) {
+    switch (structuredRes) {
       case ErrorResponse(:final failure):
         return ErrorResponse(failure: failure);
 
