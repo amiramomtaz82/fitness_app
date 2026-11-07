@@ -3,6 +3,7 @@ import 'package:injectable/injectable.dart';
 import '../../../../core/base_response/base_response.dart';
 import '../../../../core/base_response/safe_call.dart';
 import '../../../../core/error/failures.dart';
+import '../../../../core/secure_storage/secure_storage.dart';
 import '../../domain/entities/profile_entity.dart';
 import '../../domain/entities/profile_params.dart';
 import '../../domain/repo/profile_repo.dart';
@@ -13,8 +14,8 @@ import '../models/profile_user_dto.dart';
 @Injectable(as: ProfileRepo)
 class ProfileRepoImp implements ProfileRepo {
   final ProfileRemoteDataSource _remoteDataSource;
-
-  const ProfileRepoImp(this._remoteDataSource);
+  final SecureStorage _secureStorage;
+  const ProfileRepoImp(this._remoteDataSource, this._secureStorage);
 
   @override
   Future<BaseResponse<ProfileEntity>> getProfile() {
@@ -47,5 +48,13 @@ class ProfileRepoImp implements ProfileRepo {
       throw const ServerFailure();
     }
     return entity;
+  }
+
+  @override
+  Future<BaseResponse<void>> logout() {
+    return safeCall<void>(() async {
+      await _secureStorage.delete(key: 'accessToken');
+      await _secureStorage.delete(key: 'cached_user');
+    });
   }
 }

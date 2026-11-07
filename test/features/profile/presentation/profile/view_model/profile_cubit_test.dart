@@ -14,6 +14,7 @@ import 'package:fitness_app/features/profile/presentation/profile/view/models/pr
 import 'package:fitness_app/features/profile/presentation/profile/view_model/profile_cubit.dart';
 import 'package:fitness_app/features/profile/presentation/profile/view_model/profile_intent.dart';
 import 'package:fitness_app/features/profile/presentation/profile/view_model/profile_state.dart';
+import 'package:fitness_app/features/profile/presentation/profile/view_model/show_logout_dialog_event.dart';
 import 'package:fitness_app/features/profile/presentation/profile/view_model/toggle_locale_event.dart';
 import 'package:mocktail/mocktail.dart';
 
@@ -23,6 +24,7 @@ void main() {
   late MockGetProfileUseCase mockGetProfile;
   late MockUploadPhotoUseCase mockUploadPhoto;
   late MockPickPhotoUseCase mockPickPhoto;
+  late MockLogoutUseCase mockLogout;
   late ProfileCubit cubit;
 
   setUpAll(registerProfileFallbacks);
@@ -31,7 +33,13 @@ void main() {
     mockGetProfile = MockGetProfileUseCase();
     mockUploadPhoto = MockUploadPhotoUseCase();
     mockPickPhoto = MockPickPhotoUseCase();
-    cubit = buildProfileCubit(mockGetProfile, mockUploadPhoto, mockPickPhoto);
+    mockLogout = MockLogoutUseCase();
+    cubit = buildProfileCubit(
+      mockGetProfile,
+      mockUploadPhoto,
+      mockPickPhoto,
+      logout: mockLogout,
+    );
   });
 
   tearDown(() => cubit.close());
@@ -373,10 +381,7 @@ void main() {
     });
 
     test('rows without a destination stay quiet', () async {
-      for (final action in [
-        ProfileMenuAction.changePassword,
-        ProfileMenuAction.logout,
-      ]) {
+      for (final action in [ProfileMenuAction.changePassword]) {
         final events = recordUiEvents(cubit.eventStream);
 
         cubit.doIntent(MenuTapIntent(menuRow(action)));
@@ -384,6 +389,63 @@ void main() {
 
         expect(events, isEmpty);
       }
+    });
+
+    test('tapping logout menu row emits ShowLogoutConfirmationEvent', () async {
+      final events = recordUiEvents(cubit.eventStream);
+
+      cubit.doIntent(MenuTapIntent(menuRow(ProfileMenuAction.logout)));
+      await Future<void>.delayed(Duration.zero);
+
+      expect(events, contains(isA<ShowLogoutConfirmationEvent>()));
+    });
+
+    test(
+      'ConfirmLogoutIntent clears cache, emits success message and redirects to login',
+      () async {
+        when(
+          () => mockLogout.call(),
+        ).thenAnswer((_) async => const SuccessResponse<void>(null));
+
+        final events = recordUiEvents(cubit.eventStream);
+
+        cubit.doIntent(const ConfirmLogoutIntent());
+        await Future<void>.delayed(Duration.zero);
+
+        expect(
+          events,
+          contains(
+            isA<ShowSuccessSnackBarEvent>().having(
+              (e) => e.type,
+              'type',
+              CubitMessageType.logoutSuccess,
+            ),
+          ),
+        );
+        expect(
+          events,
+          contains(
+            isA<NavigateReplacementEvent>().having(
+              (e) => e.route,
+              'route',
+              AppRoutes.login,
+            ),
+          ),
+        );
+      },
+    );
+
+    test('ConfirmLogoutIntent failure emits failure event', () async {
+      when(() => mockLogout.call()).thenAnswer(
+        (_) async => ErrorResponse<void>(failure: const ServerFailure()),
+      );
+
+      final events = recordUiEvents(cubit.eventStream);
+
+      cubit.doIntent(const ConfirmLogoutIntent());
+      await Future<void>.delayed(Duration.zero);
+
+      expect(events, contains(isA<ShowErrorSnackBarEvent>()));
     });
   });
 }

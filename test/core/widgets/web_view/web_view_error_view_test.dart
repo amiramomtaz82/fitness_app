@@ -13,10 +13,13 @@ void main() {
     await pumpError(tester, onRetry: () {});
 
     expect(find.byType(FilledButton), findsOneWidget);
-    expect(find.descendant(
-      of: find.byType(FilledButton),
-      matching: find.byType(Text),
-    ), findsOneWidget);
+    expect(
+      find.descendant(
+        of: find.byType(FilledButton),
+        matching: find.byType(Text),
+      ),
+      findsOneWidget,
+    );
     expect(find.byType(Text), findsNWidgets(2));
   });
 

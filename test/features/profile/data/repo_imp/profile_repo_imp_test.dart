@@ -13,13 +13,15 @@ RequestOptions testOptions() => RequestOptions(path: '/auth/test');
 
 void main() {
   late MockProfileRemoteDataSource mockRemoteDataSource;
+  late MockSecureStorage mockSecureStorage;
   late ProfileRepoImp repo;
 
   setUpAll(registerProfileFallbacks);
 
   setUp(() {
     mockRemoteDataSource = MockProfileRemoteDataSource();
-    repo = ProfileRepoImp(mockRemoteDataSource);
+    mockSecureStorage = MockSecureStorage();
+    repo = ProfileRepoImp(mockRemoteDataSource, mockSecureStorage);
   });
 
   group('ProfileRepoImp.getProfile', () {
@@ -192,5 +194,32 @@ void main() {
         isA<PhotoTooLargeFailure>(),
       );
     });
+  });
+
+  group('ProfileRepoImp.logout', () {
+    test('deletes accessToken and cached_user from SecureStorage', () async {
+      when(
+        () => mockSecureStorage.delete(key: any(named: 'key')),
+      ).thenAnswer((_) async {});
+
+      final result = await repo.logout();
+
+      expect(result, isA<SuccessResponse<void>>());
+      verify(() => mockSecureStorage.delete(key: 'accessToken')).called(1);
+      verify(() => mockSecureStorage.delete(key: 'cached_user')).called(1);
+    });
+
+    test(
+      'returns ErrorResponse when SecureStorage throws an exception',
+      () async {
+        when(
+          () => mockSecureStorage.delete(key: any(named: 'key')),
+        ).thenThrow(Exception('Storage error'));
+
+        final result = await repo.logout();
+
+        expect(result, isA<ErrorResponse<void>>());
+      },
+    );
   });
 }

@@ -8,4 +8,5 @@ abstract interface class ProfileRepo {
   Future<BaseResponse<ProfileEntity>> uploadPhoto(String photoPath);
 
   Future<BaseResponse<ProfileEntity>> editProfile(ProfileParams params);
+  Future<BaseResponse<void>> logout();
 }
