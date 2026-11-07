@@ -13,6 +13,7 @@ import '../features/auth/presentation/register/manager/cubit/register_cubit.dart
 import '../features/auth/presentation/register/view/muti_steps_regitration/multi_steps_registration_view.dart';
 import '../features/auth/presentation/register/view/register_first_sceen/register_view.dart';
 import '../features/chat/presentation/view/screens/smart_coach_screen.dart';
+import '../features/chat/presentation/view_model/smart_coach_cubit.dart';
 import '../features/home/presentation/view/screens/home_screen.dart';
 import '../features/home/presentation/view/screens/workouts_screen.dart';
 import '../features/on_bording/views/onboarding_view.dart';
@@ -104,6 +105,15 @@ final GoRouter appRouter = GoRouter(
       ),
     ),
 
+    GoRoute(
+      path: AppRoutes.smartCoach,
+      name: AppRoutes.smartCoach,
+      builder: (context, state) => BlocProvider(
+        create: (_) => getIt<SmartCoachCubit>(),
+        child: const SmartCoachScreen(),
+      ),
+    ),
+
     // Main app with bottom navigation
     StatefulShellRoute.indexedStack(
       builder: (context, state, navigationShell) {
@@ -117,17 +127,6 @@ final GoRouter appRouter = GoRouter(
               path: AppRoutes.home,
               name: AppRoutes.home,
               builder: (context, state) => const HomeScreen(),
-            ),
-          ],
-        ),
-
-        // Smart Coach
-        StatefulShellBranch(
-          routes: [
-            GoRoute(
-              path: AppRoutes.smartCoach,
-              name: AppRoutes.smartCoach,
-              builder: (context, state) => const SmartCoachScreen(),
             ),
           ],
         ),
