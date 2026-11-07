@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+
 import 'package:fitness_app/core/local/locale_cubit.dart';
 import 'package:fitness_app/core/local/locale_state.dart';
 import 'package:fitness_app/core/theme/context.extension.dart';
 import 'package:fitness_app/core/widgets/frosted_panel.dart';
+
 import '../../view_model/profile_cubit.dart';
 import '../../view_model/profile_intent.dart';
 import '../models/profile_menu_item.dart';
@@ -20,7 +22,8 @@ class ProfileMenuList extends StatelessWidget {
     final colors = context.colors;
 
     return BlocBuilder<LocaleCubit, LocaleState>(
-      buildWhen: (previous, current) => previous.language != current.language,
+      buildWhen: (previous, current) =>
+          previous.language != current.language,
       builder: (context, state) => FrostedPanel(
         radius: 20,
         padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 6.h),

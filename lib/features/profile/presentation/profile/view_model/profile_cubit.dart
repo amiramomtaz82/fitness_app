@@ -49,13 +49,18 @@ class ProfileCubit extends BaseCubit<ProfileState, BaseUiEvent> {
     switch (item.action) {
       case ProfileMenuAction.editProfile:
         emitEvent(const NavigateEvent(AppRoutes.editProfile));
+
+      case ProfileMenuAction.changePassword:
+        emitEvent(const NavigateEvent(AppRoutes.changePassword));
+
       case ProfileMenuAction.selectLanguage:
         emitEvent(const ToggleLocaleEvent());
+
       case ProfileMenuAction.security:
       case ProfileMenuAction.privacyPolicy:
       case ProfileMenuAction.help:
         emitEvent(NavigateEvent(AppRoutes.webView, arguments: item.page));
-      case ProfileMenuAction.changePassword:
+
       case ProfileMenuAction.logout:
         break;
     }
@@ -69,8 +74,10 @@ class ProfileCubit extends BaseCubit<ProfileState, BaseUiEvent> {
   Future<void> _fetch() async {
     final pending = _pendingFetch;
     if (pending != null) return pending;
+
     final running = _load();
     _pendingFetch = running;
+
     try {
       await running;
     } finally {
@@ -80,16 +87,23 @@ class ProfileCubit extends BaseCubit<ProfileState, BaseUiEvent> {
 
   Future<void> _load() async {
     final fetchId = ++_fetchId;
+
     _emit(
       state.copyWith(
-        profileResource: Resource<ProfileEntity>.loading(data: state.profile),
+        profileResource: Resource<ProfileEntity>.loading(
+          data: state.profile,
+        ),
       ),
     );
+
     final response = await _getProfileUseCase();
+
     if (fetchId != _fetchId) return;
+
     switch (response) {
       case SuccessResponse<ProfileEntity>(:final data):
         _emit(state.copyWith(profileResource: Resource.success(data)));
+
       case ErrorResponse<ProfileEntity>(:final failure):
         _onProfileFailure(failure);
     }
@@ -107,11 +121,14 @@ class ProfileCubit extends BaseCubit<ProfileState, BaseUiEvent> {
 
   Future<void> _pickAndUpload() async {
     if (state.isUploadingPhoto) return;
+
     final picked = await _pickPhotoUseCase();
+
     switch (picked) {
       case SuccessResponse<String?>(:final data):
         if (data == null) return;
         await _upload(data);
+
       case ErrorResponse<String?>(:final failure):
         emitFailure(failure);
     }
@@ -119,13 +136,17 @@ class ProfileCubit extends BaseCubit<ProfileState, BaseUiEvent> {
 
   Future<void> _upload(String photoPath) async {
     if (state.isUploadingPhoto) return;
+
     _emit(state.withUpload(photoPath));
+
     final response = await _uploadPhotoUseCase(photoPath);
+
     switch (response) {
       case SuccessResponse<ProfileEntity>(:final data):
         _sync(data);
         _emit(state.withUpload(null));
         emitSuccess(CubitMessageType.profileUpdated);
+
       case ErrorResponse<ProfileEntity>(:final failure):
         _emit(state.withUpload(null));
         emitFailure(failure);
@@ -138,11 +159,13 @@ class ProfileCubit extends BaseCubit<ProfileState, BaseUiEvent> {
       emitFailure(failure);
       return;
     }
+
     _emit(
       state.copyWith(
         profileResource: Resource.error(failure, data: state.profile),
       ),
     );
+
     emitFailure(failure);
   }
 

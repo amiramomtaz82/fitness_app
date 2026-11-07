@@ -3,8 +3,10 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:fitness_app/core/base_response/base_response.dart';
 import 'package:fitness_app/core/error/failures.dart';
 import 'package:fitness_app/features/profile/data/models/profile_request_dto.dart';
+import 'package:fitness_app/features/profile/data/models/change_password_request_dto.dart';
 import 'package:fitness_app/features/profile/data/repo_imp/profile_repo_imp.dart';
 import 'package:fitness_app/features/profile/domain/entities/profile_entity.dart';
+import 'package:fitness_app/features/profile/domain/entities/change_password_entity.dart';
 import 'package:mocktail/mocktail.dart';
 
 import '../../profile_test_helper.dart';
@@ -31,10 +33,12 @@ void main() {
       final result = await repo.getProfile();
 
       expect(result, isA<SuccessResponse<ProfileEntity>>());
+
       expect(
         (result as SuccessResponse<ProfileEntity>).data,
         testProfileEntity,
       );
+
       verify(() => mockRemoteDataSource.getProfile()).called(1);
     });
 
@@ -46,6 +50,7 @@ void main() {
       final result = await repo.getProfile();
 
       expect(result, isA<ErrorResponse<ProfileEntity>>());
+
       expect(
         (result as ErrorResponse<ProfileEntity>).failure,
         isA<ServerFailure>(),
@@ -81,11 +86,13 @@ void main() {
         (result as SuccessResponse<ProfileEntity>).data,
         testProfileEntity,
       );
+
       final sent =
           verify(
                 () => mockRemoteDataSource.editProfile(captureAny()),
               ).captured.single
               as ProfileRequestDto;
+
       expect(sent.firstName, testProfileRequestDto.firstName);
       expect(sent.age, testProfileRequestDto.age);
       expect(sent.weight, testProfileRequestDto.weight);
@@ -135,9 +142,11 @@ void main() {
         (result as SuccessResponse<ProfileEntity>).data,
         testProfileEntity,
       );
+
       verify(
         () => mockRemoteDataSource.uploadPhoto('/tmp/photo.jpg'),
       ).called(1);
+
       verifyNever(() => mockRemoteDataSource.getProfile());
     });
 
@@ -147,6 +156,7 @@ void main() {
         when(
           () => mockRemoteDataSource.uploadPhoto(any()),
         ).thenAnswer((_) async => testProfileEmptyResponse);
+
         when(
           () => mockRemoteDataSource.getProfile(),
         ).thenAnswer((_) async => testProfileResponse);
@@ -157,6 +167,7 @@ void main() {
           (result as SuccessResponse<ProfileEntity>).data,
           testProfileEntity,
         );
+
         verify(() => mockRemoteDataSource.getProfile()).called(1);
       },
     );
@@ -167,6 +178,7 @@ void main() {
         when(
           () => mockRemoteDataSource.uploadPhoto(any()),
         ).thenAnswer((_) async => testProfileEmptyResponse);
+
         when(
           () => mockRemoteDataSource.getProfile(),
         ).thenAnswer((_) async => testProfileEmptyResponse);
@@ -190,6 +202,77 @@ void main() {
       expect(
         (result as ErrorResponse<ProfileEntity>).failure,
         isA<PhotoTooLargeFailure>(),
+      );
+    });
+  });
+
+  group('ProfileRepoImp.changePassword', () {
+    const password = 'OldPassword123!';
+    const newPassword = 'NewPassword123!';
+
+    test('converts passwords to dto and returns mapped entity', () async {
+      when(
+        () => mockRemoteDataSource.changePassword(any()),
+      ).thenAnswer((_) async => testChangePasswordResponse);
+
+      final result = await repo.changePassword(
+        password: password,
+        newPassword: newPassword,
+      );
+
+      expect(result, isA<SuccessResponse<ChangePasswordEntity>>());
+
+      expect(
+        (result as SuccessResponse<ChangePasswordEntity>).data,
+        testChangePasswordEntity,
+      );
+
+      final sent =
+          verify(
+                () => mockRemoteDataSource.changePassword(captureAny()),
+              ).captured.single
+              as ChangePasswordRequestDto;
+
+      expect(sent.password, password);
+      expect(sent.newPassword, newPassword);
+    });
+
+    test('wraps a 401 into an unauthorized failure', () async {
+      when(() => mockRemoteDataSource.changePassword(any())).thenThrow(
+        DioException.badResponse(
+          statusCode: 401,
+          requestOptions: testOptions(),
+          response: Response(requestOptions: testOptions(), statusCode: 401),
+        ),
+      );
+
+      final result = await repo.changePassword(
+        password: password,
+        newPassword: newPassword,
+      );
+
+      expect(
+        (result as ErrorResponse<ChangePasswordEntity>).failure,
+        isA<UnauthorizedFailure>(),
+      );
+    });
+
+    test('wraps a network error into a network failure', () async {
+      when(() => mockRemoteDataSource.changePassword(any())).thenThrow(
+        DioException.connectionError(
+          requestOptions: testOptions(),
+          reason: 'offline',
+        ),
+      );
+
+      final result = await repo.changePassword(
+        password: password,
+        newPassword: newPassword,
+      );
+
+      expect(
+        (result as ErrorResponse<ChangePasswordEntity>).failure,
+        isA<NetworkFailure>(),
       );
     });
   });
