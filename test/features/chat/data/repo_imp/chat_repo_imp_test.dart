@@ -64,7 +64,7 @@ void main() {
 
       test('returns SuccessResponse on remote success', () async {
         when(
-          () => mockRemote.sendTurnA(messages: messages, tools: tools),
+          () => mockRemote.chatWithTools(messages: messages, tools: tools),
         ).thenAnswer((_) async => tOllamaResponse);
 
         final result = await repo.requestTurnA(
@@ -78,7 +78,7 @@ void main() {
 
       test('returns ErrorResponse on remote error', () async {
         when(
-          () => mockRemote.sendTurnA(
+          () => mockRemote.chatWithTools(
             messages: any(named: 'messages'),
             tools: any(named: 'tools'),
           ),
@@ -101,7 +101,7 @@ void main() {
 
       test('returns SuccessResponse on remote success', () async {
         when(
-          () => mockRemote.sendTurnB(messages: messages, formatSchema: format),
+          () => mockRemote.chatWithFormat(messages: messages, formatSchema: format),
         ).thenAnswer((_) async => tOllamaResponse);
 
         final result = await repo.requestTurnB(
@@ -115,7 +115,7 @@ void main() {
 
       test('returns ErrorResponse on remote error', () async {
         when(
-          () => mockRemote.sendTurnB(
+          () => mockRemote.chatWithFormat(
             messages: any(named: 'messages'),
             formatSchema: any(named: 'formatSchema'),
           ),

@@ -6,6 +6,7 @@ import '../contants/endpoints/endpoints.dart';
 import '../interceptors/auth_interceptor.dart';
 import '../interceptors/local_interceptor.dart';
 import '../interceptors/mock_forget_password_interceptor.dart';
+import '../interceptors/ollama_auth_interceptor.dart';
 
 /// Names used with `@Named` to tell the app's Dio instances apart.
 abstract final class DioNames {
@@ -19,9 +20,9 @@ abstract final class DioNames {
 abstract class DioModule {
   @singleton
   Dio dio(
-    AuthInterceptor authInterceptor,
-    LocaleInterceptor localeInterceptor,
-  ) {
+      AuthInterceptor authInterceptor,
+      LocaleInterceptor localeInterceptor,
+      ) {
     final dioInstance = Dio(
       BaseOptions(
         baseUrl: Endpoints.baseUrl,
@@ -45,13 +46,16 @@ abstract class DioModule {
 
   @Named(DioNames.ollama)
   @lazySingleton
-  Dio ollamaDio() {
+  Dio ollamaDio(OllamaAuthInterceptor ollamaAuthInterceptor) {
     final dioInstance = Dio(
       BaseOptions(
+        baseUrl: Endpoints.ollamaBaseUrl,
         connectTimeout: const Duration(seconds: 60),
         receiveTimeout: const Duration(seconds: 60),
       ),
     );
+    // ✅ Attaches API Key to Ollama requests automatically
+    dioInstance.interceptors.add(ollamaAuthInterceptor);
     dioInstance.interceptors.add(
       PrettyDioLogger(
         requestBody: true,
@@ -72,6 +76,7 @@ abstract class DioModule {
         receiveTimeout: const Duration(seconds: 30),
       ),
     );
+    // Public API: no auth interceptor needed
     dioInstance.interceptors.add(PrettyDioLogger(responseBody: false));
     return dioInstance;
   }

@@ -1,24 +1,41 @@
 import '../../../../core/base_response/base_response.dart';
-import '../../data/models/ollama_chat_response_dto.dart';
 import '../entites/chat_entities/chat_message_entity.dart';
 import '../entites/chat_entities/chat_session_entity.dart';
+import '../entites/chat_entities/coach_turn_results.dart';
 
 abstract interface class ChatRepo {
-  Future<BaseResponse<OllamaChatResponseDto>> requestTurnA({
-    required List<Map<String, dynamic>> messages,
-    required List<Map<String, dynamic>> tools,
+  /// Turn A: Model conversation with tools enabled
+  Future<BaseResponse<CoachTurnAResultEntity>> requestTurnA({
+    required List<ChatMessageEntity> history,
+    required String userText,
+    List<ToolExecutionResultEntity> toolResults = const [],
+    String? userGoal,
+    String? userActivityLevel,
+    num? userWeight,
+    num? userHeight,
   });
 
-  Future<BaseResponse<OllamaChatResponseDto>> requestTurnB({
-    required List<Map<String, dynamic>> messages,
-    required Map<String, dynamic> formatSchema,
+  /// Turn B: Model gives final reply formatted as structured JSON
+  Future<BaseResponse<CoachTurnBResultEntity>> requestTurnB({
+    required List<ChatMessageEntity> history,
+    required String userText,
+    required List<ToolExecutionResultEntity> toolResults,
+    String? userGoal,
+    String? userActivityLevel,
+    num? userWeight,
+    num? userHeight,
   });
 
   Future<BaseResponse<void>> saveMessage(
-    String sessionId,
-    ChatMessageEntity msg,
-    int tokens,
-  );
+      String sessionId,
+      ChatMessageEntity msg,
+      int tokens,
+      );
+
   Future<BaseResponse<List<ChatMessageEntity>>> getMessages(String sessionId);
-  Future<BaseResponse<List<ChatSessionEntity>>> getPreviousSessions();
+
+  Future<BaseResponse<List<ChatSessionEntity>>> getPreviousSessions({
+    int limit = 20,
+    int? lastUpdatedAtMillis,
+  });
 }

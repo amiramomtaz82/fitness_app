@@ -52,7 +52,7 @@ void main() {
             () => mockApiClient.chat(any(), any()),
           ).thenAnswer((_) async => tResponse);
 
-          final result = await dataSource.sendTurnA(
+          final result = await dataSource.chatWithTools(
             messages: tMessages,
             tools: tTools,
           );
@@ -82,7 +82,7 @@ void main() {
             () => mockApiClient.chat(any(), any()),
           ).thenAnswer((_) async => tResponse);
 
-          final result = await dataSource.sendTurnA(
+          final result = await dataSource.chatWithTools(
             messages: tMessages,
             tools: tTools,
           );
@@ -102,7 +102,7 @@ void main() {
         ).thenThrow(Exception('Network Error'));
 
         expect(
-          () => dataSource.sendTurnA(messages: tMessages, tools: tTools),
+          () => dataSource.chatWithTools(messages: tMessages, tools: tTools),
           throwsException,
         );
       });
@@ -130,7 +130,7 @@ void main() {
             () => mockApiClient.chat(any(), any()),
           ).thenAnswer((_) async => tResponse);
 
-          final result = await dataSource.sendTurnB(
+          final result = await dataSource.chatWithFormat(
             messages: tMessages,
             formatSchema: tFormat,
           );
@@ -160,7 +160,7 @@ void main() {
 
         expect(
           () =>
-              dataSource.sendTurnB(messages: tMessages, formatSchema: tFormat),
+              dataSource.chatWithFormat(messages: tMessages, formatSchema: tFormat),
           throwsException,
         );
       });

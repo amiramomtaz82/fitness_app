@@ -8,7 +8,13 @@ class GetPreviousSessionsUseCase {
   final ChatRepo _chatRepo;
   const GetPreviousSessionsUseCase(this._chatRepo);
 
-  Future<BaseResponse<List<ChatSessionEntity>>> call() {
-    return _chatRepo.getPreviousSessions();
+  Future<BaseResponse<List<ChatSessionEntity>>> call({
+    int limit = 20,
+    int? lastUpdatedAtMillis,
+  }) {
+    return _chatRepo.getPreviousSessions(
+      limit: limit,
+      lastUpdatedAtMillis: lastUpdatedAtMillis,
+    );
   }
 }
