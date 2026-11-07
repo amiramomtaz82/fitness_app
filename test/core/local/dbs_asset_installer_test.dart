@@ -10,7 +10,6 @@ import 'package:mocktail/mocktail.dart';
 import 'package:path/path.dart' as p;
 import 'package:shared_preferences/shared_preferences.dart';
 
-
 class MockAssetBundle extends Mock implements AssetBundle {}
 
 void main() {

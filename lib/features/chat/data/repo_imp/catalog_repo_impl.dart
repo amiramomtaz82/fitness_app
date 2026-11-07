@@ -7,7 +7,6 @@ import 'package:fitness_app/features/chat/domain/entites/catalog_entities/meal_c
 import 'package:fitness_app/features/chat/domain/entites/catalog_entities/filter_params.dart';
 import 'package:injectable/injectable.dart';
 
-
 @Injectable(as: CatalogRepo)
 class CatalogRepoImpl implements CatalogRepo {
   final CatalogLocalDataSource _localDataSource;

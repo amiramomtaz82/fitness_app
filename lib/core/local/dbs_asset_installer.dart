@@ -7,7 +7,6 @@ import 'package:flutter/services.dart';
 import 'package:path/path.dart' as p;
 import 'package:shared_preferences/shared_preferences.dart';
 
-
 class DBsAssetInstaller {
   DBsAssetInstaller({
     required AssetBundle assetBundle,
