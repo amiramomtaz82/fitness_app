@@ -4,9 +4,13 @@ import 'package:dio/dio.dart';
 
 void main() async {
   final dio = Dio();
-  final apiKey = Platform.environment['OLLAMA_API_KEY'] ?? '';
+  final envLines = File('.env').readAsLinesSync();
+  final apiKey = envLines
+      .firstWhere((l) => l.startsWith('OLLAMA_API_KEY='))
+      .split('=')[1]
+      .trim();
 
-  print('⏳ Sending test message to Ollama Cloud...');
+  print('⏳ Sending test message to Ollama Cloud with free model: beam...');
 
   try {
     final response = await dio.post(
@@ -18,7 +22,7 @@ void main() async {
         },
       ),
       data: {
-        'model': 'gemma4:31b',
+        'model': 'beam',
         'messages': [
           {
             'role': 'user',

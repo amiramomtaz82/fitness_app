@@ -13,7 +13,7 @@ void main() {
   late ChatRemoteDataSource dataSource;
 
   const tResponse = OllamaChatResponseDto(
-    model: 'gemma4:31b',
+    model: 'beam',
     message: OllamaMessageDto(role: 'assistant', content: 'Hello!'),
     promptEvalCount: 10,
     evalCount: 20,

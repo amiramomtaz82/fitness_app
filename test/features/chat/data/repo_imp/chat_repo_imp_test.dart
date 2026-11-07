@@ -24,7 +24,7 @@ void main() {
   late ChatRepoImp repo;
 
   const tOllamaResponse = OllamaChatResponseDto(
-    model: 'gemma4:31b',
+    model: 'beam',
     message: OllamaMessageDto(role: 'assistant', content: 'Coach reply'),
     promptEvalCount: 10,
     evalCount: 20,
@@ -32,7 +32,7 @@ void main() {
   );
 
   const tOllamaTurnBResponse = OllamaChatResponseDto(
-    model: 'gemma4:31b',
+    model: 'beam',
     message: OllamaMessageDto(
       role: 'assistant',
       content:
