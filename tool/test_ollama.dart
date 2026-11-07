@@ -1,8 +1,9 @@
+import 'dart:io';
 import 'package:dio/dio.dart';
 
 void main() async {
   final dio = Dio();
-  const apiKey = '153c6070a22a46659ca4acd8a3139b61.zBIo1hOZI8qM3BR175lr1aba';
+  final apiKey = Platform.environment['OLLAMA_API_KEY'] ?? '';
 
   print('⏳ Sending test message to Ollama Cloud...');
 
@@ -37,7 +38,5 @@ void main() async {
     print('Details: ${e.message}');
   } catch (e) {
     print('\n❌ Error: $e');
-
-
   }
 }

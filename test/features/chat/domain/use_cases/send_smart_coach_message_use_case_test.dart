@@ -1,11 +1,11 @@
 import 'package:fitness_app/core/base_response/base_response.dart';
 import 'package:fitness_app/core/error/failures.dart';
-import 'package:fitness_app/features/chat/data/models/ollama_chat_response_dto.dart';
-import 'package:fitness_app/features/chat/data/models/ollama_message_dto.dart';
 import 'package:fitness_app/features/chat/domain/entites/catalog_entities/exercise_card_entity.dart';
 import 'package:fitness_app/features/chat/domain/entites/catalog_entities/filter_params.dart';
 import 'package:fitness_app/features/chat/domain/entites/catalog_entities/meal_card_entity.dart';
 import 'package:fitness_app/features/chat/domain/entites/chat_entities/chat_message_entity.dart';
+import 'package:fitness_app/features/chat/domain/entites/chat_entities/coach_tool_call_entity.dart';
+import 'package:fitness_app/features/chat/domain/entites/chat_entities/coach_turn_results.dart';
 import 'package:fitness_app/features/chat/domain/entites/chat_entities/token_status_entity.dart';
 import 'package:fitness_app/features/chat/domain/repo/catalog_repo.dart';
 import 'package:fitness_app/features/chat/domain/repo/chat_repo.dart';
@@ -59,8 +59,8 @@ void main() {
         expect(failure, isA<ChatTokenLimitFailure>());
         verifyNever(
           () => mockChatRepo.requestTurnA(
-            messages: any(named: 'messages'),
-            tools: any(named: 'tools'),
+            history: any(named: 'history'),
+            userText: any(named: 'userText'),
           ),
         );
       },
@@ -69,13 +69,10 @@ void main() {
     test(
       'returns direct assistant response and saves user/coach messages',
       () async {
-        const aDto = OllamaChatResponseDto(
-          message: OllamaMessageDto(
-            role: 'assistant',
-            content: 'You can do this!',
-          ),
-          promptEvalCount: 50,
-          evalCount: 30,
+        const turnAResult = CoachTurnAResultEntity(
+          text: 'You can do this!',
+          toolCalls: [],
+          totalTokens: 80,
         );
 
         when(
@@ -83,10 +80,15 @@ void main() {
         ).thenAnswer((_) async => const SuccessResponse(null));
         when(
           () => mockChatRepo.requestTurnA(
-            messages: any(named: 'messages'),
-            tools: any(named: 'tools'),
+            history: any(named: 'history'),
+            userText: any(named: 'userText'),
+            toolResults: any(named: 'toolResults'),
+            userGoal: any(named: 'userGoal'),
+            userActivityLevel: any(named: 'userActivityLevel'),
+            userWeight: any(named: 'userWeight'),
+            userHeight: any(named: 'userHeight'),
           ),
-        ).thenAnswer((_) async => const SuccessResponse(aDto));
+        ).thenAnswer((_) async => const SuccessResponse(turnAResult));
 
         final result = await useCase(
           sessionId: tSessionId,
@@ -107,10 +109,10 @@ void main() {
     test(
       'calculates token warning level when total tokens reach 7000',
       () async {
-        const aDto = OllamaChatResponseDto(
-          message: OllamaMessageDto(role: 'assistant', content: 'Almost full!'),
-          promptEvalCount: 100,
-          evalCount: 50,
+        const turnAResult = CoachTurnAResultEntity(
+          text: 'Almost full!',
+          toolCalls: [],
+          totalTokens: 150,
         );
 
         when(
@@ -118,10 +120,15 @@ void main() {
         ).thenAnswer((_) async => const SuccessResponse(null));
         when(
           () => mockChatRepo.requestTurnA(
-            messages: any(named: 'messages'),
-            tools: any(named: 'tools'),
+            history: any(named: 'history'),
+            userText: any(named: 'userText'),
+            toolResults: any(named: 'toolResults'),
+            userGoal: any(named: 'userGoal'),
+            userActivityLevel: any(named: 'userActivityLevel'),
+            userWeight: any(named: 'userWeight'),
+            userHeight: any(named: 'userHeight'),
           ),
-        ).thenAnswer((_) async => const SuccessResponse(aDto));
+        ).thenAnswer((_) async => const SuccessResponse(turnAResult));
 
         final result = await useCase(
           sessionId: tSessionId,
@@ -143,8 +150,13 @@ void main() {
       ).thenAnswer((_) async => const SuccessResponse(null));
       when(
         () => mockChatRepo.requestTurnA(
-          messages: any(named: 'messages'),
-          tools: any(named: 'tools'),
+          history: any(named: 'history'),
+          userText: any(named: 'userText'),
+          toolResults: any(named: 'toolResults'),
+          userGoal: any(named: 'userGoal'),
+          userActivityLevel: any(named: 'userActivityLevel'),
+          userWeight: any(named: 'userWeight'),
+          userHeight: any(named: 'userHeight'),
         ),
       ).thenAnswer((_) async => ErrorResponse(failure: failure));
 
@@ -159,37 +171,33 @@ void main() {
       expect((result as ErrorResponse).failure, equals(failure));
     });
 
-    test('executes two-turn tool calling and hydrates catalog cards', () async {
-      const aDto = OllamaChatResponseDto(
-        message: OllamaMessageDto(
-          role: 'assistant',
-          toolCalls: [
-            OllamaToolCallDto(
-              function: OllamaFunctionCallDto(
-                name: 'search_exercises',
-                arguments: {'muscle_group': 'Chest'},
-              ),
-            ),
-            OllamaToolCallDto(
-              function: OllamaFunctionCallDto(
-                name: 'search_meals',
-                arguments: {'min_protein': 25.0},
-              ),
-            ),
-          ],
-        ),
-        promptEvalCount: 20,
-        evalCount: 30,
+    test('executes tool calling and hydrates catalog cards', () async {
+      const toolCall1 = SearchExercisesToolCall(
+        toolCallId: 'call_1',
+        muscleGroup: 'Chest',
+      );
+      const toolCall2 = SearchMealsToolCall(
+        toolCallId: 'call_2',
+        minProtein: 25.0,
       );
 
-      const bDto = OllamaChatResponseDto(
-        message: OllamaMessageDto(
-          role: 'assistant',
-          content:
-              '{"reply":"Try bench press and eggs!","exercise_ids":["bench-press"],"meal_ids":["egg-toast"]}',
-        ),
-        promptEvalCount: 40,
-        evalCount: 20,
+      const turnAResultWithTools = CoachTurnAResultEntity(
+        text: '',
+        toolCalls: [toolCall1, toolCall2],
+        totalTokens: 50,
+      );
+
+      const turnAResultFinished = CoachTurnAResultEntity(
+        text: 'All tools done',
+        toolCalls: [],
+        totalTokens: 30,
+      );
+
+      const turnBResult = CoachTurnBResultEntity(
+        reply: 'Try bench press and eggs!',
+        exerciseIds: ['bench-press'],
+        mealIds: ['egg-toast'],
+        totalTokens: 60,
       );
 
       const exCard = ExerciseCardEntity(id: 'bench-press', name: 'Bench Press');
@@ -198,12 +206,26 @@ void main() {
       when(
         () => mockChatRepo.saveMessage(any(), any(), any()),
       ).thenAnswer((_) async => const SuccessResponse(null));
+
+      var turnACallCount = 0;
       when(
         () => mockChatRepo.requestTurnA(
-          messages: any(named: 'messages'),
-          tools: any(named: 'tools'),
+          history: any(named: 'history'),
+          userText: any(named: 'userText'),
+          toolResults: any(named: 'toolResults'),
+          userGoal: any(named: 'userGoal'),
+          userActivityLevel: any(named: 'userActivityLevel'),
+          userWeight: any(named: 'userWeight'),
+          userHeight: any(named: 'userHeight'),
         ),
-      ).thenAnswer((_) async => const SuccessResponse(aDto));
+      ).thenAnswer((_) async {
+        turnACallCount++;
+        if (turnACallCount == 1) {
+          return const SuccessResponse(turnAResultWithTools);
+        }
+        return const SuccessResponse(turnAResultFinished);
+      });
+
       when(
         () => mockCatalogRepo.getExercises(any()),
       ).thenAnswer((_) async => const SuccessResponse([exCard]));
@@ -212,10 +234,15 @@ void main() {
       ).thenAnswer((_) async => const SuccessResponse([mlCard]));
       when(
         () => mockChatRepo.requestTurnB(
-          messages: any(named: 'messages'),
-          formatSchema: any(named: 'formatSchema'),
+          history: any(named: 'history'),
+          userText: any(named: 'userText'),
+          toolResults: any(named: 'toolResults'),
+          userGoal: any(named: 'userGoal'),
+          userActivityLevel: any(named: 'userActivityLevel'),
+          userWeight: any(named: 'userWeight'),
+          userHeight: any(named: 'userHeight'),
         ),
-      ).thenAnswer((_) async => const SuccessResponse(bDto));
+      ).thenAnswer((_) async => const SuccessResponse(turnBResult));
       when(
         () => mockCatalogRepo.getExercisesByIds(['bench-press']),
       ).thenAnswer((_) async => const SuccessResponse([exCard]));
@@ -235,41 +262,61 @@ void main() {
       expect(data.assistantMessage.text, equals('Try bench press and eggs!'));
       expect(data.assistantMessage.exercises, equals([exCard]));
       expect(data.assistantMessage.meals, equals([mlCard]));
-      verify(() => mockChatRepo.saveMessage(tSessionId, any(), 110)).called(1);
+      verify(() => mockChatRepo.saveMessage(tSessionId, any(), 60)).called(1);
     });
 
     test('returns ErrorResponse when Turn B fails', () async {
-      const aDto = OllamaChatResponseDto(
-        message: OllamaMessageDto(
-          role: 'assistant',
-          toolCalls: [
-            OllamaToolCallDto(
-              function: OllamaFunctionCallDto(
-                name: 'search_exercises',
-                arguments: {'muscle_group': 'Glutes'},
-              ),
-            ),
-          ],
-        ),
+      const toolCall1 = SearchExercisesToolCall(
+        toolCallId: 'call_1',
+        muscleGroup: 'Glutes',
+      );
+      const turnAResultWithTools = CoachTurnAResultEntity(
+        text: '',
+        toolCalls: [toolCall1],
+        totalTokens: 30,
+      );
+      const turnAResultFinished = CoachTurnAResultEntity(
+        text: '',
+        toolCalls: [],
+        totalTokens: 20,
       );
 
       const failure = ServerFailure(serverMessage: 'Turn B timeout');
       when(
         () => mockChatRepo.saveMessage(any(), any(), any()),
       ).thenAnswer((_) async => const SuccessResponse(null));
+
+      var turnACallCount = 0;
       when(
         () => mockChatRepo.requestTurnA(
-          messages: any(named: 'messages'),
-          tools: any(named: 'tools'),
+          history: any(named: 'history'),
+          userText: any(named: 'userText'),
+          toolResults: any(named: 'toolResults'),
+          userGoal: any(named: 'userGoal'),
+          userActivityLevel: any(named: 'userActivityLevel'),
+          userWeight: any(named: 'userWeight'),
+          userHeight: any(named: 'userHeight'),
         ),
-      ).thenAnswer((_) async => const SuccessResponse(aDto));
+      ).thenAnswer((_) async {
+        turnACallCount++;
+        if (turnACallCount == 1) {
+          return const SuccessResponse(turnAResultWithTools);
+        }
+        return const SuccessResponse(turnAResultFinished);
+      });
+
       when(
         () => mockCatalogRepo.getExercises(any()),
       ).thenAnswer((_) async => const SuccessResponse([]));
       when(
         () => mockChatRepo.requestTurnB(
-          messages: any(named: 'messages'),
-          formatSchema: any(named: 'formatSchema'),
+          history: any(named: 'history'),
+          userText: any(named: 'userText'),
+          toolResults: any(named: 'toolResults'),
+          userGoal: any(named: 'userGoal'),
+          userActivityLevel: any(named: 'userActivityLevel'),
+          userWeight: any(named: 'userWeight'),
+          userHeight: any(named: 'userHeight'),
         ),
       ).thenAnswer((_) async => ErrorResponse(failure: failure));
 
@@ -284,9 +331,11 @@ void main() {
       expect((result as ErrorResponse).failure, equals(failure));
     });
 
-    test('injects user profile metadata into system prompt', () async {
-      const aDto = OllamaChatResponseDto(
-        message: OllamaMessageDto(role: 'assistant', content: 'Personalized!'),
+    test('forwards user profile metadata to chat repository', () async {
+      const turnAResult = CoachTurnAResultEntity(
+        text: 'Personalized!',
+        toolCalls: [],
+        totalTokens: 50,
       );
 
       when(
@@ -294,10 +343,15 @@ void main() {
       ).thenAnswer((_) async => const SuccessResponse(null));
       when(
         () => mockChatRepo.requestTurnA(
-          messages: any(named: 'messages'),
-          tools: any(named: 'tools'),
+          history: any(named: 'history'),
+          userText: any(named: 'userText'),
+          toolResults: any(named: 'toolResults'),
+          userGoal: any(named: 'userGoal'),
+          userActivityLevel: any(named: 'userActivityLevel'),
+          userWeight: any(named: 'userWeight'),
+          userHeight: any(named: 'userHeight'),
         ),
-      ).thenAnswer((_) async => const SuccessResponse(aDto));
+      ).thenAnswer((_) async => const SuccessResponse(turnAResult));
 
       await useCase(
         sessionId: tSessionId,
@@ -310,20 +364,17 @@ void main() {
         userHeight: 175,
       );
 
-      final captured =
-          verify(
-                () => mockChatRepo.requestTurnA(
-                  messages: captureAny(named: 'messages'),
-                  tools: any(named: 'tools'),
-                ),
-              ).captured.first
-              as List<Map<String, dynamic>>;
-
-      final systemContent = captured.first['content'] as String;
-      expect(systemContent, contains('Goal: fat_loss'));
-      expect(systemContent, contains('Level: moderate'));
-      expect(systemContent, contains('Weight: 80kg'));
-      expect(systemContent, contains('Height: 175cm'));
+      verify(
+        () => mockChatRepo.requestTurnA(
+          history: any(named: 'history'),
+          userText: any(named: 'userText'),
+          toolResults: any(named: 'toolResults'),
+          userGoal: 'fat_loss',
+          userActivityLevel: 'moderate',
+          userWeight: 80,
+          userHeight: 175,
+        ),
+      ).called(1);
     });
   });
 }

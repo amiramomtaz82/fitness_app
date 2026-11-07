@@ -1,6 +1,7 @@
 // ignore_for_file: subtype_of_sealed_class
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:fitness_app/core/secure_storage/secure_storage.dart';
 import 'package:fitness_app/features/chat/data/data_source/chat_firestore_data_source.dart';
 import 'package:fitness_app/features/chat/data/models/chat_message_dto.dart';
 import 'package:fitness_app/features/chat/data/models/chat_session_dto.dart';
@@ -12,6 +13,10 @@ class MockFirebaseFirestore extends Mock implements FirebaseFirestore {}
 class MockFirebaseAuth extends Mock implements FirebaseAuth {}
 
 class MockUser extends Mock implements User {}
+
+class MockSecureStorage extends Mock implements SecureStorage {}
+
+class MockWriteBatch extends Mock implements WriteBatch {}
 
 class MockCollectionReference<T extends Object?> extends Mock
     implements CollectionReference<T> {}
@@ -27,10 +32,15 @@ class MockQueryDocumentSnapshot<T extends Object?> extends Mock
 
 class MockQuery<T extends Object?> extends Mock implements Query<T> {}
 
+class FakeDocumentReference<T extends Object?> extends Fake
+    implements DocumentReference<T> {}
+
 void main() {
   late MockFirebaseFirestore mockFirestore;
   late MockFirebaseAuth mockAuth;
   late MockUser mockUser;
+  late MockSecureStorage mockSecureStorage;
+  late MockWriteBatch mockBatch;
   late ChatFirestoreDataSource dataSource;
 
   // Unconverted refs
@@ -47,6 +57,9 @@ void main() {
   late MockDocumentReference<ChatMessageDto> mockConvertedMessageDoc;
 
   setUpAll(() {
+    registerFallbackValue(FakeDocumentReference<Object?>());
+    registerFallbackValue(FakeDocumentReference<ChatMessageDto>());
+    registerFallbackValue(FakeDocumentReference<ChatSessionDto>());
     registerFallbackValue(
       const ChatSessionDto(
         id: 'fallback_id',
@@ -63,15 +76,25 @@ void main() {
         createdAtMillis: 0,
       ),
     );
+    registerFallbackValue(<String, dynamic>{});
   });
 
   setUp(() {
     mockFirestore = MockFirebaseFirestore();
     mockAuth = MockFirebaseAuth();
     mockUser = MockUser();
+    mockSecureStorage = MockSecureStorage();
+    mockBatch = MockWriteBatch();
 
     when(() => mockAuth.currentUser).thenReturn(mockUser);
     when(() => mockUser.uid).thenReturn('test_uid');
+    when(() => mockSecureStorage.read(key: 'cached_user'))
+        .thenAnswer((_) async => '{"_id":"test_uid"}');
+
+    when(() => mockFirestore.batch()).thenReturn(mockBatch);
+    when(() => mockBatch.commit()).thenAnswer((_) async {});
+    when(() => mockBatch.set(any(), any())).thenReturn(null);
+    when(() => mockBatch.update(any(), any())).thenReturn(null);
 
     mockUsersCol = MockCollectionReference<Map<String, dynamic>>();
     mockUserDoc = MockDocumentReference<Map<String, dynamic>>();
@@ -109,7 +132,7 @@ void main() {
       ),
     ).thenReturn(mockConvertedMessagesCol);
 
-    dataSource = ChatFirestoreDataSource(mockFirestore, mockAuth);
+    dataSource = ChatFirestoreDataSource(mockFirestore, mockAuth, mockSecureStorage);
   });
 
   group('ChatFirestoreDataSource —', () {
@@ -131,7 +154,7 @@ void main() {
       verify(() => mockConvertedSessionDoc.set(session)).called(1);
     });
 
-    test('saveMessage saves message and updates parent session', () async {
+    test('saveMessage saves message and updates parent session atomically via batch', () async {
       const message = ChatMessageDto(
         id: 'msg_1',
         sender: 'user',
@@ -143,18 +166,15 @@ void main() {
       when(
         () => mockConvertedMessagesCol.doc('msg_1'),
       ).thenReturn(mockConvertedMessageDoc);
-      when(() => mockConvertedMessageDoc.set(message)).thenAnswer((_) async {});
       when(
         () => mockConvertedSessionsCol.doc('session_1'),
       ).thenReturn(mockConvertedSessionDoc);
-      when(
-        () => mockConvertedSessionDoc.update(any()),
-      ).thenAnswer((_) async {});
 
       await dataSource.saveMessage('session_1', message);
 
-      verify(() => mockConvertedMessageDoc.set(message)).called(1);
-      verify(() => mockConvertedSessionDoc.update(any())).called(1);
+      verify(() => mockBatch.set(mockConvertedMessageDoc, message)).called(1);
+      verify(() => mockBatch.update(mockConvertedSessionDoc, any())).called(1);
+      verify(() => mockBatch.commit()).called(1);
     });
 
     test('getSessions returns mapped list from firestore snapshot', () async {
@@ -215,7 +235,9 @@ void main() {
       },
     );
 
-    test('falls back to guest_user when auth currentUser is null', () async {
+    test('falls back to guest_user when cached user and auth currentUser are null', () async {
+      when(() => mockSecureStorage.read(key: 'cached_user'))
+          .thenAnswer((_) async => null);
       when(() => mockAuth.currentUser).thenReturn(null);
       when(() => mockUsersCol.doc('guest_user')).thenReturn(mockUserDoc);
 

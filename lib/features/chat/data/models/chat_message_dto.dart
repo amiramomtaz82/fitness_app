@@ -41,6 +41,8 @@ class ChatMessageDto {
       sender: sender == 'user' ? ChatSender.user : ChatSender.coach,
       text: text,
       createdAt: DateTime.fromMillisecondsSinceEpoch(createdAtMillis),
+      exerciseRefs: exerciseRefs,
+      mealRefs: mealRefs,
       exercises: exercises,
       meals: meals,
       isPending: isPending,

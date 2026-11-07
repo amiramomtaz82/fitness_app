@@ -3,14 +3,13 @@ import 'package:fitness_app/features/chat/data/data_source/chat_firestore_data_s
 import 'package:fitness_app/features/chat/data/data_source/chat_remote_data_source.dart';
 import 'package:fitness_app/features/chat/data/models/chat_message_dto.dart';
 import 'package:fitness_app/features/chat/data/models/chat_session_dto.dart';
+import 'package:fitness_app/features/chat/data/models/ollama_chat_request_dto.dart';
 import 'package:fitness_app/features/chat/data/models/ollama_chat_response_dto.dart';
 import 'package:fitness_app/features/chat/data/models/ollama_message_dto.dart';
 import 'package:fitness_app/features/chat/data/repo_imp/chat_repo_imp.dart';
-import 'package:fitness_app/features/chat/domain/entites/catalog_entities/exercise_card_entity.dart';
-import 'package:fitness_app/features/chat/domain/entites/catalog_entities/meal_card_entity.dart';
 import 'package:fitness_app/features/chat/domain/entites/chat_entities/chat_message_entity.dart';
 import 'package:fitness_app/features/chat/domain/entites/chat_entities/chat_session_entity.dart';
-import 'package:fitness_app/features/chat/domain/repo/catalog_repo.dart';
+import 'package:fitness_app/features/chat/domain/entites/chat_entities/coach_turn_results.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 
@@ -19,12 +18,9 @@ class MockChatRemoteDataSource extends Mock implements ChatRemoteDataSource {}
 class MockChatFirestoreDataSource extends Mock
     implements ChatFirestoreDataSource {}
 
-class MockCatalogRepo extends Mock implements CatalogRepo {}
-
 void main() {
   late MockChatRemoteDataSource mockRemote;
   late MockChatFirestoreDataSource mockFirestore;
-  late MockCatalogRepo mockCatalog;
   late ChatRepoImp repo;
 
   const tOllamaResponse = OllamaChatResponseDto(
@@ -32,6 +28,17 @@ void main() {
     message: OllamaMessageDto(role: 'assistant', content: 'Coach reply'),
     promptEvalCount: 10,
     evalCount: 20,
+    done: true,
+  );
+
+  const tOllamaTurnBResponse = OllamaChatResponseDto(
+    model: 'gemma4:31b',
+    message: OllamaMessageDto(
+      role: 'assistant',
+      content: '{"reply": "Great job!", "exercise_ids": ["ex1"], "meal_ids": ["ml1"]}',
+    ),
+    promptEvalCount: 15,
+    evalCount: 25,
     done: true,
   );
 
@@ -44,89 +51,90 @@ void main() {
         createdAtMillis: 0,
       ),
     );
+    registerFallbackValue(
+      const OllamaChatRequestDto(
+        messages: [],
+      ),
+    );
   });
 
   setUp(() {
     mockRemote = MockChatRemoteDataSource();
     mockFirestore = MockChatFirestoreDataSource();
-    mockCatalog = MockCatalogRepo();
-    repo = ChatRepoImp(mockRemote, mockFirestore, mockCatalog);
+    repo = ChatRepoImp(mockRemote, mockFirestore);
   });
 
   group('ChatRepoImp —', () {
     group('requestTurnA', () {
-      final messages = [
-        {'role': 'user', 'content': 'Hello'},
-      ];
-      final tools = [
-        {'type': 'function'},
-      ];
+      final history = <ChatMessageEntity>[];
+      const userText = 'Hello coach';
 
-      test('returns SuccessResponse on remote success', () async {
+      test('returns SuccessResponse with CoachTurnAResultEntity on success', () async {
         when(
-          () => mockRemote.chatWithTools(messages: messages, tools: tools),
+          () => mockRemote.chat(any()),
         ).thenAnswer((_) async => tOllamaResponse);
 
         final result = await repo.requestTurnA(
-          messages: messages,
-          tools: tools,
+          history: history,
+          userText: userText,
         );
 
-        expect(result, isA<SuccessResponse<OllamaChatResponseDto>>());
-        expect((result as SuccessResponse).data, equals(tOllamaResponse));
+        expect(result, isA<SuccessResponse<CoachTurnAResultEntity>>());
+        final data = (result as SuccessResponse<CoachTurnAResultEntity>).data;
+        expect(data.text, equals('Coach reply'));
+        expect(data.totalTokens, equals(30));
+        verify(() => mockRemote.chat(any())).called(1);
       });
 
       test('returns ErrorResponse on remote error', () async {
         when(
-          () => mockRemote.chatWithTools(
-            messages: any(named: 'messages'),
-            tools: any(named: 'tools'),
-          ),
+          () => mockRemote.chat(any()),
         ).thenThrow(Exception('Turn A Failed'));
 
         final result = await repo.requestTurnA(
-          messages: messages,
-          tools: tools,
+          history: history,
+          userText: userText,
         );
 
-        expect(result, isA<ErrorResponse<OllamaChatResponseDto>>());
+        expect(result, isA<ErrorResponse<CoachTurnAResultEntity>>());
       });
     });
 
     group('requestTurnB', () {
-      final messages = [
-        {'role': 'user', 'content': 'Hello'},
-      ];
-      final format = {'type': 'object'};
+      final history = <ChatMessageEntity>[];
+      const userText = 'Hello coach';
 
-      test('returns SuccessResponse on remote success', () async {
+      test('returns SuccessResponse with CoachTurnBResultEntity on success', () async {
         when(
-          () => mockRemote.chatWithFormat(messages: messages, formatSchema: format),
-        ).thenAnswer((_) async => tOllamaResponse);
+          () => mockRemote.chat(any()),
+        ).thenAnswer((_) async => tOllamaTurnBResponse);
 
         final result = await repo.requestTurnB(
-          messages: messages,
-          formatSchema: format,
+          history: history,
+          userText: userText,
+          toolResults: const [],
         );
 
-        expect(result, isA<SuccessResponse<OllamaChatResponseDto>>());
-        expect((result as SuccessResponse).data, equals(tOllamaResponse));
+        expect(result, isA<SuccessResponse<CoachTurnBResultEntity>>());
+        final data = (result as SuccessResponse<CoachTurnBResultEntity>).data;
+        expect(data.reply, equals('Great job!'));
+        expect(data.exerciseIds, equals(['ex1']));
+        expect(data.mealIds, equals(['ml1']));
+        expect(data.totalTokens, equals(40));
       });
 
       test('returns ErrorResponse on remote error', () async {
         when(
-          () => mockRemote.chatWithFormat(
-            messages: any(named: 'messages'),
-            formatSchema: any(named: 'formatSchema'),
-          ),
+          () => mockRemote.chat(any()),
         ).thenThrow(Exception('Turn B Failed'));
 
         final result = await repo.requestTurnB(
-          messages: messages,
-          formatSchema: format,
+          history: history,
+          userText: userText,
+          toolResults: const [],
         );
 
-        expect(result, isA<ErrorResponse<OllamaChatResponseDto>>());
+        expect(result, isA<ErrorResponse<CoachTurnBResultEntity>>());
       });
     });
 
@@ -161,20 +169,7 @@ void main() {
     });
 
     group('getMessages', () {
-      const exDto = ExerciseCardEntity(
-        id: 'ex1',
-        name: 'Squat',
-        muscleGroup: 'Legs',
-        difficulty: 'Novice',
-      );
-      const mlDto = MealCardEntity(
-        id: 'ml1',
-        name: 'Oatmeal',
-        kcal: 350,
-        proteinG: 15,
-      );
-
-      test('hydrates messages with exercise and meal cards', () async {
+      test('returns mapped message entities on success', () async {
         const messageDto = ChatMessageDto(
           id: 'm1',
           sender: 'coach',
@@ -187,12 +182,6 @@ void main() {
         when(
           () => mockFirestore.getMessages('s1'),
         ).thenAnswer((_) async => [messageDto]);
-        when(
-          () => mockCatalog.getExercisesByIds(['ex1']),
-        ).thenAnswer((_) async => const SuccessResponse([exDto]));
-        when(
-          () => mockCatalog.getMealsByIds(['ml1']),
-        ).thenAnswer((_) async => const SuccessResponse([mlDto]));
 
         final result = await repo.getMessages('s1');
 
@@ -200,8 +189,8 @@ void main() {
         final data = (result as SuccessResponse<List<ChatMessageEntity>>).data;
         expect(data.length, equals(1));
         expect(data.first.id, equals('m1'));
-        expect(data.first.exercises, equals([exDto]));
-        expect(data.first.meals, equals([mlDto]));
+        expect(data.first.exerciseRefs, equals(['ex1']));
+        expect(data.first.mealRefs, equals(['ml1']));
       });
 
       test('returns ErrorResponse when firestore throws', () async {
@@ -225,7 +214,10 @@ void main() {
 
       test('returns mapped session entities on success', () async {
         when(
-          () => mockFirestore.getSessions(),
+          () => mockFirestore.getSessions(
+            limit: any(named: 'limit'),
+            lastUpdatedAtMillis: any(named: 'lastUpdatedAtMillis'),
+          ),
         ).thenAnswer((_) async => [sessionDto]);
 
         final result = await repo.getPreviousSessions();
@@ -240,7 +232,10 @@ void main() {
 
       test('returns ErrorResponse when firestore throws', () async {
         when(
-          () => mockFirestore.getSessions(),
+          () => mockFirestore.getSessions(
+            limit: any(named: 'limit'),
+            lastUpdatedAtMillis: any(named: 'lastUpdatedAtMillis'),
+          ),
         ).thenThrow(Exception('Get Sessions Failed'));
 
         final result = await repo.getPreviousSessions();
