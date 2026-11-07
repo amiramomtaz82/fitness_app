@@ -1,6 +1,5 @@
 import 'package:equatable/equatable.dart';
 
-
 class ExerciseFilterParams extends Equatable {
   final String? muscleGroup;
   final String? equipment;
@@ -15,6 +14,7 @@ class ExerciseFilterParams extends Equatable {
   @override
   List<Object?> get props => [muscleGroup, equipment, maxDifficulty, limit];
 }
+
 class MealFilterParams extends Equatable {
   final String? category;
   final double? minProtein;

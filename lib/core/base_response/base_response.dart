@@ -3,9 +3,15 @@ import '../error/failures.dart';
 
 sealed class BaseResponse<T> {
   const BaseResponse();
+
+  T? get data => switch (this) {
+    SuccessResponse(:final data) => data,
+    ErrorResponse() => null,
+  };
 }
 
 class SuccessResponse<T> extends BaseResponse<T> {
+  @override
   final T data;
   const SuccessResponse(this.data);
 }

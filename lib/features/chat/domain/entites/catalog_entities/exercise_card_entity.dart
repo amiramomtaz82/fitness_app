@@ -18,5 +18,12 @@ class ExerciseCardEntity extends Equatable {
   });
 
   @override
-  List<Object?> get props => [id, name, nameAr, muscleGroup, difficulty, demoUrl];
+  List<Object?> get props => [
+    id,
+    name,
+    nameAr,
+    muscleGroup,
+    difficulty,
+    demoUrl,
+  ];
 }

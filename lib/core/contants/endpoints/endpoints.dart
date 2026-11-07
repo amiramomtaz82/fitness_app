@@ -32,4 +32,9 @@ class Endpoints {
   static const String exercisesRandom = '/exercises/random';
   static const String exercisesByMuscleDifficulty =
       '/exercises/by-muscle-difficulty';
+
+  // Smart Coach / Ollama
+  static const String ollamaBaseUrl = 'https://ollama.com/api';
+  static const String ollamaChat = '/chat';
+  static const String ollamaGenerate = '/generate';
 }

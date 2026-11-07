@@ -49,7 +49,9 @@ void main() {
       ).thenAnswer((_) async => [exerciseModel]);
 
       // Act
-      final result = await repository.getExercises(ExerciseFilterParams());
+      final result = await repository.getExercises(
+        const ExerciseFilterParams(),
+      );
 
       // Assert
       expect(result, isA<SuccessResponse<List<ExerciseCardEntity>>>());
@@ -68,7 +70,9 @@ void main() {
       ).thenThrow(Exception('Database error'));
 
       // Act
-      final result = await repository.getExercises(ExerciseFilterParams());
+      final result = await repository.getExercises(
+        const ExerciseFilterParams(),
+      );
 
       // Assert
       expect(result, isA<ErrorResponse<List<ExerciseCardEntity>>>());
@@ -83,7 +87,7 @@ void main() {
       ).thenAnswer((_) async => [mealModel]);
 
       // Act
-      final result = await repository.getMeals(MealFilterParams());
+      final result = await repository.getMeals(const MealFilterParams());
 
       // Assert
       expect(result, isA<SuccessResponse<List<MealCardEntity>>>());
@@ -102,7 +106,7 @@ void main() {
       ).thenThrow(Exception('Database error'));
 
       // Act
-      final result = await repository.getMeals(MealFilterParams());
+      final result = await repository.getMeals(const MealFilterParams());
 
       // Assert
       expect(result, isA<ErrorResponse<List<MealCardEntity>>>());

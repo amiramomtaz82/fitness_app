@@ -1,7 +1,6 @@
 import 'package:fitness_app/features/chat/domain/entites/catalog_entities/meal_card_entity.dart';
 import 'package:json_annotation/json_annotation.dart';
 
-
 part 'meal_card_model.g.dart';
 
 @JsonSerializable()

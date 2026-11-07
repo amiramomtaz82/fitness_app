@@ -9,6 +9,8 @@ class ChatMessageEntity extends Equatable {
   final ChatSender sender;
   final String text;
   final DateTime createdAt;
+  final List<String> exerciseRefs; // ✅ IDs stored in Firestore
+  final List<String> mealRefs; // ✅ IDs stored in Firestore
   final List<ExerciseCardEntity> exercises;
   final List<MealCardEntity> meals;
   final bool isPending;
@@ -18,11 +20,41 @@ class ChatMessageEntity extends Equatable {
     required this.sender,
     required this.text,
     required this.createdAt,
+    this.exerciseRefs = const [],
+    this.mealRefs = const [],
     this.exercises = const [],
     this.meals = const [],
     this.isPending = false,
   });
 
+  ChatMessageEntity copyWith({
+    List<ExerciseCardEntity>? exercises,
+    List<MealCardEntity>? meals,
+    bool? isPending,
+  }) {
+    return ChatMessageEntity(
+      id: id,
+      sender: sender,
+      text: text,
+      createdAt: createdAt,
+      exerciseRefs: exerciseRefs,
+      mealRefs: mealRefs,
+      exercises: exercises ?? this.exercises,
+      meals: meals ?? this.meals,
+      isPending: isPending ?? this.isPending,
+    );
+  }
+
   @override
-  List<Object?> get props => [id, sender, text, createdAt, exercises, meals, isPending];
+  List<Object?> get props => [
+    id,
+    sender,
+    text,
+    createdAt,
+    exerciseRefs,
+    mealRefs,
+    exercises,
+    meals,
+    isPending,
+  ];
 }

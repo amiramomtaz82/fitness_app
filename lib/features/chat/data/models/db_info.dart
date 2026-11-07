@@ -6,6 +6,5 @@ class DbInfo {
 
   factory DbInfo.fromJson(Map<String, dynamic> json) {
     return DbInfo(version: json['version'], hash: json['hash']);
-    
   }
 }
