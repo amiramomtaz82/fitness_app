@@ -15,7 +15,7 @@ import '../models/profile_user_dto.dart';
 class ProfileRepoImp implements ProfileRepo {
   final ProfileRemoteDataSource _remoteDataSource;
   final SecureStorage _secureStorage;
-  const ProfileRepoImp(this._remoteDataSource,this._secureStorage);
+  const ProfileRepoImp(this._remoteDataSource, this._secureStorage);
 
   @override
   Future<BaseResponse<ProfileEntity>> getProfile() {
@@ -49,6 +49,7 @@ class ProfileRepoImp implements ProfileRepo {
     }
     return entity;
   }
+
   @override
   Future<BaseResponse<void>> logout() {
     return safeCall<void>(() async {

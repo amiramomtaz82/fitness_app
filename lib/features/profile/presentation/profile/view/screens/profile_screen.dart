@@ -65,7 +65,7 @@ class _ProfileScreenState extends State<ProfileScreen>
             SizedBox(height: 24.h),
             BlocBuilder<ProfileCubit, ProfileState>(
               buildWhen: (previous, current) =>
-              previous.profile != current.profile ||
+                  previous.profile != current.profile ||
                   previous.pendingPhotoPath != current.pendingPhotoPath,
               builder: (context, state) => ProfileHeader(
                 profile: state.profile,

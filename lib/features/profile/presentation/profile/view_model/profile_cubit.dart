@@ -16,6 +16,7 @@ import '../view/models/profile_menu_action.dart';
 import '../view/models/profile_menu_item.dart';
 import 'profile_intent.dart';
 import 'profile_state.dart';
+import 'show_logout_dialog_event.dart';
 import 'toggle_locale_event.dart';
 
 @lazySingleton
@@ -32,7 +33,7 @@ class ProfileCubit extends BaseCubit<ProfileState, BaseUiEvent> {
     this._getProfileUseCase,
     this._uploadPhotoUseCase,
     this._pickPhotoUseCase,
-      this._logoutUseCase,
+    this._logoutUseCase,
   ) : super(const ProfileState());
 
   void doIntent(ProfileIntent intent) {
@@ -49,6 +50,7 @@ class ProfileCubit extends BaseCubit<ProfileState, BaseUiEvent> {
         _logout();
     }
   }
+
   Future<void> _logout() async {
     final response = await _logoutUseCase();
     switch (response) {
@@ -60,6 +62,7 @@ class ProfileCubit extends BaseCubit<ProfileState, BaseUiEvent> {
         emitFailure(failure);
     }
   }
+
   void _onMenuTap(ProfileMenuItem item) {
     switch (item.action) {
       case ProfileMenuAction.editProfile:
@@ -71,7 +74,9 @@ class ProfileCubit extends BaseCubit<ProfileState, BaseUiEvent> {
       case ProfileMenuAction.help:
         emitEvent(NavigateEvent(AppRoutes.webView, arguments: item.page));
       case ProfileMenuAction.changePassword:
+        break;
       case ProfileMenuAction.logout:
+        emitEvent(const ShowLogoutConfirmationEvent());
         break;
     }
   }

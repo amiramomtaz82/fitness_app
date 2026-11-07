@@ -19,9 +19,7 @@ class LogoutConfirmationDialog extends StatelessWidget {
   Widget build(BuildContext context) {
     return Dialog(
       backgroundColor: AppColors.surface,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(20.r),
-      ),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20.r)),
       insetPadding: EdgeInsets.symmetric(horizontal: 24.w),
       child: Padding(
         padding: EdgeInsetsDirectional.all(20.w),
@@ -50,11 +48,7 @@ class LogoutConfirmationDialog extends StatelessWidget {
         color: AppColors.error.withValues(alpha: 0.12),
         shape: BoxShape.circle,
       ),
-      child: Icon(
-        Icons.logout_rounded,
-        color: AppColors.error,
-        size: 28.sp,
-      ),
+      child: Icon(Icons.logout_rounded, color: AppColors.error, size: 28.sp),
     );
   }
 
@@ -77,13 +71,9 @@ class LogoutConfirmationDialog extends StatelessWidget {
   Widget _buildActions(BuildContext context) {
     return Row(
       children: [
-        Expanded(
-          child: _buildCancelButton(context),
-        ),
+        Expanded(child: _buildCancelButton(context)),
         SizedBox(width: 12.w),
-        Expanded(
-          child: _buildConfirmButton(context),
-        ),
+        Expanded(child: _buildConfirmButton(context)),
       ],
     );
   }
