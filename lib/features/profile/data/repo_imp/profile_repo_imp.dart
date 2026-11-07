@@ -5,10 +5,12 @@ import '../../../../core/base_response/safe_call.dart';
 import '../../../../core/error/failures.dart';
 import '../../domain/entities/profile_entity.dart';
 import '../../domain/entities/profile_params.dart';
+import '../../domain/entities/change_password_entity.dart';
 import '../../domain/repo/profile_repo.dart';
 import '../data_source/profile_remote_data_source.dart';
 import '../models/profile_request_dto.dart';
 import '../models/profile_user_dto.dart';
+import '../models/change_password_request_dto.dart';
 
 @Injectable(as: ProfileRepo)
 class ProfileRepoImp implements ProfileRepo {
@@ -38,6 +40,23 @@ class ProfileRepoImp implements ProfileRepo {
       final response = await _remoteDataSource.uploadPhoto(photoPath);
       if (response.user != null) return response.user!.toEntity();
       return _requireUser((await _remoteDataSource.getProfile()).user);
+    });
+  }
+
+  @override
+  Future<BaseResponse<ChangePasswordEntity>> changePassword({
+    required String password,
+    required String newPassword,
+  }) {
+    return safeCall(() async {
+      final request = ChangePasswordRequestDto(
+        password: password,
+        newPassword: newPassword,
+      );
+
+      final response = await _remoteDataSource.changePassword(request);
+
+      return response.toEntity();
     });
   }
 

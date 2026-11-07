@@ -1,4 +1,6 @@
 import 'package:dio/dio.dart';
+import 'package:fitness_app/features/profile/data/models/change_password_request_dto.dart';
+import 'package:fitness_app/features/profile/data/models/change_password_response_dto.dart';
 import 'package:retrofit/retrofit.dart';
 import '../../../../core/contants/endpoints/endpoints.dart';
 import '../../../../core/contants/endpoints/query_params.dart';
@@ -22,4 +24,9 @@ abstract class ProfileClient {
 
   @PUT(Endpoints.editProfile)
   Future<ProfileResponseDto> editProfile(@Body() ProfileRequestDto body);
+  @PATCH(Endpoints.changePassword)
+  Future<ChangePasswordResponseDto> changePassword(
+    @Body() ChangePasswordRequestDto body,
+  );
+ 
 }
