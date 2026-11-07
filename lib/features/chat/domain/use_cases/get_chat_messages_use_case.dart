@@ -9,7 +9,8 @@ import '../repo/chat_repo.dart';
 @lazySingleton
 class GetChatMessagesUseCase {
   final ChatRepo _chatRepo;
-  final CatalogRepo _catalogRepo; // ✅ UseCases CAN coordinate multiple repositories!
+  final CatalogRepo
+  _catalogRepo; // ✅ UseCases CAN coordinate multiple repositories!
 
   const GetChatMessagesUseCase(this._chatRepo, this._catalogRepo);
 
@@ -20,7 +21,8 @@ class GetChatMessagesUseCase {
       return messagesRes;
     }
 
-    final messages = (messagesRes as SuccessResponse<List<ChatMessageEntity>>).data;
+    final messages =
+        (messagesRes as SuccessResponse<List<ChatMessageEntity>>).data;
 
     // 2. Collect all unique IDs across all messages using a Set
     final allExerciseIds = <String>{};

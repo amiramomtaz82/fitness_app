@@ -27,10 +27,10 @@ abstract interface class ChatRepo {
   });
 
   Future<BaseResponse<void>> saveMessage(
-      String sessionId,
-      ChatMessageEntity msg,
-      int tokens,
-      );
+    String sessionId,
+    ChatMessageEntity msg,
+    int tokens,
+  );
 
   Future<BaseResponse<List<ChatMessageEntity>>> getMessages(String sessionId);
 

@@ -6,10 +6,7 @@ sealed class CoachToolCallEntity extends Equatable {
   final String toolCallId;
   final String toolName;
 
-  const CoachToolCallEntity({
-    required this.toolCallId,
-    required this.toolName,
-  });
+  const CoachToolCallEntity({required this.toolCallId, required this.toolName});
 
   @override
   List<Object?> get props => [toolCallId, toolName];

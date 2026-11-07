@@ -88,8 +88,9 @@ void main() {
 
     when(() => mockAuth.currentUser).thenReturn(mockUser);
     when(() => mockUser.uid).thenReturn('test_uid');
-    when(() => mockSecureStorage.read(key: 'cached_user'))
-        .thenAnswer((_) async => '{"_id":"test_uid"}');
+    when(
+      () => mockSecureStorage.read(key: 'cached_user'),
+    ).thenAnswer((_) async => '{"_id":"test_uid"}');
 
     when(() => mockFirestore.batch()).thenReturn(mockBatch);
     when(() => mockBatch.commit()).thenAnswer((_) async {});
@@ -132,7 +133,11 @@ void main() {
       ),
     ).thenReturn(mockConvertedMessagesCol);
 
-    dataSource = ChatFirestoreDataSource(mockFirestore, mockAuth, mockSecureStorage);
+    dataSource = ChatFirestoreDataSource(
+      mockFirestore,
+      mockAuth,
+      mockSecureStorage,
+    );
   });
 
   group('ChatFirestoreDataSource —', () {
@@ -154,28 +159,33 @@ void main() {
       verify(() => mockConvertedSessionDoc.set(session)).called(1);
     });
 
-    test('saveMessage saves message and updates parent session atomically via batch', () async {
-      const message = ChatMessageDto(
-        id: 'msg_1',
-        sender: 'user',
-        text: 'hello coach',
-        createdAtMillis: 2000,
-        tokens: 15,
-      );
+    test(
+      'saveMessage saves message and updates parent session atomically via batch',
+      () async {
+        const message = ChatMessageDto(
+          id: 'msg_1',
+          sender: 'user',
+          text: 'hello coach',
+          createdAtMillis: 2000,
+          tokens: 15,
+        );
 
-      when(
-        () => mockConvertedMessagesCol.doc('msg_1'),
-      ).thenReturn(mockConvertedMessageDoc);
-      when(
-        () => mockConvertedSessionsCol.doc('session_1'),
-      ).thenReturn(mockConvertedSessionDoc);
+        when(
+          () => mockConvertedMessagesCol.doc('msg_1'),
+        ).thenReturn(mockConvertedMessageDoc);
+        when(
+          () => mockConvertedSessionsCol.doc('session_1'),
+        ).thenReturn(mockConvertedSessionDoc);
 
-      await dataSource.saveMessage('session_1', message);
+        await dataSource.saveMessage('session_1', message);
 
-      verify(() => mockBatch.set(mockConvertedMessageDoc, message)).called(1);
-      verify(() => mockBatch.update(mockConvertedSessionDoc, any())).called(1);
-      verify(() => mockBatch.commit()).called(1);
-    });
+        verify(() => mockBatch.set(mockConvertedMessageDoc, message)).called(1);
+        verify(
+          () => mockBatch.update(mockConvertedSessionDoc, any()),
+        ).called(1);
+        verify(() => mockBatch.commit()).called(1);
+      },
+    );
 
     test('getSessions returns mapped list from firestore snapshot', () async {
       final mockSnapshot = MockQuerySnapshot<ChatSessionDto>();
@@ -235,27 +245,33 @@ void main() {
       },
     );
 
-    test('falls back to guest_user when cached user and auth currentUser are null', () async {
-      when(() => mockSecureStorage.read(key: 'cached_user'))
-          .thenAnswer((_) async => null);
-      when(() => mockAuth.currentUser).thenReturn(null);
-      when(() => mockUsersCol.doc('guest_user')).thenReturn(mockUserDoc);
+    test(
+      'falls back to guest_user when cached user and auth currentUser are null',
+      () async {
+        when(
+          () => mockSecureStorage.read(key: 'cached_user'),
+        ).thenAnswer((_) async => null);
+        when(() => mockAuth.currentUser).thenReturn(null);
+        when(() => mockUsersCol.doc('guest_user')).thenReturn(mockUserDoc);
 
-      const session = ChatSessionDto(
-        id: 's_guest',
-        title: 'Guest',
-        updatedAtMillis: 1,
-        totalTokens: 0,
-      );
+        const session = ChatSessionDto(
+          id: 's_guest',
+          title: 'Guest',
+          updatedAtMillis: 1,
+          totalTokens: 0,
+        );
 
-      when(
-        () => mockConvertedSessionsCol.doc('s_guest'),
-      ).thenReturn(mockConvertedSessionDoc);
-      when(() => mockConvertedSessionDoc.set(session)).thenAnswer((_) async {});
+        when(
+          () => mockConvertedSessionsCol.doc('s_guest'),
+        ).thenReturn(mockConvertedSessionDoc);
+        when(
+          () => mockConvertedSessionDoc.set(session),
+        ).thenAnswer((_) async {});
 
-      await dataSource.saveSession(session);
+        await dataSource.saveSession(session);
 
-      verify(() => mockUsersCol.doc('guest_user')).called(1);
-    });
+        verify(() => mockUsersCol.doc('guest_user')).called(1);
+      },
+    );
   });
 }

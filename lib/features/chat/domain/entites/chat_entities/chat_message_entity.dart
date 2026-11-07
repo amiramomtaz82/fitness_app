@@ -10,7 +10,7 @@ class ChatMessageEntity extends Equatable {
   final String text;
   final DateTime createdAt;
   final List<String> exerciseRefs; // ✅ IDs stored in Firestore
-  final List<String> mealRefs;     // ✅ IDs stored in Firestore
+  final List<String> mealRefs; // ✅ IDs stored in Firestore
   final List<ExerciseCardEntity> exercises;
   final List<MealCardEntity> meals;
   final bool isPending;

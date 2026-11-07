@@ -20,9 +20,9 @@ abstract final class DioNames {
 abstract class DioModule {
   @singleton
   Dio dio(
-      AuthInterceptor authInterceptor,
-      LocaleInterceptor localeInterceptor,
-      ) {
+    AuthInterceptor authInterceptor,
+    LocaleInterceptor localeInterceptor,
+  ) {
     final dioInstance = Dio(
       BaseOptions(
         baseUrl: Endpoints.baseUrl,

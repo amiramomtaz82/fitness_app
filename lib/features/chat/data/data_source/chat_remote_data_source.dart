@@ -10,7 +10,6 @@ class ChatRemoteDataSource {
 
   const ChatRemoteDataSource(this._apiClient);
 
-
   Future<OllamaChatResponseDto> chat(OllamaChatRequestDto request) {
     return _apiClient.chat(request);
   }

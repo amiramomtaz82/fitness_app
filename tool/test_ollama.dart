@@ -19,7 +19,10 @@ void main() async {
       data: {
         'model': 'gemma4:31b',
         'messages': [
-          {'role': 'user', 'content': 'Hello coach, give me 1 quick fitness tip!'}
+          {
+            'role': 'user',
+            'content': 'Hello coach, give me 1 quick fitness tip!',
+          },
         ],
         'stream': false,
         'think': false,

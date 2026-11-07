@@ -98,7 +98,7 @@ class SendSmartCoachMessageUseCase {
       }
 
       // Exit loop if Turn A has no tool calls
-      if ( !latestTurnA.hasToolCalls) {
+      if (!latestTurnA.hasToolCalls) {
         break;
       }
     }
@@ -147,7 +147,8 @@ class SendSmartCoachMessageUseCase {
 
         // Fetch card entities for UI display
         final exercises = data.exerciseIds.isNotEmpty
-            ? (await _catalogRepo.getExercisesByIds(data.exerciseIds)).data ?? []
+            ? (await _catalogRepo.getExercisesByIds(data.exerciseIds)).data ??
+                  []
             : const <ExerciseCardEntity>[];
 
         final meals = data.mealIds.isNotEmpty
@@ -180,16 +181,16 @@ class SendSmartCoachMessageUseCase {
   // Tool Execution via Exhaustive Sealed Class Matching
   // ---------------------------------------------------------------------------
   Future<ToolExecutionResultEntity> _executeToolCall(
-      CoachToolCallEntity toolCall,
-      ) async {
+    CoachToolCallEntity toolCall,
+  ) async {
     // ✅ Exhaustive Dart 3 switch on the sealed class
     switch (toolCall) {
       case SearchExercisesToolCall(
-          :final toolCallId,
-          :final toolName,
-          :final muscleGroup,
-          :final equipment,
-          :final maxDifficulty,
+        :final toolCallId,
+        :final toolName,
+        :final muscleGroup,
+        :final equipment,
+        :final maxDifficulty,
       ):
         final res = await _catalogRepo.getExercises(
           ExerciseFilterParams(
@@ -202,10 +203,10 @@ class SendSmartCoachMessageUseCase {
         // ✅ Handle error gracefully: Provide feedback to the AI model
         final content = switch (res) {
           SuccessResponse(:final data) when data.isNotEmpty =>
-              _formatExerciseBlock(data),
+            _formatExerciseBlock(data),
           SuccessResponse() => 'No matching exercises found in the catalog.',
           ErrorResponse(:final failure) =>
-          'Catalog search error: ${failure.serverMessage ?? 'Unknown error'}.',
+            'Catalog search error: ${failure.serverMessage ?? 'Unknown error'}.',
         };
 
         return ToolExecutionResultEntity(
@@ -215,11 +216,11 @@ class SendSmartCoachMessageUseCase {
         );
 
       case SearchMealsToolCall(
-          :final toolCallId,
-          :final toolName,
-          :final category,
-          :final minProtein,
-          :final maxKcal,
+        :final toolCallId,
+        :final toolName,
+        :final category,
+        :final minProtein,
+        :final maxKcal,
       ):
         final res = await _catalogRepo.getMeals(
           MealFilterParams(
@@ -231,11 +232,12 @@ class SendSmartCoachMessageUseCase {
 
         // ✅ Handle error gracefully: Provide feedback to the AI model
         final content = switch (res) {
-          SuccessResponse(:final data) when data.isNotEmpty =>
-              _formatMealBlock(data),
+          SuccessResponse(:final data) when data.isNotEmpty => _formatMealBlock(
+            data,
+          ),
           SuccessResponse() => 'No matching meals found in the catalog.',
           ErrorResponse(:final failure) =>
-          'Catalog search error: ${failure.serverMessage ?? 'Unknown error'}.',
+            'Catalog search error: ${failure.serverMessage ?? 'Unknown error'}.',
         };
 
         return ToolExecutionResultEntity(

@@ -44,7 +44,9 @@ void main() {
     });
 
     test('propagates exception when client throws', () async {
-      when(() => mockApiClient.chat(any())).thenThrow(Exception('Network Error'));
+      when(
+        () => mockApiClient.chat(any()),
+      ).thenThrow(Exception('Network Error'));
 
       expect(() => dataSource.chat(tRequest), throwsException);
     });

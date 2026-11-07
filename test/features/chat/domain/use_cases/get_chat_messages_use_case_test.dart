@@ -40,9 +40,7 @@ void main() {
         () => mockChatRepo.getMessages(tSessionId),
       ).thenAnswer((_) async => SuccessResponse(tMessages));
 
-      when(
-        () => mockCatalogRepo.getExercisesByIds(const ['ex_1']),
-      ).thenAnswer(
+      when(() => mockCatalogRepo.getExercisesByIds(const ['ex_1'])).thenAnswer(
         (_) async => const SuccessResponse([
           ExerciseCardEntity(id: 'ex_1', name: 'Push Up'),
         ]),

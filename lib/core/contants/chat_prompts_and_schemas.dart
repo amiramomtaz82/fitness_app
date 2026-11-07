@@ -15,7 +15,7 @@ abstract final class ChatPromptsAndSchemas {
       'function': {
         'name': 'search_exercises',
         'description':
-        'Find exercises in catalog using exact vocabulary values.',
+            'Find exercises in catalog using exact vocabulary values.',
         'parameters': {
           'type': 'object',
           'properties': {

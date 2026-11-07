@@ -14,10 +14,10 @@ class ChatFirestoreDataSource {
   final SecureStorage _secureStorage;
 
   const ChatFirestoreDataSource(
-      this._firestore,
-      this._auth,
-      this._secureStorage,
-      );
+    this._firestore,
+    this._auth,
+    this._secureStorage,
+  );
 
   /// Resolves the Elevate backend user ID first, falling back to Firebase Auth UID if needed.
   Future<String> _resolveUserId() async {
@@ -41,12 +41,14 @@ class ChatFirestoreDataSource {
         .doc(userId)
         .collection('chat_sessions')
         .withConverter<ChatSessionDto>(
-      fromFirestore: (s, _) => ChatSessionDto.fromJson(s.data()!),
-      toFirestore: (m, _) => m.toJson(),
-    );
+          fromFirestore: (s, _) => ChatSessionDto.fromJson(s.data()!),
+          toFirestore: (m, _) => m.toJson(),
+        );
   }
 
-  Future<CollectionReference<ChatMessageDto>> _messagesRef(String sessionId) async {
+  Future<CollectionReference<ChatMessageDto>> _messagesRef(
+    String sessionId,
+  ) async {
     final userId = await _resolveUserId();
     return _firestore
         .collection('users')
@@ -55,9 +57,9 @@ class ChatFirestoreDataSource {
         .doc(sessionId)
         .collection('messages')
         .withConverter<ChatMessageDto>(
-      fromFirestore: (s, _) => ChatMessageDto.fromJson(s.data()!),
-      toFirestore: (m, _) => m.toJson(),
-    );
+          fromFirestore: (s, _) => ChatMessageDto.fromJson(s.data()!),
+          toFirestore: (m, _) => m.toJson(),
+        );
   }
 
   //---------------------save session--------------------------------
@@ -88,6 +90,7 @@ class ChatFirestoreDataSource {
     // 3. Atomically commit both operations together
     await batch.commit();
   }
+
   // ---------------------- get sessions (Cursor Pagination) ---------------------------
   Future<List<ChatSessionDto>> getSessions({
     int limit = 20,
@@ -108,9 +111,7 @@ class ChatFirestoreDataSource {
   //-----------------------get messages--------------------------------
   Future<List<ChatMessageDto>> getMessages(String sessionId) async {
     final ref = await _messagesRef(sessionId);
-    final snap = await ref
-        .orderBy('createdAtMillis', descending: false)
-        .get();
+    final snap = await ref.orderBy('createdAtMillis', descending: false).get();
     return snap.docs.map((d) => d.data()).toList();
   }
 }

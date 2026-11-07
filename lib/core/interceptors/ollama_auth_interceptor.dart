@@ -11,9 +11,9 @@ class OllamaAuthInterceptor extends Interceptor {
 
   @override
   Future<void> onRequest(
-      RequestOptions options,
-      RequestInterceptorHandler handler,
-      ) async {
+    RequestOptions options,
+    RequestInterceptorHandler handler,
+  ) async {
     final token = await _secureStorage.read(key: ollamaApiKey);
     if (token != null && token.isNotEmpty) {
       options.headers['Authorization'] = 'Bearer $token';

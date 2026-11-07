@@ -35,7 +35,8 @@ void main() {
     model: 'gemma4:31b',
     message: OllamaMessageDto(
       role: 'assistant',
-      content: '{"reply": "Great job!", "exercise_ids": ["ex1"], "meal_ids": ["ml1"]}',
+      content:
+          '{"reply": "Great job!", "exercise_ids": ["ex1"], "meal_ids": ["ml1"]}',
     ),
     promptEvalCount: 15,
     evalCount: 25,
@@ -51,11 +52,7 @@ void main() {
         createdAtMillis: 0,
       ),
     );
-    registerFallbackValue(
-      const OllamaChatRequestDto(
-        messages: [],
-      ),
-    );
+    registerFallbackValue(const OllamaChatRequestDto(messages: []));
   });
 
   setUp(() {
@@ -69,22 +66,25 @@ void main() {
       final history = <ChatMessageEntity>[];
       const userText = 'Hello coach';
 
-      test('returns SuccessResponse with CoachTurnAResultEntity on success', () async {
-        when(
-          () => mockRemote.chat(any()),
-        ).thenAnswer((_) async => tOllamaResponse);
+      test(
+        'returns SuccessResponse with CoachTurnAResultEntity on success',
+        () async {
+          when(
+            () => mockRemote.chat(any()),
+          ).thenAnswer((_) async => tOllamaResponse);
 
-        final result = await repo.requestTurnA(
-          history: history,
-          userText: userText,
-        );
+          final result = await repo.requestTurnA(
+            history: history,
+            userText: userText,
+          );
 
-        expect(result, isA<SuccessResponse<CoachTurnAResultEntity>>());
-        final data = (result as SuccessResponse<CoachTurnAResultEntity>).data;
-        expect(data.text, equals('Coach reply'));
-        expect(data.totalTokens, equals(30));
-        verify(() => mockRemote.chat(any())).called(1);
-      });
+          expect(result, isA<SuccessResponse<CoachTurnAResultEntity>>());
+          final data = (result as SuccessResponse<CoachTurnAResultEntity>).data;
+          expect(data.text, equals('Coach reply'));
+          expect(data.totalTokens, equals(30));
+          verify(() => mockRemote.chat(any())).called(1);
+        },
+      );
 
       test('returns ErrorResponse on remote error', () async {
         when(
@@ -104,24 +104,27 @@ void main() {
       final history = <ChatMessageEntity>[];
       const userText = 'Hello coach';
 
-      test('returns SuccessResponse with CoachTurnBResultEntity on success', () async {
-        when(
-          () => mockRemote.chat(any()),
-        ).thenAnswer((_) async => tOllamaTurnBResponse);
+      test(
+        'returns SuccessResponse with CoachTurnBResultEntity on success',
+        () async {
+          when(
+            () => mockRemote.chat(any()),
+          ).thenAnswer((_) async => tOllamaTurnBResponse);
 
-        final result = await repo.requestTurnB(
-          history: history,
-          userText: userText,
-          toolResults: const [],
-        );
+          final result = await repo.requestTurnB(
+            history: history,
+            userText: userText,
+            toolResults: const [],
+          );
 
-        expect(result, isA<SuccessResponse<CoachTurnBResultEntity>>());
-        final data = (result as SuccessResponse<CoachTurnBResultEntity>).data;
-        expect(data.reply, equals('Great job!'));
-        expect(data.exerciseIds, equals(['ex1']));
-        expect(data.mealIds, equals(['ml1']));
-        expect(data.totalTokens, equals(40));
-      });
+          expect(result, isA<SuccessResponse<CoachTurnBResultEntity>>());
+          final data = (result as SuccessResponse<CoachTurnBResultEntity>).data;
+          expect(data.reply, equals('Great job!'));
+          expect(data.exerciseIds, equals(['ex1']));
+          expect(data.mealIds, equals(['ml1']));
+          expect(data.totalTokens, equals(40));
+        },
+      );
 
       test('returns ErrorResponse on remote error', () async {
         when(

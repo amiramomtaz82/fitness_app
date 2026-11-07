@@ -14,11 +14,11 @@ abstract class ChatApiClient {
 
   @POST(Endpoints.ollamaChat)
   Future<OllamaChatResponseDto> chat(
-      @Body() OllamaChatRequestDto body, //
-      );
+    @Body() OllamaChatRequestDto body, //
+  );
 
   @POST(Endpoints.ollamaGenerate)
   Future<OllamaGenerateResponseDto> generate(
-      @Body() OllamaGenerateRequestDto body,
-      );
+    @Body() OllamaGenerateRequestDto body,
+  );
 }

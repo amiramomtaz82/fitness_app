@@ -22,10 +22,7 @@ class ChatRepoImp implements ChatRepo {
   final ChatRemoteDataSource _remoteDataSource;
   final ChatFirestoreDataSource _fireStoreDataSource;
 
-  const ChatRepoImp(
-      this._remoteDataSource,
-      this._fireStoreDataSource,
-      );
+  const ChatRepoImp(this._remoteDataSource, this._fireStoreDataSource);
 
   ///------------------ Turn A (tools ON, format OFF) --------------------
   @override
@@ -37,40 +34,39 @@ class ChatRepoImp implements ChatRepo {
     String? userActivityLevel,
     num? userWeight,
     num? userHeight,
-  }) =>
-      safeCall(() async {
-        final messages = _buildMessagesPayload(
-          history: history,
-          userText: userText,
-          toolResults: toolResults,
-          goal: userGoal,
-          activityLevel: userActivityLevel,
-          weight: userWeight,
-          height: userHeight,
-        );
+  }) => safeCall(() async {
+    final messages = _buildMessagesPayload(
+      history: history,
+      userText: userText,
+      toolResults: toolResults,
+      goal: userGoal,
+      activityLevel: userActivityLevel,
+      weight: userWeight,
+      height: userHeight,
+    );
 
-        final dto = await _remoteDataSource.chat(
-          OllamaChatRequestDto(
-            messages: messages,
-            tools: ChatPromptsAndSchemas.toolsSchema,
-          ),
-        );
+    final dto = await _remoteDataSource.chat(
+      OllamaChatRequestDto(
+        messages: messages,
+        tools: ChatPromptsAndSchemas.toolsSchema,
+      ),
+    );
 
-        // Map DTO to Domain Entity (including mapping tool calls to sealed class)
-        final toolCalls = <CoachToolCallEntity>[];
-        if (dto.message?.toolCalls != null) {
-          for (final tc in dto.message!.toolCalls!) {
-            final mapped = _mapToolCallDtoToEntity(tc);
-            if (mapped != null) toolCalls.add(mapped);
-          }
-        }
+    // Map DTO to Domain Entity (including mapping tool calls to sealed class)
+    final toolCalls = <CoachToolCallEntity>[];
+    if (dto.message?.toolCalls != null) {
+      for (final tc in dto.message!.toolCalls!) {
+        final mapped = _mapToolCallDtoToEntity(tc);
+        if (mapped != null) toolCalls.add(mapped);
+      }
+    }
 
-        return CoachTurnAResultEntity(
-          text: dto.message?.content ?? '',
-          toolCalls: toolCalls,
-          totalTokens: dto.totalTokens,
-        );
-      });
+    return CoachTurnAResultEntity(
+      text: dto.message?.content ?? '',
+      toolCalls: toolCalls,
+      totalTokens: dto.totalTokens,
+    );
+  });
 
   ///------------------ Turn B (tools OFF, format ON) --------------------
   @override
@@ -82,50 +78,49 @@ class ChatRepoImp implements ChatRepo {
     String? userActivityLevel,
     num? userWeight,
     num? userHeight,
-  }) =>
-      safeCall(() async {
-        final messages = _buildMessagesPayload(
-          history: history,
-          userText: userText,
-          toolResults: toolResults,
-          goal: userGoal,
-          activityLevel: userActivityLevel,
-          weight: userWeight,
-          height: userHeight,
-        );
+  }) => safeCall(() async {
+    final messages = _buildMessagesPayload(
+      history: history,
+      userText: userText,
+      toolResults: toolResults,
+      goal: userGoal,
+      activityLevel: userActivityLevel,
+      weight: userWeight,
+      height: userHeight,
+    );
 
-        final dto = await _remoteDataSource.chat(
-          OllamaChatRequestDto(
-            messages: messages,
-            format: ChatPromptsAndSchemas.formatSchema,
-          ),
-        );
+    final dto = await _remoteDataSource.chat(
+      OllamaChatRequestDto(
+        messages: messages,
+        format: ChatPromptsAndSchemas.formatSchema,
+      ),
+    );
 
-        // ✅ fromJson happens here in the DATA LAYER!
-        final parsed = jsonDecode(dto.message?.content ?? '{}') as Map<String, dynamic>;
-        final turnBDto = SmartCoachTurnBContentDto.fromJson(parsed);
+    // ✅ fromJson happens here in the DATA LAYER!
+    final parsed =
+        jsonDecode(dto.message?.content ?? '{}') as Map<String, dynamic>;
+    final turnBDto = SmartCoachTurnBContentDto.fromJson(parsed);
 
-        return CoachTurnBResultEntity(
-          reply: turnBDto.reply,
-          exerciseIds: turnBDto.exerciseIds,
-          mealIds: turnBDto.mealIds,
-          totalTokens: dto.totalTokens,
-        );
-      });
+    return CoachTurnBResultEntity(
+      reply: turnBDto.reply,
+      exerciseIds: turnBDto.exerciseIds,
+      mealIds: turnBDto.mealIds,
+      totalTokens: dto.totalTokens,
+    );
+  });
 
   ///------------------ Persistence --------------------
   @override
   Future<BaseResponse<void>> saveMessage(
-      String sessionId,
-      ChatMessageEntity msg,
-      int tokens,
-      ) =>
-      safeCall(
-            () => _fireStoreDataSource.saveMessage(
-          sessionId,
-          ChatMessageDto.fromEntity(msg, tokens),
-        ),
-      );
+    String sessionId,
+    ChatMessageEntity msg,
+    int tokens,
+  ) => safeCall(
+    () => _fireStoreDataSource.saveMessage(
+      sessionId,
+      ChatMessageDto.fromEntity(msg, tokens),
+    ),
+  );
 
   @override
   Future<BaseResponse<List<ChatMessageEntity>>> getMessages(String sessionId) =>
@@ -138,14 +133,13 @@ class ChatRepoImp implements ChatRepo {
   Future<BaseResponse<List<ChatSessionEntity>>> getPreviousSessions({
     int limit = 20,
     int? lastUpdatedAtMillis,
-  }) =>
-      safeCall(() async {
-        final dtos = await _fireStoreDataSource.getSessions(
-          limit: limit,
-          lastUpdatedAtMillis: lastUpdatedAtMillis,
-        );
-        return dtos.map((d) => d.toEntity()).toList();
-      });
+  }) => safeCall(() async {
+    final dtos = await _fireStoreDataSource.getSessions(
+      limit: limit,
+      lastUpdatedAtMillis: lastUpdatedAtMillis,
+    );
+    return dtos.map((d) => d.toEntity()).toList();
+  });
 
   // ------------------ Helper Mappers ------------------
   List<OllamaMessageDto> _buildMessagesPayload({
@@ -168,7 +162,7 @@ class ChatRepoImp implements ChatRepo {
         ),
       ),
       ...history.map(
-            (m) => OllamaMessageDto(
+        (m) => OllamaMessageDto(
           role: m.sender == ChatSender.user ? 'user' : 'assistant',
           content: m.text,
         ),
@@ -194,7 +188,8 @@ class ChatRepoImp implements ChatRepo {
   CoachToolCallEntity? _mapToolCallDtoToEntity(OllamaToolCallDto dto) {
     final name = dto.function?.name;
     final args = dto.function?.arguments ?? {};
-    final id = dto.id ?? name ?? 'call_${DateTime.now().millisecondsSinceEpoch}';
+    final id =
+        dto.id ?? name ?? 'call_${DateTime.now().millisecondsSinceEpoch}';
 
     if (name == 'search_exercises') {
       return SearchExercisesToolCall(
