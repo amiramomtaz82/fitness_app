@@ -19,7 +19,11 @@ import '../../presentation_fixtures.dart';
 void main() {
   setUpAll(loadTestTranslations);
 
-  Future<void> pumpView(WidgetTester tester, ExerciseEntity exercise) async {
+  Future<void> pumpView(
+    WidgetTester tester,
+    ExerciseEntity exercise, {
+    ValueNotifier<ExerciseEntity>? exerciseNotifier,
+  }) async {
     usePhoneScreenSize(tester);
 
     final router = GoRouter(
@@ -27,13 +31,22 @@ void main() {
       routes: [
         GoRoute(
           path: AppRoutes.popularTrainingExercise,
-          builder: (context, settings) =>
-              PopularTrainingExerciseView(exercise: exercise),
+          builder: (context, settings) {
+            final notifier = exerciseNotifier;
+            if (notifier == null) {
+              return PopularTrainingExerciseView(exercise: exercise);
+            }
+            return ValueListenableBuilder<ExerciseEntity>(
+              valueListenable: notifier,
+              builder: (context, value, _) =>
+                  PopularTrainingExerciseView(exercise: value),
+            );
+          },
         ),
         GoRoute(
           path: AppRoutes.exerciseVideo,
           builder: (context, settings) =>
-              Scaffold(body: Text('video-${settings.extra}')),
+              Scaffold(body: Text(settings.extra as String)),
         ),
       ],
     );
@@ -75,6 +88,20 @@ void main() {
       expect(find.byType(ExercisePlayButton), findsOneWidget);
     });
 
+    testWidgets('refreshes details when the exercise changes', (tester) async {
+      final exerciseNotifier = ValueNotifier(kExercise);
+      await pumpView(tester, kExercise, exerciseNotifier: exerciseNotifier);
+
+      exerciseNotifier.value = kExerciseWithoutVideo;
+      await tester.pumpAndSettle();
+
+      expect(find.text('Squat'), findsNWidgets(2));
+      expect(find.text('Intermediate'), findsOneWidget);
+      expect(find.text('Bench Press'), findsNothing);
+
+      exerciseNotifier.dispose();
+    });
+
     testWidgets('renders every detail section in the documented order', (
       tester,
     ) async {
@@ -107,7 +134,7 @@ void main() {
       await tester.tap(find.byType(ExercisePlayButton));
       await tester.pumpAndSettle();
 
-      expect(find.text('video-$kYoutubeUrl'), findsOneWidget);
+      expect(find.text(kYoutubeUrl), findsOneWidget);
     });
 
     testWidgets('opens the video screen from a video row of the section', (
@@ -119,7 +146,7 @@ void main() {
       await tester.tap(find.byType(ExerciseVideoTile));
       await tester.pumpAndSettle();
 
-      expect(find.text('video-$kYoutubeUrl'), findsOneWidget);
+      expect(find.text(kYoutubeUrl), findsOneWidget);
     });
 
     testWidgets('leaves the play button idle when the exercise has no video', (
@@ -137,7 +164,7 @@ void main() {
       await tester.tap(find.byType(ExercisePlayButton));
       await tester.pumpAndSettle();
 
-      expect(find.text('video-$kYoutubeUrl'), findsNothing);
+      expect(find.text(kYoutubeUrl), findsNothing);
       expect(find.byType(ExerciseSummaryCard), findsOneWidget);
     });
   });

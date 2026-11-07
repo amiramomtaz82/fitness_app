@@ -10,12 +10,12 @@ class GetPopularTrainingExercisesUseCase {
   GetPopularTrainingExercisesUseCase(this._exerciseRepo);
 
   Future<BaseResponse<List<ExerciseEntity>>> call({
-    String? primeMoverMuscleId,
-    String? difficultyLevelId,
+    required String primeMoverMuscleId,
+    required String difficultyLevelId,
   }) {
     return _exerciseRepo.getExercisesByMuscleDifficulty(
-      primeMoverMuscleId: primeMoverMuscleId ?? '',
-      difficultyLevelId: difficultyLevelId ?? '',
+      primeMoverMuscleId: primeMoverMuscleId,
+      difficultyLevelId: difficultyLevelId,
     );
   }
 }

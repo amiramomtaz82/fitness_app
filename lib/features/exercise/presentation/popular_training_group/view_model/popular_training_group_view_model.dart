@@ -1,6 +1,7 @@
 import 'package:fitness_app/core/base/base_cubit.dart';
 import 'package:fitness_app/core/base/ui_events.dart';
 import 'package:fitness_app/core/base_response/base_response.dart';
+import 'package:fitness_app/core/error/failures.dart';
 import 'package:fitness_app/core/resource/resource.dart';
 import 'package:fitness_app/features/exercise/domain/entities/exercise_entity.dart';
 import 'package:fitness_app/features/exercise/domain/entities/popular_training_entity.dart';
@@ -46,9 +47,24 @@ class PopularTrainingGroupViewModel
   Future<void> _getExercises(PopularTrainingEntity training) async {
     emit(state.copyWith(exercisesResource: const Resource.loading()));
 
+    final primeMoverMuscleId = training.primeMoverMuscleId.trim();
+    final difficultyLevelId = training.difficultyLevelId.trim();
+    if (primeMoverMuscleId.isEmpty || difficultyLevelId.isEmpty) {
+      const failure = ValidationFailure();
+      emit(
+        state.copyWith(
+          exercisesResource: const Resource<List<GroupExerciseItem>>.error(
+            failure,
+          ),
+        ),
+      );
+      emitFailure(failure);
+      return;
+    }
+
     final result = await _getPopularTrainingExercisesUseCase(
-      primeMoverMuscleId: training.primeMoverMuscleId,
-      difficultyLevelId: training.difficultyLevelId,
+      primeMoverMuscleId: primeMoverMuscleId,
+      difficultyLevelId: difficultyLevelId,
     );
 
     switch (result) {

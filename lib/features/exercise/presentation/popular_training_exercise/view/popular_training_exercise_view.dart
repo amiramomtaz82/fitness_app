@@ -10,14 +10,37 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
 
-class PopularTrainingExerciseView extends StatelessWidget {
+class PopularTrainingExerciseView extends StatefulWidget {
   final ExerciseEntity exercise;
 
   const PopularTrainingExerciseView({super.key, required this.exercise});
 
   @override
+  State<PopularTrainingExerciseView> createState() =>
+      _PopularTrainingExerciseViewState();
+}
+
+class _PopularTrainingExerciseViewState
+    extends State<PopularTrainingExerciseView> {
+  late ExerciseDetailsViewModel _details;
+
+  @override
+  void initState() {
+    super.initState();
+    _details = ExerciseDetailsViewModel.fromEntity(widget.exercise);
+  }
+
+  @override
+  void didUpdateWidget(covariant PopularTrainingExerciseView oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.exercise != widget.exercise) {
+      _details = ExerciseDetailsViewModel.fromEntity(widget.exercise);
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
-    final details = ExerciseDetailsViewModel.fromEntity(exercise);
+    final details = _details;
     final playUrl = details.playUrl;
 
     return AppBackgroundScaffold(

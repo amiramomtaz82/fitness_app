@@ -38,24 +38,61 @@ class ExerciseModel {
   @JsonKey(name: '_secondary_items')
   final int? secondaryItems;
 
+  @JsonKey(name: 'posture')
   final String? posture;
+
+  @JsonKey(name: 'single_or_double_arm')
   final String? singleOrDoubleArm;
+
+  @JsonKey(name: 'continuous_or_alternating_arms')
   final String? continuousOrAlternatingArms;
+
+  @JsonKey(name: 'grip')
   final String? grip;
+
+  @JsonKey(name: 'load_position_ending')
   final String? loadPositionEnding;
+
+  @JsonKey(name: 'continuous_or_alternating_legs')
   final String? continuousOrAlternatingLegs;
+
+  @JsonKey(name: 'foot_elevation')
   final String? footElevation;
+
+  @JsonKey(name: 'combination_exercises')
   final String? combinationExercises;
+
+  @JsonKey(name: 'movement_pattern_1')
   final String? movementPattern1;
+
+  @JsonKey(name: 'movement_pattern_2')
   final String? movementPattern2;
+
+  @JsonKey(name: 'movement_pattern_3')
   final String? movementPattern3;
+
+  @JsonKey(name: 'plane_of_motion_1')
   final String? planeOfMotion1;
+
+  @JsonKey(name: 'plane_of_motion_2')
   final String? planeOfMotion2;
+
+  @JsonKey(name: 'plane_of_motion_3')
   final String? planeOfMotion3;
+
+  @JsonKey(name: 'body_region')
   final String? bodyRegion;
+
+  @JsonKey(name: 'force_type')
   final String? forceType;
+
+  @JsonKey(name: 'mechanics')
   final String? mechanics;
+
+  @JsonKey(name: 'laterality')
   final String? laterality;
+
+  @JsonKey(name: 'primary_exercise_classification')
   final String? primaryExerciseClassification;
 
   @JsonKey(name: 'short_youtube_demonstration_link')

@@ -10,11 +10,13 @@ abstract final class GroupExerciseMapper {
   }
 
   static List<String> relatedMuscles(List<ExerciseEntity> exercises) {
-    return exercises
-        .expand((exercise) => exercise.muscleNames)
-        .map(DisplayValues.text)
-        .whereType<String>()
-        .toSet()
-        .toList();
+    final muscles = <String>{};
+    for (final exercise in exercises) {
+      for (final muscle in exercise.muscleNames) {
+        final displayName = DisplayValues.text(muscle);
+        if (displayName != null) muscles.add(displayName);
+      }
+    }
+    return muscles.toList();
   }
 }

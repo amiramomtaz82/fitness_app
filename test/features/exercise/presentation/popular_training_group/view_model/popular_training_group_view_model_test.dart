@@ -1,4 +1,5 @@
 import 'package:bloc_test/bloc_test.dart';
+import 'package:fitness_app/core/base/ui_events.dart';
 import 'package:fitness_app/core/base_response/base_response.dart';
 import 'package:fitness_app/core/error/failures.dart';
 import 'package:fitness_app/core/resource/resource.dart';
@@ -120,6 +121,96 @@ void main() {
     );
 
     blocTest<PopularTrainingGroupViewModel, PopularTrainingGroupState>(
+      'emits a validation failure when training identifiers are missing',
+      build: () => viewModel,
+      expect: () => const [
+        PopularTrainingGroupState(
+          training: PopularTrainingEntity(
+            primeMoverMuscleId: '',
+            difficultyLevelId: '',
+            muscleName: 'Chest',
+            levelName: 'Beginner',
+            exercisesCount: 1,
+          ),
+          exercisesCount: 1,
+        ),
+        PopularTrainingGroupState(
+          training: PopularTrainingEntity(
+            primeMoverMuscleId: '',
+            difficultyLevelId: '',
+            muscleName: 'Chest',
+            levelName: 'Beginner',
+            exercisesCount: 1,
+          ),
+          exercisesResource: Resource.loading(),
+          exercisesCount: 1,
+        ),
+        PopularTrainingGroupState(
+          training: PopularTrainingEntity(
+            primeMoverMuscleId: '',
+            difficultyLevelId: '',
+            muscleName: 'Chest',
+            levelName: 'Beginner',
+            exercisesCount: 1,
+          ),
+          exercisesResource: Resource.error(ValidationFailure()),
+          exercisesCount: 1,
+        ),
+      ],
+      act: (cubit) async {
+        final events = <BaseUiEvent>[];
+        final subscription = cubit.eventStream.listen(events.add);
+        cubit.doIntent(
+          const InitPopularTrainingGroupIntent(
+            PopularTrainingEntity(
+              primeMoverMuscleId: '',
+              difficultyLevelId: '',
+              muscleName: 'Chest',
+              levelName: 'Beginner',
+              exercisesCount: 1,
+            ),
+          ),
+        );
+        await pumpEventQueue();
+        expect(events, hasLength(1));
+        expect(events.single, isA<ShowErrorSnackBarEvent>());
+        await subscription.cancel();
+      },
+      verify: (_) {
+        verifyNever(
+          () => mockGetExercises(
+            primeMoverMuscleId: any(named: 'primeMoverMuscleId'),
+            difficultyLevelId: any(named: 'difficultyLevelId'),
+          ),
+        );
+      },
+    );
+
+    test('rejects whitespace training identifiers', () async {
+      const invalidTraining = PopularTrainingEntity(
+        primeMoverMuscleId: ' ',
+        difficultyLevelId: 'l_1',
+        muscleName: 'Chest',
+        levelName: 'Beginner',
+        exercisesCount: 1,
+      );
+
+      viewModel.doIntent(const InitPopularTrainingGroupIntent(invalidTraining));
+      await pumpEventQueue();
+
+      expect(
+        viewModel.state.exercisesResource.failure,
+        isA<ValidationFailure>(),
+      );
+      verifyNever(
+        () => mockGetExercises(
+          primeMoverMuscleId: any(named: 'primeMoverMuscleId'),
+          difficultyLevelId: any(named: 'difficultyLevelId'),
+        ),
+      );
+    });
+
+    blocTest<PopularTrainingGroupViewModel, PopularTrainingGroupState>(
       'emits a snackbar event when loading fails',
       build: () {
         when(
@@ -136,9 +227,12 @@ void main() {
       },
       seed: () => const PopularTrainingGroupState(training: training),
       act: (cubit) async {
-        final subscription = cubit.eventStream.listen((_) {});
+        final events = <BaseUiEvent>[];
+        final subscription = cubit.eventStream.listen(events.add);
         cubit.doIntent(const RetryPopularTrainingGroupIntent());
         await pumpEventQueue();
+        expect(events, hasLength(1));
+        expect(events.single, isA<ShowErrorSnackBarEvent>());
         await subscription.cancel();
       },
       verify: (cubit) {

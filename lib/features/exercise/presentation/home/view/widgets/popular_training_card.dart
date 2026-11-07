@@ -31,88 +31,97 @@ class PopularTrainingCard extends StatelessWidget {
 
     return ClipRRect(
       borderRadius: BorderRadius.circular(16.r),
-      child: SizedBox(
-        width: width,
-        height: height,
-        child: Stack(
-          fit: StackFit.expand,
-          children: [
-            Image(
-              image: imageUrl.startsWith('assets/')
-                  ? AssetImage(imageUrl)
-                  : NetworkImage(imageUrl),
-              fit: BoxFit.cover,
-              errorBuilder: (_, __, ___) => Container(
-                color: colors.card,
-                alignment: Alignment.center,
-                child: Icon(
-                  Icons.image_not_supported_outlined,
-                  color: colors.grey,
-                ),
-              ),
-            ),
-            DecoratedBox(
-              decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  begin: Alignment.topCenter,
-                  end: Alignment.bottomCenter,
-                  colors: [
-                    Colors.transparent,
-                    colors.background.withValues(alpha: 0.9),
-                  ],
-                ),
-              ),
-            ),
-            Padding(
-              padding: EdgeInsets.all(10.r),
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.end,
-                children: [
-                  Text(
-                    title,
-                    maxLines: 2,
-                    overflow: TextOverflow.ellipsis,
-                    textAlign: TextAlign.center,
-                    style: AppTextStyles.white14bold,
+      child: Material(
+        color: colors.card,
+        child: InkWell(
+          onTap: onTap,
+          child: SizedBox(
+            width: width,
+            height: height,
+            child: Stack(
+              fit: StackFit.expand,
+              children: [
+                Image(
+                  image: imageUrl.startsWith('assets/')
+                      ? AssetImage(imageUrl)
+                      : NetworkImage(imageUrl),
+                  fit: BoxFit.cover,
+                  errorBuilder: (_, __, ___) => Container(
+                    color: colors.card,
+                    alignment: Alignment.center,
+                    child: Icon(
+                      Icons.image_not_supported_outlined,
+                      color: colors.grey,
+                    ),
                   ),
-                  SizedBox(height: 8.h),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                ),
+                DecoratedBox(
+                  decoration: BoxDecoration(
+                    gradient: LinearGradient(
+                      begin: Alignment.topCenter,
+                      end: Alignment.bottomCenter,
+                      colors: [
+                        Colors.transparent,
+                        colors.background.withValues(alpha: 0.9),
+                      ],
+                    ),
+                  ),
+                ),
+                Padding(
+                  padding: EdgeInsets.all(10.r),
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.end,
                     children: [
-                      Container(
-                        padding: EdgeInsets.symmetric(
-                          horizontal: 10.w,
-                          vertical: 4.h,
-                        ),
-                        decoration: BoxDecoration(
-                          color: colors.surface.withValues(alpha: 0.8),
-                          borderRadius: BorderRadius.circular(20.r),
-                        ),
-                        child: Text(
-                          LocaleKeys.home_tasks.tr(args: ['$tasksCount']),
-                          style: AppTextStyles.white14regular.copyWith(
-                            fontSize: 12.sp,
-                          ),
-                        ),
-                      ),
                       Text(
-                        levelName,
-                        style: AppTextStyles.darkOrange14Bold.copyWith(
-                          fontSize: 12.sp,
-                        ),
+                        title,
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
+                        textAlign: TextAlign.center,
+                        style: AppTextStyles.white14bold,
+                      ),
+                      SizedBox(height: 8.h),
+                      Row(
+                        children: [
+                          Flexible(
+                            child: Container(
+                              padding: EdgeInsets.symmetric(
+                                horizontal: 10.w,
+                                vertical: 4.h,
+                              ),
+                              decoration: BoxDecoration(
+                                color: colors.surface.withValues(alpha: 0.8),
+                                borderRadius: BorderRadius.circular(20.r),
+                              ),
+                              child: Text(
+                                LocaleKeys.home_tasks.tr(args: ['$tasksCount']),
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                                style: AppTextStyles.white14regular.copyWith(
+                                  fontSize: 12.sp,
+                                ),
+                              ),
+                            ),
+                          ),
+                          SizedBox(width: 8.w),
+                          Flexible(
+                            child: Text(
+                              levelName,
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                              textAlign: TextAlign.end,
+                              style: AppTextStyles.darkOrange14Bold.copyWith(
+                                fontSize: 12.sp,
+                              ),
+                            ),
+                          ),
+                        ],
                       ),
                     ],
                   ),
-                ],
-              ),
+                ),
+              ],
             ),
-            Positioned.fill(
-              child: Material(
-                color: Colors.transparent,
-                child: InkWell(onTap: onTap),
-              ),
-            ),
-          ],
+          ),
         ),
       ),
     );
