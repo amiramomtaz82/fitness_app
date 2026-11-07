@@ -8,6 +8,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:sqflite/sqflite.dart';
 
 import 'core/di/di.dart';
+import 'core/local/dbs_asset_installer.dart';
 import 'app/app_routes.dart';
 import 'core/secure_storage/secure_storage.dart';
 import 'core/theme/app_theme.dart';

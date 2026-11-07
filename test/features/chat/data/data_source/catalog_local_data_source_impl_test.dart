@@ -57,7 +57,9 @@ void main() {
       ).thenAnswer((_) async => [exerciseRow]);
 
       // Act
-      final result = await dataSource.getExercises(ExerciseFilterParams());
+      final result = await dataSource.getExercises(
+        const ExerciseFilterParams(),
+      );
 
       // Assert
       expect(result, hasLength(1));
@@ -72,7 +74,9 @@ void main() {
       when(mockDatabase.rawQuery(any, any)).thenAnswer((_) async => []);
 
       // Act
-      final result = await dataSource.getExercises(ExerciseFilterParams());
+      final result = await dataSource.getExercises(
+        const ExerciseFilterParams(),
+      );
 
       // Assert
       expect(result, isEmpty);
@@ -86,7 +90,7 @@ void main() {
 
       // Act & Assert
       expect(
-        () => dataSource.getExercises(ExerciseFilterParams()),
+        () => dataSource.getExercises(const ExerciseFilterParams()),
         throwsException,
       );
     });
@@ -128,7 +132,7 @@ void main() {
       when(mockDatabase.rawQuery(any, any)).thenAnswer((_) async => [mealRow]);
 
       // Act
-      final result = await dataSource.getMeals(MealFilterParams());
+      final result = await dataSource.getMeals(const MealFilterParams());
 
       // Assert
       expect(result, hasLength(1));
@@ -143,7 +147,7 @@ void main() {
       when(mockDatabase.rawQuery(any, any)).thenAnswer((_) async => []);
 
       // Act
-      final result = await dataSource.getMeals(MealFilterParams());
+      final result = await dataSource.getMeals(const MealFilterParams());
 
       // Assert
       expect(result, isEmpty);
@@ -156,7 +160,10 @@ void main() {
       ).thenThrow(Exception('Database error'));
 
       // Act & Assert
-      expect(() => dataSource.getMeals(MealFilterParams()), throwsException);
+      expect(
+        () => dataSource.getMeals(const MealFilterParams()),
+        throwsException,
+      );
     });
   });
 

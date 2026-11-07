@@ -2,14 +2,10 @@ import 'package:path/path.dart' as p;
 import 'package:sqflite/sqflite.dart';
 
 class ExercisesDatabase {
-  ExercisesDatabase({
-    required Future<String> Function() getDatabasesPath,
-    required Future<Database> Function(String path, {bool readOnly}) openDb,
-  }) : _getDatabasesPath = getDatabasesPath,
-       _openDb = openDb;
+  ExercisesDatabase({required this.getDatabasesPath, required this.openDb});
 
-  final Future<String> Function() _getDatabasesPath;
-  final Future<Database> Function(String path, {bool readOnly}) _openDb;
+  final Future<String> Function() getDatabasesPath;
+  final Future<Database> Function(String path, {bool readOnly}) openDb;
 
   static const _name = 'exercises.db';
   Database? _database;
@@ -19,8 +15,8 @@ class ExercisesDatabase {
     final db = _database;
     if (db != null && db.isOpen) return db;
 
-    final dir = await _getDatabasesPath();
-    return _database = await _openDb(p.join(dir, _name), readOnly: true);
+    final dir = await getDatabasesPath();
+    return _database = await openDb(p.join(dir, _name), readOnly: true);
   }
 
   // Close database

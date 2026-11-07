@@ -9,16 +9,14 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 class DBsAssetInstaller {
   DBsAssetInstaller({
-    required AssetBundle assetBundle,
-    required SharedPreferences prefs,
-    required Future<String> Function() getDatabasesPath,
-  }) : _assetBundle = assetBundle,
-       _prefs = prefs,
-       _getDatabasesPath = getDatabasesPath;
+    required this.assetBundle,
+    required this.prefs,
+    required this.getDatabasesPath,
+  });
 
-  final AssetBundle _assetBundle;
-  final SharedPreferences _prefs;
-  final Future<String> Function() _getDatabasesPath;
+  final AssetBundle assetBundle;
+  final SharedPreferences prefs;
+  final Future<String> Function() getDatabasesPath;
 
   static const dbs = ['exercises.db', 'meals.db'];
   static const _assetsFolder = 'assets/database';
@@ -30,12 +28,10 @@ class DBsAssetInstaller {
   /// or the file is missing.
   Future<void> ensureInstalled() async {
     final manifest =
-        jsonDecode(
-              await _assetBundle.loadString('$_assetsFolder/manifest.json'),
-            )
+        jsonDecode(await assetBundle.loadString('$_assetsFolder/manifest.json'))
             as Map<String, dynamic>;
 
-    final dir = await _getDatabasesPath();
+    final dir = await getDatabasesPath();
     await Directory(dir).create(recursive: true);
 
     for (final name in dbs) {
@@ -46,12 +42,12 @@ class DBsAssetInstaller {
 
   Future<void> _installIfNeeded(String name, DbInfo info, String dir) async {
     final target = File(p.join(dir, name));
-    final installedVersion = _prefs.getInt(versionKey(name));
+    final installedVersion = prefs.getInt(versionKey(name));
 
     // Nothing to do
     if (installedVersion == info.version && await target.exists()) return;
 
-    final bytes = await _assetBundle.load('$_assetsFolder/$name');
+    final bytes = await assetBundle.load('$_assetsFolder/$name');
     final data = bytes.buffer.asUint8List(
       bytes.offsetInBytes,
       bytes.lengthInBytes,
@@ -70,6 +66,6 @@ class DBsAssetInstaller {
     if (await target.exists()) await target.delete();
     await tmp.rename(target.path);
 
-    await _prefs.setInt(versionKey(name), info.version);
+    await prefs.setInt(versionKey(name), info.version);
   }
 }
