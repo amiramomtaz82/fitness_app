@@ -73,6 +73,7 @@ mixin UiEventMixin<W extends StatefulWidget, S, E extends BaseUiEvent>
   }
 
   /// ✅ 3. Added: Switch-case mapping Failure -> User-facing localized string in UI
+  // ignore: unused_element
   String _mapFailureToMessage(Failure failure) {
     if (failure.serverMessage != null && failure.serverMessage!.isNotEmpty) {
       return failure.serverMessage!;
