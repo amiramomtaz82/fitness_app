@@ -143,7 +143,12 @@
     "hello_how_can_i_assist": "Hello How Can I Assist You Today ?",
     "previous_conversations": "Previous Conversations",
     "token_limit_reached": "Conversation limit reached. Please start a new session.",
-    "token_limit_warning": "You are approaching the conversation limit. Please start a new session soon."
+    "token_limit_warning": "You are approaching the conversation limit. Please start a new session soon.",
+    "type_message_hint": "Ask your coach anything...",
+    "new_chat": "New Chat",
+    "no_previous_conversations": "No previous conversations yet",
+    "retry": "Retry",
+    "send": "Send"
   },
   "profile": {
     "profile": "Profile",

@@ -53,6 +53,14 @@ void main() {
       ),
     );
     registerFallbackValue(const OllamaChatRequestDto(messages: []));
+    registerFallbackValue(
+      const ChatSessionDto(
+        id: 'fallback_session',
+        title: 'title',
+        updatedAtMillis: 0,
+        totalTokens: 0,
+      ),
+    );
   });
 
   setUp(() {
@@ -140,6 +148,46 @@ void main() {
         );
 
         expect(result, isA<ErrorResponse<CoachStructuredResultEntity>>());
+      });
+    });
+
+    group('createSession', () {
+      final session = ChatSessionEntity(
+        id: 'ses_1',
+        title: 'Chest day',
+        updatedAt: DateTime.fromMillisecondsSinceEpoch(1000),
+        totalTokens: 0,
+      );
+
+      test('saves mapped DTO and returns the same session', () async {
+        when(() => mockFirestore.saveSession(any())).thenAnswer((_) async {});
+
+        final result = await repo.createSession(session);
+
+        expect(result, isA<SuccessResponse<ChatSessionEntity>>());
+        expect(
+          (result as SuccessResponse<ChatSessionEntity>).data,
+          equals(session),
+        );
+        final saved =
+            verify(
+                  () => mockFirestore.saveSession(captureAny()),
+                ).captured.single
+                as ChatSessionDto;
+        expect(saved.id, equals('ses_1'));
+        expect(saved.title, equals('Chest day'));
+        expect(saved.updatedAtMillis, equals(1000));
+        expect(saved.totalTokens, equals(0));
+      });
+
+      test('returns ErrorResponse when firestore fails', () async {
+        when(
+          () => mockFirestore.saveSession(any()),
+        ).thenThrow(Exception('Firestore Write Failed'));
+
+        final result = await repo.createSession(session);
+
+        expect(result, isA<ErrorResponse<ChatSessionEntity>>());
       });
     });
 

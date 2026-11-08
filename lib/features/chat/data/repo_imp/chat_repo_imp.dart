@@ -13,6 +13,7 @@ import '../../domain/repo/chat_repo.dart';
 import '../data_source/chat_firestore_data_source.dart';
 import '../data_source/chat_remote_data_source.dart';
 import '../models/chat_message_dto.dart';
+import '../models/chat_session_dto.dart';
 import '../models/ollama_chat_request_dto.dart';
 import '../models/ollama_message_dto.dart';
 import '../models/smart_coach_turn_b_content_dto.dart';
@@ -112,6 +113,14 @@ class ChatRepoImp implements ChatRepo {
   });
 
   ///------------------ Persistence --------------------
+  @override
+  Future<BaseResponse<ChatSessionEntity>> createSession(
+    ChatSessionEntity session,
+  ) => safeCall(() async {
+    await _fireStoreDataSource.saveSession(ChatSessionDto.fromEntity(session));
+    return session;
+  });
+
   @override
   Future<BaseResponse<void>> saveMessage(
     String sessionId,

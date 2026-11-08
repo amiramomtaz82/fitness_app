@@ -26,6 +26,8 @@ import '../features/food/presentation/food_recommendation/view/food_recommendati
 import '../features/food/presentation/food_recommendation/view_model/food_recommendation_cubit.dart';
 import '../core/contants/web_pages.dart';
 import '../core/widgets/web_view/web_view_screen.dart';
+
+import '../features/chat/presentation/view_model/smart_coach_cubit.dart';
 import '../features/profile/presentation/edit_profile/view/screens/edit_profile_screen.dart';
 import '../features/profile/presentation/edit_profile/view_model/edit_profile_cubit.dart';
 import '../features/profile/presentation/profile/view/screens/profile_screen.dart';
@@ -112,6 +114,15 @@ final GoRouter appRouter = GoRouter(
       ),
     ),
 
+    GoRoute(
+      path: AppRoutes.smartCoach,
+      name: AppRoutes.smartCoach,
+      builder: (context, state) => BlocProvider(
+        create: (_) => getIt<SmartCoachCubit>(),
+        child: const SmartCoachScreen(),
+      ),
+    ),
+
     // Main app with bottom navigation
     StatefulShellRoute.indexedStack(
       builder: (context, state, navigationShell) {
@@ -147,15 +158,7 @@ final GoRouter appRouter = GoRouter(
             ),
           ],
         ),
-        StatefulShellBranch(
-          routes: [
-            GoRoute(
-              path: AppRoutes.smartCoach,
-              name: AppRoutes.smartCoach,
-              builder: (context, state) => const SmartCoachScreen(),
-            ),
-          ],
-        ),
+        // Workouts
         StatefulShellBranch(
           routes: [
             GoRoute(
