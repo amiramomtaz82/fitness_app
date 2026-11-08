@@ -66,6 +66,8 @@ abstract class LocaleKeys {
       'profile_setup.tell_us_about_yourself';
   static const profile_setup_need_to_know_gender =
       'profile_setup.need_to_know_gender';
+  static const profile_setup_gender_male = 'profile_setup.gender_male';
+  static const profile_setup_gender_female = 'profile_setup.gender_female';
   static const profile_setup_how_old_are_you = 'profile_setup.how_old_are_you';
   static const profile_setup_year = 'profile_setup.year';
   static const profile_setup_what_is_your_weight =
@@ -152,12 +154,19 @@ abstract class LocaleKeys {
   static const profile_select_language = 'profile.select_language';
   static const profile_select_language_english =
       'profile.select_language_english';
+  static const profile_select_language_arabic =
+      'profile.select_language_arabic';
   static const profile_security = 'profile.security';
   static const profile_privacy_policy = 'profile.privacy_policy';
   static const profile_help = 'profile.help';
   static const profile_logout = 'profile.logout';
   static const profile_your_weight_tap_to_edit =
       'profile.your_weight_tap_to_edit';
+  static const profile_your_age_tap_to_edit = 'profile.your_age_tap_to_edit';
+  static const profile_your_height_tap_to_edit =
+      'profile.your_height_tap_to_edit';
+  static const profile_your_gender_tap_to_edit =
+      'profile.your_gender_tap_to_edit';
   static const profile_your_goal_tap_to_edit = 'profile.your_goal_tap_to_edit';
   static const profile_your_activity_level_tap_to_edit =
       'profile.your_activity_level_tap_to_edit';
@@ -210,6 +219,7 @@ abstract class LocaleKeys {
   static const errors_data_not_found = 'errors.data_not_found';
   static const errors_conflict_occurred = 'errors.conflict_occurred';
   static const errors_invalid_fields = 'errors.invalid_fields';
+  static const errors_photo_too_large = 'errors.photo_too_large';
   static const errors_internal_server_error = 'errors.internal_server_error';
   static const errors = 'errors';
   static const food_instructions = 'food.instructions';

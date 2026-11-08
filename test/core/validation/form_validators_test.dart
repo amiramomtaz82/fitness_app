@@ -239,4 +239,79 @@ void main() {
       expect(FormValidators.validateRepsOrSets('1000'), isNull);
     });
   });
+
+  group('FormValidators.validateAge', () {
+    test('empty or missing input is reported as empty', () {
+      expect(FormValidators.validateAge(null), ValidationError.empty);
+      expect(FormValidators.validateAge(''), ValidationError.empty);
+      expect(FormValidators.validateAge('   '), ValidationError.empty);
+    });
+
+    test('non numeric input is reported as not a number', () {
+      expect(FormValidators.validateAge('twenty'), ValidationError.notANumber);
+      expect(FormValidators.validateAge('25.5'), ValidationError.notANumber);
+    });
+
+    test('ages under the minimum are rejected', () {
+      expect(
+        FormValidators.validateAge('${FormValidators.minimumAge - 1}'),
+        ValidationError.valueBelowMinimum,
+      );
+    });
+
+    test('ages over the maximum are rejected', () {
+      expect(
+        FormValidators.validateAge('${FormValidators.maximumAge + 1}'),
+        ValidationError.valueAboveMaximum,
+      );
+    });
+
+    test('boundary ages pass', () {
+      expect(
+        FormValidators.validateAge('${FormValidators.minimumAge}'),
+        isNull,
+      );
+      expect(
+        FormValidators.validateAge('${FormValidators.maximumAge}'),
+        isNull,
+      );
+    });
+  });
+
+  group('FormValidators.validateHeight', () {
+    test('empty or missing input is reported as empty', () {
+      expect(FormValidators.validateHeight(null), ValidationError.empty);
+      expect(FormValidators.validateHeight(''), ValidationError.empty);
+    });
+
+    test('non numeric input is reported as not a number', () {
+      expect(FormValidators.validateHeight('tall'), ValidationError.notANumber);
+    });
+
+    test('decimal heights inside the range pass', () {
+      expect(FormValidators.validateHeight('178.5'), isNull);
+    });
+
+    test('heights outside the allowed range are rejected', () {
+      expect(
+        FormValidators.validateHeight('${FormValidators.minimumHeightCm - 1}'),
+        ValidationError.valueBelowMinimum,
+      );
+      expect(
+        FormValidators.validateHeight('${FormValidators.maximumHeightCm + 1}'),
+        ValidationError.valueAboveMaximum,
+      );
+    });
+
+    test('boundary heights pass', () {
+      expect(
+        FormValidators.validateHeight('${FormValidators.minimumHeightCm}'),
+        isNull,
+      );
+      expect(
+        FormValidators.validateHeight('${FormValidators.maximumHeightCm}'),
+        isNull,
+      );
+    });
+  });
 }

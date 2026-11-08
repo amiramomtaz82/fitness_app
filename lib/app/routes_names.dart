@@ -8,6 +8,8 @@ class AppRoutes {
   static const String forgotPassword = '/forgot-password';
   static const String home = '/home';
   static const String profile = '/profile';
+  static const String editProfile = '/profile/edit-profile';
+  static const String webView = '/web-view';
   static const String workouts = '/workouts';
   static const String smartCoach = '/smart-coach';
   static const String food = '/food';

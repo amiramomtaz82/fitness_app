@@ -14,6 +14,7 @@ extension FailureMessageMapper on Failure {
       ForbiddenFailure() => LocaleKeys.errors_no_permission.tr(),
       NotFoundFailure() => LocaleKeys.errors_data_not_found.tr(),
       ValidationFailure() => LocaleKeys.errors_invalid_fields.tr(),
+      PhotoTooLargeFailure() => LocaleKeys.errors_photo_too_large.tr(),
       ServerFailure() => LocaleKeys.errors_internal_server_error.tr(),
       SocialAccountFailure(:final provider) => switch (provider) {
         SocialProvider.google => LocaleKeys.auth_forgot_password_google.tr(),
