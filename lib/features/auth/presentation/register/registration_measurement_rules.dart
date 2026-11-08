@@ -2,14 +2,14 @@ import '../../../../core/validation/form_validators.dart';
 import '../../domain/entities/register_parameters.dart';
 
 abstract final class RegistrationMeasurementRules {
-  static const int minimumAge = 16;
-  static const int maximumAge = 100;
+  static const int minimumAge = FormValidators.minimumAge;
+  static const int maximumAge = FormValidators.maximumAge;
   static const int defaultAge = 25;
-  static const num minimumWeightKg = 20;
-  static const num maximumWeightKg = 350;
+  static const num minimumWeightKg = FormValidators.minimumWeightKg;
+  static const num maximumWeightKg = FormValidators.maximumWeightKg;
   static const num defaultWeightKg = 90;
-  static const num minimumHeightCm = 100;
-  static const num maximumHeightCm = 250;
+  static const num minimumHeightCm = FormValidators.minimumHeightCm;
+  static const num maximumHeightCm = FormValidators.maximumHeightCm;
   static const num defaultHeightCm = 167;
   static const int firstStepIndex = 0;
   static const int lastStepIndex = 5;
@@ -25,10 +25,7 @@ abstract final class RegistrationMeasurementRules {
   }
 
   static bool isValidWeight(num weight) {
-    if (weight < minimumWeightKg || weight > maximumWeightKg) {
-      return false;
-    }
-    return FormValidators.validateWeight(weight.toString()) == null;
+    return weight >= minimumWeightKg && weight <= maximumWeightKg;
   }
 
   static bool isValidHeight(num height) {

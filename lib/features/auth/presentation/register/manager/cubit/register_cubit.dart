@@ -20,7 +20,7 @@ import '../../../../domain/use_cases/register_use_case.dart';
 import '../../../../domain/use_cases/sign_in_with_facebook_use_case.dart';
 import '../../../../domain/use_cases/sign_in_with_google_use_case.dart';
 import '../../registration_measurement_rules.dart';
-import '../../registration_options.dart';
+import 'package:fitness_app/core/contants/registration_options.dart';
 import 'register_intent.dart';
 import 'register_state.dart';
 import 'registration_validation_event.dart';

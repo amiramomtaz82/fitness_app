@@ -2,6 +2,7 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:fitness_app/app/routes_names.dart';
 import 'package:fitness_app/core/contants/app_assets.dart';
 import 'package:fitness_app/core/theme/text_styles.dart';
+import 'package:fitness_app/core/widgets/app_background_scaffold.dart'; // عدّلي المسار حسب مكان الملف عندك
 import 'package:fitness_app/features/on_bording/views/widgets/onboarding_buttons.dart';
 import 'package:fitness_app/features/on_bording/views/widgets/onboarding_indicator.dart';
 import 'package:fitness_app/features/on_bording/views/widgets/onboarding_page_item.dart';
@@ -67,8 +68,9 @@ class _OnboardingViewState extends State<OnboardingView> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: Stack(
+    return AppBackgroundScaffold(
+      safeArea: false,
+      child: Stack(
         children: [
           PageView.builder(
             controller: _controller,

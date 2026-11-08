@@ -37,6 +37,10 @@ class ValidationFailure extends Failure {
   });
 }
 
+class PhotoTooLargeFailure extends Failure {
+  const PhotoTooLargeFailure({super.serverMessage, super.statusCode});
+}
+
 class UnknownFailure extends Failure {
   const UnknownFailure({super.serverMessage, super.statusCode});
 }

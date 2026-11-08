@@ -4,14 +4,20 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:youtube_player_iframe/youtube_player_iframe.dart';
 
 class ThumbnailSurface extends StatelessWidget {
-  const ThumbnailSurface({super.key, required this.videoId, this.onPlay});
+  const ThumbnailSurface({
+    super.key,
+    required this.videoId,
+    this.onPlay,
+    this.showImage = true,
+  });
 
   final String videoId;
   final VoidCallback? onPlay;
+  final bool showImage;
 
   @override
   Widget build(BuildContext context) {
-    final image = ThumbnailImage(videoId: videoId);
+    final image = thumbnailLayer(showImage, videoId);
     final play = onPlay;
     if (play == null) return image;
     return GestureDetector(
@@ -28,6 +34,19 @@ class ThumbnailSurface extends StatelessWidget {
   }
 }
 
+String jpegThumbnailUrl(String videoId) {
+  return YoutubePlayerController.getThumbnail(
+    videoId: videoId,
+    quality: ThumbnailQuality.high,
+    format: ThumbnailFormat.jpeg,
+  );
+}
+
+Widget thumbnailLayer(bool showImage, String videoId) {
+  if (!showImage) return const SizedBox.expand();
+  return ThumbnailImage(videoId: videoId);
+}
+
 class ThumbnailImage extends StatelessWidget {
   const ThumbnailImage({super.key, required this.videoId});
 
@@ -39,10 +58,7 @@ class ThumbnailImage extends StatelessWidget {
     return LayoutBuilder(
       builder: (context, constraints) {
         return Image.network(
-          YoutubePlayerController.getThumbnail(
-            videoId: videoId,
-            quality: ThumbnailQuality.high,
-          ),
+          jpegThumbnailUrl(videoId),
           fit: BoxFit.cover,
           gaplessPlayback: true,
           cacheWidth: cachePixels(constraints.maxWidth, devicePixelRatio),
@@ -66,13 +82,15 @@ class ThumbnailImage extends StatelessWidget {
 }
 
 class UnavailableSurface extends StatelessWidget {
-  const UnavailableSurface({super.key});
+  const UnavailableSurface({super.key, this.color});
+
+  final Color? color;
 
   @override
   Widget build(BuildContext context) {
     return ColoredBox(
       key: const Key('app_youtube_video_unavailable'),
-      color: context.colors.background,
+      color: color ?? context.colors.background,
     );
   }
 }

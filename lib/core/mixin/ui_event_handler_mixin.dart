@@ -6,7 +6,8 @@ import '../../generated/locale_keys.g.dart';
 import '../base/base_cubit.dart';
 import '../base/cubit_message.dart';
 import '../base/ui_events.dart';
-import '../error/failures.dart'; // ✅ Added to recognize Failure types
+import '../error/failure_message_mapper.dart';
+import '../error/failures.dart';
 
 mixin UiEventMixin<W extends StatefulWidget, S, E extends BaseUiEvent>
     on State<W> {
@@ -21,7 +22,7 @@ mixin UiEventMixin<W extends StatefulWidget, S, E extends BaseUiEvent>
 
   // ✅ 1. Restored: The method that listens to stream events
   void _handleUiEvent(E event) {
-    if (!mounted) return;
+    if (!mounted || !_routeIsCurrent) return;
 
     switch (event) {
       case final CommonUiEvent commonEvent:
@@ -29,6 +30,13 @@ mixin UiEventMixin<W extends StatefulWidget, S, E extends BaseUiEvent>
       default:
         handleCustomEvents(event);
     }
+  }
+
+  /// Covered routes stay mounted after a push and still hear the shared cubit.
+  /// Only the visible route should navigate or throw on an event it does not own.
+  bool get _routeIsCurrent {
+    final route = ModalRoute.of(context);
+    return route == null || route.isCurrent;
   }
 
   /// 2. Function to handle common UI events
@@ -43,7 +51,7 @@ mixin UiEventMixin<W extends StatefulWidget, S, E extends BaseUiEvent>
 
       // ✅ Error Event: Maps Failure -> Localized String
       case ShowErrorSnackBarEvent(:final failure):
-        final message = _mapFailureToMessage(failure);
+        final message = failure.toMessage();
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text(message),
@@ -76,6 +84,7 @@ mixin UiEventMixin<W extends StatefulWidget, S, E extends BaseUiEvent>
       ForbiddenFailure() => LocaleKeys.errors_no_permission.tr(),
       NotFoundFailure() => LocaleKeys.errors_data_not_found.tr(),
       ValidationFailure() => LocaleKeys.errors_invalid_fields.tr(),
+      PhotoTooLargeFailure() => LocaleKeys.errors_photo_too_large.tr(),
       ServerFailure() => LocaleKeys.errors_internal_server_error.tr(),
       SocialAccountFailure(:final provider) => switch (provider) {
         SocialProvider.google => LocaleKeys.auth_forgot_password_google.tr(),
