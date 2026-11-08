@@ -13,7 +13,9 @@ class SplashView extends StatefulWidget {
 
 class _SplashViewState extends State<SplashView>
     with SingleTickerProviderStateMixin {
-  static const Color _splashColor = Color(0xFF1E1E1E); // نفس لون الـ native splash
+  static const Color _splashColor = Color(
+    0xFF1E1E1E,
+  ); // نفس لون الـ native splash
 
   late final AnimationController _animationController;
   late final Animation<double> _scaleAnimation;

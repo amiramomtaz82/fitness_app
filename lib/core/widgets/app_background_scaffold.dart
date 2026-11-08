@@ -36,7 +36,8 @@ class AppBackgroundScaffold extends StatelessWidget {
     this.safeArea = true,
     this.showLayoutGrid = false,
     this.gridColor,
-    this.gridColumns = 2, image,
+    this.gridColumns = 2,
+    image,
   });
 
   @override
