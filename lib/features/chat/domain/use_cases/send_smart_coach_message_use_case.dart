@@ -38,9 +38,12 @@ class SendSmartCoachMessageUseCase {
     String? userActivityLevel,
     num? userWeight,
     num? userHeight,
+    String? userName,
+    int? userAge,
+    String? userGender,
   }) async {
     // 1. Guard Token Limit
-    if (currentSessionTokens >= 8000) {
+    if (currentSessionTokens >= TokenStatusEntity.lockThreshold) {
       return ErrorResponse(failure: const ChatTokenLimitFailure());
     }
 
@@ -75,6 +78,9 @@ class SendSmartCoachMessageUseCase {
             userActivityLevel: userActivityLevel,
             userWeight: userWeight,
             userHeight: userHeight,
+            userName: userName,
+            userAge: userAge,
+            userGender: userGender,
           );
 
       // ✅ Use switch pattern matching on BaseResponse
@@ -140,6 +146,9 @@ class SendSmartCoachMessageUseCase {
       userActivityLevel: userActivityLevel,
       userWeight: userWeight,
       userHeight: userHeight,
+      userName: userName,
+      userAge: userAge,
+      userGender: userGender,
     );
 
     // ✅ Use switch pattern matching on BaseResponse
@@ -253,24 +262,8 @@ class SendSmartCoachMessageUseCase {
     }
   }
 
-  TokenStatusEntity _calculateTokenStatus(int totalTokens) {
-    if (totalTokens >= 8000) {
-      return TokenStatusEntity(
-        totalTokens: totalTokens,
-        level: TokenLimitLevel.locked8k,
-      );
-    }
-    if (totalTokens >= 7000) {
-      return TokenStatusEntity(
-        totalTokens: totalTokens,
-        level: TokenLimitLevel.warning7k,
-      );
-    }
-    return TokenStatusEntity(
-      totalTokens: totalTokens,
-      level: TokenLimitLevel.normal,
-    );
-  }
+  TokenStatusEntity _calculateTokenStatus(int totalTokens) =>
+      TokenStatusEntity.fromTotalTokens(totalTokens);
 
   String _formatExerciseBlock(List<ExerciseCardEntity> items) {
     final lines = items

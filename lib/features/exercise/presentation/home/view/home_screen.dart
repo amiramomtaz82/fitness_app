@@ -25,6 +25,7 @@ class _HomeScreenState extends State<HomeScreen>
   Widget build(BuildContext context) {
     return const AppBackgroundScaffold(
       image: AppAssets.homee,
-      child: HomeScreenBody());
+      child: HomeScreenBody(),
+    );
   }
 }

@@ -7,8 +7,15 @@ abstract final class OllamaConstants {
   static const bool defaultStream = false;
   static const bool defaultThink = false;
 
+  static const int structuredNumPredict = 2048;
+
   static const Map<String, dynamic> defaultOptions = {
     'temperature': defaultTemperature,
     'num_predict': defaultNumPredict,
+  };
+
+  static const Map<String, dynamic> structuredOptions = {
+    'temperature': defaultTemperature,
+    'num_predict': structuredNumPredict,
   };
 }

@@ -66,13 +66,24 @@ abstract final class ChatPromptsAndSchemas {
     String? activityLevel,
     num? weight,
     num? height,
+    String? name,
+    int? age,
+    String? gender,
   }) {
     final buffer = StringBuffer(baseSystemPrompt);
     if (goal != null ||
         activityLevel != null ||
         weight != null ||
-        height != null) {
+        height != null ||
+        name != null ||
+        age != null ||
+        gender != null) {
       buffer.write('\nUSER PROFILE: ');
+      if (name != null && name.isNotEmpty) buffer.write('Name: $name. ');
+      if (age != null) buffer.write('Age: $age. ');
+      if (gender != null && gender.isNotEmpty) {
+        buffer.write('Gender: $gender. ');
+      }
       if (goal != null && goal.isNotEmpty) buffer.write('Goal: $goal. ');
       if (activityLevel != null && activityLevel.isNotEmpty) {
         buffer.write('Level: $activityLevel. ');

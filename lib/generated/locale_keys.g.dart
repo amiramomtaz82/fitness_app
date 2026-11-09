@@ -149,6 +149,12 @@ abstract class LocaleKeys {
   static const chat_previous_conversations = 'chat.previous_conversations';
   static const chat_token_limit_reached = 'chat.token_limit_reached';
   static const chat_token_limit_warning = 'chat.token_limit_warning';
+  static const chat_type_message_hint = 'chat.type_message_hint';
+  static const chat_new_chat = 'chat.new_chat';
+  static const chat_no_previous_conversations =
+      'chat.no_previous_conversations';
+  static const chat_retry = 'chat.retry';
+  static const chat_send = 'chat.send';
   static const chat = 'chat';
   static const profile_profile = 'profile.profile';
   static const profile_edit_profile = 'profile.edit_profile';

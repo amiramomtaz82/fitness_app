@@ -58,50 +58,49 @@ void main() {
     cubit.close();
   });
 
-  testWidgets(
-    'wizard steps move while the account screen stays underneath',
-    (tester) async {
-      final router = _router();
-      await _pump(tester, router, english);
+  testWidgets('wizard steps move while the account screen stays underneath', (
+    tester,
+  ) async {
+    final router = _router();
+    await _pump(tester, router, english);
 
-      await _fillAccount(tester);
-      await tester.tap(_accountNext());
-      await tester.pumpAndSettle();
+    await _fillAccount(tester);
+    await tester.tap(_accountNext());
+    await tester.pumpAndSettle();
 
-      expect(find.byType(MultiStepsRegistrationView), findsOneWidget);
-      expect(cubit.state.params.firstName, 'Ada');
-      expect(find.byType(RegisterView, skipOffstage: false), findsOneWidget);
+    expect(find.byType(MultiStepsRegistrationView), findsOneWidget);
+    expect(cubit.state.params.firstName, 'Ada');
+    expect(find.byType(RegisterView, skipOffstage: false), findsOneWidget);
 
-      await tester.tap(_wizardNext());
-      await tester.pump();
-      await tester.pump(const Duration(milliseconds: 400));
-      expect(find.text('This field is required.'), findsOneWidget);
-      expect(cubit.state.currentStep, 0);
+    await tester.tap(_wizardNext());
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 400));
+    expect(find.text('This field is required.'), findsOneWidget);
+    expect(cubit.state.currentStep, 0);
 
-      await tester.tap(find.text('Male'));
-      await tester.pump();
-      await tester.tap(_wizardNext());
-      await tester.pumpAndSettle();
+    await tester.tap(find.text('Male'));
+    await tester.pump();
+    await tester.tap(_wizardNext());
+    await tester.pumpAndSettle();
 
-      expect(cubit.state.currentStep, 1);
-      expect(cubit.state.isPaging, isFalse);
-      expect(cubit.state.params.age, 25);
-      expect(find.text('Year'), findsOneWidget);
-      expect(find.text('HOW OLD ARE YOU ?'), findsOneWidget);
+    expect(cubit.state.currentStep, 1);
+    expect(cubit.state.isPaging, isFalse);
+    expect(cubit.state.params.age, 25);
+    expect(find.text('Year'), findsOneWidget);
+    expect(find.text('HOW OLD ARE YOU ?'), findsOneWidget);
 
-      await tester.tap(find.byTooltip('Back'));
-      await tester.pumpAndSettle();
-      expect(cubit.state.currentStep, 0);
-      expect(cubit.state.params.gender, 'male');
-      expect(find.text('Male'), findsOneWidget);
+    await tester.tap(find.byTooltip('Back'));
+    await tester.pumpAndSettle();
+    expect(cubit.state.currentStep, 0);
+    expect(cubit.state.params.gender, 'male');
+    expect(find.text('Male'), findsOneWidget);
 
-      await tester.tap(find.byTooltip('Back'));
-      await tester.pumpAndSettle();
-      expect(find.byType(MultiStepsRegistrationView), findsNothing);
-      expect(find.text('Ada'), findsOneWidget);
-      expect(router.state.uri.path, AppRoutes.register);
-    },
-  );
+    await tester.tap(find.byTooltip('Back'));
+    await tester.pumpAndSettle();
+    expect(find.byType(MultiStepsRegistrationView), findsNothing);
+    expect(find.text('Ada'), findsOneWidget);
+    expect(router.state.uri.path, AppRoutes.register);
+  });
 
   testWidgets('the covered account screen does not pop the wizard twice', (
     tester,

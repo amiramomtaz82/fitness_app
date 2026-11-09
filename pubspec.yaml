@@ -50,15 +50,10 @@ dependencies:
   google_sign_in: ^6.2.2
   firebase_auth: ^5.4.4
   flutter_facebook_auth: ^7.1.1
-<<<<<<< HEAD
   sqflite: ^2.4.5
   path: ^1.9.1
   crypto: ^3.0.8
-=======
   webview_flutter: ^4.14.1
-
-
->>>>>>> a0b9f4d475cf6c49d66504707f68d29d17719863
 
 dev_dependencies:
   flutter_test:
@@ -89,7 +84,7 @@ flutter:
     - assets/translations/
     - assets/images/
     - assets/database/
-    # - .env
+    - .env
 
 flutter_native_splash:
   color: "#1E1E1E"

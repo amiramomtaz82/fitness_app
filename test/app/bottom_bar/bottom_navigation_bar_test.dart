@@ -3,6 +3,7 @@ import 'package:fitness_app/app/bottom_bar/bottom_bar_items.dart';
 import 'package:fitness_app/app/bottom_bar/bottom_item.dart';
 import 'package:fitness_app/app/bottom_bar/bottom_navigation_bar.dart';
 import 'package:fitness_app/app/bottom_bar/floating_bottom_bar.dart';
+import 'package:fitness_app/app/routes_names.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -20,54 +21,7 @@ void main() {
           tester.view.resetDevicePixelRatio();
         });
 
-        final testRouter = GoRouter(
-          initialLocation: '/first',
-          routes: [
-            StatefulShellRoute.indexedStack(
-              builder: (context, state, navigationShell) {
-                return AppBottomNavigationBar(navigationShell: navigationShell);
-              },
-              branches: [
-                StatefulShellBranch(
-                  routes: [
-                    GoRoute(
-                      path: '/first',
-                      builder: (context, state) =>
-                          const Center(child: Text('Screen One')),
-                    ),
-                  ],
-                ),
-                StatefulShellBranch(
-                  routes: [
-                    GoRoute(
-                      path: '/second',
-                      builder: (context, state) =>
-                          const Center(child: Text('Screen Two')),
-                    ),
-                  ],
-                ),
-                StatefulShellBranch(
-                  routes: [
-                    GoRoute(
-                      path: '/third',
-                      builder: (context, state) =>
-                          const Center(child: Text('Screen Three')),
-                    ),
-                  ],
-                ),
-                StatefulShellBranch(
-                  routes: [
-                    GoRoute(
-                      path: '/fourth',
-                      builder: (context, state) =>
-                          const Center(child: Text('Screen Four')),
-                    ),
-                  ],
-                ),
-              ],
-            ),
-          ],
-        );
+        final testRouter = _buildRouterWithCoachRoute();
 
         await tester.pumpWidget(
           ScreenUtilInit(
@@ -79,44 +33,68 @@ void main() {
         );
         await tester.pumpAndSettle();
 
-        // Verify initial state
         expect(find.byType(AppBottomNavigationBar), findsOneWidget);
         expect(find.byType(FloatingBottomBar), findsOneWidget);
-        expect(find.text('Screen One'), findsOneWidget);
+        expect(find.text('Home Screen'), findsOneWidget);
         expect(find.text(items[0].label.tr()), findsOneWidget);
-        expect(find.text(items[1].label.tr()), findsNothing);
 
-        // Tap on second tab (Chat, index 1)
-        await tester.tap(find.byType(BottomBarItems).at(1));
-        await tester.pumpAndSettle();
-
-        expect(find.text('Screen Two'), findsOneWidget);
-        expect(find.text(items[1].label.tr()), findsOneWidget);
-        expect(find.text(items[0].label.tr()), findsNothing);
-
-        // Tap on third tab (Workouts, index 2)
         await tester.tap(find.byType(BottomBarItems).at(2));
         await tester.pumpAndSettle();
 
-        expect(find.text('Screen Three'), findsOneWidget);
+        expect(find.text('Workouts Screen'), findsOneWidget);
         expect(find.text(items[2].label.tr()), findsOneWidget);
-        expect(find.text(items[1].label.tr()), findsNothing);
+        expect(find.text(items[0].label.tr()), findsNothing);
 
-        // Tap on fourth tab (Profile, index 3)
         await tester.tap(find.byType(BottomBarItems).at(3));
         await tester.pumpAndSettle();
 
-        expect(find.text('Screen Four'), findsOneWidget);
+        expect(find.text('Profile Screen'), findsOneWidget);
         expect(find.text(items[3].label.tr()), findsOneWidget);
         expect(find.text(items[2].label.tr()), findsNothing);
 
-        // Tap back to first tab (Explore, index 0)
         await tester.tap(find.byType(BottomBarItems).at(0));
         await tester.pumpAndSettle();
 
-        expect(find.text('Screen One'), findsOneWidget);
+        expect(find.text('Home Screen'), findsOneWidget);
         expect(find.text(items[0].label.tr()), findsOneWidget);
         expect(find.text(items[3].label.tr()), findsNothing);
+      },
+    );
+
+    testWidgets(
+      'smart coach tab pushes a full screen route without the bottom bar',
+      (WidgetTester tester) async {
+        tester.view.physicalSize = const Size(375, 812);
+        tester.view.devicePixelRatio = 1.0;
+        addTearDown(() {
+          tester.view.resetPhysicalSize();
+          tester.view.resetDevicePixelRatio();
+        });
+
+        final testRouter = _buildRouterWithCoachRoute();
+
+        await tester.pumpWidget(
+          ScreenUtilInit(
+            designSize: const Size(375, 812),
+            minTextAdapt: true,
+            builder: (context, _) =>
+                MaterialApp.router(routerConfig: testRouter),
+          ),
+        );
+        await tester.pumpAndSettle();
+
+        await tester.tap(find.byType(BottomBarItems).at(1));
+        await tester.pumpAndSettle();
+
+        expect(find.text('Coach Screen'), findsOneWidget);
+        expect(find.byType(FloatingBottomBar), findsNothing);
+
+        testRouter.pop();
+        await tester.pumpAndSettle();
+
+        expect(find.text('Home Screen'), findsOneWidget);
+        expect(find.byType(FloatingBottomBar), findsOneWidget);
+        expect(find.text(items[0].label.tr()), findsOneWidget);
       },
     );
 
@@ -201,4 +179,36 @@ void main() {
       },
     );
   });
+}
+
+GoRouter _buildRouterWithCoachRoute() {
+  StatefulShellBranch branch(String path, String label) => StatefulShellBranch(
+    routes: [
+      GoRoute(
+        path: path,
+        builder: (context, state) => Center(child: Text(label)),
+      ),
+    ],
+  );
+
+  return GoRouter(
+    initialLocation: '/home',
+    routes: [
+      GoRoute(
+        path: AppRoutes.smartCoach,
+        builder: (context, state) =>
+            const Scaffold(body: Center(child: Text('Coach Screen'))),
+      ),
+      StatefulShellRoute.indexedStack(
+        builder: (context, state, navigationShell) {
+          return AppBottomNavigationBar(navigationShell: navigationShell);
+        },
+        branches: [
+          branch('/home', 'Home Screen'),
+          branch('/workouts', 'Workouts Screen'),
+          branch('/profile', 'Profile Screen'),
+        ],
+      ),
+    ],
+  );
 }
