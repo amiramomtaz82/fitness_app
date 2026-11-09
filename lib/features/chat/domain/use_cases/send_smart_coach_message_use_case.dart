@@ -38,6 +38,9 @@ class SendSmartCoachMessageUseCase {
     String? userActivityLevel,
     num? userWeight,
     num? userHeight,
+    String? userName,
+    int? userAge,
+    String? userGender,
   }) async {
     // 1. Guard Token Limit
     if (currentSessionTokens >= TokenStatusEntity.lockThreshold) {
@@ -75,6 +78,9 @@ class SendSmartCoachMessageUseCase {
             userActivityLevel: userActivityLevel,
             userWeight: userWeight,
             userHeight: userHeight,
+            userName: userName,
+            userAge: userAge,
+            userGender: userGender,
           );
 
       // ✅ Use switch pattern matching on BaseResponse
@@ -140,6 +146,9 @@ class SendSmartCoachMessageUseCase {
       userActivityLevel: userActivityLevel,
       userWeight: userWeight,
       userHeight: userHeight,
+      userName: userName,
+      userAge: userAge,
+      userGender: userGender,
     );
 
     // ✅ Use switch pattern matching on BaseResponse

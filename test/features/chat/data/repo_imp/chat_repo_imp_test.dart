@@ -1,3 +1,4 @@
+import 'package:fitness_app/core/contants/ollama_constants.dart';
 import 'package:fitness_app/core/base_response/base_response.dart';
 import 'package:fitness_app/features/chat/data/data_source/chat_firestore_data_source.dart';
 import 'package:fitness_app/features/chat/data/data_source/chat_remote_data_source.dart';
@@ -95,6 +96,31 @@ void main() {
         },
       );
 
+      test('puts the user profile in the system prompt', () async {
+        when(
+          () => mockRemote.chat(any()),
+        ).thenAnswer((_) async => tOllamaResponse);
+
+        await repo.requestCoachResponseWithTools(
+          history: history,
+          userText: userText,
+          userName: 'Maha',
+          userAge: 24,
+          userGender: 'female',
+          userGoal: 'Gain weight',
+        );
+
+        final request =
+            verify(() => mockRemote.chat(captureAny())).captured.single
+                as OllamaChatRequestDto;
+        final system = request.messages.first;
+        expect(system.role, equals('system'));
+        expect(system.content, contains('Name: Maha.'));
+        expect(system.content, contains('Age: 24.'));
+        expect(system.content, contains('Gender: female.'));
+        expect(system.content, contains('Goal: Gain weight.'));
+      });
+
       test('returns ErrorResponse on remote error', () async {
         when(
           () => mockRemote.chat(any()),
@@ -148,6 +174,102 @@ void main() {
         );
 
         expect(result, isA<ErrorResponse<CoachStructuredResultEntity>>());
+      });
+
+      Future<CoachStructuredResultEntity> structuredWith(String content) async {
+        when(() => mockRemote.chat(any())).thenAnswer(
+          (_) async => OllamaChatResponseDto(
+            model: 'beam',
+            message: OllamaMessageDto(role: 'assistant', content: content),
+            promptEvalCount: 5,
+            evalCount: 5,
+            done: true,
+          ),
+        );
+        final result = await repo.requestStructuredCoachResponse(
+          history: history,
+          userText: userText,
+          toolResults: const [],
+        );
+        return (result as SuccessResponse<CoachStructuredResultEntity>).data;
+      }
+
+      test('asks the model to convert its answer to JSON', () async {
+        await structuredWith('{"reply": "ok", "exercise_ids": []}');
+
+        final request =
+            verify(() => mockRemote.chat(captureAny())).captured.single
+                as OllamaChatRequestDto;
+        expect(request.format, isNotNull);
+        expect(request.messages.last.role, equals('user'));
+        expect(request.messages.last.content, contains('JSON'));
+      });
+
+      test(
+        'falls back to plain text when the model ignores the format',
+        () async {
+          final data = await structuredWith(
+            'Here are some beginner-friendly exercises for you.',
+          );
+
+          expect(
+            data.reply,
+            equals('Here are some beginner-friendly exercises for you.'),
+          );
+          expect(data.exerciseIds, isEmpty);
+          expect(data.mealIds, isEmpty);
+        },
+      );
+
+      test('extracts JSON wrapped in extra text', () async {
+        final data = await structuredWith(
+          'Sure!\n```json\n{"reply": "Try these", "exercise_ids": ["ex1"], '
+          '"meal_ids": []}\n```',
+        );
+
+        expect(data.reply, equals('Try these'));
+        expect(data.exerciseIds, equals(['ex1']));
+      });
+
+      test('accepts numeric ids and missing lists', () async {
+        final data = await structuredWith(
+          '{"reply": "Try these", "exercise_ids": [12, 7]}',
+        );
+
+        expect(data.exerciseIds, equals(['12', '7']));
+        expect(data.mealIds, isEmpty);
+      });
+
+      test('gives the structured step a larger output budget', () async {
+        await structuredWith('{"reply": "ok"}');
+
+        final request =
+            verify(() => mockRemote.chat(captureAny())).captured.single
+                as OllamaChatRequestDto;
+        expect(request.options, equals(OllamaConstants.structuredOptions));
+      });
+
+      test('shows only the reply text when the JSON is cut off', () async {
+        final data = await structuredWith(
+          '{"reply":"Try these:\\nGlute Bridge and \\"Bird Dog\\".",'
+          '"exercise_ids":["bodyweight-glute',
+        );
+
+        expect(data.reply, equals('Try these:\nGlute Bridge and "Bird Dog".'));
+        expect(data.exerciseIds, isEmpty);
+      });
+
+      test('shows the reply text when cut off inside the reply', () async {
+        final data = await structuredWith('{"reply":"Here are some moves for');
+
+        expect(data.reply, equals('Here are some moves for'));
+      });
+
+      test('falls back to plain text when JSON has no reply', () async {
+        final data = await structuredWith('{"exercise_ids": ["ex1"]}');
+
+        expect(data.reply, equals('{"exercise_ids": ["ex1"]}'));
+        expect(data.exerciseIds, isEmpty);
       });
     });
 

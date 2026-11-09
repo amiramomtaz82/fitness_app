@@ -14,6 +14,9 @@ abstract interface class ChatRepo {
     String? userActivityLevel,
     num? userWeight,
     num? userHeight,
+    String? userName,
+    int? userAge,
+    String? userGender,
   });
 
   /// Model gives final reply formatted as structured JSON
@@ -26,6 +29,9 @@ abstract interface class ChatRepo {
     String? userActivityLevel,
     num? userWeight,
     num? userHeight,
+    String? userName,
+    int? userAge,
+    String? userGender,
   });
 
   Future<BaseResponse<ChatSessionEntity>> createSession(

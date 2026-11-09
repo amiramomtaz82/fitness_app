@@ -1,4 +1,4 @@
-import 'package:easy_localization/easy_localization.dart';
+import 'package:easy_localization/easy_localization.dart' hide TextDirection;
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -8,6 +8,7 @@ import '../../../../../core/theme/text_styles.dart';
 import '../../../../../generated/locale_keys.g.dart';
 import '../../view_model/smart_coach_cubit.dart';
 import '../../view_model/smart_coach_intent.dart';
+import 'text_direction_resolver.dart';
 
 class ChatInputBar extends StatefulWidget {
   const ChatInputBar({super.key});
@@ -18,9 +19,22 @@ class ChatInputBar extends StatefulWidget {
 
 class _ChatInputBarState extends State<ChatInputBar> {
   final _controller = TextEditingController();
+  TextDirection? _direction;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller.addListener(_updateDirection);
+  }
+
+  void _updateDirection() {
+    final direction = TextDirectionResolver.of(_controller.text);
+    if (direction != _direction) setState(() => _direction = direction);
+  }
 
   @override
   void dispose() {
+    _controller.removeListener(_updateDirection);
     _controller.dispose();
     super.dispose();
   }
@@ -56,6 +70,7 @@ class _ChatInputBarState extends State<ChatInputBar> {
               child: TextField(
                 key: const Key('chat_input_field'),
                 controller: _controller,
+                textDirection: _direction,
                 enabled: !isLocked,
                 minLines: 1,
                 maxLines: 4,

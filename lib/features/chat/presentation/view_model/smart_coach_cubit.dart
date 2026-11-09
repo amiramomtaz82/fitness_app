@@ -101,6 +101,9 @@ class SmartCoachCubit extends BaseCubit<SmartCoachState, BaseUiEvent> {
       userActivityLevel: _nonEmpty(profile?.activityLevel),
       userWeight: _positive(profile?.weight),
       userHeight: _positive(profile?.height),
+      userName: _nonEmpty(profile?.firstName),
+      userAge: _positiveAge(profile?.age),
+      userGender: _nonEmpty(profile?.gender),
     );
     if (isClosed || state.sessionId != sessionId) return;
 
@@ -138,7 +141,7 @@ class SmartCoachCubit extends BaseCubit<SmartCoachState, BaseUiEvent> {
     if (isClosed) return null;
     switch (result) {
       case SuccessResponse(:final data):
-        emit(state.copyWith(sessionId: data.id));
+        emit(state.copyWith(sessionId: data.id, sessionTitle: data.title));
         return data.id;
       case ErrorResponse(:final failure):
         emitFailure(failure);
@@ -178,6 +181,7 @@ class SmartCoachCubit extends BaseCubit<SmartCoachState, BaseUiEvent> {
       state.copyWith(
         hasStarted: true,
         sessionId: session.id,
+        sessionTitle: session.title,
         messages: const [],
         tokenStatus: TokenStatusEntity.fromTotalTokens(session.totalTokens),
         conversationResource: const Resource.loading(),
@@ -216,4 +220,6 @@ class SmartCoachCubit extends BaseCubit<SmartCoachState, BaseUiEvent> {
       value == null || value.trim().isEmpty ? null : value;
 
   num? _positive(num? value) => value == null || value <= 0 ? null : value;
+
+  int? _positiveAge(int? value) => value == null || value <= 0 ? null : value;
 }

@@ -10,6 +10,7 @@ class SmartCoachState extends Equatable {
   final Resource<ProfileEntity> profileResource;
   final bool hasStarted;
   final String? sessionId;
+  final String? sessionTitle;
   final List<ChatMessageEntity> messages;
   final bool isSending;
   final TokenStatusEntity tokenStatus;
@@ -20,6 +21,7 @@ class SmartCoachState extends Equatable {
     this.profileResource = const Resource.initial(),
     this.hasStarted = false,
     this.sessionId,
+    this.sessionTitle,
     this.messages = const [],
     this.isSending = false,
     this.tokenStatus = const TokenStatusEntity.initial(),
@@ -36,6 +38,7 @@ class SmartCoachState extends Equatable {
     Resource<ProfileEntity>? profileResource,
     bool? hasStarted,
     String? sessionId,
+    String? sessionTitle,
     bool clearSessionId = false,
     List<ChatMessageEntity>? messages,
     bool? isSending,
@@ -47,6 +50,7 @@ class SmartCoachState extends Equatable {
       profileResource: profileResource ?? this.profileResource,
       hasStarted: hasStarted ?? this.hasStarted,
       sessionId: clearSessionId ? null : sessionId ?? this.sessionId,
+      sessionTitle: clearSessionId ? null : sessionTitle ?? this.sessionTitle,
       messages: messages ?? this.messages,
       isSending: isSending ?? this.isSending,
       tokenStatus: tokenStatus ?? this.tokenStatus,
@@ -60,6 +64,7 @@ class SmartCoachState extends Equatable {
     profileResource,
     hasStarted,
     sessionId,
+    sessionTitle,
     messages,
     isSending,
     tokenStatus,

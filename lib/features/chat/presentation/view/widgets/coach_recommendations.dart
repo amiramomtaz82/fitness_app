@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 import '../../../../../core/widgets/app_content_card.dart';
+import '../../../../../core/youtube/youtube_video_id.dart';
 import '../../../domain/entites/catalog_entities/exercise_card_entity.dart';
 import '../../../domain/entites/catalog_entities/meal_card_entity.dart';
 
@@ -27,7 +28,7 @@ class CoachRecommendations extends StatelessWidget {
         _CardData(
           key: 'exercise_${exercise.id}',
           title: localized(exercise.name, exercise.nameAr),
-          imageUrl: exercise.demoUrl ?? '',
+          imageUrl: _exerciseImage(exercise.demoUrl),
         ),
       for (final meal in meals)
         _CardData(
@@ -55,6 +56,13 @@ class CoachRecommendations extends StatelessWidget {
       ),
     );
   }
+}
+
+String _exerciseImage(String? demoUrl) {
+  final url = demoUrl ?? '';
+  final videoId = extractYoutubeVideoId(url);
+  if (videoId == null) return url;
+  return 'https://img.youtube.com/vi/$videoId/hqdefault.jpg';
 }
 
 class _CardData {

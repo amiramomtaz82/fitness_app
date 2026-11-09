@@ -105,6 +105,9 @@ void main() {
         userActivityLevel: any(named: 'userActivityLevel'),
         userWeight: any(named: 'userWeight'),
         userHeight: any(named: 'userHeight'),
+        userName: any(named: 'userName'),
+        userAge: any(named: 'userAge'),
+        userGender: any(named: 'userGender'),
       ),
     ).thenAnswer(
       (_) async => SuccessResponse(
@@ -161,7 +164,7 @@ void main() {
       expect(find.text('I Am Your Smart Coach'), findsOneWidget);
     });
 
-    testWidgets('get started opens the chat with a coach greeting', (
+    testWidgets('get started opens an empty chat without a session title', (
       tester,
     ) async {
       await pumpScreen(tester);
@@ -170,7 +173,9 @@ void main() {
 
       expect(find.byType(CoachChatView), findsOneWidget);
       expect(find.text('Smart Coach'), findsOneWidget);
-      expect(find.text('Hello How Can I Assist You Today ?'), findsOneWidget);
+      expect(find.byType(ChatBubble), findsNothing);
+      expect(find.text('Hello How Can I Assist You Today ?'), findsNothing);
+      expect(find.byKey(const Key('chat_session_title')), findsNothing);
     });
   });
 
@@ -184,7 +189,13 @@ void main() {
 
       await sendMessage(tester, 'Chest workout');
 
-      expect(find.text('Chest workout'), findsOneWidget);
+      expect(
+        find.descendant(
+          of: find.byType(ChatBubble),
+          matching: find.text('Chest workout'),
+        ),
+        findsOneWidget,
+      );
       expect(find.text('Try these moves'), findsOneWidget);
       expect(find.byType(ChatBubble), findsNWidgets(2));
       expect(find.byType(CoachRecommendations), findsOneWidget);
@@ -194,6 +205,52 @@ void main() {
         find.byKey(const Key('chat_input_field')),
       );
       expect(field.controller!.text, isEmpty);
+    });
+
+    testWidgets('shows the new session title under the header', (tester) async {
+      stubSend(const TokenStatusEntity.initial());
+      await pumpScreen(tester);
+      await getStarted(tester);
+
+      await sendMessage(tester, 'Chest workout');
+
+      expect(
+        tester.widget<Text>(find.byKey(const Key('chat_session_title'))).data,
+        tSession.title,
+      );
+    });
+
+    testWidgets('lays out Arabic and English bubbles in their own direction', (
+      tester,
+    ) async {
+      stubSend(const TokenStatusEntity.initial());
+      await pumpScreen(tester);
+      await getStarted(tester);
+
+      await sendMessage(tester, 'عايز تمارين للصدر');
+
+      expect(
+        tester.widget<Text>(find.text('عايز تمارين للصدر')).textDirection,
+        TextDirection.rtl,
+      );
+      expect(
+        tester.widget<Text>(find.text('Try these moves')).textDirection,
+        TextDirection.ltr,
+      );
+    });
+
+    testWidgets('switches the input direction while typing', (tester) async {
+      await pumpScreen(tester);
+      await getStarted(tester);
+      final input = find.byKey(const Key('chat_input_field'));
+
+      await tester.enterText(input, 'مرحبا');
+      await tester.pump();
+      expect(tester.widget<TextField>(input).textDirection, TextDirection.rtl);
+
+      await tester.enterText(input, 'hello');
+      await tester.pump();
+      expect(tester.widget<TextField>(input).textDirection, TextDirection.ltr);
     });
 
     testWidgets('shows the warning banner near the token limit', (
@@ -247,7 +304,7 @@ void main() {
       await settleUi(tester);
 
       expect(find.byType(ChatBubble), findsNothing);
-      expect(find.text('Hello How Can I Assist You Today ?'), findsOneWidget);
+      expect(find.byKey(const Key('chat_session_title')), findsNothing);
       expect(
         tester
             .widget<TextField>(find.byKey(const Key('chat_input_field')))
@@ -285,6 +342,10 @@ void main() {
       expect(find.byType(PreviousConversationsDrawer), findsNothing);
       expect(find.text('Try these moves'), findsOneWidget);
       expect(cubit.state.sessionId, tOldSession.id);
+      expect(
+        tester.widget<Text>(find.byKey(const Key('chat_session_title'))).data,
+        'Leg day plan',
+      );
     });
 
     testWidgets('shows an empty message when there are no sessions', (

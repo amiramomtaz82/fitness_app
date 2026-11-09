@@ -4,6 +4,7 @@ import 'package:injectable/injectable.dart';
 import '../../../../core/base_response/base_response.dart';
 import '../../../../core/base_response/safe_call.dart';
 import '../../../../core/contants/chat_prompts_and_schemas.dart';
+import '../../../../core/contants/ollama_constants.dart';
 import '../../domain/entites/chat_entities/chat_message_entity.dart';
 import '../../domain/entites/chat_entities/chat_session_entity.dart';
 import '../../domain/entites/chat_entities/coach_tool_call_entity.dart';
@@ -36,6 +37,9 @@ class ChatRepoImp implements ChatRepo {
     String? userActivityLevel,
     num? userWeight,
     num? userHeight,
+    String? userName,
+    int? userAge,
+    String? userGender,
   }) => safeCall(() async {
     final messages = _buildMessagesPayload(
       history: history,
@@ -45,6 +49,9 @@ class ChatRepoImp implements ChatRepo {
       activityLevel: userActivityLevel,
       weight: userWeight,
       height: userHeight,
+      name: userName,
+      age: userAge,
+      gender: userGender,
     );
 
     final dto = await _remoteDataSource.chat(
@@ -81,6 +88,9 @@ class ChatRepoImp implements ChatRepo {
     String? userActivityLevel,
     num? userWeight,
     num? userHeight,
+    String? userName,
+    int? userAge,
+    String? userGender,
   }) => safeCall(() async {
     final messages = _buildMessagesPayload(
       history: history,
@@ -90,19 +100,30 @@ class ChatRepoImp implements ChatRepo {
       activityLevel: userActivityLevel,
       weight: userWeight,
       height: userHeight,
+      name: userName,
+      age: userAge,
+      gender: userGender,
     );
 
     final dto = await _remoteDataSource.chat(
       OllamaChatRequestDto(
-        messages: messages,
+        messages: [
+          ...messages,
+          OllamaMessageDto(
+            role: 'user',
+            content:
+                'Convert your previous answer to JSON matching this schema '
+                'exactly: ${jsonEncode(ChatPromptsAndSchemas.formatSchema)}. '
+                'Return only the JSON object, with no extra text.',
+          ),
+        ],
         format: ChatPromptsAndSchemas.formatSchema,
+        options: OllamaConstants.structuredOptions,
       ),
     );
 
-    // ✅ fromJson happens here in the DATA LAYER!
-    final parsed =
-        jsonDecode(dto.message?.content ?? '{}') as Map<String, dynamic>;
-    final turnBDto = SmartCoachTurnBContentDto.fromJson(parsed);
+    final content = dto.message?.content ?? '';
+    final turnBDto = _parseStructuredContent(content);
 
     return CoachStructuredResultEntity(
       reply: turnBDto.reply,
@@ -111,6 +132,50 @@ class ChatRepoImp implements ChatRepo {
       totalTokens: dto.totalTokens,
     );
   });
+
+  SmartCoachTurnBContentDto _parseStructuredContent(String content) {
+    final json = _decodeJsonObject(content);
+    final reply = json?['reply'];
+    if (json == null || reply is! String) {
+      return SmartCoachTurnBContentDto(
+        reply: _replyFromTruncatedJson(content) ?? content.trim(),
+      );
+    }
+    return SmartCoachTurnBContentDto(
+      reply: reply,
+      exerciseIds: _idsFrom(json['exercise_ids']),
+      mealIds: _idsFrom(json['meal_ids']),
+    );
+  }
+
+  String? _replyFromTruncatedJson(String content) {
+    final match = RegExp(
+      r'"reply"\s*:\s*"((?:[^"\\]|\\.)*)',
+    ).firstMatch(content);
+    final raw = match?.group(1);
+    if (raw == null || raw.trim().isEmpty) return null;
+    try {
+      return (jsonDecode('"$raw"') as String).trim();
+    } on FormatException {
+      return raw.replaceAll(r'\n', '\n').replaceAll(r'\"', '"').trim();
+    }
+  }
+
+  List<String> _idsFrom(Object? value) => value is List
+      ? value.where((id) => id != null).map((id) => id.toString()).toList()
+      : const [];
+
+  Map<String, dynamic>? _decodeJsonObject(String content) {
+    final start = content.indexOf('{');
+    final end = content.lastIndexOf('}');
+    if (start == -1 || end <= start) return null;
+    try {
+      final decoded = jsonDecode(content.substring(start, end + 1));
+      return decoded is Map<String, dynamic> ? decoded : null;
+    } on FormatException {
+      return null;
+    }
+  }
 
   ///------------------ Persistence --------------------
   @override
@@ -161,6 +226,9 @@ class ChatRepoImp implements ChatRepo {
     String? activityLevel,
     num? weight,
     num? height,
+    String? name,
+    int? age,
+    String? gender,
   }) {
     final list = <OllamaMessageDto>[
       OllamaMessageDto(
@@ -170,6 +238,9 @@ class ChatRepoImp implements ChatRepo {
           activityLevel: activityLevel,
           weight: weight,
           height: height,
+          name: name,
+          age: age,
+          gender: gender,
         ),
       ),
       ...history.map(

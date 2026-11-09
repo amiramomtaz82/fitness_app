@@ -48,6 +48,8 @@ void main() {
     activityLevel: 'level3',
     weight: 80,
     height: 175,
+    age: 28,
+    gender: 'male',
   );
 
   final tSession = ChatSessionEntity(
@@ -111,6 +113,9 @@ void main() {
         userActivityLevel: any(named: 'userActivityLevel'),
         userWeight: any(named: 'userWeight'),
         userHeight: any(named: 'userHeight'),
+        userName: any(named: 'userName'),
+        userAge: any(named: 'userAge'),
+        userGender: any(named: 'userGender'),
       ),
     ).thenAnswer((_) async => response);
   }
@@ -224,6 +229,7 @@ void main() {
 
       verify(() => mockCreateSession('Chest workout')).called(1);
       expect(cubit.state.sessionId, tSession.id);
+      expect(cubit.state.sessionTitle, tSession.title);
     });
 
     test('appends the coach reply and updates tokens on success', () async {
@@ -265,6 +271,9 @@ void main() {
           userActivityLevel: tProfile.activityLevel,
           userWeight: tProfile.weight,
           userHeight: tProfile.height,
+          userName: tProfile.firstName,
+          userAge: tProfile.age,
+          userGender: tProfile.gender,
         ),
       ).called(1);
     });
@@ -286,6 +295,9 @@ void main() {
           userActivityLevel: null,
           userWeight: null,
           userHeight: null,
+          userName: null,
+          userAge: null,
+          userGender: null,
         ),
       ).called(1);
     });
@@ -421,6 +433,7 @@ void main() {
 
       expect(cubit.state.hasStarted, isTrue);
       expect(cubit.state.sessionId, oldSession.id);
+      expect(cubit.state.sessionTitle, oldSession.title);
       expect(cubit.state.messages, [tCoachMessage]);
       expect(cubit.state.tokenStatus.totalTokens, 7200);
       expect(cubit.state.tokenStatus.isWarning, isTrue);
@@ -472,6 +485,7 @@ void main() {
       expect(cubit.state.sessionId, isNull);
       expect(cubit.state.messages, isEmpty);
       expect(cubit.state.tokenStatus, const TokenStatusEntity.initial());
+      expect(cubit.state.sessionTitle, isNull);
       expect(cubit.state.hasStarted, isTrue);
       expect(cubit.state.profile, tProfile);
     });

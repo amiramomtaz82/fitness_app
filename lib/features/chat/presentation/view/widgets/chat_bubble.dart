@@ -7,6 +7,7 @@ import '../../../../profile/presentation/profile/view/widgets/avatar_photo.dart'
 import '../../../domain/entites/chat_entities/chat_message_entity.dart';
 import 'coach_avatar.dart';
 import 'coach_recommendations.dart';
+import 'text_direction_resolver.dart';
 
 class ChatBubble extends StatelessWidget {
   final ChatMessageEntity message;
@@ -122,7 +123,12 @@ class _BubbleBody extends StatelessWidget {
           bottomEnd: big,
         ),
       ),
-      child: Text(text, style: AppTextStyles.white14regular),
+      child: Text(
+        text,
+        textDirection: TextDirectionResolver.of(text),
+        textAlign: TextAlign.start,
+        style: AppTextStyles.white14regular,
+      ),
     );
   }
 }
