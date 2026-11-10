@@ -1,4 +1,4 @@
-import 'package:fitness_app/core/theme/context.extension.dart';
+import 'package:fitness_app/core/widgets/app_image_placeholder.dart';
 import 'package:flutter/material.dart';
 
 class AppSourceImage extends StatelessWidget {
@@ -15,18 +15,14 @@ class AppSourceImage extends StatelessWidget {
   Widget build(BuildContext context) {
     final value = source;
 
-    if (value == null) return ColoredBox(color: context.colors.card);
+    if (value == null) return const AppImagePlaceholder();
 
     return Image(
-      image: _provider(value),
+      image: value.startsWith('assets/')
+          ? AssetImage(value)
+          : NetworkImage(value),
       fit: fit,
-      errorBuilder: (_, _, _) => ColoredBox(color: context.colors.card),
+      errorBuilder: (_, _, _) => const AppImagePlaceholder(),
     );
-  }
-
-  ImageProvider _provider(String value) {
-    return value.startsWith('assets/')
-        ? AssetImage(value)
-        : NetworkImage(value);
   }
 }

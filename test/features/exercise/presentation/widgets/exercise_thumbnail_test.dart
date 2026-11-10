@@ -1,3 +1,4 @@
+import 'package:fitness_app/core/widgets/app_image_placeholder.dart';
 import 'package:fitness_app/core/youtube/youtube_video_thumbnail.dart';
 import 'package:fitness_app/features/exercise/presentation/widgets/exercise_thumbnail.dart';
 import 'package:flutter/material.dart';
@@ -22,7 +23,9 @@ void main() {
       expect(thumbnail.videoId, 'dQw4w9WgXcQ');
     });
 
-    testWidgets('shows an empty box when there is no video id', (tester) async {
+    testWidgets('shows an image placeholder when there is no video id', (
+      tester,
+    ) async {
       await tester.pumpWidget(
         makeTestableComponent(const ExerciseThumbnail(videoId: null)),
       );
@@ -31,7 +34,7 @@ void main() {
       expect(
         find.descendant(
           of: find.byType(ExerciseThumbnail),
-          matching: find.byType(ColoredBox),
+          matching: find.byType(AppImagePlaceholder),
         ),
         findsOneWidget,
       );

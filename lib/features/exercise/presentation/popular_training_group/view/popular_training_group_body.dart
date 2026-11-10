@@ -3,9 +3,10 @@ import 'package:fitness_app/app/routes_names.dart';
 import 'package:fitness_app/core/base/base_cubit.dart';
 import 'package:fitness_app/core/base/ui_events.dart';
 import 'package:fitness_app/core/mixin/ui_event_handler_mixin.dart';
+import 'package:fitness_app/core/resource/resource.dart';
+import 'package:fitness_app/core/theme/text_styles.dart';
 import 'package:fitness_app/core/widgets/app_background_scaffold.dart';
 import 'package:fitness_app/core/widgets/app_source_image.dart';
-import 'package:fitness_app/features/exercise/presentation/popular_training_group/model/group_exercise_item.dart';
 import 'package:fitness_app/features/exercise/presentation/popular_training_group/view/widgets/popular_training_group_exercises_list.dart';
 import 'package:fitness_app/features/exercise/presentation/popular_training_group/view/widgets/popular_training_group_muscles.dart';
 import 'package:fitness_app/features/exercise/presentation/popular_training_group/view/widgets/popular_training_group_stats.dart';
@@ -44,10 +45,24 @@ class _PopularTrainingGroupBodyState extends State<PopularTrainingGroupBody>
       PopularTrainingGroupViewModel,
       PopularTrainingGroupState
     >(
-      buildWhen: (previous, current) => previous != current,
+      buildWhen: (previous, current) =>
+          previous.training != current.training ||
+          previous.heroImageUrl != current.heroImageUrl ||
+          previous.exercisesCount != current.exercisesCount ||
+          previous.relatedMuscles != current.relatedMuscles,
       builder: (context, state) {
         final training = state.training;
-        if (training == null) return const SizedBox.shrink();
+        if (training == null) {
+          return AppBackgroundScaffold(
+            safeAreaTop: false,
+            child: Center(
+              child: Text(
+                LocaleKeys.errors_data_not_found.tr(),
+                style: AppTextStyles.white14regular,
+              ),
+            ),
+          );
+        }
 
         return AppBackgroundScaffold(
           safeAreaTop: false,
@@ -77,10 +92,28 @@ class _PopularTrainingGroupBodyState extends State<PopularTrainingGroupBody>
                         muscleNames: state.relatedMuscles,
                       ),
                       SizedBox(height: 24.h),
-                      PopularTrainingGroupExercisesList(
-                        resource: state.exercisesResource,
-                        onItemTap: _onExerciseTap,
-                        onRetry: _retry,
+                      BlocSelector<
+                        PopularTrainingGroupViewModel,
+                        PopularTrainingGroupState,
+                        ApiStatus
+                      >(
+                        selector: (state) => state.exercisesResource.status,
+                        builder: (context, _) =>
+                            PopularTrainingGroupExercisesList(
+                              resource: context
+                                  .read<PopularTrainingGroupViewModel>()
+                                  .state
+                                  .exercisesResource,
+                              onItemTap: (item) => context.push(
+                                AppRoutes.popularTrainingExercise,
+                                extra: item.exercise,
+                              ),
+                              onRetry: () => context
+                                  .read<PopularTrainingGroupViewModel>()
+                                  .doIntent(
+                                    const RetryPopularTrainingGroupIntent(),
+                                  ),
+                            ),
                       ),
                     ],
                   ),
@@ -90,16 +123,6 @@ class _PopularTrainingGroupBodyState extends State<PopularTrainingGroupBody>
           ),
         );
       },
-    );
-  }
-
-  void _onExerciseTap(GroupExerciseItem item) {
-    context.push(AppRoutes.popularTrainingExercise, extra: item.exercise);
-  }
-
-  void _retry() {
-    context.read<PopularTrainingGroupViewModel>().doIntent(
-      const RetryPopularTrainingGroupIntent(),
     );
   }
 }

@@ -1,12 +1,15 @@
-import 'package:fitness_app/core/theme/context.extension.dart';
+import 'package:easy_localization/easy_localization.dart';
+import 'package:fitness_app/core/widgets/app_image_placeholder.dart';
 import 'package:fitness_app/core/youtube/youtube_video_thumbnail.dart';
 import 'package:fitness_app/features/exercise/presentation/widgets/exercise_video_image.dart';
-import 'package:flutter/material.dart';
+import 'package:fitness_app/generated/locale_keys.g.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import '../../../../helpers/test_app.dart';
 
 void main() {
+  setUpAll(loadTestTranslations);
+
   group('ExerciseVideoImage', () {
     testWidgets(
       'fills the space with the video thumbnail when there is an id',
@@ -25,23 +28,19 @@ void main() {
       },
     );
 
-    testWidgets('fills the space with the card color when there is no id', (
+    testWidgets('shows an unavailable message when there is no id', (
       tester,
     ) async {
       await tester.pumpWidget(
         makeTestableComponent(const ExerciseVideoImage(videoId: null)),
       );
 
-      final context = tester.element(find.byType(ExerciseVideoImage));
-      final box = tester.widget<ColoredBox>(
-        find.descendant(
-          of: find.byType(ExerciseVideoImage),
-          matching: find.byType(ColoredBox),
-        ),
-      );
-
       expect(find.byType(ThumbnailImage), findsNothing);
-      expect(box.color, context.colors.card);
+      expect(find.byType(AppImagePlaceholder), findsOneWidget);
+      expect(
+        find.text(LocaleKeys.exercises_not_available.tr()),
+        findsOneWidget,
+      );
     });
   });
 }

@@ -96,10 +96,11 @@ void main() {
   }
 
   group('PopularTrainingGroupBody', () {
-    testWidgets('renders nothing until a training is prepared', (tester) async {
+    testWidgets('shows a message until a training is prepared', (tester) async {
       await pumpBody(tester, const PopularTrainingGroupState());
 
-      expect(find.byType(AppBackgroundScaffold), findsNothing);
+      expect(find.byType(AppBackgroundScaffold), findsOneWidget);
+      expect(find.text(LocaleKeys.errors_data_not_found.tr()), findsOneWidget);
       expect(find.byType(ExerciseHero), findsNothing);
     });
 

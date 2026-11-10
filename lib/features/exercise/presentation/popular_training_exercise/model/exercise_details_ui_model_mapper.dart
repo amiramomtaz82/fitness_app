@@ -1,35 +1,19 @@
-import 'package:equatable/equatable.dart';
 import 'package:fitness_app/core/youtube/youtube_video_id.dart';
 import 'package:fitness_app/features/exercise/domain/entities/exercise_entity.dart';
 import 'package:fitness_app/features/exercise/presentation/popular_training_exercise/model/exercise_details_entry.dart';
 import 'package:fitness_app/features/exercise/presentation/popular_training_exercise/model/exercise_details_section_data.dart';
+import 'package:fitness_app/features/exercise/presentation/popular_training_exercise/model/exercise_details_ui_model.dart';
 import 'package:fitness_app/features/exercise/presentation/utils/display_values.dart';
 import 'package:fitness_app/generated/locale_keys.g.dart';
 
-class ExerciseDetailsViewModel extends Equatable {
-  final String name;
-  final String? level;
-  final String? equipment;
-  final String? playUrl;
-  final String? videoId;
-  final List<ExerciseDetailsSectionData> sections;
-
-  const ExerciseDetailsViewModel({
-    required this.name,
-    this.level,
-    this.equipment,
-    this.playUrl,
-    this.videoId,
-    required this.sections,
-  });
-
-  factory ExerciseDetailsViewModel.fromEntity(ExerciseEntity exercise) {
+abstract final class ExerciseDetailsUiModelMapper {
+  static ExerciseDetailsUiModel fromEntity(ExerciseEntity exercise) {
     final playUrl = DisplayValues.firstFilled([
       exercise.demonstrationVideoUrl,
       exercise.explanationVideoUrl,
     ]);
 
-    return ExerciseDetailsViewModel(
+    return ExerciseDetailsUiModel(
       name: exercise.name,
       level: DisplayValues.text(exercise.difficultyLevel),
       equipment: DisplayValues.text(exercise.primaryEquipment),
@@ -186,14 +170,4 @@ class ExerciseDetailsViewModel extends Equatable {
       ],
     );
   }
-
-  @override
-  List<Object?> get props => [
-    name,
-    level,
-    equipment,
-    playUrl,
-    videoId,
-    sections,
-  ];
 }

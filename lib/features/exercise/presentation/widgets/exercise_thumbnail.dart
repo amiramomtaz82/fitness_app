@@ -1,3 +1,4 @@
+import 'package:fitness_app/core/widgets/app_image_placeholder.dart';
 import 'package:fitness_app/core/youtube/youtube_video_thumbnail.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -17,7 +18,7 @@ class ExerciseThumbnail extends StatelessWidget {
         width: 64.w,
         height: 64.h,
         child: id == null
-            ? const ColoredBox(color: Colors.transparent)
+            ? const AppImagePlaceholder()
             : ThumbnailImage(videoId: id),
       ),
     );

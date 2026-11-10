@@ -1,7 +1,8 @@
 import 'package:fitness_app/app/routes_names.dart';
 import 'package:fitness_app/core/widgets/app_background_scaffold.dart';
 import 'package:fitness_app/features/exercise/domain/entities/exercise_entity.dart';
-import 'package:fitness_app/features/exercise/presentation/popular_training_exercise/model/exercise_details_view_model.dart';
+import 'package:fitness_app/features/exercise/presentation/popular_training_exercise/model/exercise_details_ui_model.dart';
+import 'package:fitness_app/features/exercise/presentation/popular_training_exercise/model/exercise_details_ui_model_mapper.dart';
 import 'package:fitness_app/features/exercise/presentation/popular_training_exercise/view/widgets/exercise_details_section.dart';
 import 'package:fitness_app/features/exercise/presentation/popular_training_exercise/view/widgets/exercise_summary_card.dart';
 import 'package:fitness_app/features/exercise/presentation/widgets/exercise_hero.dart';
@@ -22,19 +23,19 @@ class PopularTrainingExerciseView extends StatefulWidget {
 
 class _PopularTrainingExerciseViewState
     extends State<PopularTrainingExerciseView> {
-  late ExerciseDetailsViewModel _details;
+  late ExerciseDetailsUiModel _details;
 
   @override
   void initState() {
     super.initState();
-    _details = ExerciseDetailsViewModel.fromEntity(widget.exercise);
+    _details = ExerciseDetailsUiModelMapper.fromEntity(widget.exercise);
   }
 
   @override
   void didUpdateWidget(covariant PopularTrainingExerciseView oldWidget) {
     super.didUpdateWidget(oldWidget);
     if (oldWidget.exercise != widget.exercise) {
-      _details = ExerciseDetailsViewModel.fromEntity(widget.exercise);
+      _details = ExerciseDetailsUiModelMapper.fromEntity(widget.exercise);
     }
   }
 
@@ -66,13 +67,19 @@ class _PopularTrainingExerciseViewState
                     videoId: details.videoId,
                     onPlay: playUrl == null
                         ? null
-                        : () => _openVideo(context, playUrl),
+                        : () => context.push(
+                            AppRoutes.exerciseVideo,
+                            extra: playUrl,
+                          ),
                   ),
                   for (final section in details.sections) ...[
                     SizedBox(height: 24.h),
                     ExerciseDetailsSection(
                       section: section,
-                      onVideoTap: (videoUrl) => _openVideo(context, videoUrl),
+                      onVideoTap: (videoUrl) => context.push(
+                        AppRoutes.exerciseVideo,
+                        extra: videoUrl,
+                      ),
                     ),
                   ],
                 ],
@@ -82,9 +89,5 @@ class _PopularTrainingExerciseViewState
         ],
       ),
     );
-  }
-
-  void _openVideo(BuildContext context, String videoUrl) {
-    context.push(AppRoutes.exerciseVideo, extra: videoUrl);
   }
 }

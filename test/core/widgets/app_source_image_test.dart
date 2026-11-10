@@ -1,4 +1,4 @@
-import 'package:fitness_app/core/theme/context.extension.dart';
+import 'package:fitness_app/core/widgets/app_image_placeholder.dart';
 import 'package:fitness_app/core/widgets/app_source_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -17,22 +17,18 @@ void main() {
   }
 
   group('AppSourceImage', () {
-    testWidgets('shows the card color when there is no source', (tester) async {
+    testWidgets('shows an image placeholder when there is no source', (
+      tester,
+    ) async {
       await pumpImage(tester);
-
-      final context = tester.element(find.byType(AppSourceImage));
 
       expect(find.byType(Image), findsNothing);
       expect(
-        tester
-            .widget<ColoredBox>(
-              find.descendant(
-                of: find.byType(AppSourceImage),
-                matching: find.byType(ColoredBox),
-              ),
-            )
-            .color,
-        context.colors.card,
+        find.descendant(
+          of: find.byType(AppSourceImage),
+          matching: find.byType(AppImagePlaceholder),
+        ),
+        findsOneWidget,
       );
     });
 
