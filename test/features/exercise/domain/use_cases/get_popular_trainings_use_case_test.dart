@@ -53,6 +53,8 @@ void main() {
       final trainings =
           (result as SuccessResponse<List<PopularTrainingEntity>>).data;
       expect(trainings, hasLength(2));
+      expect(trainings.first.primeMoverMuscleId, 'm_1');
+      expect(trainings.first.difficultyLevelId, 'l_1');
       expect(trainings.first.muscleName, 'Chest');
       expect(trainings.first.levelName, 'Beginner');
       expect(trainings.first.exercisesCount, 1);

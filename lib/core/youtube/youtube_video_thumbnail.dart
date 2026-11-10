@@ -33,24 +33,41 @@ class ThumbnailImage extends StatelessWidget {
 
   final String videoId;
 
+  static const List<ThumbnailQuality> _qualityOrder = [
+    ThumbnailQuality.max,
+    ThumbnailQuality.high,
+  ];
+
   @override
   Widget build(BuildContext context) {
     final devicePixelRatio = MediaQuery.devicePixelRatioOf(context);
+    final urls = _qualityOrder
+        .map(
+          (quality) => YoutubePlayerController.getThumbnail(
+            videoId: videoId,
+            quality: quality,
+          ),
+        )
+        .toList(growable: false);
+
     return LayoutBuilder(
       builder: (context, constraints) {
-        return Image.network(
-          YoutubePlayerController.getThumbnail(
-            videoId: videoId,
-            quality: ThumbnailQuality.high,
-          ),
-          fit: BoxFit.cover,
-          gaplessPlayback: true,
-          cacheWidth: cachePixels(constraints.maxWidth, devicePixelRatio),
-          cacheHeight: cachePixels(constraints.maxHeight, devicePixelRatio),
-          loadingBuilder: (_, child, progress) =>
-              progress == null ? child : surface(context),
-          errorBuilder: (_, _, _) => surface(context),
-        );
+        Widget picture(int qualityIndex) {
+          return Image.network(
+            urls[qualityIndex],
+            fit: BoxFit.cover,
+            gaplessPlayback: true,
+            cacheWidth: cachePixels(constraints.maxWidth, devicePixelRatio),
+            cacheHeight: cachePixels(constraints.maxHeight, devicePixelRatio),
+            loadingBuilder: (_, child, progress) =>
+                progress == null ? child : surface(context),
+            errorBuilder: (_, _, _) => qualityIndex + 1 < urls.length
+                ? picture(qualityIndex + 1)
+                : surface(context),
+          );
+        }
+
+        return picture(0);
       },
     );
   }

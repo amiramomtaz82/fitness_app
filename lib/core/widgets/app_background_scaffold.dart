@@ -9,6 +9,7 @@ class AppBackgroundScaffold extends StatelessWidget {
   final String? backgroundImage;
   final Widget? bottomNavigationBar;
   final bool resizeToAvoidBottomInset;
+  final bool safeAreaTop;
 
   // === Per-Feature Overlay Customization ===
   final Color overlayColor;
@@ -30,6 +31,7 @@ class AppBackgroundScaffold extends StatelessWidget {
     this.overlayGradient,
     this.bottomNavigationBar,
     this.resizeToAvoidBottomInset = true,
+    this.safeAreaTop = true,
     this.showLayoutGrid = false,
     this.gridColor,
     this.gridColumns = 2,
@@ -66,7 +68,7 @@ class AppBackgroundScaffold extends StatelessWidget {
             ),
 
             // 3. Screen content
-            SafeArea(child: child),
+            SafeArea(top: safeAreaTop, child: child),
 
             // 4. Feature-Specific Layout Guide Overlay (Visible only in debug if enabled)
             if (kDebugMode && showLayoutGrid)
