@@ -63,8 +63,8 @@
     "personalized_plan_subtitle": "يساعدنا هذا في إنشاء خطتك المخصصة",
     "tell_us_about_yourself": "أخبرنا عن نفسك!",
     "need_to_know_gender": "نحتاج لمعرفة جنسك",
-    "male": "ذكر",
-    "female": "أنثى",
+    "gender_male": "ذكر",
+    "gender_female": "أنثى",
     "how_old_are_you": "كم عمرك؟",
     "year": "سنة",
     "what_is_your_weight": "ما هو وزنك؟",
@@ -111,7 +111,11 @@
     "recommendation_for_you": "ترشيحات لك",
     "breakfast": "فطور",
     "lunch": "غداء",
-    "dinner": "عشاء"
+    "dinner": "عشاء",
+    "popular_training": "التمارين الشائعة",
+    "popular_training_title": "التمارين الشائعة: {}",
+    "tasks": "{} تمارين",
+    "home_no_muscles_found": "لا توجد تمارين متاحة حاليًا"
   },
   "workouts": {
     "workouts": "التمارين",
@@ -121,7 +125,9 @@
     "shoulder": "كتف",
     "back": "ظهر",
     "legs": "أرجل",
-    "high_chest_exercise": "تمرين أعلى الصدر"
+    "high_chest_exercise": "تمرين أعلى الصدر",
+    "stomach": "معدة",
+    "no_muscles_found": "لم يتم العثور على عضلات لهذا القسم."
   },
   "exercises": {
     "exercise": "التمرين",
@@ -145,11 +151,15 @@
     "change_password": "تغيير كلمة المرور",
     "select_language": "تحديد اللغة",
     "select_language_english": "تحديد اللغة (الإنجليزية)",
+    "select_language_arabic": "تحديد اللغة (العربية)",
     "security": "الأمان",
     "privacy_policy": "سياسة الخصوصية",
     "help": "المساعدة",
     "logout": "تسجيل الخروج",
     "your_weight_tap_to_edit": "وزنك (اضغط للتعديل)",
+    "your_age_tap_to_edit": "عمرك (اضغط للتعديل)",
+    "your_height_tap_to_edit": "طولك (اضغط للتعديل)",
+    "your_gender_tap_to_edit": "الجنس (اضغط للتعديل)",
     "your_goal_tap_to_edit": "هدفك (اضغط للتعديل)",
     "your_activity_level_tap_to_edit": "مستوى نشاطك (اضغط للتعديل)",
     "are_you_sure_close_app": "هل أنت متأكد من إغلاق التطبيق؟",
@@ -193,6 +203,19 @@
     "data_not_found": "لم يتم العثور على البيانات المطلوبة.",
     "conflict_occurred": "حدث تعارض في البيانات. يرجى إعادة المحاولة.",
     "invalid_fields": "يرجى التحقق من صحة البيانات المدخلة وتصحيح الأخطاء.",
+    "photo_too_large": "الصورة المختارة كبيرة جدًا. يرجى اختيار صورة أصغر.",
     "internal_server_error": "خطأ في الخادم. يرجى المحاولة لاحقاً."
+  },
+  "food": {
+    "instructions": "طريقة التحضير",
+    "ingredients": "المكونات",
+    "energy": "الطاقة",
+    "protein": "البروتين",
+    "carbs": "الكربوهيدرات",
+    "fat": "الدهون",
+    "sample": "عينة",
+    "nutrition_note": "قيم غذائية للعرض",
+    "food_recommendation": "الوجبات المقترحة",
+    "no_meals_found": "لا توجد وجبات في هذا القسم."
   }
 }

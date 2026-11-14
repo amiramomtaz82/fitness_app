@@ -8,7 +8,7 @@ import '../../../../../../../core/theme/context.extension.dart';
 import '../../../../../../../core/theme/custom_colors.dart';
 import '../../../manager/cubit/register_cubit.dart';
 import '../../../manager/cubit/register_intent.dart';
-import '../../../registration_options.dart';
+import 'package:fitness_app/core/contants/registration_options.dart';
 
 class RegistrationGenderStep extends StatelessWidget {
   const RegistrationGenderStep({super.key});

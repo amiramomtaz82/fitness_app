@@ -21,11 +21,14 @@ class Endpoints {
   static const String levels = '/levels';
   static const String muscles = '/muscles';
   static const String musclesGroup = '/musclesGroup';
+  static const String musclesRandom = '/muscles/random';
 
   // Meals (TheMealDB - third-party, no auth)
   static const String mealDbBaseUrl = 'https://www.themealdb.com/api/json/v1/1';
   static const String mealCategories = '/categories.php';
   static const String mealsByCategory = '/filter.php';
+  static const String musclesGroupByGroupId = '/musclesGroup/{muscleGroupId}';
+  static const String mealLookup = '/lookup.php';
 
   // Exercises
   static const String exercises = '/exercises';

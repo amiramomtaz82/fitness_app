@@ -9,27 +9,26 @@ import 'package:fitness_app/core/youtube/youtube_video_thumbnail.dart';
 import 'package:flutter/material.dart';
 import 'package:youtube_player_iframe/youtube_player_iframe.dart';
 
-/// Plays [videoUrl] inside the app.
-///
-/// Pass [showBackButton] and [onBack] to leave the screen from the video.
-/// Leave [createController] null outside tests. A failed play can be retried
-/// from the refresh button, which closes the current player and opens another.
 class AppYoutubeVideo extends StatefulWidget {
   const AppYoutubeVideo({
     super.key,
     required this.videoUrl,
     this.showBackButton = false,
     this.onBack,
+    this.backButton,
     this.aspectRatio = 16 / 9,
+    this.showThumbnail = true,
+    this.unavailableColor,
     this.createController,
   });
 
   final String videoUrl;
   final bool showBackButton;
   final VoidCallback? onBack;
+  final Widget? backButton;
   final double aspectRatio;
-
-  /// Replaces the in-app player. Production leaves this null.
+  final bool showThumbnail;
+  final Color? unavailableColor;
   final YoutubeVideoControllerFactory? createController;
 
   @override
@@ -135,42 +134,67 @@ class _AppYoutubeVideoState extends State<AppYoutubeVideo> {
 
   @override
   Widget build(BuildContext context) {
-    final controller = _controller;
-    final videoId = _videoId;
     return AspectRatio(
       aspectRatio: widget.aspectRatio,
       child: ColoredBox(
-        color: context.colors.background,
-        child: Stack(
-          fit: StackFit.expand,
-          children: [
-            if (videoId == null)
-              const UnavailableSurface()
-            else if (controller == null)
-              ThumbnailSurface(
-                videoId: videoId,
-                onPlay: _playFailed ? null : _play,
-              )
-            else
-              _ActivePlayer(
-                key: ValueKey(videoId),
-                controller: controller,
-                aspectRatio: widget.aspectRatio,
-                showBackButton: widget.showBackButton,
-                onBack: widget.onBack,
-                playerError: _playerError,
-                playFailed: _playFailed,
-                onRetry: _retryPlay,
-                fullscreen: _fullscreen,
-              ),
-            if (_playFailed && controller == null)
-              PlaybackFailure(onRetry: _retryPlay),
-            if (widget.showBackButton && controller == null)
-              BackOverlay(onBack: widget.onBack),
-          ],
-        ),
+        color: playerSurfaceColor(context),
+        child: playerStack(),
       ),
     );
+  }
+
+  Widget playerStack() {
+    final controller = _controller;
+    return Stack(
+      fit: StackFit.expand,
+      children: [
+        playerBody(),
+        if (_playFailed && controller == null)
+          PlaybackFailure(onRetry: _retryPlay),
+        if (widget.showBackButton && controller == null)
+          BackOverlay(onBack: widget.onBack, button: widget.backButton),
+      ],
+    );
+  }
+
+  Widget playerBody() {
+    final controller = _controller;
+    final videoId = _videoId;
+    if (videoId == null) {
+      return UnavailableSurface(color: widget.unavailableColor);
+    }
+    if (controller == null) return idleThumbnail(videoId);
+    return activePlayer(controller, videoId);
+  }
+
+  Widget idleThumbnail(String videoId) {
+    return ThumbnailSurface(
+      videoId: videoId,
+      onPlay: _playFailed ? null : _play,
+      showImage: widget.showThumbnail,
+    );
+  }
+
+  Widget activePlayer(YoutubeVideoController controller, String videoId) {
+    return _ActivePlayer(
+      key: ValueKey(videoId),
+      controller: controller,
+      aspectRatio: widget.aspectRatio,
+      showBackButton: widget.showBackButton,
+      onBack: widget.onBack,
+      backButton: widget.backButton,
+      playerError: _playerError,
+      playFailed: _playFailed,
+      onRetry: _retryPlay,
+      fullscreen: _fullscreen,
+    );
+  }
+
+  Color playerSurfaceColor(BuildContext context) {
+    if (widget.showThumbnail || _controller != null) {
+      return context.colors.background;
+    }
+    return const Color(0x00000000);
   }
 }
 
@@ -181,6 +205,7 @@ class _ActivePlayer extends StatelessWidget {
     required this.aspectRatio,
     required this.showBackButton,
     required this.onBack,
+    required this.backButton,
     required this.playerError,
     required this.playFailed,
     required this.onRetry,
@@ -191,6 +216,7 @@ class _ActivePlayer extends StatelessWidget {
   final double aspectRatio;
   final bool showBackButton;
   final VoidCallback? onBack;
+  final Widget? backButton;
   final bool playerError;
   final bool playFailed;
   final VoidCallback onRetry;
@@ -215,6 +241,7 @@ class _ActivePlayer extends StatelessWidget {
           PlayerOverlay(
             showBackButton: showBackButton && !fullscreen,
             onBack: onBack,
+            backButton: backButton,
             playFailed: playFailed,
             onRetry: onRetry,
           ),

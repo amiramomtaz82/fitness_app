@@ -38,6 +38,7 @@ class RegistrationShellState extends State<RegistrationShell>
 
   late final PageController _pageController;
   bool _isAnimating = false;
+  String? _validationMessage;
 
   @override
   RegisterCubit get cubit => context.read<RegisterCubit>();
@@ -59,11 +60,23 @@ class RegistrationShellState extends State<RegistrationShell>
 
   @override
   Widget build(BuildContext context) {
-    return RegistrationShellBody(
-      pageController: _pageController,
-      onBack: _onBack,
-      onNext: _onNext,
+    return BlocListener<RegisterCubit, RegisterState>(
+      listenWhen: _selectionChanged,
+      listener: (_, _) => _clearValidation(),
+      child: RegistrationShellBody(
+        pageController: _pageController,
+        onBack: _onBack,
+        onNext: _onNext,
+        validationMessage: _validationMessage,
+      ),
     );
+  }
+
+  bool _selectionChanged(RegisterState previous, RegisterState next) {
+    return previous.currentStep != next.currentStep ||
+        previous.params != next.params ||
+        previous.selectedGoal != next.selectedGoal ||
+        previous.selectedActivity != next.selectedActivity;
   }
 
   @override
@@ -79,9 +92,14 @@ class RegistrationShellState extends State<RegistrationShell>
   }
 
   void _showValidationError(ValidationError error) {
-    ScaffoldMessenger.of(
-      context,
-    ).showSnackBar(SnackBar(content: Text(error.messageKey.tr())));
+    final message = error.messageKey.tr();
+    if (!mounted || _validationMessage == message) return;
+    setState(() => _validationMessage = message);
+  }
+
+  void _clearValidation() {
+    if (!mounted || _validationMessage == null) return;
+    setState(() => _validationMessage = null);
   }
 
   void _onBack() => _dispatch(const GoBackIntent());
