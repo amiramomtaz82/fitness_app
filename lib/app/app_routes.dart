@@ -9,10 +9,15 @@ import 'package:fitness_app/features/auth/presentation/register/manager/cubit/re
 import 'package:fitness_app/features/auth/presentation/register/view/muti_steps_regitration/multi_steps_registration_view.dart';
 import 'package:fitness_app/features/auth/presentation/register/view/register_first_sceen/register_view.dart';
 import 'package:fitness_app/features/chat/presentation/view/screens/smart_coach_screen.dart';
+import 'package:fitness_app/features/exercise/domain/entities/exercise_entity.dart';
+import 'package:fitness_app/features/exercise/domain/entities/popular_training_entity.dart';
 import 'package:fitness_app/features/exercise/presentation/exercise/view/exercise_view.dart';
+import 'package:fitness_app/features/exercise/presentation/exercise_video/view/exercise_video_view.dart';
 import 'package:fitness_app/features/exercise/presentation/home/view/home_screen.dart';
 import 'package:fitness_app/features/exercise/presentation/home/view/home_view_model/home_intent.dart';
 import 'package:fitness_app/features/exercise/presentation/home/view/home_view_model/home_view_model.dart';
+import 'package:fitness_app/features/exercise/presentation/popular_training_exercise/view/popular_training_exercise_view.dart';
+import 'package:fitness_app/features/exercise/presentation/popular_training_group/view/popular_training_group_view.dart';
 import 'package:fitness_app/features/exercise/presentation/work_out/view/work_out_view.dart';
 import 'package:fitness_app/features/on_bording/views/onboarding_view.dart';
 import 'package:fitness_app/features/splash/presentation/views/splash_view.dart';
@@ -91,6 +96,25 @@ final GoRouter appRouter = GoRouter(
         final muscleId = state.extra as String? ?? '';
         return ExerciseView(muscleId: muscleId);
       },
+    ),
+    GoRoute(
+      path: AppRoutes.popularTrainingGroup,
+      name: AppRoutes.popularTrainingGroup,
+      builder: (context, state) => PopularTrainingGroupView(
+        training: state.extra as PopularTrainingEntity,
+      ),
+    ),
+    GoRoute(
+      path: AppRoutes.popularTrainingExercise,
+      name: AppRoutes.popularTrainingExercise,
+      builder: (context, state) =>
+          PopularTrainingExerciseView(exercise: state.extra as ExerciseEntity),
+    ),
+    GoRoute(
+      path: AppRoutes.exerciseVideo,
+      name: AppRoutes.exerciseVideo,
+      builder: (context, state) =>
+          ExerciseVideoView(videoUrl: state.extra as String),
     ),
 
     // Static web content (security, privacy policy, help)

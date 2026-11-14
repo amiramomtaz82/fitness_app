@@ -1,4 +1,5 @@
 import 'package:easy_localization/easy_localization.dart';
+import 'package:fitness_app/app/routes_names.dart';
 import 'package:fitness_app/core/resource/resource.dart';
 import 'package:fitness_app/core/theme/text_styles.dart';
 import 'package:fitness_app/features/exercise/domain/entities/popular_training_entity.dart';
@@ -9,6 +10,7 @@ import 'package:fitness_app/generated/locale_keys.g.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:go_router/go_router.dart';
 
 class HomePopularTraining extends StatelessWidget {
   const HomePopularTraining({super.key});
@@ -77,9 +79,8 @@ class PopularTrainingsList extends StatelessWidget {
             levelName: training.levelName,
             width: 220.w,
             height: 150.h,
-            onTap: () {
-              // TODO: navigation
-            },
+            onTap: () =>
+                context.push(AppRoutes.popularTrainingGroup, extra: training),
           );
         },
       ),

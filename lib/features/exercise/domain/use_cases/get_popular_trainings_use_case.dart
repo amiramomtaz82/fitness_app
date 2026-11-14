@@ -13,10 +13,10 @@ class GetPopularTrainingsUseCase {
   final ExerciseRepo _exerciseRepo;
   final Random _random;
 
-  GetPopularTrainingsUseCase(this._exerciseRepo, this._random);
+  GetPopularTrainingsUseCase(this._exerciseRepo, [Random? random])
+    : _random = random ?? Random();
 
   Future<BaseResponse<List<PopularTrainingEntity>>> call() async {
-    // 1. Get all difficulty levels.
     final levelsResult = await _exerciseRepo.getDifficultyLevels();
 
     if (levelsResult is ErrorResponse<List<DifficultyLevelEntity>>) {
@@ -29,7 +29,6 @@ class GetPopularTrainingsUseCase {
     final levels =
         (levelsResult as SuccessResponse<List<DifficultyLevelEntity>>).data;
 
-    // 2. Get random muscles.
     final musclesResult = await _exerciseRepo.getRandomMuscles();
 
     if (musclesResult is ErrorResponse<List<MuscleEntity>>) {
@@ -41,12 +40,10 @@ class GetPopularTrainingsUseCase {
 
     final muscles = (musclesResult as SuccessResponse<List<MuscleEntity>>).data;
 
-    // 3. Make sure we have data to select from.
     if (levels.isEmpty || muscles.isEmpty) {
       return const SuccessResponse<List<PopularTrainingEntity>>([]);
     }
 
-    // 4. Select two random muscle-level combinations.
     final popularTrainings = <PopularTrainingEntity>[];
 
     var attempts = 0;
@@ -68,11 +65,12 @@ class GetPopularTrainingsUseCase {
           return ErrorResponse(failure: failure, error: error);
 
         case SuccessResponse<List<ExerciseEntity>>(:final data):
-          // Skip pairs that have no exercises and keep looking.
           if (data.isEmpty) continue;
 
           popularTrainings.add(
             PopularTrainingEntity(
+              primeMoverMuscleId: muscle.id,
+              difficultyLevelId: level.id,
               muscleName: muscle.name,
               levelName: level.name,
               exercisesCount: data.length,
@@ -82,7 +80,6 @@ class GetPopularTrainingsUseCase {
       }
     }
 
-    // 5. Return the selected popular trainings.
     return SuccessResponse<List<PopularTrainingEntity>>(popularTrainings);
   }
 }

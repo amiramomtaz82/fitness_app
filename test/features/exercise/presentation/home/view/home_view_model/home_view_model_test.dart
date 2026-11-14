@@ -53,6 +53,8 @@ void main() {
     description: 'Beef desc',
   );
   const popularTraining1 = PopularTrainingEntity(
+    primeMoverMuscleId: 'muscle_1',
+    difficultyLevelId: 'level_1',
     muscleName: 'Chest',
     levelName: 'Beginner',
     exercisesCount: 2,

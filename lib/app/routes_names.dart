@@ -25,4 +25,7 @@ class AppRoutes {
   // Step 1 (You)
   static const String multiStepRegistration = '/multi-step-registration';
   static const String exercise = '/exercise';
+  static const String popularTrainingGroup = '/popular-training-group';
+  static const String popularTrainingExercise = '/popular-training-exercise';
+  static const String exerciseVideo = '/exercise-video';
 }
