@@ -34,6 +34,9 @@ class SendSmartCoachMessageUseCase {
     required String userText,
     required List<ChatMessageEntity> history,
     required int currentSessionTokens,
+    String? userName,
+    String? userGender,
+    int? userAge,
     String? userGoal,
     String? userActivityLevel,
     num? userWeight,
@@ -71,6 +74,9 @@ class SendSmartCoachMessageUseCase {
             history: history,
             userText: userText,
             toolResults: accumulatedToolResults,
+            userName: userName,
+            userGender: userGender,
+            userAge: userAge,
             userGoal: userGoal,
             userActivityLevel: userActivityLevel,
             userWeight: userWeight,
@@ -136,6 +142,9 @@ class SendSmartCoachMessageUseCase {
       history: history,
       userText: userText,
       toolResults: accumulatedToolResults,
+      userName: userName,
+      userGender: userGender,
+      userAge: userAge,
       userGoal: userGoal,
       userActivityLevel: userActivityLevel,
       userWeight: userWeight,
@@ -272,17 +281,9 @@ class SendSmartCoachMessageUseCase {
     );
   }
 
-  String _formatExerciseBlock(List<ExerciseCardEntity> items) {
-    final lines = items
-        .map((e) => 'id=${e.id} | ${e.name} | ${e.muscleGroup ?? '-'}')
-        .join('\n');
-    return 'CANDIDATE EXERCISES:\n$lines';
-  }
+  String _formatExerciseBlock(List<ExerciseCardEntity> items) =>
+      'CANDIDATE EXERCISES:\n${items.map((e) => 'id=${e.id} | ${e.name} | ${e.muscleGroup ?? '-'}').join('\n')}';
 
-  String _formatMealBlock(List<MealCardEntity> items) {
-    final lines = items
-        .map((m) => 'id=${m.id} | ${m.name} | ~${m.proteinG ?? 0}g protein')
-        .join('\n');
-    return 'CANDIDATE MEALS:\n$lines';
-  }
+  String _formatMealBlock(List<MealCardEntity> items) =>
+      'CANDIDATE MEALS:\n${items.map((m) => 'id=${m.id} | ${m.name} | ~${m.proteinG ?? 0}g protein').join('\n')}';
 }

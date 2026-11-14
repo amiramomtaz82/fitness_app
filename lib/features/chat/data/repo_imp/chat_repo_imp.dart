@@ -31,6 +31,9 @@ class ChatRepoImp implements ChatRepo {
     required List<ChatMessageEntity> history,
     required String userText,
     List<ToolExecutionResultEntity> toolResults = const [],
+    String? userName,
+    String? userGender,
+    int? userAge,
     String? userGoal,
     String? userActivityLevel,
     num? userWeight,
@@ -40,6 +43,9 @@ class ChatRepoImp implements ChatRepo {
       history: history,
       userText: userText,
       toolResults: toolResults,
+      name: userName,
+      gender: userGender,
+      age: userAge,
       goal: userGoal,
       activityLevel: userActivityLevel,
       weight: userWeight,
@@ -76,6 +82,9 @@ class ChatRepoImp implements ChatRepo {
     required List<ChatMessageEntity> history,
     required String userText,
     required List<ToolExecutionResultEntity> toolResults,
+    String? userName,
+    String? userGender,
+    int? userAge,
     String? userGoal,
     String? userActivityLevel,
     num? userWeight,
@@ -85,6 +94,9 @@ class ChatRepoImp implements ChatRepo {
       history: history,
       userText: userText,
       toolResults: toolResults,
+      name: userName,
+      gender: userGender,
+      age: userAge,
       goal: userGoal,
       activityLevel: userActivityLevel,
       weight: userWeight,
@@ -148,6 +160,9 @@ class ChatRepoImp implements ChatRepo {
     required List<ChatMessageEntity> history,
     required String userText,
     required List<ToolExecutionResultEntity> toolResults,
+    String? name,
+    String? gender,
+    int? age,
     String? goal,
     String? activityLevel,
     num? weight,
@@ -157,6 +172,9 @@ class ChatRepoImp implements ChatRepo {
       OllamaMessageDto(
         role: 'system',
         content: ChatPromptsAndSchemas.buildSystemPrompt(
+          name: name,
+          gender: gender,
+          age: age,
           goal: goal,
           activityLevel: activityLevel,
           weight: weight,
@@ -170,19 +188,15 @@ class ChatRepoImp implements ChatRepo {
         ),
       ),
       OllamaMessageDto(role: 'user', content: userText),
-    ];
-
-    // ✅ Each tool execution result is a SEPARATE message with tool_name & tool_call_id
-    for (final tr in toolResults) {
-      list.add(
-        OllamaMessageDto(
+      ...toolResults.map(
+        (tr) => OllamaMessageDto(
           role: 'tool',
           toolName: tr.toolName,
           toolCallId: tr.toolCallId,
           content: tr.content,
         ),
-      );
-    }
+      ),
+    ];
 
     return list;
   }

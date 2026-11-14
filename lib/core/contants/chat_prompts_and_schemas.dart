@@ -62,24 +62,45 @@ abstract final class ChatPromptsAndSchemas {
   };
 
   static String buildSystemPrompt({
+    String? name,
+    String? gender,
+    int? age,
     String? goal,
     String? activityLevel,
     num? weight,
     num? height,
   }) {
-    final buffer = StringBuffer(baseSystemPrompt);
-    if (goal != null ||
-        activityLevel != null ||
-        weight != null ||
-        height != null) {
-      buffer.write('\nUSER PROFILE: ');
-      if (goal != null && goal.isNotEmpty) buffer.write('Goal: $goal. ');
-      if (activityLevel != null && activityLevel.isNotEmpty) {
-        buffer.write('Level: $activityLevel. ');
-      }
-      if (weight != null) buffer.write('Weight: ${weight}kg. ');
-      if (height != null) buffer.write('Height: ${height}cm. ');
-    }
-    return buffer.toString();
+    final profile = _buildProfileSection(
+      name: name,
+      gender: gender,
+      age: age,
+      goal: goal,
+      activityLevel: activityLevel,
+      weight: weight,
+      height: height,
+    );
+    return profile.isEmpty ? baseSystemPrompt : '$baseSystemPrompt\n$profile';
+  }
+
+  static String _buildProfileSection({
+    String? name,
+    String? gender,
+    int? age,
+    String? goal,
+    String? activityLevel,
+    num? weight,
+    num? height,
+  }) {
+    final parts = <String>[
+      if (name != null && name.isNotEmpty) 'Name: $name',
+      if (gender != null && gender.isNotEmpty) 'Gender: $gender',
+      if (age != null) 'Age: $age',
+      if (goal != null && goal.isNotEmpty) 'Goal: $goal',
+      if (activityLevel != null && activityLevel.isNotEmpty)
+        'Level: $activityLevel',
+      if (weight != null) 'Weight: ${weight}kg',
+      if (height != null) 'Height: ${height}cm',
+    ];
+    return parts.isEmpty ? '' : 'USER PROFILE: ${parts.join('. ')}.';
   }
 }
