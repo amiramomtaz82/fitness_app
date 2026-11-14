@@ -38,6 +38,8 @@ abstract final class AppAssets {
   static const String robot = '$_basePath/Robot.png';
   // ignore: constant_identifier_names
   static const String Robot = robot;
+    static const String homee = '$_basePath/homee.png';
+
 
   // Settings & Security
   static const String lockSetting = '$_basePath/Lock Setting.png';

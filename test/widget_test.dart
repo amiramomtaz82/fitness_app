@@ -1,3 +1,4 @@
+import 'package:fitness_app/core/base/ui_events.dart';
 import 'package:fitness_app/features/exercise/presentation/home/view/home_screen.dart';
 import 'package:fitness_app/features/exercise/presentation/home/view/home_view_model/home_state.dart';
 import 'package:fitness_app/features/exercise/presentation/home/view/home_view_model/home_view_model.dart';
@@ -18,6 +19,9 @@ void main() {
     when(
       () => mockHomeViewModel.stream,
     ).thenAnswer((_) => Stream.value(const HomeState()));
+    when(
+      () => mockHomeViewModel.eventStream,
+    ).thenAnswer((_) => const Stream<BaseUiEvent>.empty());
   });
 
   testWidgets('HomeScreen renders successfully', (tester) async {

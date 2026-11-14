@@ -12,7 +12,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
-import 'package:fitness_app/features/auth/presentation/register/registration_options.dart';
+import 'package:fitness_app/core/contants/registration_options.dart';
 import 'register_test_helper.dart';
 
 class MockRegisterUseCase extends Mock implements RegisterUseCase {}

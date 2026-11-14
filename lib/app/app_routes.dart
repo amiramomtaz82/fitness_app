@@ -20,14 +20,28 @@ import 'package:fitness_app/features/exercise/presentation/popular_training_exer
 import 'package:fitness_app/features/exercise/presentation/popular_training_group/view/popular_training_group_view.dart';
 import 'package:fitness_app/features/exercise/presentation/work_out/view/work_out_view.dart';
 import 'package:fitness_app/features/on_bording/views/onboarding_view.dart';
-import 'package:fitness_app/features/profile/presentation/view/screens/profile_screen.dart';
 import 'package:fitness_app/features/splash/presentation/views/splash_view.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get_it/get_it.dart';
 import 'package:go_router/go_router.dart';
+import '../features/food/presentation/food_details/view/food_details_view.dart';
+import '../features/food/presentation/food_details/view_model/food_details_cubit.dart';
+import '../features/food/presentation/food_recommendation/view/food_recommendation_view.dart';
+import '../features/food/presentation/food_recommendation/view_model/food_recommendation_cubit.dart';
+import '../core/contants/web_pages.dart';
+import '../core/widgets/web_view/web_view_screen.dart';
+import '../features/profile/presentation/edit_profile/view/screens/edit_profile_screen.dart';
+import '../features/profile/presentation/edit_profile/view_model/edit_profile_cubit.dart';
+import '../features/profile/presentation/profile/view/screens/profile_screen.dart';
+import '../features/profile/presentation/profile/view_model/profile_cubit.dart';
+import '../features/profile/presentation/profile_scope.dart';
+final GlobalKey<NavigatorState> rootNavigatorKey = GlobalKey<NavigatorState>();
 
 final GoRouter appRouter = GoRouter(
+  navigatorKey: rootNavigatorKey,
   initialLocation: AppRoutes.splash,
+
   routes: [
     GoRoute(
       path: AppRoutes.splash,
@@ -102,6 +116,27 @@ final GoRouter appRouter = GoRouter(
       builder: (context, state) =>
           ExerciseVideoView(videoUrl: state.extra as String),
     ),
+
+    // Static web content (security, privacy policy, help)
+    GoRoute(
+      path: AppRoutes.webView,
+      name: AppRoutes.webView,
+      builder: (context, state) => WebViewScreen(page: state.extra! as WebPage),
+    ),
+
+    GoRoute(
+      path: AppRoutes.editProfile,
+      name: AppRoutes.editProfile,
+      builder: (context, state) => MultiBlocProvider(
+        providers: [
+          BlocProvider.value(value: getIt<ProfileCubit>()),
+          BlocProvider(create: (_) => getIt<EditProfileCubit>()),
+        ],
+        child: const EditProfileScreen(),
+      ),
+    ),
+
+    // Main app with bottom navigation
     StatefulShellRoute.indexedStack(
       builder: (context, state, navigationShell) {
         return AppBottomNavigationBar(navigationShell: navigationShell);
@@ -117,6 +152,22 @@ final GoRouter appRouter = GoRouter(
                     getIt<HomeViewModel>()..doIntent(const InitHomeIntent()),
                 child: const HomeScreen(),
               ),
+              // builder: (context, state) => const HomeScreen(),
+              routes: [
+                GoRoute(
+                  path: AppRoutes.foodRecommendationPath,
+                  name: AppRoutes.foodRecommendation,
+                  parentNavigatorKey: rootNavigatorKey,
+                  builder: (context, state) => BlocProvider(
+                    create: (_) => getIt<FoodRecommendationCubit>(),
+                    child: FoodRecommendationView(
+                      initialCategoryId: state.extra is String
+                          ? state.extra! as String
+                          : null,
+                    ),
+                  ),
+                ),
+              ],
             ),
           ],
         ),
@@ -143,11 +194,27 @@ final GoRouter appRouter = GoRouter(
             GoRoute(
               path: AppRoutes.profile,
               name: AppRoutes.profile,
-              builder: (context, state) => const ProfileScreen(),
+              builder: (context, state) =>
+                  const ProfileScope(child: ProfileScreen()),
             ),
           ],
         ),
       ],
+    ),
+
+    GoRoute(
+      path: AppRoutes.foodMeal,
+      redirect: (context, state) {
+        final mealId = state.pathParameters['mealId']?.trim() ?? '';
+        if (mealId.isEmpty) return AppRoutes.home;
+        return null;
+      },
+      builder: (context, state) {
+        return FoodDetailsView(
+          mealId: state.pathParameters['mealId']!.trim(),
+          createCubit: () => getIt<FoodDetailsCubit>(),
+        );
+      },
     ),
   ],
 );

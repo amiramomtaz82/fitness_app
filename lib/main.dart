@@ -6,6 +6,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 import 'core/di/di.dart';
 import 'app/app_routes.dart';
+import 'core/local/locale_scope.dart';
 import 'core/theme/app_theme.dart';
 import 'core/widgets/firebase_initialization_error_app.dart';
 import 'firebase_options.dart';
@@ -32,7 +33,7 @@ void main() async {
     } catch (_) {
       // Optional: local .env file may not exist in production
     }
-    configureDependencies();
+    await configureDependencies();
   }
 
   // 3. Single runApp call: Renders MyApp or fallback error screen
@@ -53,22 +54,24 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ScreenUtilInit(
-      designSize: const Size(375, 812),
-      minTextAdapt: true,
-      splitScreenMode: true,
-      builder: (context, child) {
-        return MaterialApp.router(
-          debugShowCheckedModeBanner: false,
-          theme: AppTheme.darkTheme,
-          darkTheme: AppTheme.darkTheme,
-          themeMode: ThemeMode.dark,
-          routerConfig: appRouter,
-          localizationsDelegates: context.localizationDelegates,
-          supportedLocales: context.supportedLocales,
-          locale: context.locale,
-        );
-      },
+    return LocaleScope(
+      child: ScreenUtilInit(
+        designSize: const Size(375, 812),
+        minTextAdapt: true,
+        splitScreenMode: true,
+        builder: (context, child) {
+          return MaterialApp.router(
+            debugShowCheckedModeBanner: false,
+            theme: AppTheme.darkTheme,
+            darkTheme: AppTheme.darkTheme,
+            themeMode: ThemeMode.dark,
+            routerConfig: appRouter,
+            localizationsDelegates: context.localizationDelegates,
+            supportedLocales: context.supportedLocales,
+            locale: context.locale,
+          );
+        },
+      ),
     );
   }
 }

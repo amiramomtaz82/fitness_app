@@ -25,11 +25,9 @@ class WorkoutTabsBar extends StatelessWidget {
         return switch (state.groupsResource.status) {
           ApiStatus.initial => const SizedBox.shrink(),
           ApiStatus.loading => SizedBox(
-              height: 33.h,
-              child: const Center(
-                child: CircularProgressIndicator.adaptive(),
-              ),
-            ),
+            height: 33.h,
+            child: const Center(child: CircularProgressIndicator.adaptive()),
+          ),
           ApiStatus.error => const _WorkoutTabsErrorState(),
           ApiStatus.success => _WorkoutTabsContent(state: state),
         };
@@ -50,9 +48,7 @@ class _WorkoutTabsContent extends StatelessWidget {
       return const SizedBox.shrink();
     }
 
-    final selectedIndex = groups.indexOf(
-      state.selectedGroup ?? groups.first,
-    );
+    final selectedIndex = groups.indexOf(state.selectedGroup ?? groups.first);
 
     return AppCategoryTabBar(
       categories: groups.map((g) => g.name).toList(),
@@ -76,15 +72,9 @@ class _WorkoutTabsErrorState extends StatelessWidget {
       child: Center(
         child: TextButton.icon(
           onPressed: () {
-            context.read<WorkoutCubit>().doIntent(
-              const InitWorkoutsIntent(),
-            );
+            context.read<WorkoutCubit>().doIntent(const InitWorkoutsIntent());
           },
-          icon: Icon(
-            Icons.refresh,
-            size: 16.sp,
-            color: context.colors.primary,
-          ),
+          icon: Icon(Icons.refresh, size: 16.sp, color: context.colors.primary),
           label: Text(
             LocaleKeys.common_retry.tr(),
             style: AppTextStyles.white14regular,

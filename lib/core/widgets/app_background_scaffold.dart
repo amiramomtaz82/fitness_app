@@ -9,6 +9,7 @@ class AppBackgroundScaffold extends StatelessWidget {
   final String? backgroundImage;
   final Widget? bottomNavigationBar;
   final bool resizeToAvoidBottomInset;
+  final bool safeArea;
   final bool safeAreaTop;
 
   // === Per-Feature Overlay Customization ===
@@ -31,72 +32,10 @@ class AppBackgroundScaffold extends StatelessWidget {
     this.overlayGradient,
     this.bottomNavigationBar,
     this.resizeToAvoidBottomInset = true,
+    this.safeArea = true,
     this.safeAreaTop = true,
     this.showLayoutGrid = false,
     this.gridColor,
     this.gridColumns = 2,
+    image,
   });
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: appBar,
-      resizeToAvoidBottomInset: resizeToAvoidBottomInset,
-      bottomNavigationBar: bottomNavigationBar,
-      body: SizedBox.expand(
-        child: Stack(
-          fit: StackFit.expand,
-          children: [
-            // 1. Background image
-            Positioned.fill(
-              child: Image.asset(
-                backgroundImage ?? AppAssets.authProfileBG,
-                fit: BoxFit.cover,
-              ),
-            ),
-
-            // 2. Overlay tint (Solid color or Gradient, customizable per feature)
-            Positioned.fill(
-              child: Container(
-                decoration: BoxDecoration(
-                  color: overlayGradient == null
-                      ? overlayColor.withValues(alpha: overlayOpacity)
-                      : null,
-                  gradient: overlayGradient,
-                ),
-              ),
-            ),
-
-            // 3. Screen content
-            SafeArea(top: safeAreaTop, child: child),
-
-            // 4. Feature-Specific Layout Guide Overlay (Visible only in debug if enabled)
-            if (kDebugMode && showLayoutGrid)
-              Positioned.fill(
-                child: IgnorePointer(
-                  child: Padding(
-                    padding: EdgeInsetsDirectional.symmetric(horizontal: 8.w),
-                    child: Row(
-                      children: List.generate(gridColumns * 2 - 1, (index) {
-                        // Alternate between column and gutter gap
-                        if (index.isOdd) {
-                          return SizedBox(width: 16.w);
-                        }
-                        return Expanded(
-                          child: Container(
-                            color: (gridColor ?? Colors.red).withValues(
-                              alpha: 0.08,
-                            ),
-                          ),
-                        );
-                      }),
-                    ),
-                  ),
-                ),
-              ),
-          ],
-        ),
-      ),
-    );
-  }
-}

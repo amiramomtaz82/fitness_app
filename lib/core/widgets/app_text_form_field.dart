@@ -12,6 +12,9 @@ class AppTextFormField extends StatelessWidget {
   final TextInputType keyboardType;
   final TextInputAction textInputAction;
   final String? Function(String?)? validator;
+  final AutovalidateMode autovalidateMode;
+  final bool enabled;
+  final ValueChanged<String>? onChanged;
 
   const AppTextFormField({
     super.key,
@@ -23,6 +26,9 @@ class AppTextFormField extends StatelessWidget {
     this.keyboardType = TextInputType.text,
     this.textInputAction = TextInputAction.next,
     this.validator,
+    this.autovalidateMode = AutovalidateMode.disabled,
+    this.enabled = true,
+    this.onChanged,
   });
 
   @override
@@ -34,6 +40,9 @@ class AppTextFormField extends StatelessWidget {
       keyboardType: keyboardType,
       textInputAction: textInputAction,
       validator: validator,
+      autovalidateMode: autovalidateMode,
+      enabled: enabled,
+      onChanged: onChanged,
       style: AppTextStyles.white14regular,
       cursorColor: colors.primary,
       decoration: InputDecoration(

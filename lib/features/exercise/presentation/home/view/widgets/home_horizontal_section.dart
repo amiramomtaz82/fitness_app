@@ -32,7 +32,14 @@ class HomeHorizontalSection<T> extends StatelessWidget {
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Text(title, style: AppTextStyles.white20bold),
+            Expanded(
+              child: Text(
+                title,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: AppTextStyles.white20bold,
+              ),
+            ),
             if (onSeeAllTap != null)
               TextButton(
                 onPressed: onSeeAllTap,

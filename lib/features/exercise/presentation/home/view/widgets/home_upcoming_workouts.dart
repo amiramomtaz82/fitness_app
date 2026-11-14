@@ -74,6 +74,10 @@ class GroupMusclesContent extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    return SizedBox(height: 125.h, child: _buildContent());
+  }
+
+  Widget _buildContent() {
     switch (resource.status) {
       case ApiStatus.initial:
         return const SizedBox.shrink();
@@ -96,26 +100,23 @@ class GroupMusclesContent extends StatelessWidget {
           );
         }
 
-        return SizedBox(
-          height: 125.h,
-          child: ListView.separated(
-            scrollDirection: Axis.horizontal,
-            itemCount: muscles.length,
-            separatorBuilder: (_, _) => SizedBox(width: 12.w),
-            itemBuilder: (context, index) {
-              final muscle = muscles[index];
+        return ListView.separated(
+          scrollDirection: Axis.horizontal,
+          itemCount: muscles.length,
+          separatorBuilder: (_, _) => SizedBox(width: 12.w),
+          itemBuilder: (context, index) {
+            final muscle = muscles[index];
 
-              return HomeImageCard(
-                title: muscle.name,
-                imageUrl: muscle.imageUrl,
-                width: 135.w,
-                height: 125.h,
-                onTap: () {
-                  // TODO: navigation
-                },
-              );
-            },
-          ),
+            return HomeImageCard(
+              title: muscle.name,
+              imageUrl: muscle.imageUrl,
+              width: 135.w,
+              height: 125.h,
+              onTap: () {
+                // TODO: navigation
+              },
+            );
+          },
         );
     }
   }

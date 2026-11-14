@@ -22,12 +22,13 @@ class WorkoutMusclesGrid extends StatelessWidget {
 
         return switch (resource.status) {
           ApiStatus.initial => const SizedBox.shrink(),
-          ApiStatus.loading =>
-            const Center(child: CircularProgressIndicator.adaptive()),
+          ApiStatus.loading => const Center(
+            child: CircularProgressIndicator.adaptive(),
+          ),
           ApiStatus.error => const _WorkoutGridErrorState(),
           ApiStatus.success => _WorkoutMusclesContent(
-              muscles: resource.data ?? const <MuscleEntity>[],
-            ),
+            muscles: resource.data ?? const <MuscleEntity>[],
+          ),
         };
       },
     );
@@ -47,20 +48,14 @@ class _WorkoutMusclesContent extends StatelessWidget {
 
     final items = muscles
         .map(
-          (m) => ContentCardItem(
-            id: m.id,
-            title: m.name,
-            imageUrl: m.imageUrl,
-          ),
+          (m) => ContentCardItem(id: m.id, title: m.name, imageUrl: m.imageUrl),
         )
         .toList();
 
     return AppContentGridView(
       items: items,
       onItemTap: (item) {
-        context.read<WorkoutCubit>().doIntent(
-          MuscleSelectedIntent(item.id),
-        );
+        context.read<WorkoutCubit>().doIntent(MuscleSelectedIntent(item.id));
       },
     );
   }

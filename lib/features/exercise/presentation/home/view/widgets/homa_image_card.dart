@@ -68,8 +68,7 @@ class HomeImageCard extends StatelessWidget {
                 ),
                 child: Text(
                   title,
-                  maxLines:
-                      1, //
+                  maxLines: 1, //
                   overflow: TextOverflow.ellipsis,
                   textAlign: TextAlign.center,
                   style: AppTextStyles.white14bold,

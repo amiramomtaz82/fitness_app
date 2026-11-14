@@ -1,3 +1,4 @@
+import 'package:fitness_app/app/routes_names.dart';
 import 'package:fitness_app/core/base/base_cubit.dart';
 import 'package:fitness_app/core/base/ui_events.dart';
 import 'package:fitness_app/core/base_response/base_response.dart';
@@ -41,6 +42,14 @@ class HomeViewModel extends BaseCubit<HomeState, BaseUiEvent> {
 
       case SelectMuscleGroupIntent(:final index):
         _onMuscleGroupSelected(index);
+
+      case OpenMealCategoryIntent(:final categoryId):
+        emitEvent(
+          NavigateEvent(AppRoutes.foodRecommendation, arguments: categoryId),
+        );
+
+      case SeeAllMealCategoriesIntent():
+        emitEvent(const NavigateEvent(AppRoutes.foodRecommendation));
     }
   }
 

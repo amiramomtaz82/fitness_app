@@ -96,6 +96,20 @@ abstract final class AppTheme {
         ),
       ),
 
+      filledButtonTheme: FilledButtonThemeData(
+        style: FilledButton.styleFrom(
+          backgroundColor: colors.primary,
+          foregroundColor: colors.white,
+          disabledBackgroundColor: colors.primary.withValues(alpha: 0.6),
+          disabledForegroundColor: colors.white,
+          padding: EdgeInsets.symmetric(vertical: 16.h),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(30.r),
+          ),
+          textStyle: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+        ),
+      ),
+
       outlinedButtonTheme: OutlinedButtonThemeData(
         style: OutlinedButton.styleFrom(
           foregroundColor: colors.grey,

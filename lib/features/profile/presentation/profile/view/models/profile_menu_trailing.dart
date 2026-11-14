@@ -1,0 +1,1 @@
+enum ProfileMenuTrailing { chevron, languageSwitch }
