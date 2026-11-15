@@ -18,18 +18,27 @@ class Endpoints {
   static const String editProfile = '/auth/editProfile';
 
   // Levels & Muscles
-  static const String levels = '/levels';
   static const String muscles = '/muscles';
   static const String musclesGroup = '/musclesGroup';
+  static const String musclesRandom = '/muscles/random';
 
   // Meals (TheMealDB - third-party, no auth)
   static const String mealDbBaseUrl = 'https://www.themealdb.com/api/json/v1/1';
   static const String mealCategories = '/categories.php';
   static const String mealsByCategory = '/filter.php';
+  static const String musclesGroupByGroupId = '/musclesGroup/{muscleGroupId}';
+  static const String mealLookup = '/lookup.php';
 
   // Exercises
   static const String exercises = '/exercises';
   static const String exercisesRandom = '/exercises/random';
   static const String exercisesByMuscleDifficulty =
       '/exercises/by-muscle-difficulty';
+
+  // Smart Coach / Ollama
+  static const String ollamaBaseUrl = 'https://ollama.com/api';
+  static const String ollamaChat = '/chat';
+  static const String ollamaGenerate = '/generate';
+
+  static const String levels = '/levels/difficulty-levels/by-prime-mover';
 }

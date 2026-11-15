@@ -7,19 +7,27 @@ class AppBottomNavigationBar extends StatelessWidget {
   final StatefulNavigationShell navigationShell;
 
   const AppBottomNavigationBar({super.key, required this.navigationShell});
+
   @override
   Widget build(BuildContext context) {
-    final selectedIndex = navigationShell.currentIndex;
+    final selectedTab = branchTabIndexes[navigationShell.currentIndex];
 
     return Scaffold(
+      extendBody:
+          true, // <-- Allows the background image to flow behind the floating bar
       body: navigationShell,
       bottomNavigationBar: FloatingBottomBar(
         items: items,
-        selectedIndex: selectedIndex,
-        onTap: (index) {
+        selectedIndex: selectedTab,
+        onTap: (tab) {
+          final pushRoute = items[tab].pushRoute;
+          if (pushRoute != null) {
+            context.push(pushRoute);
+            return;
+          }
           navigationShell.goBranch(
-            index,
-            initialLocation: index == selectedIndex,
+            branchTabIndexes.indexOf(tab),
+            initialLocation: tab == selectedTab,
           );
         },
       ),

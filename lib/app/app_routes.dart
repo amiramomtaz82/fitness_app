@@ -1,50 +1,64 @@
+import 'package:fitness_app/app/bottom_bar/bottom_navigation_bar.dart';
+import 'package:fitness_app/app/routes_names.dart';
+import 'package:fitness_app/core/di/di.dart';
+import 'package:fitness_app/features/auth/presentation/forget_password/view/forget_password_view.dart';
+import 'package:fitness_app/features/auth/presentation/forget_password/view_model/forget_password_cubit.dart';
+import 'package:fitness_app/features/auth/presentation/login/view/login_view.dart';
+import 'package:fitness_app/features/auth/presentation/login/view_model/login_cubit.dart';
+import 'package:fitness_app/features/auth/presentation/register/manager/cubit/register_cubit.dart';
+import 'package:fitness_app/features/auth/presentation/register/view/muti_steps_regitration/multi_steps_registration_view.dart';
+import 'package:fitness_app/features/auth/presentation/register/view/register_first_sceen/register_view.dart';
+import 'package:fitness_app/features/chat/presentation/view/screens/smart_coach_screen.dart';
+import 'package:fitness_app/features/exercise/domain/entities/exercise_entity.dart';
+import 'package:fitness_app/features/exercise/domain/entities/popular_training_entity.dart';
+import 'package:fitness_app/features/exercise/presentation/exercise/view/screen/exercise_screen.dart';
+import 'package:fitness_app/features/exercise/presentation/exercise/view_model/exercise_view_model.dart';
+import 'package:fitness_app/features/exercise/presentation/exercise_video/view/exercise_video_view.dart';
+import 'package:fitness_app/features/exercise/presentation/home/view/home_screen.dart';
+import 'package:fitness_app/features/exercise/presentation/home/view/home_view_model/home_intent.dart';
+import 'package:fitness_app/features/exercise/presentation/home/view/home_view_model/home_view_model.dart';
+import 'package:fitness_app/features/exercise/presentation/popular_training_exercise/view/popular_training_exercise_view.dart';
+import 'package:fitness_app/features/exercise/presentation/popular_training_group/view/popular_training_group_view.dart';
+import 'package:fitness_app/features/exercise/presentation/work_out/view/work_out_view.dart';
+import 'package:fitness_app/features/on_bording/views/onboarding_view.dart';
+import 'package:fitness_app/features/splash/presentation/views/splash_view.dart';
+import 'package:flutter/material.dart';
 import 'package:fitness_app/features/profile/presentation/change_password/view/view_model/change_password_cubit.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get_it/get_it.dart';
 import 'package:go_router/go_router.dart';
-
-import '../core/di/di.dart';
+import '../features/food/presentation/food_details/view/food_details_view.dart';
+import '../features/food/presentation/food_details/view_model/food_details_cubit.dart';
+import '../features/food/presentation/food_recommendation/view/food_recommendation_view.dart';
+import '../features/food/presentation/food_recommendation/view_model/food_recommendation_cubit.dart';
 import '../core/contants/web_pages.dart';
 import '../core/widgets/web_view/web_view_screen.dart';
-import '../features/auth/presentation/forget_password/view/forget_password_view.dart';
-import '../features/auth/presentation/forget_password/view_model/forget_password_cubit.dart';
-import '../features/auth/presentation/login/view/login_view.dart';
-import '../features/auth/presentation/login/view_model/login_cubit.dart';
-import '../features/auth/presentation/register/manager/cubit/register_cubit.dart';
-import '../features/auth/presentation/register/view/muti_steps_regitration/multi_steps_registration_view.dart';
-import '../features/auth/presentation/register/view/register_first_sceen/register_view.dart';
-import '../features/chat/presentation/view/screens/smart_coach_screen.dart';
-import '../features/home/presentation/view/screens/home_screen.dart';
-import '../features/home/presentation/view/screens/workouts_screen.dart';
-import '../features/on_bording/views/onboarding_view.dart';
+
+import '../features/chat/presentation/view_model/smart_coach_cubit.dart';
 import '../features/profile/presentation/edit_profile/view/screens/edit_profile_screen.dart';
 import '../features/profile/presentation/edit_profile/view_model/edit_profile_cubit.dart';
 import '../features/profile/presentation/change_password/view/screens/change_password_screen.dart';
 import '../features/profile/presentation/profile/view/screens/profile_screen.dart';
 import '../features/profile/presentation/profile/view_model/profile_cubit.dart';
 import '../features/profile/presentation/profile_scope.dart';
-import '../features/splash/presentation/views/splash_view.dart';
-import 'bottom_bar/bottom_navigation_bar.dart';
-import 'routes_names.dart';
+
+final GlobalKey<NavigatorState> rootNavigatorKey = GlobalKey<NavigatorState>();
 
 final GoRouter appRouter = GoRouter(
+  navigatorKey: rootNavigatorKey,
   initialLocation: AppRoutes.splash,
+
   routes: [
-    // Splash
     GoRoute(
       path: AppRoutes.splash,
       name: AppRoutes.splash,
       builder: (context, state) => const SplashView(),
     ),
-
-    // Onboarding
     GoRoute(
       path: AppRoutes.onboarding,
       name: AppRoutes.onboarding,
       builder: (context, state) => const OnboardingView(),
     ),
-
-    // Login
     GoRoute(
       path: AppRoutes.login,
       name: AppRoutes.login,
@@ -53,15 +67,11 @@ final GoRouter appRouter = GoRouter(
         child: const LoginView(),
       ),
     ),
-
-    // Register
     GoRoute(
       path: AppRoutes.register,
       name: AppRoutes.register,
       builder: (context, state) => const RegisterView(),
     ),
-
-    // Multi-step Registration
     GoRoute(
       path: AppRoutes.multiStepRegistration,
       name: AppRoutes.multiStepRegistration,
@@ -77,7 +87,6 @@ final GoRouter appRouter = GoRouter(
       },
     ),
 
-    // Forgot Password
     GoRoute(
       path: AppRoutes.forgotPassword,
       name: AppRoutes.forgotPassword,
@@ -86,14 +95,42 @@ final GoRouter appRouter = GoRouter(
         child: const ForgetPasswordView(),
       ),
     ),
+    GoRoute(
+      path: AppRoutes.exerciseDetails,
+      name: AppRoutes.exerciseDetails,
+      builder: (context, state) => BlocProvider(
+        create: (_) => getIt<ExerciseDetailsCubit>(),
+        child: ExerciseScreen(
+          muscleId: state.pathParameters['muscleId'] ?? '',
+          muscleName: state.uri.queryParameters['muscle'] ?? '',
+        ),
+      ),
+    ),
+    GoRoute(
+      path: AppRoutes.popularTrainingGroup,
+      name: AppRoutes.popularTrainingGroup,
+      builder: (context, state) => PopularTrainingGroupView(
+        training: state.extra as PopularTrainingEntity,
+      ),
+    ),
+    GoRoute(
+      path: AppRoutes.popularTrainingExercise,
+      name: AppRoutes.popularTrainingExercise,
+      builder: (context, state) =>
+          PopularTrainingExerciseView(exercise: state.extra as ExerciseEntity),
+    ),
+    GoRoute(
+      path: AppRoutes.exerciseVideo,
+      name: AppRoutes.exerciseVideo,
+      builder: (context, state) =>
+          ExerciseVideoView(videoUrl: state.extra as String),
+    ),
 
     // Static web content (security, privacy policy, help)
     GoRoute(
       path: AppRoutes.webView,
       name: AppRoutes.webView,
-      builder: (context, state) => WebViewScreen(
-        page: state.extra! as WebPage,
-      ),
+      builder: (context, state) => WebViewScreen(page: state.extra! as WebPage),
     ),
 
     // Edit Profile
@@ -119,48 +156,60 @@ final GoRouter appRouter = GoRouter(
       ),
     ),
 
+    GoRoute(
+      path: AppRoutes.smartCoach,
+      name: AppRoutes.smartCoach,
+      builder: (context, state) => BlocProvider(
+        create: (_) => getIt<SmartCoachCubit>(),
+        child: const SmartCoachScreen(),
+      ),
+    ),
+
     // Main app with bottom navigation
     StatefulShellRoute.indexedStack(
       builder: (context, state, navigationShell) {
-        return AppBottomNavigationBar(
-          navigationShell: navigationShell,
-        );
+        return AppBottomNavigationBar(navigationShell: navigationShell);
       },
       branches: [
-        // Home
         StatefulShellBranch(
           routes: [
             GoRoute(
               path: AppRoutes.home,
               name: AppRoutes.home,
-              builder: (context, state) => const HomeScreen(),
+              builder: (context, state) => BlocProvider(
+                create: (context) =>
+                    getIt<HomeViewModel>()..doIntent(const InitHomeIntent()),
+                child: const HomeScreen(),
+              ),
+              // builder: (context, state) => const HomeScreen(),
+              routes: [
+                GoRoute(
+                  path: AppRoutes.foodRecommendationPath,
+                  name: AppRoutes.foodRecommendation,
+                  parentNavigatorKey: rootNavigatorKey,
+                  builder: (context, state) => BlocProvider(
+                    create: (_) => getIt<FoodRecommendationCubit>(),
+                    child: FoodRecommendationView(
+                      initialCategoryId: state.extra is String
+                          ? state.extra! as String
+                          : null,
+                    ),
+                  ),
+                ),
+              ],
             ),
           ],
         ),
-
-        // Smart Coach
-        StatefulShellBranch(
-          routes: [
-            GoRoute(
-              path: AppRoutes.smartCoach,
-              name: AppRoutes.smartCoach,
-              builder: (context, state) => const SmartCoachScreen(),
-            ),
-          ],
-        ),
-
         // Workouts
         StatefulShellBranch(
           routes: [
             GoRoute(
               path: AppRoutes.workouts,
               name: AppRoutes.workouts,
-              builder: (context, state) => const WorkOutsScreen(),
+              builder: (context, state) => const WorkOutView(),
             ),
           ],
         ),
-
-        // Profile
         StatefulShellBranch(
           routes: [
             GoRoute(
@@ -172,6 +221,21 @@ final GoRouter appRouter = GoRouter(
           ],
         ),
       ],
+    ),
+
+    GoRoute(
+      path: AppRoutes.foodMeal,
+      redirect: (context, state) {
+        final mealId = state.pathParameters['mealId']?.trim() ?? '';
+        if (mealId.isEmpty) return AppRoutes.home;
+        return null;
+      },
+      builder: (context, state) {
+        return FoodDetailsView(
+          mealId: state.pathParameters['mealId']!.trim(),
+          createCubit: () => getIt<FoodDetailsCubit>(),
+        );
+      },
     ),
   ],
 );

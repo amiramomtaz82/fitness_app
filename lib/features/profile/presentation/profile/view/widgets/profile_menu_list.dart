@@ -22,8 +22,7 @@ class ProfileMenuList extends StatelessWidget {
     final colors = context.colors;
 
     return BlocBuilder<LocaleCubit, LocaleState>(
-      buildWhen: (previous, current) =>
-          previous.language != current.language,
+      buildWhen: (previous, current) => previous.language != current.language,
       builder: (context, state) => FrostedPanel(
         radius: 20,
         padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 6.h),

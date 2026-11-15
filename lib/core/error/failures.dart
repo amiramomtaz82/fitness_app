@@ -51,3 +51,7 @@ class SocialAccountFailure extends Failure {
   final SocialProvider provider;
   const SocialAccountFailure({required this.provider, super.serverMessage});
 }
+
+class ChatTokenLimitFailure extends Failure {
+  const ChatTokenLimitFailure({super.serverMessage});
+}

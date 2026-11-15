@@ -3,6 +3,7 @@ import 'package:injectable/injectable.dart';
 import '../../../../core/base_response/base_response.dart';
 import '../../../../core/base_response/safe_call.dart';
 import '../../domain/entities/meal_category_entity.dart';
+import '../../domain/entities/meal_details_entity.dart';
 import '../../domain/entities/meal_summary_entity.dart';
 import '../../domain/repo/food_repo.dart';
 import '../data_source/food_remote_data_source.dart';
@@ -30,6 +31,14 @@ class FoodRepoImp implements FoodRepo {
     return safeCall(() async {
       final response = await _remoteDataSource.getMealsByCategory(category);
       return response.toEntities();
+    });
+  }
+
+  @override
+  Future<BaseResponse<MealDetailsEntity?>> getMealDetails(String mealId) {
+    return safeCall(() async {
+      final response = await _remoteDataSource.lookupMeal(mealId);
+      return response.meal?.toEntity();
     });
   }
 }

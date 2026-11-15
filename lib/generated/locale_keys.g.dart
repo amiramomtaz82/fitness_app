@@ -119,6 +119,10 @@ abstract class LocaleKeys {
   static const home_breakfast = 'home.breakfast';
   static const home_lunch = 'home.lunch';
   static const home_dinner = 'home.dinner';
+  static const home_popular_training = 'home.popular_training';
+  static const home_popular_training_title = 'home.popular_training_title';
+  static const home_tasks = 'home.tasks';
+  static const home_home_no_muscles_found = 'home.home_no_muscles_found';
   static const home = 'home';
   static const workouts_workouts = 'workouts.workouts';
   static const workouts_full_body = 'workouts.full_body';
@@ -128,11 +132,74 @@ abstract class LocaleKeys {
   static const workouts_back = 'workouts.back';
   static const workouts_legs = 'workouts.legs';
   static const workouts_high_chest_exercise = 'workouts.high_chest_exercise';
+  static const workouts_stomach = 'workouts.stomach';
+  static const workouts_no_muscles_found = 'workouts.no_muscles_found';
   static const workouts = 'workouts';
   static const exercises_exercise = 'exercises.exercise';
   static const exercises_min_30 = 'exercises.min_30';
   static const exercises_beginner = 'exercises.beginner';
+  static const exercises_group_info = 'exercises.group_info';
+  static const exercises_group_title = 'exercises.group_title';
+  static const exercises_exercises_count = 'exercises.exercises_count';
+  static const exercises_labeled_value = 'exercises.labeled_value';
+  static const exercises_level = 'exercises.level';
+  static const exercises_muscle = 'exercises.muscle';
+  static const exercises_related_muscles = 'exercises.related_muscles';
+  static const exercises_target_muscle_group = 'exercises.target_muscle_group';
+  static const exercises_prime_mover_muscle = 'exercises.prime_mover_muscle';
+  static const exercises_secondary_muscle = 'exercises.secondary_muscle';
+  static const exercises_tertiary_muscle = 'exercises.tertiary_muscle';
+  static const exercises_equipment = 'exercises.equipment';
+  static const exercises_primary_equipment = 'exercises.primary_equipment';
+  static const exercises_primary_items = 'exercises.primary_items';
+  static const exercises_secondary_equipment = 'exercises.secondary_equipment';
+  static const exercises_secondary_items = 'exercises.secondary_items';
+  static const exercises_execution = 'exercises.execution';
+  static const exercises_posture = 'exercises.posture';
+  static const exercises_single_or_double_arm =
+      'exercises.single_or_double_arm';
+  static const exercises_continuous_or_alternating_arms =
+      'exercises.continuous_or_alternating_arms';
+  static const exercises_grip = 'exercises.grip';
+  static const exercises_load_position_ending =
+      'exercises.load_position_ending';
+  static const exercises_continuous_or_alternating_legs =
+      'exercises.continuous_or_alternating_legs';
+  static const exercises_foot_elevation = 'exercises.foot_elevation';
+  static const exercises_combination_exercises =
+      'exercises.combination_exercises';
+  static const exercises_classification = 'exercises.classification';
+  static const exercises_movement_patterns = 'exercises.movement_patterns';
+  static const exercises_planes_of_motion = 'exercises.planes_of_motion';
+  static const exercises_body_region = 'exercises.body_region';
+  static const exercises_force_type = 'exercises.force_type';
+  static const exercises_mechanics = 'exercises.mechanics';
+  static const exercises_laterality = 'exercises.laterality';
+  static const exercises_primary_exercise_classification =
+      'exercises.primary_exercise_classification';
+  static const exercises_videos = 'exercises.videos';
+  static const exercises_video_demonstration = 'exercises.video_demonstration';
+  static const exercises_video_explanation = 'exercises.video_explanation';
+  static const exercises_not_available = 'exercises.not_available';
+  static const exercises_no_exercises_found = 'exercises.no_exercises_found';
+  static const exercises_cal = 'exercises.cal';
+  static const exercises_video_unavailable = 'exercises.video_unavailable';
+  static const exercises_no_exercises = 'exercises.no_exercises';
   static const exercises = 'exercises';
+  static const difficulty_levels_beginner = 'difficulty_levels.beginner';
+  static const difficulty_levels_intermediate =
+      'difficulty_levels.intermediate';
+  static const difficulty_levels_advanced = 'difficulty_levels.advanced';
+  static const difficulty_levels_cal = 'difficulty_levels.cal';
+  static const difficulty_levels_muscle_exercise =
+      'difficulty_levels.muscle_exercise';
+  static const difficulty_levels_list_description =
+      'difficulty_levels.list_description';
+  static const difficulty_levels_video_unavailable =
+      'difficulty_levels.video_unavailable';
+  static const difficulty_levels_no_exercises =
+      'difficulty_levels.no_exercises';
+  static const difficulty_levels = 'difficulty_levels';
   static const chat_hi_user = 'chat.hi_user';
   static const chat_i_am_your_smart_coach = 'chat.i_am_your_smart_coach';
   static const chat_how_can_i_assist_you_today =
@@ -141,6 +208,16 @@ abstract class LocaleKeys {
   static const chat_smart_coach = 'chat.smart_coach';
   static const chat_hello_how_can_i_assist = 'chat.hello_how_can_i_assist';
   static const chat_previous_conversations = 'chat.previous_conversations';
+  static const chat_token_limit_reached = 'chat.token_limit_reached';
+  static const chat_token_limit_warning = 'chat.token_limit_warning';
+  static const chat_type_message_hint = 'chat.type_message_hint';
+  static const chat_new_chat = 'chat.new_chat';
+  static const chat_no_previous_conversations =
+      'chat.no_previous_conversations';
+  static const chat_retry = 'chat.retry';
+  static const chat_send = 'chat.send';
+  static const chat_load_conversation_failed = 'chat.load_conversation_failed';
+  static const chat_back = 'chat.back';
   static const chat = 'chat';
   static const profile_profile = 'profile.profile';
   static const profile_edit_profile = 'profile.edit_profile';
@@ -216,4 +293,15 @@ abstract class LocaleKeys {
   static const errors_photo_too_large = 'errors.photo_too_large';
   static const errors_internal_server_error = 'errors.internal_server_error';
   static const errors = 'errors';
+  static const food_instructions = 'food.instructions';
+  static const food_ingredients = 'food.ingredients';
+  static const food_energy = 'food.energy';
+  static const food_protein = 'food.protein';
+  static const food_carbs = 'food.carbs';
+  static const food_fat = 'food.fat';
+  static const food_sample = 'food.sample';
+  static const food_nutrition_note = 'food.nutrition_note';
+  static const food_food_recommendation = 'food.food_recommendation';
+  static const food_no_meals_found = 'food.no_meals_found';
+  static const food = 'food';
 }

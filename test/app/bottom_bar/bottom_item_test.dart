@@ -1,4 +1,5 @@
 import 'package:fitness_app/app/bottom_bar/bottom_item.dart';
+import 'package:fitness_app/app/routes_names.dart';
 import 'package:fitness_app/core/contants/app_assets.dart';
 import 'package:fitness_app/generated/locale_keys.g.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -10,6 +11,18 @@ void main() {
 
       expect(item.icon, equals(AppAssets.home));
       expect(item.label, equals('Test Label'));
+      expect(item.pushRoute, isNull);
+      expect(item.opensFullScreen, isFalse);
+    });
+
+    test('only the smart coach item opens a full screen route', () {
+      expect(items[1].pushRoute, equals(AppRoutes.smartCoach));
+      expect(items[1].opensFullScreen, isTrue);
+      expect(items.where((item) => item.opensFullScreen).length, equals(1));
+    });
+
+    test('branchTabIndexes maps shell branches to their tab positions', () {
+      expect(branchTabIndexes, equals([0, 2, 3]));
     });
 
     test('items list has 4 elements with correct properties and order', () {

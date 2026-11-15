@@ -1,7 +1,6 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:fitness_app/app/routes_names.dart';
 import 'package:fitness_app/core/contants/app_assets.dart';
-import 'package:fitness_app/core/theme/app_colors.dart';
 import 'package:fitness_app/core/theme/app_theme.dart';
 import 'package:fitness_app/features/on_bording/views/onboarding_view.dart';
 import 'package:fitness_app/features/splash/presentation/views/splash_view.dart';
@@ -72,7 +71,7 @@ void main() {
 
     final Scaffold scaffold = tester.widget<Scaffold>(find.byType(Scaffold));
     debugPrint('SCAFFOLD BG: ${scaffold.backgroundColor}');
-    expect(scaffold.backgroundColor, AppColors.background);
+    expect(scaffold.backgroundColor, const Color(0xFF1E1E1E));
 
     final Image logoImage = tester.widget<Image>(find.byType(Image));
     expect(logoImage.image, isA<AssetImage>());
@@ -91,8 +90,6 @@ void main() {
 
       expect(find.byType(SplashView), findsOneWidget);
 
-      // Let the scale in animation finish and then wait for the post
-      // animation delay before the navigation happens.
       await tester.pump(const Duration(milliseconds: 700));
       await tester.pump(const Duration(seconds: 1));
       await tester.pumpAndSettle();

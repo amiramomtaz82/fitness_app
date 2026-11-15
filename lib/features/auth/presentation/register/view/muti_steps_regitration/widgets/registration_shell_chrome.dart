@@ -21,11 +21,13 @@ class RegistrationShellBody extends StatelessWidget {
     required this.pageController,
     required this.onBack,
     required this.onNext,
+    this.validationMessage,
   });
 
   final PageController pageController;
   final VoidCallback onBack;
   final VoidCallback onNext;
+  final String? validationMessage;
 
   @override
   Widget build(BuildContext context) {
@@ -39,6 +41,7 @@ class RegistrationShellBody extends StatelessWidget {
             RegistrationHeader(onBack: onBack),
             SizedBox(height: 16.h),
             RegistrationPanel(pageController: pageController),
+            RegistrationValidationBanner(message: validationMessage),
             SizedBox(height: 16.h),
             RegistrationNextButton(onNext: onNext),
           ],
@@ -202,6 +205,37 @@ class RegistrationPages extends StatelessWidget {
       itemCount: count,
       itemBuilder: (_, index) => RegistrationStepPage(step: index),
     );
+  }
+}
+
+class RegistrationValidationBanner extends StatelessWidget {
+  const RegistrationValidationBanner({super.key, required this.message});
+
+  final String? message;
+
+  @override
+  Widget build(BuildContext context) {
+    final text = message;
+    if (text == null || text.isEmpty) return const SizedBox.shrink();
+    final theme = Theme.of(context).snackBarTheme;
+    return Padding(
+      padding: EdgeInsets.only(top: 12.h),
+      child: DecoratedBox(
+        decoration: BoxDecoration(
+          color: theme.backgroundColor ?? context.colors.primary,
+          borderRadius: BorderRadius.circular(12.r),
+        ),
+        child: Padding(
+          padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 12.h),
+          child: Text(text, style: _messageStyle(context, theme)),
+        ),
+      ),
+    );
+  }
+
+  TextStyle _messageStyle(BuildContext context, SnackBarThemeData theme) {
+    return theme.contentTextStyle ??
+        TextStyle(color: context.colors.white, fontSize: 16.sp);
   }
 }
 

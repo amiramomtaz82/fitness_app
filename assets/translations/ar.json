@@ -111,7 +111,11 @@
     "recommendation_for_you": "ترشيحات لك",
     "breakfast": "فطور",
     "lunch": "غداء",
-    "dinner": "عشاء"
+    "dinner": "عشاء",
+    "popular_training": "التمارين الشائعة",
+    "popular_training_title": "التمارين الشائعة: {}",
+    "tasks": "{} تمارين",
+    "home_no_muscles_found": "لا توجد تمارين متاحة حاليًا"
   },
   "workouts": {
     "workouts": "التمارين",
@@ -121,12 +125,65 @@
     "shoulder": "كتف",
     "back": "ظهر",
     "legs": "أرجل",
-    "high_chest_exercise": "تمرين أعلى الصدر"
+    "high_chest_exercise": "تمرين أعلى الصدر",
+    "stomach": "معدة",
+    "no_muscles_found": "لم يتم العثور على عضلات لهذا القسم."
   },
   "exercises": {
     "exercise": "التمرين",
     "min_30": "30 دقيقة",
-    "beginner": "مبتدئ"
+    "beginner": "مبتدئ",
+    "group_info": "معلومات المجموعة",
+    "group_title": "التدريب الشعبي: {}",
+    "exercises_count": "{} تمارين",
+    "labeled_value": "{}: {}",
+    "level": "المستوى",
+    "muscle": "العضلة",
+    "related_muscles": "العضلات المرتبطة",
+    "target_muscle_group": "مجموعة العضلات المستهدفة",
+    "prime_mover_muscle": "العضلة الأساسية",
+    "secondary_muscle": "العضلة الثانوية",
+    "tertiary_muscle": "العضلة الثالثة",
+    "equipment": "المعدات",
+    "primary_equipment": "المعدات الأساسية",
+    "primary_items": "قطع المعدات الأساسية",
+    "secondary_equipment": "المعدات الثانوية",
+    "secondary_items": "قطع المعدات الثانوية",
+    "execution": "التنفيذ",
+    "posture": "الوضعية",
+    "single_or_double_arm": "ذراع واحدة أو ذراعان",
+    "continuous_or_alternating_arms": "الذراعان بالتتابع أو بالتبادل",
+    "grip": "القبضة",
+    "load_position_ending": "وضع الحمل في النهاية",
+    "continuous_or_alternating_legs": "الساقان بالتتابع أو بالتبادل",
+    "foot_elevation": "ارتفاع القدم",
+    "combination_exercises": "التمارين المركبة",
+    "classification": "التصنيف",
+    "movement_patterns": "أنماط الحركة",
+    "planes_of_motion": "مستويات الحركة",
+    "body_region": "منطقة الجسم",
+    "force_type": "نوع القوة",
+    "mechanics": "الميكانيكا",
+    "laterality": "الجانبية",
+    "primary_exercise_classification": "التصنيف الأساسي للتمرين",
+    "videos": "الفيديوهات",
+    "video_demonstration": "الفيديو التوضيحي",
+    "video_explanation": "الفيديو الشامل",
+    "not_available": "غير متاح",
+    "no_exercises_found": "لا توجد تمارين",
+    "cal": "سعرة",
+    "video_unavailable": "لا يوجد فيديو متاح لهذا التمرين.",
+    "no_exercises": "لا توجد تمارين متاحة لهذا المستوى."
+  },
+  "difficulty_levels": {
+    "beginner": "مبتدئ",
+    "intermediate": "متوسط",
+    "advanced": "متقدم",
+    "cal": "سعرة",
+    "muscle_exercise": "{} تمرين",
+    "list_description": "قم ببناء القوة والعضلات من خلال هذه التمارين. اختر مستواك واتبع الفيديو لكل حركة.",
+    "video_unavailable": "لا يوجد فيديو متاح لهذا التمرين.",
+    "no_exercises": "لا توجد تمارين متاحة لهذا المستوى."
   },
   "chat": {
     "hi_user": "مرحباً {} ،",
@@ -135,7 +192,16 @@
     "get_started": "ابدأ الآن",
     "smart_coach": "المدرب الذكي",
     "hello_how_can_i_assist": "مرحباً، كيف يمكنني مساعدتك اليوم؟",
-    "previous_conversations": "المحادثات السابقة"
+    "previous_conversations": "المحادثات السابقة",
+    "token_limit_reached": "تم الوصول للحد الأقصى للمحادثة. يرجى بدء جلسة جديدة.",
+    "token_limit_warning": "أنت تقترب من الحد الأقصى للمحادثة. يُفضل بدء جلسة جديدة قريباً.",
+    "type_message_hint": "اسأل مدربك أي سؤال...",
+    "new_chat": "محادثة جديدة",
+    "no_previous_conversations": "لا توجد محادثات سابقة بعد",
+    "retry": "إعادة المحاولة",
+    "send": "إرسال",
+    "load_conversation_failed": "تعذّر تحميل هذه المحادثة.",
+    "back": "رجوع"
   },
   "profile": {
     "profile": "الملف الشخصي",
@@ -197,5 +263,17 @@
     "invalid_fields": "يرجى التحقق من صحة البيانات المدخلة وتصحيح الأخطاء.",
     "photo_too_large": "الصورة المختارة كبيرة جدًا. يرجى اختيار صورة أصغر.",
     "internal_server_error": "خطأ في الخادم. يرجى المحاولة لاحقاً."
+  },
+  "food": {
+    "instructions": "طريقة التحضير",
+    "ingredients": "المكونات",
+    "energy": "الطاقة",
+    "protein": "البروتين",
+    "carbs": "الكربوهيدرات",
+    "fat": "الدهون",
+    "sample": "عينة",
+    "nutrition_note": "قيم غذائية للعرض",
+    "food_recommendation": "الوجبات المقترحة",
+    "no_meals_found": "لا توجد وجبات في هذا القسم."
   }
 }

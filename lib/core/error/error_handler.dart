@@ -43,14 +43,18 @@ class ErrorHandler {
 
         case DioExceptionType.badResponse:
           final statusCode = error.response?.statusCode;
-          final serverMessage = _extractBackendMessage(error.response?.data);
+          final body = error.response?.data;
+          final json = body is Map<String, dynamic> ? body : null;
+          final serverMessage = json == null
+              ? null
+              : _extractBackendMessage(json);
+          final errors = json?['errors'];
+          final fieldErrors = errors is Map<String, dynamic> ? errors : null;
 
           return switch (statusCode) {
             400 => ValidationFailure(
               serverMessage: serverMessage,
-              errors: error.response?.data is Map<String, dynamic>
-                  ? error.response?.data['errors']
-                  : null,
+              errors: fieldErrors,
               statusCode: statusCode,
             ),
             401 => UnauthorizedFailure(
@@ -67,9 +71,7 @@ class ErrorHandler {
             ),
             422 => ValidationFailure(
               serverMessage: serverMessage,
-              errors: error.response?.data is Map<String, dynamic>
-                  ? error.response?.data['errors']
-                  : null,
+              errors: fieldErrors,
               statusCode: statusCode,
             ),
             _ => ServerFailure(
