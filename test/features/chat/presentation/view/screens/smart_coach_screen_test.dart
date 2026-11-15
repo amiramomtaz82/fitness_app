@@ -380,4 +380,139 @@ void main() {
       verify(() => mockGetSessions()).called(2);
     });
   });
+
+  group('SmartCoachScreen navigation', () {
+    testWidgets('opens previous conversations from the welcome view', (
+      tester,
+    ) async {
+      when(
+        () => mockGetSessions(),
+      ).thenAnswer((_) async => SuccessResponse([tOldSession]));
+      when(
+        () => mockGetMessages(tOldSession.id),
+      ).thenAnswer((_) async => SuccessResponse([tCoachReply]));
+      await pumpScreen(tester);
+
+      await tester.tap(find.byKey(const Key('open_previous_conversations')));
+      await settleUi(tester, steps: 8);
+      await tester.tap(find.text('Leg day plan'));
+      await settleUi(tester, steps: 8);
+
+      expect(find.byType(CoachChatView), findsOneWidget);
+      expect(find.text('Try these moves'), findsOneWidget);
+    });
+
+    testWidgets('back button returns to the welcome view', (tester) async {
+      await pumpScreen(tester);
+      await getStarted(tester);
+
+      await tester.tap(find.byKey(const Key('chat_back_button')));
+      await settleUi(tester);
+
+      expect(find.byType(CoachWelcomeView), findsOneWidget);
+      expect(find.byType(CoachChatView), findsNothing);
+    });
+
+    testWidgets('system back returns to the welcome view', (tester) async {
+      await pumpScreen(tester);
+      await getStarted(tester);
+
+      await tester.binding.handlePopRoute();
+      await settleUi(tester);
+
+      expect(find.byType(CoachWelcomeView), findsOneWidget);
+      expect(cubit.state.hasStarted, isFalse);
+    });
+  });
+
+  group('SmartCoachScreen chat states', () {
+    testWidgets('a new chat centers the input under a greeting', (
+      tester,
+    ) async {
+      await pumpScreen(tester);
+      await getStarted(tester);
+
+      final emptyState = find.byKey(const Key('chat_empty_state'));
+      expect(emptyState, findsOneWidget);
+      expect(find.text('How Can I Assist You Today ?'), findsOneWidget);
+      expect(
+        find.descendant(
+          of: emptyState,
+          matching: find.byKey(const Key('chat_input_field')),
+        ),
+        findsOneWidget,
+      );
+    });
+
+    testWidgets('focusing the input moves it down and keeps the greeting', (
+      tester,
+    ) async {
+      await pumpScreen(tester);
+      await getStarted(tester);
+      final emptyState = find.byKey(const Key('chat_empty_state'));
+      final input = find.byKey(const Key('chat_input_field'));
+
+      await tester.tap(input);
+      await settleUi(tester);
+
+      expect(emptyState, findsOneWidget);
+      expect(find.descendant(of: emptyState, matching: input), findsNothing);
+      expect(input, findsOneWidget);
+      expect(tester.widget<TextField>(input).focusNode!.hasFocus, isTrue);
+
+      await tester.enterText(input, 'Leg');
+      await settleUi(tester);
+      expect(tester.widget<TextField>(input).controller!.text, 'Leg');
+    });
+
+    testWidgets('sending the first message moves the input to the bottom', (
+      tester,
+    ) async {
+      stubSend(const TokenStatusEntity.initial());
+      await pumpScreen(tester);
+      await getStarted(tester);
+
+      await sendMessage(tester, 'Chest workout');
+
+      expect(find.byKey(const Key('chat_empty_state')), findsNothing);
+      expect(find.byKey(const Key('chat_input_field')), findsOneWidget);
+      expect(find.text('Try these moves'), findsOneWidget);
+    });
+
+    testWidgets('shows an error with retry when a conversation fails', (
+      tester,
+    ) async {
+      var calls = 0;
+      when(
+        () => mockGetSessions(),
+      ).thenAnswer((_) async => SuccessResponse([tOldSession]));
+      when(() => mockGetMessages(tOldSession.id)).thenAnswer((_) async {
+        calls++;
+        return calls == 1
+            ? ErrorResponse<List<ChatMessageEntity>>(
+                failure: const ServerFailure(),
+              )
+            : SuccessResponse([tCoachReply]);
+      });
+      await pumpScreen(tester);
+      await tester.tap(find.byKey(const Key('open_previous_conversations')));
+      await settleUi(tester, steps: 8);
+      await tester.tap(find.text('Leg day plan'));
+      await settleUi(tester, steps: 8);
+
+      expect(find.byKey(const Key('conversation_error')), findsOneWidget);
+      expect(
+        tester
+            .widget<IconButton>(find.byKey(const Key('chat_send_button')))
+            .onPressed,
+        isNull,
+      );
+
+      await tester.tap(find.byKey(const Key('retry_conversation_button')));
+      await settleUi(tester, steps: 8);
+
+      expect(find.byKey(const Key('conversation_error')), findsNothing);
+      expect(find.text('Try these moves'), findsOneWidget);
+    });
+  });
 }

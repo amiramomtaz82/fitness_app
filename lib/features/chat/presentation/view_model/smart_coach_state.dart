@@ -32,7 +32,16 @@ class SmartCoachState extends Equatable {
   ProfileEntity? get profile => profileResource.data;
 
   bool get canSend =>
-      !isSending && !tokenStatus.isLocked && !conversationResource.isLoading;
+      !isSending &&
+      !tokenStatus.isLocked &&
+      !conversationResource.isLoading &&
+      !conversationResource.isError;
+
+  bool get isEmptyChat =>
+      messages.isEmpty &&
+      !isSending &&
+      !conversationResource.isLoading &&
+      !conversationResource.isError;
 
   SmartCoachState copyWith({
     Resource<ProfileEntity>? profileResource,

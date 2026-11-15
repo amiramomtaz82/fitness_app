@@ -3,11 +3,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
-import '../../../../../core/theme/app_colors.dart';
 import '../../../../../core/theme/text_styles.dart';
+import '../../../../../core/widgets/app_back_button.dart';
 import '../../../../../generated/locale_keys.g.dart';
 import '../../view_model/smart_coach_cubit.dart';
-import 'coach_logo.dart';
+import '../../view_model/smart_coach_intent.dart';
+import 'open_conversations_button.dart';
 
 class CoachChatHeader extends StatelessWidget {
   const CoachChatHeader({super.key});
@@ -20,7 +21,16 @@ class CoachChatHeader extends StatelessWidget {
 
     return Row(
       children: [
-        const CoachLogo(),
+        Semantics(
+          button: true,
+          label: LocaleKeys.chat_back.tr(),
+          child: AppBackButton(
+            key: const Key('chat_back_button'),
+            onTap: () => context.read<SmartCoachCubit>().doIntent(
+              const BackToWelcomeIntent(),
+            ),
+          ),
+        ),
         Expanded(
           child: Column(
             mainAxisSize: MainAxisSize.min,
@@ -45,15 +55,7 @@ class CoachChatHeader extends StatelessWidget {
             ],
           ),
         ),
-        IconButton(
-          key: const Key('open_previous_conversations'),
-          tooltip: LocaleKeys.chat_previous_conversations.tr(),
-          visualDensity: VisualDensity.compact,
-          padding: EdgeInsets.zero,
-          constraints: BoxConstraints.tightFor(width: 24.r, height: 24.r),
-          onPressed: () => Scaffold.of(context).openEndDrawer(),
-          icon: Icon(Icons.sort, color: AppColors.orange, size: 24.r),
-        ),
+        const OpenConversationsButton(),
       ],
     );
   }

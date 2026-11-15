@@ -148,7 +148,9 @@
     "new_chat": "محادثة جديدة",
     "no_previous_conversations": "لا توجد محادثات سابقة بعد",
     "retry": "إعادة المحاولة",
-    "send": "إرسال"
+    "send": "إرسال",
+    "load_conversation_failed": "تعذّر تحميل هذه المحادثة.",
+    "back": "رجوع"
   },
   "profile": {
     "profile": "الملف الشخصي",

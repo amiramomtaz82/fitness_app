@@ -31,3 +31,11 @@ class SelectSessionIntent extends SmartCoachIntent {
 class StartNewChatIntent extends SmartCoachIntent {
   const StartNewChatIntent();
 }
+
+class BackToWelcomeIntent extends SmartCoachIntent {
+  const BackToWelcomeIntent();
+}
+
+class RetryLoadConversationIntent extends SmartCoachIntent {
+  const RetryLoadConversationIntent();
+}

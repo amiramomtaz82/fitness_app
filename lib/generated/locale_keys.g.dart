@@ -155,6 +155,8 @@ abstract class LocaleKeys {
       'chat.no_previous_conversations';
   static const chat_retry = 'chat.retry';
   static const chat_send = 'chat.send';
+  static const chat_load_conversation_failed = 'chat.load_conversation_failed';
+  static const chat_back = 'chat.back';
   static const chat = 'chat';
   static const profile_profile = 'profile.profile';
   static const profile_edit_profile = 'profile.edit_profile';

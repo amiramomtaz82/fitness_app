@@ -148,7 +148,9 @@
     "new_chat": "New Chat",
     "no_previous_conversations": "No previous conversations yet",
     "retry": "Retry",
-    "send": "Send"
+    "send": "Send",
+    "load_conversation_failed": "Couldn't load this conversation.",
+    "back": "Back"
   },
   "profile": {
     "profile": "Profile",

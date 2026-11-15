@@ -35,14 +35,20 @@ class _SmartCoachScreenState extends State<SmartCoachScreen>
       (cubit) => cubit.state.hasStarted,
     );
 
-    return AppBackgroundScaffold(
-      overlayOpacity: 0.7,
-      endDrawer: hasStarted ? const PreviousConversationsDrawer() : null,
-      child: AnimatedSwitcher(
-        duration: const Duration(milliseconds: 300),
-        child: hasStarted
-            ? const CoachChatView(key: ValueKey('chat'))
-            : const CoachWelcomeView(key: ValueKey('welcome')),
+    return PopScope(
+      canPop: !hasStarted,
+      onPopInvokedWithResult: (didPop, _) {
+        if (!didPop) cubit.doIntent(const BackToWelcomeIntent());
+      },
+      child: AppBackgroundScaffold(
+        overlayOpacity: 0.7,
+        endDrawer: const PreviousConversationsDrawer(),
+        child: AnimatedSwitcher(
+          duration: const Duration(milliseconds: 300),
+          child: hasStarted
+              ? const CoachChatView(key: ValueKey('chat'))
+              : const CoachWelcomeView(key: ValueKey('welcome')),
+        ),
       ),
     );
   }

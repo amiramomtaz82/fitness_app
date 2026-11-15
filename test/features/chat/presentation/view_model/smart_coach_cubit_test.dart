@@ -490,4 +490,91 @@ void main() {
       expect(cubit.state.profile, tProfile);
     });
   });
+
+  group('BackToWelcomeIntent', () {
+    test('returns to the welcome view and keeps the conversation', () async {
+      stubCreateSession();
+      stubSend(sendSuccess());
+      cubit.doIntent(const SendMessageIntent('Hi'));
+      await flush();
+
+      cubit.doIntent(const BackToWelcomeIntent());
+
+      expect(cubit.state.hasStarted, isFalse);
+      expect(cubit.state.sessionId, tSession.id);
+      expect(cubit.state.messages, hasLength(2));
+    });
+
+    test(
+      'reopens the same session from the welcome view without reloading',
+      () async {
+        stubCreateSession();
+        stubSend(sendSuccess());
+        cubit.doIntent(const SendMessageIntent('Hi'));
+        await flush();
+        cubit.doIntent(const BackToWelcomeIntent());
+
+        cubit.doIntent(SelectSessionIntent(tSession));
+        await flush();
+
+        expect(cubit.state.hasStarted, isTrue);
+        verifyNever(() => mockGetMessages(any()));
+      },
+    );
+  });
+
+  group('RetryLoadConversationIntent', () {
+    final oldSession = ChatSessionEntity(
+      id: 'ses_old',
+      title: 'Old chat',
+      updatedAt: DateTime(2026, 1, 1),
+      totalTokens: 0,
+    );
+
+    test('reloads the conversation after a failure', () async {
+      var calls = 0;
+      when(() => mockGetMessages(oldSession.id)).thenAnswer((_) async {
+        calls++;
+        return calls == 1
+            ? ErrorResponse<List<ChatMessageEntity>>(
+                failure: const ServerFailure(),
+              )
+            : SuccessResponse([tCoachMessage]);
+      });
+      cubit.doIntent(SelectSessionIntent(oldSession));
+      await flush();
+      expect(cubit.state.conversationResource.isError, isTrue);
+      expect(cubit.state.canSend, isFalse);
+
+      cubit.doIntent(const RetryLoadConversationIntent());
+      expect(cubit.state.conversationResource.isLoading, isTrue);
+      await flush();
+
+      expect(cubit.state.messages, [tCoachMessage]);
+      expect(cubit.state.conversationResource.isSuccess, isTrue);
+      expect(cubit.state.canSend, isTrue);
+      verify(() => mockGetMessages(oldSession.id)).called(2);
+    });
+
+    test('does nothing when the conversation did not fail', () async {
+      cubit.doIntent(const RetryLoadConversationIntent());
+      await flush();
+
+      verifyNever(() => mockGetMessages(any()));
+    });
+  });
+
+  group('isEmptyChat', () {
+    test('is true for a new chat and false once a message is sent', () async {
+      stubCreateSession();
+      stubSend(sendSuccess());
+      expect(cubit.state.isEmptyChat, isTrue);
+
+      cubit.doIntent(const SendMessageIntent('Hi'));
+      expect(cubit.state.isEmptyChat, isFalse);
+      await flush();
+
+      expect(cubit.state.isEmptyChat, isFalse);
+    });
+  });
 }

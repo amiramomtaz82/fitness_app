@@ -46,6 +46,10 @@ class SmartCoachCubit extends BaseCubit<SmartCoachState, BaseUiEvent> {
         _openSession(session);
       case StartNewChatIntent():
         _startNewChat();
+      case BackToWelcomeIntent():
+        emit(state.copyWith(hasStarted: false));
+      case RetryLoadConversationIntent():
+        _retryLoadConversation();
     }
   }
 
@@ -175,20 +179,38 @@ class SmartCoachCubit extends BaseCubit<SmartCoachState, BaseUiEvent> {
   }
 
   Future<void> _openSession(ChatSessionEntity session) async {
-    if (state.isSending || session.id == state.sessionId) return;
+    if (state.isSending) return;
+    if (session.id == state.sessionId) {
+      emit(state.copyWith(hasStarted: true));
+      return;
+    }
 
     emit(
       state.copyWith(
         hasStarted: true,
         sessionId: session.id,
         sessionTitle: session.title,
-        messages: const [],
         tokenStatus: TokenStatusEntity.fromTotalTokens(session.totalTokens),
+      ),
+    );
+    await _loadConversation(session.id);
+  }
+
+  Future<void> _retryLoadConversation() async {
+    final sessionId = state.sessionId;
+    if (sessionId == null || !state.conversationResource.isError) return;
+    await _loadConversation(sessionId);
+  }
+
+  Future<void> _loadConversation(String sessionId) async {
+    emit(
+      state.copyWith(
+        messages: const [],
         conversationResource: const Resource.loading(),
       ),
     );
-    final result = await _getChatMessagesUseCase(session.id);
-    if (isClosed || state.sessionId != session.id) return;
+    final result = await _getChatMessagesUseCase(sessionId);
+    if (isClosed || state.sessionId != sessionId) return;
     switch (result) {
       case SuccessResponse(:final data):
         emit(

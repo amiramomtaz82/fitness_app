@@ -11,6 +11,7 @@ import '../../../../../generated/locale_keys.g.dart';
 import '../../view_model/smart_coach_cubit.dart';
 import '../../view_model/smart_coach_intent.dart';
 import 'coach_logo.dart';
+import 'open_conversations_button.dart';
 
 class CoachWelcomeView extends StatelessWidget {
   const CoachWelcomeView({super.key});
@@ -91,7 +92,7 @@ class _WelcomeHeader extends StatelessWidget {
             ],
           ),
         ),
-        SizedBox(width: 24.r),
+        const OpenConversationsButton(),
       ],
     );
   }

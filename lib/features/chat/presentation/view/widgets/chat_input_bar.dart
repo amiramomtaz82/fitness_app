@@ -11,7 +11,9 @@ import '../../view_model/smart_coach_intent.dart';
 import 'text_direction_resolver.dart';
 
 class ChatInputBar extends StatefulWidget {
-  const ChatInputBar({super.key});
+  final FocusNode? focusNode;
+
+  const ChatInputBar({super.key, this.focusNode});
 
   @override
   State<ChatInputBar> createState() => _ChatInputBarState();
@@ -70,6 +72,7 @@ class _ChatInputBarState extends State<ChatInputBar> {
               child: TextField(
                 key: const Key('chat_input_field'),
                 controller: _controller,
+                focusNode: widget.focusNode,
                 textDirection: _direction,
                 enabled: !isLocked,
                 minLines: 1,
