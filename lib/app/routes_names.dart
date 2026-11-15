@@ -12,6 +12,7 @@ class AppRoutes {
   static const String webView = '/web-view';
   static const String workouts = '/workouts';
   static const String smartCoach = '/smart-coach';
+  static const String changePassword = '/profile/change-password';
 
   // Step 1 (You)
   static const String multiStepRegistration = '/multi-step-registration';
