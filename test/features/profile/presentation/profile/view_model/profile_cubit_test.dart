@@ -380,15 +380,14 @@ void main() {
       }
     });
 
-    test('rows without a destination stay quiet', () async {
-      for (final action in [ProfileMenuAction.changePassword]) {
-        final events = recordUiEvents(cubit.eventStream);
+    test('tapping change password navigates to its screen', () async {
+      final events = recordUiEvents(cubit.eventStream);
 
-        cubit.doIntent(MenuTapIntent(menuRow(action)));
-        await Future<void>.delayed(Duration.zero);
+      cubit.doIntent(MenuTapIntent(menuRow(ProfileMenuAction.changePassword)));
+      await Future<void>.delayed(Duration.zero);
 
-        expect(events, isEmpty);
-      }
+      expect(events, hasLength(1));
+      expect((events.single as NavigateEvent).route, AppRoutes.changePassword);
     });
 
     test('tapping logout menu row emits ShowLogoutConfirmationEvent', () async {

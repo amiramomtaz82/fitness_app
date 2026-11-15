@@ -8,52 +8,47 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../../../profile_test_helper.dart';
-
-class MockCustomColors extends Mock implements CustomColors {}
 
 class _TestAssetLoader extends AssetLoader {
   @override
   Future<Map<String, dynamic>> load(String path, Locale locale) async {
     return {
-      'profile_old_password': 'Old Password',
-      'profile_new_password': 'New Password',
-      'profile_confirm_password': 'Confirm Password',
-      'profile_done': 'Done',
-      'profile_create_new_password': 'Create New Password',
-      'profile_make_sure_8_characters': 'Make Sure Its 8 Characters Or More',
-      'validation_field_required': 'This field is required',
-      'validation_password_too_short': 'Password is too short',
-      'validation_password_missing_number': 'Password needs a number',
-      'validation_password_missing_uppercase': 'Password needs uppercase',
-      'validation_password_missing_lowercase': 'Password needs lowercase',
-      'validation_password_missing_special_char':
-          'Password needs a special character',
-      'validation_passwords_dont_match': 'Passwords do not match',
+      'profile': {
+        'old_password': 'Old Password',
+        'new_password': 'New Password',
+        'confirm_password': 'Confirm Password',
+        'done': 'Done',
+        'create_new_password': 'Create New Password',
+        'make_sure_8_characters': 'Make Sure Its 8 Characters Or More',
+      },
+      'validation': {
+        'field_required': 'This field is required',
+        'password_too_short': 'Password is too short',
+        'password_missing_number': 'Password needs a number',
+        'password_missing_uppercase': 'Password needs uppercase',
+        'password_missing_lowercase': 'Password needs lowercase',
+        'password_missing_special_char': 'Password needs a special character',
+        'passwords_dont_match': 'Passwords do not match',
+      },
     };
   }
 }
 
 void main() {
   late MockChangePasswordUseCase mockUseCase;
-  late MockCustomColors mockColors;
   late ChangePasswordCubit cubit;
 
   setUpAll(() async {
     TestWidgetsFlutterBinding.ensureInitialized();
+    SharedPreferences.setMockInitialValues({});
     await EasyLocalization.ensureInitialized();
   });
 
   setUp(() {
     mockUseCase = MockChangePasswordUseCase();
-    mockColors = MockCustomColors();
-
-    when(() => mockColors.white).thenReturn(Colors.white);
-    when(() => mockColors.textPrimary).thenReturn(Colors.white);
-    when(() => mockColors.textSecondary).thenReturn(Colors.white70);
-    when(() => mockColors.hint).thenReturn(Colors.white54);
-
     cubit = ChangePasswordCubit(mockUseCase);
   });
 
@@ -79,7 +74,7 @@ void main() {
                 localizationsDelegates: context.localizationDelegates,
                 theme: ThemeData(
                   brightness: Brightness.dark,
-                  extensions: [mockColors],
+                  extensions: const [CustomColors.dark],
                 ),
                 home: BlocProvider<ChangePasswordCubit>.value(
                   value: cubit,
@@ -93,10 +88,19 @@ void main() {
     );
   }
 
+  Future<void> pumpScreen(WidgetTester tester) async {
+    await tester.runAsync(() async {
+      await tester.pumpWidget(createWidgetUnderTest());
+      for (var i = 0; i < 8; i++) {
+        await tester.pump(const Duration(milliseconds: 100));
+      }
+    });
+    await tester.pumpAndSettle();
+  }
+
   group('ChangePasswordScreen', () {
     testWidgets('renders the password screen correctly', (tester) async {
-      await tester.pumpWidget(createWidgetUnderTest());
-      await tester.pumpAndSettle();
+      await pumpScreen(tester);
 
       expect(find.byType(ChangePasswordScreen), findsOneWidget);
 
@@ -116,8 +120,7 @@ void main() {
     });
 
     testWidgets('all password fields are obscured initially', (tester) async {
-      await tester.pumpWidget(createWidgetUnderTest());
-      await tester.pumpAndSettle();
+      await pumpScreen(tester);
 
       final fields = tester.widgetList<TextField>(find.byType(TextField));
 
@@ -129,8 +132,7 @@ void main() {
     });
 
     testWidgets('toggles current password visibility', (tester) async {
-      await tester.pumpWidget(createWidgetUnderTest());
-      await tester.pumpAndSettle();
+      await pumpScreen(tester);
 
       await tester.tap(find.byIcon(Icons.visibility_off_outlined).first);
 
@@ -142,8 +144,7 @@ void main() {
     });
 
     testWidgets('toggles new password visibility', (tester) async {
-      await tester.pumpWidget(createWidgetUnderTest());
-      await tester.pumpAndSettle();
+      await pumpScreen(tester);
 
       await tester.tap(find.byIcon(Icons.visibility_off_outlined).at(1));
 
@@ -155,8 +156,7 @@ void main() {
     });
 
     testWidgets('toggles confirm password visibility', (tester) async {
-      await tester.pumpWidget(createWidgetUnderTest());
-      await tester.pumpAndSettle();
+      await pumpScreen(tester);
 
       await tester.tap(find.byIcon(Icons.visibility_off_outlined).at(2));
 
@@ -168,8 +168,7 @@ void main() {
     });
 
     testWidgets('updates current password when typing', (tester) async {
-      await tester.pumpWidget(createWidgetUnderTest());
-      await tester.pumpAndSettle();
+      await pumpScreen(tester);
 
       await tester.enterText(find.byType(TextField).at(0), 'OldPassword123!');
 
@@ -179,8 +178,7 @@ void main() {
     });
 
     testWidgets('updates new password when typing', (tester) async {
-      await tester.pumpWidget(createWidgetUnderTest());
-      await tester.pumpAndSettle();
+      await pumpScreen(tester);
 
       await tester.enterText(find.byType(TextField).at(1), 'NewPassword123!');
 
@@ -190,8 +188,7 @@ void main() {
     });
 
     testWidgets('updates confirm password when typing', (tester) async {
-      await tester.pumpWidget(createWidgetUnderTest());
-      await tester.pumpAndSettle();
+      await pumpScreen(tester);
 
       await tester.enterText(find.byType(TextField).at(2), 'NewPassword123!');
 
@@ -203,8 +200,7 @@ void main() {
     testWidgets('shows validation errors when submitting empty fields', (
       tester,
     ) async {
-      await tester.pumpWidget(createWidgetUnderTest());
-      await tester.pumpAndSettle();
+      await pumpScreen(tester);
 
       await tester.tap(find.byType(ElevatedButton));
 
@@ -231,8 +227,7 @@ void main() {
     });
 
     testWidgets('does not submit when passwords do not match', (tester) async {
-      await tester.pumpWidget(createWidgetUnderTest());
-      await tester.pumpAndSettle();
+      await pumpScreen(tester);
 
       await tester.enterText(find.byType(TextField).at(0), 'OldPassword123!');
 
@@ -263,8 +258,7 @@ void main() {
     testWidgets('clears field error when user updates the field', (
       tester,
     ) async {
-      await tester.pumpWidget(createWidgetUnderTest());
-      await tester.pumpAndSettle();
+      await pumpScreen(tester);
 
       await tester.tap(find.byType(ElevatedButton));
       await tester.pumpAndSettle();

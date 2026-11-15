@@ -193,7 +193,7 @@ void main() {
 
       expect(find.text('muscle_1:level_1'), findsOneWidget);
       expect(
-        router.routeInformationProvider.value.uri.path,
+        router.routerDelegate.currentConfiguration.last.matchedLocation,
         AppRoutes.popularTrainingGroup,
       );
     });

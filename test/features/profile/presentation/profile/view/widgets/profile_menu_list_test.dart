@@ -138,13 +138,16 @@ void main() {
     expect(events, contains(isA<ToggleLocaleEvent>()));
   });
 
-  testWidgets('rows without an action stay inert', (tester) async {
+  testWidgets('the change password row navigates to its screen', (
+    tester,
+  ) async {
     final events = recordUiEvents(cubit.eventStream);
     await pumpMenuList(tester);
 
     await tester.tap(find.byKey(const Key('menu_changePassword')));
     await settleUi(tester);
 
-    expect(events, isEmpty);
+    expect(events, hasLength(1));
+    expect((events.single as NavigateEvent).route, AppRoutes.changePassword);
   });
 }

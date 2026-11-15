@@ -93,12 +93,13 @@ void main() {
       ).called(1);
     });
 
-    testWidgets('keeps the screen empty until the training is prepared', (
+    testWidgets('shows a not found message until the training is prepared', (
       tester,
     ) async {
       await pumpView(tester, const PopularTrainingGroupState());
 
-      expect(find.byType(AppBackgroundScaffold), findsNothing);
+      expect(find.byType(AppBackgroundScaffold), findsOneWidget);
+      expect(find.text(LocaleKeys.errors_data_not_found.tr()), findsOneWidget);
       expect(find.byType(ExerciseHero), findsNothing);
     });
 
