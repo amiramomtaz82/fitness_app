@@ -7,7 +7,7 @@ import 'package:fitness_app/core/widgets/app_catgory_tab_bar.dart';
 import 'package:fitness_app/core/widgets/app_youtube_video.dart';
 import 'package:fitness_app/core/youtube/youtube_video_id.dart';
 import 'package:fitness_app/features/exercise/domain/entities/exercise_entity.dart';
-import 'package:fitness_app/features/exercise/presentation/exercise/view/widgets/exercise_Top_section.dart';
+import 'package:fitness_app/features/exercise/presentation/exercise/view/widgets/exercise_top_section.dart';
 import 'package:fitness_app/features/exercise/presentation/exercise/view/widgets/exercise_bottom_container.dart';
 import 'package:fitness_app/features/exercise/presentation/exercise/view_model/exercise_intent.dart';
 import 'package:fitness_app/features/exercise/presentation/exercise/view_model/exercise_state.dart';
