@@ -18,7 +18,6 @@ class Endpoints {
   static const String editProfile = '/auth/editProfile';
 
   // Levels & Muscles
-  static const String levels = '/levels';
   static const String muscles = '/muscles';
   static const String musclesGroup = '/musclesGroup';
 
@@ -26,5 +25,6 @@ class Endpoints {
   static const String exercises = '/exercises';
   static const String exercisesRandom = '/exercises/random';
   static const String exercisesByMuscleDifficulty =
-      '/exercises/by-muscle-difficulty';
+      "/exercises/by-muscle-difficulty";
+  static const String levels = "/levels/difficulty-levels/by-prime-mover";
 }

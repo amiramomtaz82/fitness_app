@@ -125,7 +125,14 @@
   "exercises": {
     "exercise": "التمرين",
     "min_30": "30 دقيقة",
-    "beginner": "مبتدئ"
+    "beginner": "مبتدئ",
+    "intermediate": "متوسط",
+    "advanced": "متقدم",
+    "cal": "سعرة",
+    "muscle_exercise": "تمرين {}",
+    "list_description": "ابنِ القوة والعضلات مع هذه التمارين. اختر مستواك واتبع الفيديو لكل حركة.",
+    "video_unavailable": "لا يوجد فيديو متاح لهذا التمرين.",
+    "no_exercises": "لا توجد تمارين لهذا المستوى."
   },
   "chat": {
     "hi_user": "مرحباً {} ،",
