@@ -240,10 +240,7 @@ void main() {
           isA<NavigateEvent>().having(
             (e) => e.route,
             'route',
-            AppRoutes.exerciseDetailsLocation(
-              'm_1',
-              muscleName: 'Upper Chest',
-            ),
+            AppRoutes.exerciseDetailsLocation('m_1', muscleName: 'Upper Chest'),
           ),
         ]);
       });

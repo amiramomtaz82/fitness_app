@@ -37,6 +37,7 @@ import '../features/profile/presentation/edit_profile/view_model/edit_profile_cu
 import '../features/profile/presentation/profile/view/screens/profile_screen.dart';
 import '../features/profile/presentation/profile/view_model/profile_cubit.dart';
 import '../features/profile/presentation/profile_scope.dart';
+
 final GlobalKey<NavigatorState> rootNavigatorKey = GlobalKey<NavigatorState>();
 
 final GoRouter appRouter = GoRouter(
@@ -90,7 +91,7 @@ final GoRouter appRouter = GoRouter(
         child: const ForgetPasswordView(),
       ),
     ),
-   GoRoute(
+    GoRoute(
       path: AppRoutes.exerciseDetails,
       name: AppRoutes.exerciseDetails,
       builder: (context, state) => BlocProvider(
