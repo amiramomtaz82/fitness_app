@@ -17,8 +17,8 @@ final class RetryFetchMusclesIntent extends WorkoutIntent {
   const RetryFetchMusclesIntent();
 }
 
-// workout_intent.dart
 class MuscleSelectedIntent extends WorkoutIntent {
   final String muscleId;
-  const MuscleSelectedIntent(this.muscleId);
+  final String? muscleName;
+  const MuscleSelectedIntent(this.muscleId, {this.muscleName});
 }

@@ -1,206 +1,274 @@
 import 'package:fitness_app/features/exercise/data/api/exercise_api_client.dart';
 import 'package:fitness_app/features/exercise/data/data_source/exercise_remote_data_source_imp.dart';
-import 'package:fitness_app/features/exercise/data/models/difficulty_level_model.dart';
-import 'package:fitness_app/features/exercise/data/models/exercise_model.dart';
+import 'package:fitness_app/features/exercise/data/models/difficulty_levels_response_model.dart';
 import 'package:fitness_app/features/exercise/data/models/exercises_response_model.dart';
-import 'package:fitness_app/features/exercise/data/models/muscle_dto.dart';
-import 'package:fitness_app/features/exercise/data/models/muscle_group_detail_response_dto.dart';
-import 'package:fitness_app/features/exercise/data/models/muscle_group_dto.dart';
-import 'package:fitness_app/features/exercise/data/models/muscle_model.dart';
-import 'package:fitness_app/features/exercise/data/models/muscles_group_response_dto.dart';
-import 'package:fitness_app/features/exercise/data/models/muscles_response_model.dart';
-import 'package:fitness_app/features/exercise/data/models/levels_response_model.dart';
+import 'package:fitness_app/features/exercise/data/models/muscle_group_response.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 
 class MockExerciseApiClient extends Mock implements ExerciseApiClient {}
 
+final _primaryExercises = ExercisesResponseModel.fromJson({
+  'totalExercises': 1,
+  'totalPages': 1,
+  'currentPage': 1,
+  'exercises': [
+    {
+      '_id': 'exercise-1',
+      'exercise': 'Barbell Bench Press',
+      'difficulty_level': 'Beginner',
+      'target_muscle_group': 'Chest',
+      'prime_mover_muscle': 'Pectoralis Major',
+      'primary_equipment': 'Barbell',
+      'short_youtube_demonstration_link': '',
+      'in_depth_youtube_explanation_link': '',
+    },
+  ],
+});
+
+final _randomExercises = ExercisesResponseModel.fromJson({
+  'totalExercises': 1,
+  'totalPages': 1,
+  'currentPage': 1,
+  'exercises': [
+    {
+      '_id': 'exercise-2',
+      'exercise': 'Push Up',
+      'difficulty_level': 'Beginner',
+      'target_muscle_group': 'Chest',
+      'prime_mover_muscle': 'Pectoralis Major',
+      'primary_equipment': 'Bodyweight',
+      'short_youtube_demonstration_link': '',
+      'in_depth_youtube_explanation_link': '',
+    },
+  ],
+});
+
+final _emptyExercises = ExercisesResponseModel.fromJson({
+  'totalExercises': 0,
+  'totalPages': 0,
+  'currentPage': 1,
+  'exercises': <Map<String, dynamic>>[],
+});
+
+final _primaryLevels = DifficultyLevelsResponseModel.fromJson({
+  'totalLevels': 2,
+  'difficulty_levels': [
+    {'_id': 'level-1', 'name': 'Beginner'},
+    {'_id': 'level-2', 'name': 'Intermediate'},
+  ],
+});
+
+final _allLevels = DifficultyLevelsResponseModel.fromJson({
+  'totalLevels': 3,
+  'difficulty_levels': [
+    {'_id': 'level-1', 'name': 'Beginner'},
+    {'_id': 'level-2', 'name': 'Intermediate'},
+    {'_id': 'level-3', 'name': 'Advanced'},
+  ],
+});
+
+final _emptyLevels = DifficultyLevelsResponseModel.fromJson({
+  'totalLevels': 0,
+  'difficulty_levels': <Map<String, dynamic>>[],
+});
+
+final _muscleGroups = MusclesGroupResponse.fromJson({
+  'message': 'success',
+  'musclesGroup': [
+    {'_id': 'muscle-1', 'name': 'Chest'},
+  ],
+});
+
 void main() {
-  late MockExerciseApiClient mockClient;
+  late MockExerciseApiClient client;
   late ExerciseRemoteDataSourceImp dataSource;
 
   setUp(() {
-    mockClient = MockExerciseApiClient();
-    dataSource = ExerciseRemoteDataSourceImp(mockClient);
+    client = MockExerciseApiClient();
+    dataSource = ExerciseRemoteDataSourceImp(client);
   });
 
-  group('ExerciseRemoteDataSourceImp', () {
-    group('getMuscleGroups', () {
-      test('returns client response when call succeeds', () async {
-        const response = MusclesGroupResponseDto(
-          message: 'success',
-          musclesGroup: [
-            MuscleGroupDto(id: 'group_1', name: 'Chest'),
-            MuscleGroupDto(id: 'group_2', name: 'Back'),
-          ],
-        );
+  group('ExerciseRemoteDataSourceImp.getExercises â€”', () {
+    test(
+      'returns the by-muscle-difficulty response when it has data',
+      () async {
         when(
-          () => mockClient.getMuscleGroups(),
-        ).thenAnswer((_) async => response);
-
-        final result = await dataSource.getMuscleGroups();
-
-        expect(result, response);
-        verify(() => mockClient.getMuscleGroups()).called(1);
-      });
-
-      test('throws exception when client call throws', () async {
-        when(
-          () => mockClient.getMuscleGroups(),
-        ).thenThrow(Exception('api error'));
-
-        expect(() => dataSource.getMuscleGroups(), throwsException);
-        verify(() => mockClient.getMuscleGroups()).called(1);
-      });
-    });
-
-    group('getMusclesByGroupId', () {
-      const groupId = 'group_1';
-      test('returns client response when call succeeds', () async {
-        const response = MuscleGroupDetailResponseDto(
-          message: 'success',
-          muscleGroup: MuscleGroupDto(id: groupId, name: 'Chest'),
-          muscles: [
-            MuscleDto(id: 'm_1', name: 'Upper Chest', image: 'https://img.png'),
-          ],
-        );
-        when(
-          () => mockClient.getMusclesByGroupId(groupId),
-        ).thenAnswer((_) async => response);
-
-        final result = await dataSource.getMusclesByGroupId(groupId);
-
-        expect(result, response);
-        verify(() => mockClient.getMusclesByGroupId(groupId)).called(1);
-      });
-
-      test('throws exception when client call throws', () async {
-        when(
-          () => mockClient.getMusclesByGroupId(groupId),
-        ).thenThrow(Exception('api error'));
-
-        expect(() => dataSource.getMusclesByGroupId(groupId), throwsException);
-        verify(() => mockClient.getMusclesByGroupId(groupId)).called(1);
-      });
-    });
-
-    group('getRandomMuscles', () {
-      test('returns client response when call succeeds', () async {
-        const response = MusclesResponseModel(
-          message: 'success',
-          totalMuscles: 2,
-          muscles: [
-            MuscleModel(id: 'm_1', name: 'Chest', image: 'u1'),
-            MuscleModel(id: 'm_2', name: 'Back', image: 'u2'),
-          ],
-        );
-        when(
-          () => mockClient.getRandomMuscles(),
-        ).thenAnswer((_) async => response);
-
-        final result = await dataSource.getRandomMuscles();
-
-        expect(result, response);
-        verify(() => mockClient.getRandomMuscles()).called(1);
-      });
-
-      test('throws exception when client call throws', () async {
-        when(
-          () => mockClient.getRandomMuscles(),
-        ).thenThrow(Exception('api error'));
-
-        expect(() => dataSource.getRandomMuscles(), throwsException);
-        verify(() => mockClient.getRandomMuscles()).called(1);
-      });
-    });
-
-    group('getDifficultyLevels', () {
-      test('returns client response when call succeeds', () async {
-        const response = LevelsResponseModel(
-          message: 'success',
-          levels: [
-            DifficultyLevelModel(id: 'l_1', name: 'Beginner'),
-            DifficultyLevelModel(id: 'l_2', name: 'Advanced'),
-          ],
-        );
-        when(
-          () => mockClient.getDifficultyLevels(),
-        ).thenAnswer((_) async => response);
-
-        final result = await dataSource.getDifficultyLevels();
-
-        expect(result, response);
-        verify(() => mockClient.getDifficultyLevels()).called(1);
-      });
-
-      test('throws exception when client call throws', () async {
-        when(
-          () => mockClient.getDifficultyLevels(),
-        ).thenThrow(Exception('api error'));
-
-        expect(() => dataSource.getDifficultyLevels(), throwsException);
-        verify(() => mockClient.getDifficultyLevels()).called(1);
-      });
-    });
-
-    group('getExercisesByMuscleDifficulty', () {
-      const primeMoverMuscleId = 'm_1';
-      const difficultyLevelId = 'l_1';
-      test('returns client response when call succeeds', () async {
-        const response = ExercisesResponseModel(
-          message: 'success',
-          totalExercises: 1,
-          exercises: [
-            ExerciseModel(
-              id: 'e_1',
-              name: 'Bench Press',
-              difficultyLevel: 'Beginner',
-            ),
-          ],
-        );
-        when(
-          () => mockClient.getExercisesByMuscleDifficulty(
-            primeMoverMuscleId: primeMoverMuscleId,
-            difficultyLevelId: difficultyLevelId,
+          () => client.getExercisesByMuscleDifficulty(
+            primeMoverMuscleId: 'muscle-1',
+            difficultyLevelId: 'level-1',
+            page: 1,
           ),
-        ).thenAnswer((_) async => response);
+        ).thenAnswer((_) async => _primaryExercises);
 
-        final result = await dataSource.getExercisesByMuscleDifficulty(
-          primeMoverMuscleId: primeMoverMuscleId,
-          difficultyLevelId: difficultyLevelId,
+        final response = await dataSource.getExercises(
+          muscleId: 'muscle-1',
+          difficultyId: 'level-1',
+          page: 1,
         );
 
-        expect(result, response);
+        expect(response, same(_primaryExercises));
+        verifyNever(
+          () => client.getRandomExercises(
+            targetMuscleGroupId: any(named: 'targetMuscleGroupId'),
+            difficultyLevelId: any(named: 'difficultyLevelId'),
+          ),
+        );
+      },
+    );
+
+    test(
+      'falls back to random exercises when the primary list is empty',
+      () async {
+        when(
+          () => client.getExercisesByMuscleDifficulty(
+            primeMoverMuscleId: any(named: 'primeMoverMuscleId'),
+            difficultyLevelId: any(named: 'difficultyLevelId'),
+            page: any(named: 'page'),
+          ),
+        ).thenAnswer((_) async => _emptyExercises);
+        when(
+          () => client.getRandomExercises(
+            targetMuscleGroupId: 'muscle-1',
+            difficultyLevelId: 'level-1',
+          ),
+        ).thenAnswer((_) async => _randomExercises);
+
+        final response = await dataSource.getExercises(
+          muscleId: 'muscle-1',
+          difficultyId: 'level-1',
+          page: 1,
+        );
+
+        expect(response, same(_randomExercises));
         verify(
-          () => mockClient.getExercisesByMuscleDifficulty(
-            primeMoverMuscleId: primeMoverMuscleId,
-            difficultyLevelId: difficultyLevelId,
+          () => client.getRandomExercises(
+            targetMuscleGroupId: 'muscle-1',
+            difficultyLevelId: 'level-1',
           ),
         ).called(1);
-      });
+      },
+    );
 
-      test('throws exception when client call throws', () async {
+    test(
+      'falls back to random exercises when the primary call throws',
+      () async {
         when(
-          () => mockClient.getExercisesByMuscleDifficulty(
-            primeMoverMuscleId: primeMoverMuscleId,
-            difficultyLevelId: difficultyLevelId,
+          () => client.getExercisesByMuscleDifficulty(
+            primeMoverMuscleId: any(named: 'primeMoverMuscleId'),
+            difficultyLevelId: any(named: 'difficultyLevelId'),
+            page: any(named: 'page'),
           ),
-        ).thenThrow(Exception('api error'));
+        ).thenThrow(Exception('primary failed'));
+        when(
+          () => client.getRandomExercises(
+            targetMuscleGroupId: any(named: 'targetMuscleGroupId'),
+            difficultyLevelId: any(named: 'difficultyLevelId'),
+          ),
+        ).thenAnswer((_) async => _randomExercises);
 
-        expect(
-          () => dataSource.getExercisesByMuscleDifficulty(
-            primeMoverMuscleId: primeMoverMuscleId,
-            difficultyLevelId: difficultyLevelId,
-          ),
-          throwsException,
+        final response = await dataSource.getExercises(
+          muscleId: 'muscle-1',
+          difficultyId: 'level-1',
+          page: 1,
         );
-        verify(
-          () => mockClient.getExercisesByMuscleDifficulty(
-            primeMoverMuscleId: primeMoverMuscleId,
-            difficultyLevelId: difficultyLevelId,
-          ),
-        ).called(1);
-      });
+
+        expect(response, same(_randomExercises));
+      },
+    );
+
+    test('lets a random endpoint failure propagate to the repo', () async {
+      when(
+        () => client.getExercisesByMuscleDifficulty(
+          primeMoverMuscleId: any(named: 'primeMoverMuscleId'),
+          difficultyLevelId: any(named: 'difficultyLevelId'),
+          page: any(named: 'page'),
+        ),
+      ).thenThrow(Exception('primary failed'));
+      when(
+        () => client.getRandomExercises(
+          targetMuscleGroupId: any(named: 'targetMuscleGroupId'),
+          difficultyLevelId: any(named: 'difficultyLevelId'),
+        ),
+      ).thenThrow(Exception('fallback failed'));
+
+      expect(
+        () => dataSource.getExercises(
+          muscleId: 'muscle-1',
+          difficultyId: 'level-1',
+          page: 1,
+        ),
+        throwsException,
+      );
+    });
+  });
+
+  group('ExerciseRemoteDataSourceImp.getDifficultyLevels â€”', () {
+    test('returns the muscle-specific levels when they exist', () async {
+      when(
+        () => client.getDifficultyLevels(primeMoverMuscleId: 'muscle-1'),
+      ).thenAnswer((_) async => _primaryLevels);
+
+      final response = await dataSource.getDifficultyLevels(
+        muscleId: 'muscle-1',
+      );
+
+      expect(response, same(_primaryLevels));
+      verifyNever(() => client.getAllDifficultyLevels());
+    });
+
+    test('falls back to all levels when the primary list is empty', () async {
+      when(
+        () => client.getDifficultyLevels(
+          primeMoverMuscleId: any(named: 'primeMoverMuscleId'),
+        ),
+      ).thenAnswer((_) async => _emptyLevels);
+      when(
+        () => client.getAllDifficultyLevels(),
+      ).thenAnswer((_) async => _allLevels);
+
+      final response = await dataSource.getDifficultyLevels(
+        muscleId: 'muscle-1',
+      );
+
+      expect(response, same(_allLevels));
+      verify(() => client.getAllDifficultyLevels()).called(1);
+    });
+
+    test('falls back to all levels when the primary call throws', () async {
+      when(
+        () => client.getDifficultyLevels(
+          primeMoverMuscleId: any(named: 'primeMoverMuscleId'),
+        ),
+      ).thenThrow(Exception('primary failed'));
+      when(
+        () => client.getAllDifficultyLevels(),
+      ).thenAnswer((_) async => _allLevels);
+
+      final response = await dataSource.getDifficultyLevels(
+        muscleId: 'muscle-1',
+      );
+
+      expect(response, same(_allLevels));
+    });
+  });
+
+  group('ExerciseRemoteDataSourceImp.getMuscleGroups â€”', () {
+    test('forwards the request and returns the client response', () async {
+      when(
+        () => client.getMuscleGroups(),
+      ).thenAnswer((_) async => _muscleGroups);
+
+      final response = await dataSource.getMuscleGroups();
+
+      expect(response, same(_muscleGroups));
+      verify(() => client.getMuscleGroups()).called(1);
+    });
+
+    test('lets a client failure propagate', () async {
+      when(() => client.getMuscleGroups()).thenThrow(Exception('boom'));
+
+      expect(() => dataSource.getMuscleGroups(), throwsException);
     });
   });
 }

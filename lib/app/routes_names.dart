@@ -23,6 +23,15 @@ class AppRoutes {
   static const String foodRecommendation = '$home/$foodRecommendationPath';
   static const String changePassword = '/profile/change-password';
 
+  static const String exerciseDetails = '/exercise-details/:muscleId';
+
+  static String exerciseDetailsLocation(String muscleId, {String? muscleName}) {
+    final location = '/exercise-details/${Uri.encodeComponent(muscleId)}';
+    final name = muscleName?.trim() ?? '';
+    if (name.isEmpty) return location;
+    return '$location?muscle=${Uri.encodeComponent(name)}';
+  }
+
   // Step 1 (You)
   static const String multiStepRegistration = '/multi-step-registration';
   static const String exercise = '/exercise';

@@ -170,7 +170,20 @@
     "video_demonstration": "Video Demonstration",
     "video_explanation": "Video Explanation",
     "not_available": "Not available",
-    "no_exercises_found": "No exercises found"
+    "no_exercises_found": "No exercises found",
+    "cal": "Cal",
+    "video_unavailable": "This exercise has no video available.",
+    "no_exercises": "No exercises found for this level."
+  },
+  "difficulty_levels": {
+    "beginner": "Beginner",
+    "intermediate": "Intermediate",
+    "advanced": "Advanced",
+    "cal": "Cal",
+    "muscle_exercise": "{} Exercise",
+    "list_description": "Build strength and definition with these exercises. Choose your level and follow the video guidance for each movement.",
+    "video_unavailable": "This exercise has no video available.",
+    "no_exercises": "No exercises found for this level."
   },
   "chat": {
     "hi_user": "Hi {} ,",

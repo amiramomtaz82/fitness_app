@@ -31,9 +31,12 @@ class HomeUpcomingWorkouts extends StatelessWidget {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Text(
-                  LocaleKeys.home_upcoming_workouts.tr(),
-                  style: AppTextStyles.white20bold,
+                Expanded(
+                  child: Text(
+                    LocaleKeys.home_upcoming_workouts.tr(),
+                    style: AppTextStyles.white20bold,
+                    overflow: TextOverflow.ellipsis,
+                  ),
                 ),
                 TextButton(
                   onPressed: () {},

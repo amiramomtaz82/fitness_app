@@ -182,7 +182,24 @@ abstract class LocaleKeys {
   static const exercises_video_explanation = 'exercises.video_explanation';
   static const exercises_not_available = 'exercises.not_available';
   static const exercises_no_exercises_found = 'exercises.no_exercises_found';
+  static const exercises_cal = 'exercises.cal';
+  static const exercises_video_unavailable = 'exercises.video_unavailable';
+  static const exercises_no_exercises = 'exercises.no_exercises';
   static const exercises = 'exercises';
+  static const difficulty_levels_beginner = 'difficulty_levels.beginner';
+  static const difficulty_levels_intermediate =
+      'difficulty_levels.intermediate';
+  static const difficulty_levels_advanced = 'difficulty_levels.advanced';
+  static const difficulty_levels_cal = 'difficulty_levels.cal';
+  static const difficulty_levels_muscle_exercise =
+      'difficulty_levels.muscle_exercise';
+  static const difficulty_levels_list_description =
+      'difficulty_levels.list_description';
+  static const difficulty_levels_video_unavailable =
+      'difficulty_levels.video_unavailable';
+  static const difficulty_levels_no_exercises =
+      'difficulty_levels.no_exercises';
+  static const difficulty_levels = 'difficulty_levels';
   static const chat_hi_user = 'chat.hi_user';
   static const chat_i_am_your_smart_coach = 'chat.i_am_your_smart_coach';
   static const chat_how_can_i_assist_you_today =

@@ -8,10 +8,14 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 
+import 'helpers/test_localization.dart';
+
 class MockHomeViewModel extends Mock implements HomeViewModel {}
 
 void main() {
   late MockHomeViewModel mockHomeViewModel;
+
+  setUpAll(loadTestLocalization);
 
   setUp(() {
     mockHomeViewModel = MockHomeViewModel();

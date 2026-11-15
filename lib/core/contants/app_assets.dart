@@ -38,7 +38,7 @@ abstract final class AppAssets {
   static const String robot = '$_basePath/Robot.png';
   // ignore: constant_identifier_names
   static const String Robot = robot;
-  static const String homee = '$_basePath/homee.png';
+  static const String homee = '$_basePath/homee.jpg';
 
   // Settings & Security
   static const String lockSetting = '$_basePath/Lock Setting.png';
@@ -53,10 +53,10 @@ abstract final class AppAssets {
   static const String aerobics = '$_basePath/aerobics.png';
   static const String trainer = '$_basePath/trainer.png';
   static const String human = '$_basePath/human.png';
-  static const String chest = '$_basePath/chest.png';
-  static const String backk = '$_basePath/back.png';
-  static const String arm = '$_basePath/arm.png';
-  static const String leg = '$_basePath/leg.png';
+  static const String chest = '$_basePath/chest.jpg';
+  static const String backk = '$_basePath/back.jpg';
+  static const String arm = '$_basePath/arm.jpg';
+  static const String leg = '$_basePath/leg.jpg';
 }
 
 /// Alias for [AppAssets]

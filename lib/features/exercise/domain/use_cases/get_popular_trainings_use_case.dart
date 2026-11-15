@@ -17,18 +17,6 @@ class GetPopularTrainingsUseCase {
     : _random = random ?? Random();
 
   Future<BaseResponse<List<PopularTrainingEntity>>> call() async {
-    final levelsResult = await _exerciseRepo.getDifficultyLevels();
-
-    if (levelsResult is ErrorResponse<List<DifficultyLevelEntity>>) {
-      return ErrorResponse(
-        failure: levelsResult.failure,
-        error: levelsResult.error,
-      );
-    }
-
-    final levels =
-        (levelsResult as SuccessResponse<List<DifficultyLevelEntity>>).data;
-
     final musclesResult = await _exerciseRepo.getRandomMuscles();
 
     if (musclesResult is ErrorResponse<List<MuscleEntity>>) {
@@ -40,7 +28,25 @@ class GetPopularTrainingsUseCase {
 
     final muscles = (musclesResult as SuccessResponse<List<MuscleEntity>>).data;
 
-    if (levels.isEmpty || muscles.isEmpty) {
+    if (muscles.isEmpty) {
+      return const SuccessResponse<List<PopularTrainingEntity>>([]);
+    }
+
+    final levelsResult = await _exerciseRepo.getDifficultyLevels(
+      muscleId: muscles.first.id,
+    );
+
+    if (levelsResult is ErrorResponse<List<DifficultyLevelEntity>>) {
+      return ErrorResponse(
+        failure: levelsResult.failure,
+        error: levelsResult.error,
+      );
+    }
+
+    final levels =
+        (levelsResult as SuccessResponse<List<DifficultyLevelEntity>>).data;
+
+    if (levels.isEmpty) {
       return const SuccessResponse<List<PopularTrainingEntity>>([]);
     }
 

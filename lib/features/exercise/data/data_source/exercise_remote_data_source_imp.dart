@@ -1,11 +1,11 @@
-import 'package:fitness_app/features/exercise/data/models/levels_response_model.dart';
-import 'package:fitness_app/features/exercise/data/models/muscles_response_model.dart';
+import 'package:fitness_app/features/exercise/data/models/difficulty_levels_response_model.dart';
 import 'package:fitness_app/features/exercise/data/models/exercises_response_model.dart';
+import 'package:fitness_app/features/exercise/data/models/muscle_group_response.dart';
+import 'package:fitness_app/features/exercise/data/models/muscles_response_model.dart';
 import 'package:injectable/injectable.dart';
 
 import '../api/exercise_api_client.dart';
 import '../models/muscle_group_detail_response_dto.dart';
-import '../models/muscles_group_response_dto.dart';
 import 'exercise_remote_data_source.dart';
 
 @Injectable(as: ExerciseRemoteDataSource)
@@ -15,13 +15,53 @@ class ExerciseRemoteDataSourceImp implements ExerciseRemoteDataSource {
   const ExerciseRemoteDataSourceImp(this._client);
 
   @override
-  Future<MusclesResponseModel> getRandomMuscles() {
-    return _client.getRandomMuscles();
+  Future<ExercisesResponseModel> getExercises({
+    required String muscleId,
+    required String difficultyId,
+    required int page,
+  }) async {
+    try {
+      final response = await _client.getExercisesByMuscleDifficulty(
+        primeMoverMuscleId: muscleId,
+        difficultyLevelId: difficultyId,
+        page: page,
+      );
+      if (response.exercises != null && response.exercises!.isNotEmpty) {
+        return response;
+      }
+    } catch (_) {}
+
+    return _client.getRandomExercises(
+      targetMuscleGroupId: muscleId,
+      difficultyLevelId: difficultyId,
+    );
   }
 
   @override
-  Future<MusclesGroupResponseDto> getMuscleGroups() {
+  Future<DifficultyLevelsResponseModel> getDifficultyLevels({
+    required String muscleId,
+  }) async {
+    try {
+      final response = await _client.getDifficultyLevels(
+        primeMoverMuscleId: muscleId,
+      );
+      if (response.difficultyLevels != null &&
+          response.difficultyLevels!.isNotEmpty) {
+        return response;
+      }
+    } catch (_) {}
+
+    return _client.getAllDifficultyLevels();
+  }
+
+  @override
+  Future<MusclesGroupResponse> getMuscleGroups() {
     return _client.getMuscleGroups();
+  }
+
+  @override
+  Future<MusclesResponseModel> getRandomMuscles() {
+    return _client.getRandomMuscles();
   }
 
   @override
@@ -29,11 +69,6 @@ class ExerciseRemoteDataSourceImp implements ExerciseRemoteDataSource {
     String muscleGroupId,
   ) {
     return _client.getMusclesByGroupId(muscleGroupId);
-  }
-
-  @override
-  Future<LevelsResponseModel> getDifficultyLevels() {
-    return _client.getDifficultyLevels();
   }
 
   @override

@@ -33,15 +33,21 @@ void main() {
       ),
     ];
 
+    void stubMuscles([BaseResponse<List<MuscleEntity>>? response]) {
+      final value = response ?? const SuccessResponse(muscles);
+      when(() => mockRepo.getRandomMuscles()).thenAnswer((_) async => value);
+    }
+
+    void stubLevels([BaseResponse<List<DifficultyLevelEntity>>? response]) {
+      final value = response ?? const SuccessResponse(levels);
+      when(
+        () => mockRepo.getDifficultyLevels(muscleId: 'm_1'),
+      ).thenAnswer((_) async => value);
+    }
+
     test('returns popular trainings built from muscle and level', () async {
-      when(
-        () => mockRepo.getDifficultyLevels(),
-      ).thenAnswer((_) async => const SuccessResponse(levels));
-
-      when(
-        () => mockRepo.getRandomMuscles(),
-      ).thenAnswer((_) async => const SuccessResponse(muscles));
-
+      stubMuscles();
+      stubLevels();
       when(
         () => mockRepo.getExercisesByMuscleDifficulty(
           primeMoverMuscleId: 'm_1',
@@ -70,13 +76,7 @@ void main() {
     });
 
     test('returns an empty list when there is nothing to train on', () async {
-      when(() => mockRepo.getDifficultyLevels()).thenAnswer(
-        (_) async => const SuccessResponse<List<DifficultyLevelEntity>>([]),
-      );
-
-      when(
-        () => mockRepo.getRandomMuscles(),
-      ).thenAnswer((_) async => const SuccessResponse<List<MuscleEntity>>([]));
+      stubMuscles(const SuccessResponse<List<MuscleEntity>>([]));
 
       final result = await useCase();
 
@@ -94,10 +94,10 @@ void main() {
     });
 
     test('returns error when difficulty levels fail', () async {
-      final error = ErrorResponse<List<DifficultyLevelEntity>>(
-        errMessage: 'failure',
+      stubMuscles();
+      stubLevels(
+        ErrorResponse<List<DifficultyLevelEntity>>(errMessage: 'failure'),
       );
-      when(() => mockRepo.getDifficultyLevels()).thenAnswer((_) async => error);
 
       final result = await useCase();
 
@@ -111,12 +111,7 @@ void main() {
     });
 
     test('returns error when random muscles fail', () async {
-      when(
-        () => mockRepo.getDifficultyLevels(),
-      ).thenAnswer((_) async => const SuccessResponse(levels));
-
-      final error = ErrorResponse<List<MuscleEntity>>(errMessage: 'failure');
-      when(() => mockRepo.getRandomMuscles()).thenAnswer((_) async => error);
+      stubMuscles(ErrorResponse<List<MuscleEntity>>(errMessage: 'failure'));
 
       final result = await useCase();
 
@@ -124,14 +119,8 @@ void main() {
     });
 
     test('returns error when exercises fail', () async {
-      when(
-        () => mockRepo.getDifficultyLevels(),
-      ).thenAnswer((_) async => const SuccessResponse(levels));
-
-      when(
-        () => mockRepo.getRandomMuscles(),
-      ).thenAnswer((_) async => const SuccessResponse(muscles));
-
+      stubMuscles();
+      stubLevels();
       final error = ErrorResponse<List<ExerciseEntity>>(errMessage: 'failure');
       when(
         () => mockRepo.getExercisesByMuscleDifficulty(

@@ -20,6 +20,7 @@ class AppYoutubeVideo extends StatefulWidget {
     this.showThumbnail = true,
     this.unavailableColor,
     this.createController,
+    this.autoPlay = false,
   });
 
   final String videoUrl;
@@ -29,6 +30,9 @@ class AppYoutubeVideo extends StatefulWidget {
   final double aspectRatio;
   final bool showThumbnail;
   final Color? unavailableColor;
+  final bool autoPlay;
+
+  /// Replaces the in-app player. Production leaves this null.
   final YoutubeVideoControllerFactory? createController;
 
   @override
@@ -48,6 +52,11 @@ class _AppYoutubeVideoState extends State<AppYoutubeVideo> {
   void initState() {
     super.initState();
     _videoId = extractYoutubeVideoId(widget.videoUrl);
+    if (widget.autoPlay && _videoId != null) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted) _play();
+      });
+    }
   }
 
   @override
@@ -56,6 +65,11 @@ class _AppYoutubeVideoState extends State<AppYoutubeVideo> {
     if (oldWidget.videoUrl == widget.videoUrl) return;
     _releaseController();
     _videoId = extractYoutubeVideoId(widget.videoUrl);
+    if (widget.autoPlay && _videoId != null) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted) _play();
+      });
+    }
   }
 
   @override

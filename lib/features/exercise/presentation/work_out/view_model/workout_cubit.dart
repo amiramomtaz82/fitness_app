@@ -27,8 +27,12 @@ class WorkoutCubit extends BaseCubit<WorkoutState, BaseUiEvent> {
         _onGroupSelected(group);
       case RetryFetchMusclesIntent():
         _retry();
-      case MuscleSelectedIntent(muscleId: final id):
-        emitEvent(NavigateEvent(AppRoutes.exercise, arguments: id));
+      case MuscleSelectedIntent(muscleId: final id, muscleName: final name):
+        emitEvent(
+          NavigateEvent(
+            AppRoutes.exerciseDetailsLocation(id, muscleName: name),
+          ),
+        );
     }
   }
 

@@ -55,7 +55,9 @@ class _WorkoutMusclesContent extends StatelessWidget {
     return AppContentGridView(
       items: items,
       onItemTap: (item) {
-        context.read<WorkoutCubit>().doIntent(MuscleSelectedIntent(item.id));
+        context.read<WorkoutCubit>().doIntent(
+          MuscleSelectedIntent(item.id, muscleName: item.title),
+        );
       },
     );
   }

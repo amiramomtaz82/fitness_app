@@ -18,7 +18,6 @@ class Endpoints {
   static const String editProfile = '/auth/editProfile';
 
   // Levels & Muscles
-  static const String levels = '/levels';
   static const String muscles = '/muscles';
   static const String musclesGroup = '/musclesGroup';
   static const String musclesRandom = '/muscles/random';
@@ -40,4 +39,6 @@ class Endpoints {
   static const String ollamaBaseUrl = 'https://ollama.com/api';
   static const String ollamaChat = '/chat';
   static const String ollamaGenerate = '/generate';
+
+  static const String levels = '/levels/difficulty-levels/by-prime-mover';
 }

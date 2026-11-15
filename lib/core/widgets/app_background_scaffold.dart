@@ -43,6 +43,8 @@ class AppBackgroundScaffold extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final content = safeArea ? SafeArea(top: safeAreaTop, child: child) : child;
+
     return Scaffold(
       appBar: appBar,
       resizeToAvoidBottomInset: resizeToAvoidBottomInset,
@@ -73,7 +75,7 @@ class AppBackgroundScaffold extends StatelessWidget {
             ),
 
             // 3. Screen content
-            safeArea ? SafeArea(top: safeAreaTop, child: child) : child,
+            content,
 
             // 4. Feature-Specific Layout Guide Overlay (Visible only in debug if enabled)
             if (kDebugMode && showLayoutGrid)
