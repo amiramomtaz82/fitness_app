@@ -18,10 +18,10 @@ abstract class AuthClient {
 
   @POST(Endpoints.signin)
   Future<LoginResponseDto> login(@Body() LoginRequestDto body);
-  
+
   @POST(Endpoints.signup)
   Future<RegisterResponseDto> register(@Body() RegisterRequestDto request);
-  
+
   @POST(Endpoints.forgotPassword)
   Future<AuthActionResponseDto> forgotPassword(
     @Body() ForgetPasswordRequestDto body,

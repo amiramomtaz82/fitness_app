@@ -89,7 +89,7 @@ void main() {
     dataSource = ExerciseRemoteDataSourceImp(client);
   });
 
-  group('ExerciseRemoteDataSourceImp.getExercises —', () {
+  group('ExerciseRemoteDataSourceImp.getExercises â€”', () {
     test(
       'returns the by-muscle-difficulty response when it has data',
       () async {
@@ -203,7 +203,7 @@ void main() {
     });
   });
 
-  group('ExerciseRemoteDataSourceImp.getDifficultyLevels —', () {
+  group('ExerciseRemoteDataSourceImp.getDifficultyLevels â€”', () {
     test('returns the muscle-specific levels when they exist', () async {
       when(
         () => client.getDifficultyLevels(primeMoverMuscleId: 'muscle-1'),
@@ -253,7 +253,7 @@ void main() {
     });
   });
 
-  group('ExerciseRemoteDataSourceImp.getMuscleGroups —', () {
+  group('ExerciseRemoteDataSourceImp.getMuscleGroups â€”', () {
     test('forwards the request and returns the client response', () async {
       when(
         () => client.getMuscleGroups(),

@@ -16,9 +16,7 @@ void main() {
 
   setUp(() {
     provideDummy<BaseResponse<AuthActionResult>>(
-      const SuccessResponse<AuthActionResult>(
-        AuthActionResult(success: true),
-      ),
+      const SuccessResponse<AuthActionResult>(AuthActionResult(success: true)),
     );
     repo = MockAuthRepo();
     useCase = ResetPasswordUseCase(repo);
@@ -30,9 +28,9 @@ void main() {
       newPassword: 'NewPass123',
     );
     const result = AuthActionResult(success: true, message: 'done');
-    when(repo.resetPassword(request)).thenAnswer(
-      (_) async => const SuccessResponse<AuthActionResult>(result),
-    );
+    when(
+      repo.resetPassword(request),
+    ).thenAnswer((_) async => const SuccessResponse<AuthActionResult>(result));
 
     final response = await useCase(request: request);
 

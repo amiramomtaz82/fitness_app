@@ -4,7 +4,7 @@ import '../../../../../../core/resource/resource.dart';
 import '../../../../domain/entities/register_parameters.dart';
 import '../../../../domain/entities/user_entity.dart';
 
-import '../../registration_options.dart';
+import 'package:fitness_app/core/contants/registration_options.dart';
 
 class RegisterState extends Equatable {
   final RegisterParameters params;

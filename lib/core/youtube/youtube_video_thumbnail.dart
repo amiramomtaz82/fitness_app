@@ -4,14 +4,20 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:youtube_player_iframe/youtube_player_iframe.dart';
 
 class ThumbnailSurface extends StatelessWidget {
-  const ThumbnailSurface({super.key, required this.videoId, this.onPlay});
+  const ThumbnailSurface({
+    super.key,
+    required this.videoId,
+    this.onPlay,
+    this.showImage = true,
+  });
 
   final String videoId;
   final VoidCallback? onPlay;
+  final bool showImage;
 
   @override
   Widget build(BuildContext context) {
-    final image = ThumbnailImage(videoId: videoId);
+    final image = thumbnailLayer(showImage, videoId);
     final play = onPlay;
     if (play == null) return image;
     return GestureDetector(
@@ -28,29 +34,59 @@ class ThumbnailSurface extends StatelessWidget {
   }
 }
 
+String jpegThumbnailUrl(String videoId) {
+  return YoutubePlayerController.getThumbnail(
+    videoId: videoId,
+    quality: ThumbnailQuality.high,
+    format: ThumbnailFormat.jpeg,
+  );
+}
+
+Widget thumbnailLayer(bool showImage, String videoId) {
+  if (!showImage) return const SizedBox.expand();
+  return ThumbnailImage(videoId: videoId);
+}
+
 class ThumbnailImage extends StatelessWidget {
   const ThumbnailImage({super.key, required this.videoId});
 
   final String videoId;
 
+  static const List<ThumbnailQuality> _qualityOrder = [
+    ThumbnailQuality.max,
+    ThumbnailQuality.high,
+  ];
+
   @override
   Widget build(BuildContext context) {
     final devicePixelRatio = MediaQuery.devicePixelRatioOf(context);
+    final urls = _qualityOrder
+        .map(
+          (quality) => YoutubePlayerController.getThumbnail(
+            videoId: videoId,
+            quality: quality,
+          ),
+        )
+        .toList(growable: false);
+
     return LayoutBuilder(
       builder: (context, constraints) {
-        return Image.network(
-          YoutubePlayerController.getThumbnail(
-            videoId: videoId,
-            quality: ThumbnailQuality.high,
-          ),
-          fit: BoxFit.cover,
-          gaplessPlayback: true,
-          cacheWidth: cachePixels(constraints.maxWidth, devicePixelRatio),
-          cacheHeight: cachePixels(constraints.maxHeight, devicePixelRatio),
-          loadingBuilder: (_, child, progress) =>
-              progress == null ? child : surface(context),
-          errorBuilder: (_, _, _) => surface(context),
-        );
+        Widget picture(int qualityIndex) {
+          return Image.network(
+            urls[qualityIndex],
+            fit: BoxFit.cover,
+            gaplessPlayback: true,
+            cacheWidth: cachePixels(constraints.maxWidth, devicePixelRatio),
+            cacheHeight: cachePixels(constraints.maxHeight, devicePixelRatio),
+            loadingBuilder: (_, child, progress) =>
+                progress == null ? child : surface(context),
+            errorBuilder: (_, _, _) => qualityIndex + 1 < urls.length
+                ? picture(qualityIndex + 1)
+                : surface(context),
+          );
+        }
+
+        return picture(0);
       },
     );
   }
@@ -66,13 +102,15 @@ class ThumbnailImage extends StatelessWidget {
 }
 
 class UnavailableSurface extends StatelessWidget {
-  const UnavailableSurface({super.key});
+  const UnavailableSurface({super.key, this.color});
+
+  final Color? color;
 
   @override
   Widget build(BuildContext context) {
     return ColoredBox(
       key: const Key('app_youtube_video_unavailable'),
-      color: context.colors.background,
+      color: color ?? context.colors.background,
     );
   }
 }

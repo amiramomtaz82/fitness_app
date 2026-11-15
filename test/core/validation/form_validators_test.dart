@@ -31,21 +31,35 @@ void main() {
     });
 
     test('malformed addresses are invalid email errors', () {
-      expect(FormValidators.validateEmail('not-an-email'),
-          ValidationError.invalidEmail);
+      expect(
+        FormValidators.validateEmail('not-an-email'),
+        ValidationError.invalidEmail,
+      );
       expect(FormValidators.validateEmail('a@b'), ValidationError.invalidEmail);
-      expect(FormValidators.validateEmail('a@b.c'),
-          ValidationError.invalidEmail);
-      expect(FormValidators.validateEmail('a@.com'),
-          ValidationError.invalidEmail);
-      expect(FormValidators.validateEmail('@mail.com'),
-          ValidationError.invalidEmail);
-      expect(FormValidators.validateEmail('user mail@.com'),
-          ValidationError.invalidEmail);
-      expect(FormValidators.validateEmail('user+tag@mail.com'),
-          ValidationError.invalidEmail);
-      expect(FormValidators.validateEmail('user@mail.travel'),
-          ValidationError.invalidEmail);
+      expect(
+        FormValidators.validateEmail('a@b.c'),
+        ValidationError.invalidEmail,
+      );
+      expect(
+        FormValidators.validateEmail('a@.com'),
+        ValidationError.invalidEmail,
+      );
+      expect(
+        FormValidators.validateEmail('@mail.com'),
+        ValidationError.invalidEmail,
+      );
+      expect(
+        FormValidators.validateEmail('user mail@.com'),
+        ValidationError.invalidEmail,
+      );
+      expect(
+        FormValidators.validateEmail('user+tag@mail.com'),
+        ValidationError.invalidEmail,
+      );
+      expect(
+        FormValidators.validateEmail('user@mail.travel'),
+        ValidationError.invalidEmail,
+      );
     });
   });
 
@@ -57,30 +71,42 @@ void main() {
     });
 
     test('under eight characters is too short', () {
-      expect(FormValidators.validatePassword('short'),
-          ValidationError.passwordTooShort);
-      expect(FormValidators.validatePassword('abc123'),
-          ValidationError.passwordTooShort);
+      expect(
+        FormValidators.validatePassword('short'),
+        ValidationError.passwordTooShort,
+      );
+      expect(
+        FormValidators.validatePassword('abc123'),
+        ValidationError.passwordTooShort,
+      );
     });
 
     test('eight characters without a digit misses the number rule', () {
-      expect(FormValidators.validatePassword('Abcdefg@'),
-          ValidationError.passwordMissingNumber);
+      expect(
+        FormValidators.validatePassword('Abcdefg@'),
+        ValidationError.passwordMissingNumber,
+      );
     });
 
     test('a password without an uppercase letter is rejected', () {
-      expect(FormValidators.validatePassword('abcdefg@1'),
-          ValidationError.passwordMissingUppercase);
+      expect(
+        FormValidators.validatePassword('abcdefg@1'),
+        ValidationError.passwordMissingUppercase,
+      );
     });
 
     test('a password without a lowercase letter is rejected', () {
-      expect(FormValidators.validatePassword('ABCDEFG@1'),
-          ValidationError.passwordMissingLowercase);
+      expect(
+        FormValidators.validatePassword('ABCDEFG@1'),
+        ValidationError.passwordMissingLowercase,
+      );
     });
 
     test('a password without a special character is rejected', () {
-      expect(FormValidators.validatePassword('Abcdefg1'),
-          ValidationError.passwordMissingSpecialChar);
+      expect(
+        FormValidators.validatePassword('Abcdefg1'),
+        ValidationError.passwordMissingSpecialChar,
+      );
     });
 
     test('eight or more characters meeting every rule pass', () {
@@ -125,7 +151,10 @@ void main() {
     test('codes shorter than the required length are incomplete', () {
       expect(FormValidators.validateOtp(null), ValidationError.incompleteOtp);
       expect(FormValidators.validateOtp(''), ValidationError.incompleteOtp);
-      expect(FormValidators.validateOtp('12345'), ValidationError.incompleteOtp);
+      expect(
+        FormValidators.validateOtp('12345'),
+        ValidationError.incompleteOtp,
+      );
       expect(
         FormValidators.validateOtp('123', length: 4),
         ValidationError.incompleteOtp,
@@ -208,6 +237,81 @@ void main() {
     test('valid positive integers pass', () {
       expect(FormValidators.validateRepsOrSets('12'), isNull);
       expect(FormValidators.validateRepsOrSets('1000'), isNull);
+    });
+  });
+
+  group('FormValidators.validateAge', () {
+    test('empty or missing input is reported as empty', () {
+      expect(FormValidators.validateAge(null), ValidationError.empty);
+      expect(FormValidators.validateAge(''), ValidationError.empty);
+      expect(FormValidators.validateAge('   '), ValidationError.empty);
+    });
+
+    test('non numeric input is reported as not a number', () {
+      expect(FormValidators.validateAge('twenty'), ValidationError.notANumber);
+      expect(FormValidators.validateAge('25.5'), ValidationError.notANumber);
+    });
+
+    test('ages under the minimum are rejected', () {
+      expect(
+        FormValidators.validateAge('${FormValidators.minimumAge - 1}'),
+        ValidationError.valueBelowMinimum,
+      );
+    });
+
+    test('ages over the maximum are rejected', () {
+      expect(
+        FormValidators.validateAge('${FormValidators.maximumAge + 1}'),
+        ValidationError.valueAboveMaximum,
+      );
+    });
+
+    test('boundary ages pass', () {
+      expect(
+        FormValidators.validateAge('${FormValidators.minimumAge}'),
+        isNull,
+      );
+      expect(
+        FormValidators.validateAge('${FormValidators.maximumAge}'),
+        isNull,
+      );
+    });
+  });
+
+  group('FormValidators.validateHeight', () {
+    test('empty or missing input is reported as empty', () {
+      expect(FormValidators.validateHeight(null), ValidationError.empty);
+      expect(FormValidators.validateHeight(''), ValidationError.empty);
+    });
+
+    test('non numeric input is reported as not a number', () {
+      expect(FormValidators.validateHeight('tall'), ValidationError.notANumber);
+    });
+
+    test('decimal heights inside the range pass', () {
+      expect(FormValidators.validateHeight('178.5'), isNull);
+    });
+
+    test('heights outside the allowed range are rejected', () {
+      expect(
+        FormValidators.validateHeight('${FormValidators.minimumHeightCm - 1}'),
+        ValidationError.valueBelowMinimum,
+      );
+      expect(
+        FormValidators.validateHeight('${FormValidators.maximumHeightCm + 1}'),
+        ValidationError.valueAboveMaximum,
+      );
+    });
+
+    test('boundary heights pass', () {
+      expect(
+        FormValidators.validateHeight('${FormValidators.minimumHeightCm}'),
+        isNull,
+      );
+      expect(
+        FormValidators.validateHeight('${FormValidators.maximumHeightCm}'),
+        isNull,
+      );
     });
   });
 }

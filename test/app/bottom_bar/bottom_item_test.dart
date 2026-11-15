@@ -15,7 +15,7 @@ void main() {
     test('items list has 4 elements with correct properties and order', () {
       expect(items.length, equals(4));
 
-      expect(items[0].label, equals('home.home'));
+      expect(items[0].label, equals(LocaleKeys.home_home));
       expect(items[0].icon, equals(AppAssets.home));
 
       expect(items[1].label, equals(LocaleKeys.chat_smart_coach));

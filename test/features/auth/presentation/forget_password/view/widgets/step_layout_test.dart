@@ -18,9 +18,7 @@ void main() {
     );
   }
 
-  testWidgets('renders the title, subtitle and the step body', (
-    tester,
-  ) async {
+  testWidgets('renders the title, subtitle and the step body', (tester) async {
     await pumpBareWidget(tester, build());
 
     expect(find.text('Step Title'), findsOneWidget);
@@ -36,9 +34,7 @@ void main() {
     expect(titleTop, lessThan(subtitleTop));
   });
 
-  testWidgets('subtitleAbove puts the subtitle over the title', (
-    tester,
-  ) async {
+  testWidgets('subtitleAbove puts the subtitle over the title', (tester) async {
     await pumpBareWidget(tester, build(subtitleAbove: true));
 
     final titleTop = tester.getTopLeft(find.text('Step Title')).dy;

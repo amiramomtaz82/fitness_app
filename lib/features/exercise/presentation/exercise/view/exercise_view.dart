@@ -143,14 +143,13 @@ class _ExerciseViewState extends State<ExerciseView> {
           String headerDescription =
               'Lorem Ipsum Dolor Sit Amet Consectetur. Tempus Volutpat Ut Nisi Morbi.';
           if (currentExercise != null) {
-            final eq = currentExercise.primaryEquipment.isNotEmpty
-                ? currentExercise.primaryEquipment
-                : 'Bodyweight';
-            final pm = currentExercise.primeMoverMuscle.isNotEmpty
-                ? currentExercise.primeMoverMuscle
-                : currentExercise.targetMuscleGroup;
+            final equipment = currentExercise.primaryEquipment?.trim() ?? '';
+            final primeMover = currentExercise.primeMoverMuscle?.trim() ?? '';
+            final target = currentExercise.targetMuscleGroup?.trim() ?? '';
+            final eq = equipment.isNotEmpty ? equipment : 'Bodyweight';
+            final pm = primeMover.isNotEmpty ? primeMover : target;
             headerDescription =
-                '$eq • $pm • ${currentExercise.difficultyLevel}';
+                '$eq • $pm • ${currentExercise.difficultyLevel ?? ''}';
           }
 
           final headerTitle = '$muscleName Exercise';
@@ -165,16 +164,6 @@ class _ExerciseViewState extends State<ExerciseView> {
                 )
               : 0;
           final effectiveIndex = selectedIndex >= 0 ? selectedIndex : 0;
-          debugPrint('========== CURRENT EXERCISE ==========');
-          debugPrint('Exercise: ${currentExercise?.name}');
-          debugPrint('Exercise ID: ${currentExercise?.id}');
-          debugPrint('Short URL: ${currentExercise?.shortVideoUrl}');
-          debugPrint(
-            'Explanation URL: ${currentExercise?.explanationVideoUrl}',
-          );
-          debugPrint('Selected Video URL: $currentVideoUrl');
-          debugPrint('Extracted ID: $extractedVideoId');
-          debugPrint('======================================');
           return Column(
             children: [
               // Top Section: Live In-Screen Video Player OR Hero Section

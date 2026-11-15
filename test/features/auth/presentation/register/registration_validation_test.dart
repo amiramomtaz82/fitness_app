@@ -7,7 +7,7 @@ import 'package:fitness_app/features/auth/presentation/register/manager/cubit/re
 import 'package:fitness_app/features/auth/presentation/register/manager/cubit/register_intent.dart';
 import 'package:fitness_app/features/auth/presentation/register/manager/cubit/register_state.dart';
 import 'package:fitness_app/features/auth/presentation/register/manager/cubit/registration_validation_event.dart';
-import 'package:fitness_app/features/auth/presentation/register/registration_options.dart';
+import 'package:fitness_app/core/contants/registration_options.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 import 'register_test_helper.dart';

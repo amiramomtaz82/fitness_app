@@ -16,9 +16,7 @@ void main() {
 
   setUp(() {
     provideDummy<BaseResponse<AuthActionResult>>(
-      const SuccessResponse<AuthActionResult>(
-        AuthActionResult(success: true),
-      ),
+      const SuccessResponse<AuthActionResult>(AuthActionResult(success: true)),
     );
     repo = MockAuthRepo();
     useCase = SendResetCodeUseCase(repo);
@@ -27,9 +25,9 @@ void main() {
   test('delegates the request to AuthRepo.sendResetCode', () async {
     const request = ForgetPasswordRequest(email: 'a@b.com');
     const result = AuthActionResult(success: true);
-    when(repo.sendResetCode(request)).thenAnswer(
-      (_) async => const SuccessResponse<AuthActionResult>(result),
-    );
+    when(
+      repo.sendResetCode(request),
+    ).thenAnswer((_) async => const SuccessResponse<AuthActionResult>(result));
 
     final response = await useCase(request: request);
 

@@ -1,9 +1,11 @@
 import 'package:fitness_app/features/exercise/data/models/difficulty_levels_response_model.dart';
 import 'package:fitness_app/features/exercise/data/models/exercises_response_model.dart';
 import 'package:fitness_app/features/exercise/data/models/muscle_group_response.dart';
+import 'package:fitness_app/features/exercise/data/models/muscles_response_model.dart';
 import 'package:injectable/injectable.dart';
 
 import '../api/exercise_api_client.dart';
+import '../models/muscle_group_detail_response_dto.dart';
 import 'exercise_remote_data_source.dart';
 
 @Injectable(as: ExerciseRemoteDataSource)
@@ -55,5 +57,28 @@ class ExerciseRemoteDataSourceImp implements ExerciseRemoteDataSource {
   @override
   Future<MusclesGroupResponse> getMuscleGroups() {
     return _client.getMuscleGroups();
+  }
+
+  @override
+  Future<MusclesResponseModel> getRandomMuscles() {
+    return _client.getRandomMuscles();
+  }
+
+  @override
+  Future<MuscleGroupDetailResponseDto> getMusclesByGroupId(
+    String muscleGroupId,
+  ) {
+    return _client.getMusclesByGroupId(muscleGroupId);
+  }
+
+  @override
+  Future<ExercisesResponseModel> getExercisesByMuscleDifficulty({
+    required String primeMoverMuscleId,
+    required String difficultyLevelId,
+  }) {
+    return _client.getExercisesByMuscleDifficulty(
+      primeMoverMuscleId: primeMoverMuscleId,
+      difficultyLevelId: difficultyLevelId,
+    );
   }
 }

@@ -3,7 +3,7 @@ import 'package:fitness_app/core/theme/text_styles.dart';
 import 'package:fitness_app/core/widgets/app_catgory_tab_bar.dart';
 import 'package:fitness_app/core/youtube/youtube_player_overlay.dart';
 import 'package:fitness_app/core/youtube/youtube_video_thumbnail.dart';
-import 'package:fitness_app/features/exercise/domain/entities/difficulty_entity.dart';
+import 'package:fitness_app/features/exercise/domain/entities/difficulty_level_entity.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
@@ -40,9 +40,11 @@ class ExerciseTopSection extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final colors = context.colors;
-    final headerTitle = title ??
+    final headerTitle =
+        title ??
         (muscleName.isNotEmpty ? '$muscleName Exercise' : 'Chest Exercise');
-    final headerDescription = description ??
+    final headerDescription =
+        description ??
         'Lorem Ipsum Dolor Sit Amet Consectetur. Tempus Volutpat Ut Nisi Morbi.';
 
     final categories = difficultyLevels.isNotEmpty
@@ -60,10 +62,7 @@ class ExerciseTopSection extends StatelessWidget {
         // Background Video Thumbnail Surface
         Positioned.fill(
           child: videoId != null && videoId!.isNotEmpty
-              ? ThumbnailSurface(
-                  videoId: videoId!,
-                  onPlay: onPlayVideo,
-                )
+              ? ThumbnailSurface(videoId: videoId!, onPlay: onPlayVideo)
               : const UnavailableSurface(),
         ),
 
@@ -94,11 +93,7 @@ class ExerciseTopSection extends StatelessWidget {
             children: [
               Padding(
                 padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 8.h),
-                child: Row(
-                  children: [
-                    VideoBackButton(onPressed: onBack),
-                  ],
-                ),
+                child: Row(children: [VideoBackButton(onPressed: onBack)]),
               ),
 
               SizedBox(height: 12.h),

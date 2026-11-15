@@ -3,22 +3,13 @@ import 'package:json_annotation/json_annotation.dart';
 
 part 'exercise_model.g.dart';
 
-/// Maps the exercises API payload. The backend sends snake_case keys
-/// (for example `short_youtube_demonstration_link`), so every camelCase
-/// field is bound with an explicit [JsonKey].
 @JsonSerializable()
 class ExerciseModel {
   @JsonKey(name: '_id')
   final String? id;
 
   @JsonKey(name: 'exercise')
-  final String? exercise;
-
-  @JsonKey(name: 'short_youtube_demonstration')
-  final String? shortYoutubeDemonstration;
-
-  @JsonKey(name: 'in_depth_youtube_explanation')
-  final String? inDepthYoutubeExplanation;
+  final String? name;
 
   @JsonKey(name: 'difficulty_level')
   final String? difficultyLevel;
@@ -105,16 +96,22 @@ class ExerciseModel {
   final String? primaryExerciseClassification;
 
   @JsonKey(name: 'short_youtube_demonstration_link')
-  final String? shortYoutubeDemonstrationLink;
+  final String? demonstrationVideoUrl;
 
   @JsonKey(name: 'in_depth_youtube_explanation_link')
-  final String? inDepthYoutubeExplanationLink;
+  final String? explanationVideoUrl;
+
+  /// Backwards-compatible aliases for the field names used before the API
+  /// models were merged.
+  String? get exercise => name;
+
+  String? get shortYoutubeDemonstration => demonstrationVideoUrl;
+
+  String? get inDepthYoutubeExplanation => explanationVideoUrl;
 
   const ExerciseModel({
     this.id,
-    this.exercise,
-    this.shortYoutubeDemonstration,
-    this.inDepthYoutubeExplanation,
+    this.name,
     this.difficultyLevel,
     this.targetMuscleGroup,
     this.primeMoverMuscle,
@@ -143,8 +140,8 @@ class ExerciseModel {
     this.mechanics,
     this.laterality,
     this.primaryExerciseClassification,
-    this.shortYoutubeDemonstrationLink,
-    this.inDepthYoutubeExplanationLink,
+    this.demonstrationVideoUrl,
+    this.explanationVideoUrl,
   });
 
   factory ExerciseModel.fromJson(Map<String, dynamic> json) =>
@@ -155,18 +152,37 @@ class ExerciseModel {
   ExerciseEntity toEntity() {
     return ExerciseEntity(
       id: id ?? '',
-      name: exercise ?? '',
-      difficultyLevel: difficultyLevel ?? '',
-      targetMuscleGroup: targetMuscleGroup ?? '',
-      primeMoverMuscle: primeMoverMuscle ?? '',
-      primaryEquipment: primaryEquipment ?? '',
-      shortVideoUrl: (shortYoutubeDemonstrationLink ?? '').trim(),
-      explanationVideoUrl: (inDepthYoutubeExplanationLink ?? '').trim(),
+      name: name ?? '',
+      difficultyLevel: difficultyLevel,
+      targetMuscleGroup: targetMuscleGroup,
+      primeMoverMuscle: primeMoverMuscle,
       secondaryMuscle: secondaryMuscle,
       tertiaryMuscle: tertiaryMuscle,
+      primaryEquipment: primaryEquipment,
+      primaryItems: primaryItems,
+      secondaryEquipment: secondaryEquipment,
+      secondaryItems: secondaryItems,
       posture: posture,
-      mechanics: mechanics,
+      singleOrDoubleArm: singleOrDoubleArm,
+      continuousOrAlternatingArms: continuousOrAlternatingArms,
+      grip: grip,
+      loadPositionEnding: loadPositionEnding,
+      continuousOrAlternatingLegs: continuousOrAlternatingLegs,
+      footElevation: footElevation,
+      combinationExercises: combinationExercises,
+      movementPattern1: movementPattern1,
+      movementPattern2: movementPattern2,
+      movementPattern3: movementPattern3,
+      planeOfMotion1: planeOfMotion1,
+      planeOfMotion2: planeOfMotion2,
+      planeOfMotion3: planeOfMotion3,
       bodyRegion: bodyRegion,
+      forceType: forceType,
+      mechanics: mechanics,
+      laterality: laterality,
+      primaryExerciseClassification: primaryExerciseClassification,
+      demonstrationVideoUrl: demonstrationVideoUrl,
+      explanationVideoUrl: explanationVideoUrl,
     );
   }
 }

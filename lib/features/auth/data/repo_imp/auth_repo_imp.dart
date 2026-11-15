@@ -162,9 +162,9 @@ class AuthRepoImp implements AuthRepo {
   Future<BaseResponse<AuthActionResult>> sendResetCode(
     ForgetPasswordRequest request,
   ) => safeCall(() async {
-    final result = (
-      await _remoteDataSource.sendResetCode(request.toDto())
-    ).toEntity();
+    final result = (await _remoteDataSource.sendResetCode(
+      request.toDto(),
+    )).toEntity();
     if (!result.success) {
       throw ValidationFailure(serverMessage: result.message);
     }
@@ -175,9 +175,9 @@ class AuthRepoImp implements AuthRepo {
   Future<BaseResponse<AuthActionResult>> verifyResetCode(
     VerifyOtpRequest request,
   ) => safeCall(() async {
-    final result = (
-      await _remoteDataSource.verifyResetCode(request.toDto())
-    ).toEntity();
+    final result = (await _remoteDataSource.verifyResetCode(
+      request.toDto(),
+    )).toEntity();
     if (!result.success) {
       throw ValidationFailure(serverMessage: result.message);
     }
@@ -188,9 +188,9 @@ class AuthRepoImp implements AuthRepo {
   Future<BaseResponse<AuthActionResult>> resetPassword(
     ResetPasswordRequest request,
   ) => safeCall(() async {
-    final result = (
-      await _remoteDataSource.resetPassword(request.toDto())
-    ).toEntity();
+    final result = (await _remoteDataSource.resetPassword(
+      request.toDto(),
+    )).toEntity();
     if (!result.success) {
       throw ValidationFailure(serverMessage: result.message);
     }

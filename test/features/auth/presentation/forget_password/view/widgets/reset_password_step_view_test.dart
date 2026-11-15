@@ -210,37 +210,38 @@ void main() {
     expect(fieldObscured(tester, passwordKey), isTrue);
   });
 
-  testWidgets('while submitting the step locks: fields off, button off, spinner on', (
-    tester,
-  ) async {
-    await pumpResetStep(
-      tester,
-      state: const ForgetPasswordState(
-        step: ForgetPasswordStep.resetPassword,
-        email: 'user@mail.com',
-        resetPassword: Resource<AuthActionResult>.loading(),
-      ),
-    );
+  testWidgets(
+    'while submitting the step locks: fields off, button off, spinner on',
+    (tester) async {
+      await pumpResetStep(
+        tester,
+        state: const ForgetPasswordState(
+          step: ForgetPasswordStep.resetPassword,
+          email: 'user@mail.com',
+          resetPassword: Resource<AuthActionResult>.loading(),
+        ),
+      );
 
-    expect(
-      tester.widget<TextFormField>(find.byKey(passwordKey)).enabled,
-      isFalse,
-    );
-    expect(
-      tester.widget<TextFormField>(find.byKey(confirmKey)).enabled,
-      isFalse,
-    );
-    expect(
-      tester.widget<ElevatedButton>(find.byKey(resetKey)).onPressed,
-      isNull,
-    );
-    expect(
-      find.descendant(
-        of: find.byKey(resetKey),
-        matching: find.byType(CircularProgressIndicator),
-      ),
-      findsOneWidget,
-    );
-    expect(find.text('Done'), findsNothing);
-  });
+      expect(
+        tester.widget<TextFormField>(find.byKey(passwordKey)).enabled,
+        isFalse,
+      );
+      expect(
+        tester.widget<TextFormField>(find.byKey(confirmKey)).enabled,
+        isFalse,
+      );
+      expect(
+        tester.widget<ElevatedButton>(find.byKey(resetKey)).onPressed,
+        isNull,
+      );
+      expect(
+        find.descendant(
+          of: find.byKey(resetKey),
+          matching: find.byType(CircularProgressIndicator),
+        ),
+        findsOneWidget,
+      );
+      expect(find.text('Done'), findsNothing);
+    },
+  );
 }

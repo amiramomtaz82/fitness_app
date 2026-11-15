@@ -12,7 +12,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
-import 'package:fitness_app/features/auth/presentation/register/registration_options.dart';
+import 'package:fitness_app/core/contants/registration_options.dart';
 import 'register_test_helper.dart';
 
 class MockRegisterUseCase extends Mock implements RegisterUseCase {}
@@ -104,9 +104,7 @@ void goalErrorStaysBelowTheChoices() {
     expect(cubit.state.currentStep, 4);
 
     final message = tester.getRect(find.text('This field is required.'));
-    final button = tester.getRect(
-      find.widgetWithText(ElevatedButton, 'Next'),
-    );
+    final button = tester.getRect(find.widgetWithText(ElevatedButton, 'Next'));
     final lastVisible = tester.getRect(find.text('Gain More Flexible'));
     expect(message.bottom, lessThanOrEqualTo(button.top));
     expect(message.top, greaterThanOrEqualTo(lastVisible.center.dy));
@@ -115,7 +113,9 @@ void goalErrorStaysBelowTheChoices() {
     await tester.pumpAndSettle();
     expect(
       tester.getRect(find.text('Learn The Basic')).center.dy,
-      lessThanOrEqualTo(tester.getRect(find.text('This field is required.')).top),
+      lessThanOrEqualTo(
+        tester.getRect(find.text('This field is required.')).top,
+      ),
     );
 
     await tester.tap(find.text('Learn The Basic'));

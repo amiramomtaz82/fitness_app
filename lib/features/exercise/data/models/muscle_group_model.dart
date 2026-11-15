@@ -1,4 +1,4 @@
-import 'package:fitness_app/features/exercise/domain/entities/muscles_group_entity.dart';
+import 'package:fitness_app/features/exercise/domain/entities/muscle_group_entity.dart';
 import 'package:json_annotation/json_annotation.dart';
 
 part 'muscle_group_model.g.dart';

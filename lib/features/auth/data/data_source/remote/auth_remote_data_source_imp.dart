@@ -33,9 +33,8 @@ class AuthRemoteDataSourceImp implements AuthRemoteDataSource {
   ) => _client.forgotPassword(request);
 
   @override
-  Future<AuthActionResponseDto> verifyResetCode(
-    VerifyOtpRequestDto request,
-  ) => _client.verifyResetCode(request);
+  Future<AuthActionResponseDto> verifyResetCode(VerifyOtpRequestDto request) =>
+      _client.verifyResetCode(request);
 
   @override
   Future<AuthActionResponseDto> resetPassword(

@@ -86,15 +86,38 @@ class _CardBlurredTitle extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return PositionedDirectional(
-      start: 20,
-      end: 20,
-      bottom: 20,
-      child: Text(
-        title,
-        textAlign: TextAlign.center,
-        maxLines: 2,
-        overflow: TextOverflow.ellipsis,
-        style: AppTextStyles.white20bold.copyWith(fontSize: 16),
+      start: 0,
+      end: 0,
+      bottom: 0,
+      child: Container(
+        padding: EdgeInsetsDirectional.fromSTEB(12.w, 24.h, 12.w, 14.h),
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
+            colors: [
+              Colors.black.withValues(alpha: 0),
+              Colors.black.withValues(alpha: 0.75),
+            ],
+          ),
+        ),
+        child: Text(
+          title,
+          textAlign: TextAlign.center,
+          maxLines: 2,
+          overflow: TextOverflow.ellipsis,
+          style: AppTextStyles.white20bold.copyWith(
+            fontSize: 16.sp,
+            fontWeight: FontWeight.w800,
+            shadows: const [
+              Shadow(
+                color: Colors.black54,
+                blurRadius: 6,
+                offset: Offset(0, 1),
+              ),
+            ],
+          ),
+        ),
       ),
     );
   }

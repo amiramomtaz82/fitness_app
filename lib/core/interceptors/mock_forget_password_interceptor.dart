@@ -16,10 +16,7 @@ class MockForgetPasswordInterceptor extends Interceptor {
       (options.method == 'POST' || options.method == 'PUT');
 
   @override
-  void onRequest(
-    RequestOptions options,
-    RequestInterceptorHandler handler,
-  ) {
+  void onRequest(RequestOptions options, RequestInterceptorHandler handler) {
     if (!_isMocked(options)) return handler.next(options);
     debugPrint(
       '[MOCK BACKEND] Intercepted ${options.method} ${options.path} '

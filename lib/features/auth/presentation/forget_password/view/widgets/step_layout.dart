@@ -41,10 +41,7 @@ class StepLayout extends StatelessWidget {
       heightFactor: 2.0,
       child: SingleChildScrollView(
         keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
-        padding: EdgeInsets.only(
-          left: 12.w,
-          right: 12.w,
-        ),
+        padding: EdgeInsets.only(left: 12.w, right: 12.w),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [

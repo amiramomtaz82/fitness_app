@@ -1,11 +1,3 @@
-import 'package:equatable/equatable.dart';
-
-class MuscleGroupEntity extends Equatable {
-  final String id;
-  final String name;
-
-  const MuscleGroupEntity({required this.id, required this.name});
-
-  @override
-  List<Object?> get props => [id, name];
-}
+// Backwards-compatible import path. New code should import
+// `muscle_group_entity.dart` directly.
+export 'muscle_group_entity.dart';

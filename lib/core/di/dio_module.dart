@@ -4,8 +4,16 @@ import 'package:pretty_dio_logger/pretty_dio_logger.dart';
 
 import '../contants/endpoints/endpoints.dart';
 import '../interceptors/auth_interceptor.dart';
+import '../interceptors/json_content_interceptor.dart';
 import '../interceptors/local_interceptor.dart';
 import '../interceptors/mock_forget_password_interceptor.dart';
+
+/// Names used with `@Named` to tell the app's Dio instances apart.
+abstract final class DioNames {
+  DioNames._();
+
+  static const String mealDb = 'mealDbDio';
+}
 
 @module
 abstract class DioModule {
@@ -32,6 +40,21 @@ abstract class DioModule {
         responseHeader: false,
       ),
     );
+    return dioInstance;
+  }
+
+  @Named(DioNames.mealDb)
+  @lazySingleton
+  Dio mealDbDio() {
+    final dioInstance = Dio(
+      BaseOptions(
+        baseUrl: Endpoints.mealDbBaseUrl,
+        connectTimeout: const Duration(seconds: 30),
+        receiveTimeout: const Duration(seconds: 30),
+      ),
+    );
+    dioInstance.interceptors.add(JsonContentInterceptor());
+    dioInstance.interceptors.add(PrettyDioLogger(responseBody: false));
     return dioInstance;
   }
 }

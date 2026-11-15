@@ -99,10 +99,9 @@ class _OtpStepViewState extends State<OtpStepView> {
               key: const Key('resendButton'),
               isResending: isResending,
               secondsLeft: resendSecondsLeft,
-              onResend:
-                  () => context.read<ForgetPasswordCubit>().onEvent(
-                    const ResendResetCode(),
-                  ),
+              onResend: () => context.read<ForgetPasswordCubit>().onEvent(
+                const ResendResetCode(),
+              ),
             ),
           ),
         ],

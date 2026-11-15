@@ -28,25 +28,26 @@ void main() {
   late _ExplodingAdapter adapter;
 
   setUp(() {
-    dio = Dio(
-      BaseOptions(baseUrl: Endpoints.baseUrl),
-    )..interceptors.add(MockForgetPasswordInterceptor());
+    dio = Dio(BaseOptions(baseUrl: Endpoints.baseUrl))
+      ..interceptors.add(MockForgetPasswordInterceptor());
     adapter = _ExplodingAdapter();
     dio.httpClientAdapter = adapter;
   });
 
   group('MockForgetPasswordInterceptor', () {
-    test('forgotPassword is answered with success without any network call',
-        () async {
-      final response = await dio.post<Map<String, dynamic>>(
-        Endpoints.forgotPassword,
-        data: {'email': 'user@mail.com'},
-      );
+    test(
+      'forgotPassword is answered with success without any network call',
+      () async {
+        final response = await dio.post<Map<String, dynamic>>(
+          Endpoints.forgotPassword,
+          data: {'email': 'user@mail.com'},
+        );
 
-      expect(response.statusCode, 200);
-      expect(response.data?['success'], isTrue);
-      expect(adapter.called, isFalse);
-    });
+        expect(response.statusCode, 200);
+        expect(response.data?['success'], isTrue);
+        expect(adapter.called, isFalse);
+      },
+    );
 
     test('verifyResetCode accepts any code without any network call', () async {
       final random = await dio.post<Map<String, dynamic>>(

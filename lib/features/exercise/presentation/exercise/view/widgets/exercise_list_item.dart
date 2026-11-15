@@ -26,12 +26,10 @@ class ExerciseListItem extends StatelessWidget {
         : exercise.explanationVideoUrl;
     final videoId = extractYoutubeVideoId(videoUrl);
 
-    final equipmentText = exercise.primaryEquipment.isNotEmpty
-        ? exercise.primaryEquipment
-        : 'Barbell';
-    final difficultyText = exercise.difficultyLevel.isNotEmpty
-        ? exercise.difficultyLevel
-        : 'Beginner';
+    final equipment = exercise.primaryEquipment?.trim() ?? '';
+    final equipmentText = equipment.isNotEmpty ? equipment : 'Barbell';
+    final difficulty = exercise.difficultyLevel?.trim() ?? '';
+    final difficultyText = difficulty.isNotEmpty ? difficulty : 'Beginner';
     final subtitleInfo = '$equipmentText • $difficultyText';
 
     return InkWell(

@@ -9,11 +9,7 @@ class TimeCalorieWidget extends StatelessWidget {
   final String? time;
   final String? calories;
 
-  const TimeCalorieWidget({
-    super.key,
-    this.time,
-    this.calories,
-  });
+  const TimeCalorieWidget({super.key, this.time, this.calories});
 
   @override
   Widget build(BuildContext context) {

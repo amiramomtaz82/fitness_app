@@ -1,7 +1,6 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:fitness_app/app/routes_names.dart';
 import 'package:fitness_app/core/contants/app_assets.dart';
-import 'package:fitness_app/core/theme/app_colors.dart';
 import 'package:fitness_app/core/theme/app_theme.dart';
 import 'package:fitness_app/features/on_bording/views/onboarding_view.dart';
 import 'package:fitness_app/features/splash/presentation/views/splash_view.dart';
@@ -60,27 +59,26 @@ void main() {
     await tester.pump();
   }
 
-  testWidgets(
-    'Verify SplashView displays the logo on the dark background',
-    (WidgetTester tester) async {
-      await tester.binding.setSurfaceSize(const Size(500, 1200));
+  testWidgets('Verify SplashView displays the logo on the dark background', (
+    WidgetTester tester,
+  ) async {
+    await tester.binding.setSurfaceSize(const Size(500, 1200));
 
-      await pumpApp(tester);
+    await pumpApp(tester);
 
-      expect(find.byType(SplashView), findsOneWidget);
-      expect(find.byType(OnboardingView), findsNothing);
+    expect(find.byType(SplashView), findsOneWidget);
+    expect(find.byType(OnboardingView), findsNothing);
 
-      final Scaffold scaffold = tester.widget<Scaffold>(find.byType(Scaffold));
-      debugPrint('SCAFFOLD BG: ${scaffold.backgroundColor}');
-      expect(scaffold.backgroundColor, AppColors.background);
+    final Scaffold scaffold = tester.widget<Scaffold>(find.byType(Scaffold));
+    debugPrint('SCAFFOLD BG: ${scaffold.backgroundColor}');
+    expect(scaffold.backgroundColor, const Color(0xFF1E1E1E));
 
-      final Image logoImage = tester.widget<Image>(find.byType(Image));
-      expect(logoImage.image, isA<AssetImage>());
-      expect((logoImage.image as AssetImage).assetName, AppAssets.logo);
+    final Image logoImage = tester.widget<Image>(find.byType(Image));
+    expect(logoImage.image, isA<AssetImage>());
+    expect((logoImage.image as AssetImage).assetName, AppAssets.logo);
 
-      await tester.binding.setSurfaceSize(null);
-    },
-  );
+    await tester.binding.setSurfaceSize(null);
+  });
 
   testWidgets(
     'Verify SplashView navigates to the onboarding screen after the animation',
@@ -92,8 +90,6 @@ void main() {
 
       expect(find.byType(SplashView), findsOneWidget);
 
-      // Let the scale in animation finish and then wait for the post
-      // animation delay before the navigation happens.
       await tester.pump(const Duration(milliseconds: 700));
       await tester.pump(const Duration(seconds: 1));
       await tester.pumpAndSettle();

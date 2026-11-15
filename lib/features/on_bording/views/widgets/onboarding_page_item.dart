@@ -20,11 +20,12 @@ class OnboardingPageItem extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final colors = Theme.of(context).extension<CustomColors>()!;
+    final screenHeight = MediaQuery.sizeOf(context).height;
 
     return Stack(
       fit: StackFit.expand,
       children: [
-        Image.asset(image, fit: BoxFit.cover),
+        Image.asset(image, fit: BoxFit.cover, alignment: Alignment.topCenter),
         Align(
           alignment: Alignment.bottomCenter,
           child: ClipRRect(
@@ -33,16 +34,16 @@ class OnboardingPageItem extends StatelessWidget {
               filter: ImageFilter.blur(sigmaX: 12, sigmaY: 12),
               child: Container(
                 width: double.infinity,
-                height: 320.h,
+                height: screenHeight * 0.34,
                 alignment: Alignment.topCenter,
-                padding: EdgeInsets.fromLTRB(24.w, 40.h, 24.w, 0),
+                padding: EdgeInsets.fromLTRB(24.w, 24.h, 24.w, 0),
                 decoration: BoxDecoration(
                   gradient: LinearGradient(
                     begin: Alignment.topCenter,
                     end: Alignment.bottomCenter,
                     colors: [
-                      colors.background.withValues(alpha: 0.3),
-                      colors.background.withValues(alpha: 0.9),
+                      colors.background.withValues(alpha: 0.2),
+                      colors.background.withValues(alpha: 0.75),
                     ],
                   ),
                 ),
@@ -57,7 +58,7 @@ class OnboardingPageItem extends StatelessWidget {
                         style: AppTextStyles.white20bold,
                       ),
                     ),
-                    SizedBox(height: 12.h),
+                    SizedBox(height: 8.h),
                     Text(
                       description,
                       textAlign: TextAlign.center,

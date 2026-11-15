@@ -57,7 +57,7 @@ void main() {
     repo = ExerciseRepoImp(dataSource);
   });
 
-  group('ExerciseRepoImp.getExercises —', () {
+  group('ExerciseRepoImp.getExercises â€”', () {
     test('maps the response model into domain entities', () async {
       when(
         () => dataSource.getExercises(
@@ -112,7 +112,7 @@ void main() {
     });
   });
 
-  group('ExerciseRepoImp.getDifficultyLevels —', () {
+  group('ExerciseRepoImp.getDifficultyLevels â€”', () {
     test('maps the response entities into domain entities', () async {
       when(
         () => dataSource.getDifficultyLevels(muscleId: 'muscle-1'),
@@ -148,7 +148,7 @@ void main() {
     });
   });
 
-  group('ExerciseRepoImp.getMuscleGroups —', () {
+  group('ExerciseRepoImp.getMuscleGroups â€”', () {
     test('maps every muscle group into a domain entity', () async {
       when(
         () => dataSource.getMuscleGroups(),

@@ -1,4 +1,4 @@
-import '../../registration_options.dart';
+import 'package:fitness_app/core/contants/registration_options.dart';
 
 sealed class RegisterIntent {
   const RegisterIntent();

@@ -6,7 +6,7 @@ import '../../../../../../../core/theme/app_colors.dart';
 import '../../../../../../../core/theme/context.extension.dart';
 import '../../../manager/cubit/register_cubit.dart';
 import '../../../manager/cubit/register_intent.dart';
-import '../../../registration_options.dart';
+import 'package:fitness_app/core/contants/registration_options.dart';
 
 class RegistrationGoalStep extends StatelessWidget {
   const RegistrationGoalStep({super.key});

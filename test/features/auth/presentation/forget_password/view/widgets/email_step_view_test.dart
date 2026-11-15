@@ -68,10 +68,7 @@ void main() {
     await tester.enterText(find.byKey(emailKey), '  user@mail.com  ');
     await submit(tester);
 
-    expect(
-      cubit.events,
-      contains(const SendResetCode(email: 'user@mail.com')),
-    );
+    expect(cubit.events, contains(const SendResetCode(email: 'user@mail.com')));
   });
 
   testWidgets('the done keyboard action submits the form', (tester) async {
@@ -81,10 +78,7 @@ void main() {
     await tester.testTextInput.receiveAction(TextInputAction.done);
     await settle(tester);
 
-    expect(
-      cubit.events,
-      contains(const SendResetCode(email: 'user@mail.com')),
-    );
+    expect(cubit.events, contains(const SendResetCode(email: 'user@mail.com')));
   });
 
   testWidgets('the done keyboard action does nothing for an invalid email', (
@@ -100,35 +94,39 @@ void main() {
     expect(find.text('Please enter a valid email address.'), findsOneWidget);
   });
 
-  testWidgets('while sending the step locks: field off, button off, spinner on', (
-    tester,
-  ) async {
-    cubit.setState(
-      const ForgetPasswordState(sendCode: Resource<AuthActionResult>.loading()),
-    );
-    await pumpEmailStep(tester);
+  testWidgets(
+    'while sending the step locks: field off, button off, spinner on',
+    (tester) async {
+      cubit.setState(
+        const ForgetPasswordState(
+          sendCode: Resource<AuthActionResult>.loading(),
+        ),
+      );
+      await pumpEmailStep(tester);
 
-    expect(tester.widget<TextFormField>(find.byKey(emailKey)).enabled, isFalse);
-    expect(
-      tester.widget<ElevatedButton>(find.byKey(continueKey)).onPressed,
-      isNull,
-    );
-    expect(
-      find.descendant(
-        of: find.byKey(continueKey),
-        matching: find.byType(CircularProgressIndicator),
-      ),
-      findsOneWidget,
-    );
-    expect(find.text('Sent OTP'), findsNothing);
-  });
+      expect(
+        tester.widget<TextFormField>(find.byKey(emailKey)).enabled,
+        isFalse,
+      );
+      expect(
+        tester.widget<ElevatedButton>(find.byKey(continueKey)).onPressed,
+        isNull,
+      );
+      expect(
+        find.descendant(
+          of: find.byKey(continueKey),
+          matching: find.byType(CircularProgressIndicator),
+        ),
+        findsOneWidget,
+      );
+      expect(find.text('Sent OTP'), findsNothing);
+    },
+  );
 
   testWidgets('the field prefills with the email kept in state', (
     tester,
   ) async {
-    cubit.setState(
-      const ForgetPasswordState(email: 'user@mail.com'),
-    );
+    cubit.setState(const ForgetPasswordState(email: 'user@mail.com'));
     await pumpEmailStep(tester);
 
     expect(
@@ -151,9 +149,6 @@ void main() {
     await tester.enterText(find.byKey(emailKey), 'good@mail.com');
     await settle(tester);
 
-    expect(
-      find.text('Please enter a valid email address.'),
-      findsNothing,
-    );
+    expect(find.text('Please enter a valid email address.'), findsNothing);
   });
 }

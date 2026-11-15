@@ -1,11 +1,3 @@
-import 'package:equatable/equatable.dart';
-
-class DifficultyLevelEntity extends Equatable {
-  final String id;
-  final String name;
-
-  const DifficultyLevelEntity({required this.id, required this.name});
-
-  @override
-  List<Object> get props => [name, id];
-}
+// Backwards-compatible import path. New code should import
+// `difficulty_level_entity.dart` directly.
+export 'difficulty_level_entity.dart';

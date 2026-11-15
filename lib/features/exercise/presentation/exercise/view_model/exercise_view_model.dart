@@ -6,10 +6,10 @@ import 'package:fitness_app/core/base_response/base_response.dart';
 import 'package:fitness_app/core/di/di.dart';
 import 'package:fitness_app/core/resource/resource.dart';
 import 'package:fitness_app/features/exercise/domain/entities/exercise_result_entity.dart';
-import 'package:fitness_app/features/exercise/domain/entities/muscles_group_entity.dart';
+import 'package:fitness_app/features/exercise/domain/entities/muscle_group_entity.dart';
 import 'package:fitness_app/features/exercise/domain/use_cases/get_difficlulty_levels_use_case.dart';
 import 'package:fitness_app/features/exercise/domain/use_cases/get_exercise_use_case.dart';
-import 'package:fitness_app/features/exercise/domain/use_cases/get_muscles_group_use_case.dart';
+import 'package:fitness_app/features/exercise/domain/use_cases/get_muscle_groups_use_case.dart';
 import 'package:fitness_app/features/exercise/presentation/exercise/view_model/exercise_intent.dart';
 import 'package:fitness_app/features/exercise/presentation/exercise/view_model/exercise_state.dart';
 import 'package:injectable/injectable.dart';
@@ -28,9 +28,9 @@ class ExerciseDetailsCubit
     this._getExercisesUseCase,
     this._getDifficultyLevelsUseCase, {
     GetMuscleGroupsUseCase? getMuscleGroupsUseCase,
-  })  : _getMuscleGroupsUseCase =
-            getMuscleGroupsUseCase ?? getIt<GetMuscleGroupsUseCase>(),
-        super(const ExerciseDetailsState());
+  }) : _getMuscleGroupsUseCase =
+           getMuscleGroupsUseCase ?? getIt<GetMuscleGroupsUseCase>(),
+       super(const ExerciseDetailsState());
 
   void doIntent(ExerciseDetailsIntent intent) {
     switch (intent) {
@@ -48,10 +48,6 @@ class ExerciseDetailsCubit
   }
 
   Future<void> _loadInitialData(String muscleId, {String? muscleName}) async {
-    log('========== MUSCLE DEBUG ==========');
-    log('Received muscleId: $muscleId, muscleName: $muscleName');
-    log('==================================');
-
     if (state.difficultyLevels.isLoading) return;
     _muscleName = muscleName;
 
@@ -108,8 +104,8 @@ class ExerciseDetailsCubit
     emit(state.copyWith(selectedDifficultyId: defaultLevel.id));
     await _loadExercises(difficultyId: defaultLevel.id, page: 1, reset: true);
     log('Difficulty status: ${state.difficultyLevels.status}');
-log('Difficulty count: ${state.difficultyLevelsList.length}');
-log('Selected difficulty: ${defaultLevel.id}');
+    log('Difficulty count: ${state.difficultyLevelsList.length}');
+    log('Selected difficulty: ${defaultLevel.id}');
   }
 
   Future<void> _loadDifficultyLevels() async {
@@ -125,7 +121,6 @@ log('Selected difficulty: ${defaultLevel.id}');
         emit(state.copyWith(difficultyLevels: Resource.error(failure)));
         emitFailure(failure);
     }
-    
   }
 
   Future<void> _selectDifficulty(String difficultyId) async {

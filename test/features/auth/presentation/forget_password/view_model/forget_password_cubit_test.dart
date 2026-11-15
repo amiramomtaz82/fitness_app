@@ -48,14 +48,12 @@ void main() {
   late MockCheckEmailProviderUseCase checkUseCase;
   late ForgetPasswordCubit cubit;
 
-  void stubCheckProvider(EmailProviderStatus status) =>
-      when(checkUseCase(any)).thenAnswer(
-        (_) async => SuccessResponse<EmailProviderStatus>(status),
-      );
+  void stubCheckProvider(EmailProviderStatus status) => when(
+    checkUseCase(any),
+  ).thenAnswer((_) async => SuccessResponse<EmailProviderStatus>(status));
 
   void stubCheckUnavailable() => when(checkUseCase(any)).thenAnswer(
-    (_) async =>
-        ErrorResponse<EmailProviderStatus>(failure: networkFailure),
+    (_) async => ErrorResponse<EmailProviderStatus>(failure: networkFailure),
   );
 
   setUp(() {
@@ -155,42 +153,48 @@ void main() {
       );
     });
 
-    test('blocks a google-registered email before calling the backend',
-        () async {
-      stubCheckProvider(EmailProviderStatus.registeredWithGoogle);
+    test(
+      'blocks a google-registered email before calling the backend',
+      () async {
+        stubCheckProvider(EmailProviderStatus.registeredWithGoogle);
 
-      cubit.onEvent(const SendResetCode(email: 'social@mail.com'));
-      await Future(() {});
+        cubit.onEvent(const SendResetCode(email: 'social@mail.com'));
+        await Future(() {});
 
-      expect(cubit.state.step, ForgetPasswordStep.email);
-      expect(cubit.state.sendCode.isError, isTrue);
-      final failure = cubit.state.sendCode.failure;
-      expect(failure, isA<SocialAccountFailure>());
-      expect((failure as SocialAccountFailure).provider, SocialProvider.google);
-      verify(checkUseCase('social@mail.com')).called(1);
-      verifyNever(sendUseCase(request: anyNamed('request')));
-    });
+        expect(cubit.state.step, ForgetPasswordStep.email);
+        expect(cubit.state.sendCode.isError, isTrue);
+        final failure = cubit.state.sendCode.failure;
+        expect(failure, isA<SocialAccountFailure>());
+        expect(
+          (failure as SocialAccountFailure).provider,
+          SocialProvider.google,
+        );
+        verify(checkUseCase('social@mail.com')).called(1);
+        verifyNever(sendUseCase(request: anyNamed('request')));
+      },
+    );
 
-    test('blocks a facebook-registered email before calling the backend',
-        () async {
-      stubCheckProvider(EmailProviderStatus.registeredWithFacebook);
+    test(
+      'blocks a facebook-registered email before calling the backend',
+      () async {
+        stubCheckProvider(EmailProviderStatus.registeredWithFacebook);
 
-      cubit.onEvent(const SendResetCode(email: 'social@mail.com'));
-      await Future(() {});
+        cubit.onEvent(const SendResetCode(email: 'social@mail.com'));
+        await Future(() {});
 
-      expect(cubit.state.step, ForgetPasswordStep.email);
-      expect(cubit.state.sendCode.isError, isTrue);
-      final failure = cubit.state.sendCode.failure;
-      expect(failure, isA<SocialAccountFailure>());
-      expect(
-        (failure as SocialAccountFailure).provider,
-        SocialProvider.facebook,
-      );
-      verifyNever(sendUseCase(request: anyNamed('request')));
-    });
+        expect(cubit.state.step, ForgetPasswordStep.email);
+        expect(cubit.state.sendCode.isError, isTrue);
+        final failure = cubit.state.sendCode.failure;
+        expect(failure, isA<SocialAccountFailure>());
+        expect(
+          (failure as SocialAccountFailure).provider,
+          SocialProvider.facebook,
+        );
+        verifyNever(sendUseCase(request: anyNamed('request')));
+      },
+    );
 
-    test('continues to the backend for an email-registered account',
-        () async {
+    test('continues to the backend for an email-registered account', () async {
       stubCheckProvider(EmailProviderStatus.registeredWithEmail);
       stubSendSuccess();
 
@@ -205,18 +209,20 @@ void main() {
       ).called(1);
     });
 
-    test('surfaces the provider check failure and does not send a code',
-        () async {
-      stubCheckUnavailable();
+    test(
+      'surfaces the provider check failure and does not send a code',
+      () async {
+        stubCheckUnavailable();
 
-      cubit.onEvent(const SendResetCode(email: 'user@mail.com'));
-      await Future(() {});
+        cubit.onEvent(const SendResetCode(email: 'user@mail.com'));
+        await Future(() {});
 
-      expect(cubit.state.step, ForgetPasswordStep.email);
-      expect(cubit.state.sendCode.isError, isTrue);
-      expect(cubit.state.sendCode.failure, networkFailure);
-      verifyNever(sendUseCase(request: anyNamed('request')));
-    });
+        expect(cubit.state.step, ForgetPasswordStep.email);
+        expect(cubit.state.sendCode.isError, isTrue);
+        expect(cubit.state.sendCode.failure, networkFailure);
+        verifyNever(sendUseCase(request: anyNamed('request')));
+      },
+    );
   });
 
   group('ForgetPasswordCubit - verify reset code', () {

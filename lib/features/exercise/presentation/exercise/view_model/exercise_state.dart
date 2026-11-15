@@ -1,6 +1,6 @@
 import 'package:equatable/equatable.dart';
 import 'package:fitness_app/core/resource/resource.dart';
-import 'package:fitness_app/features/exercise/domain/entities/difficulty_entity.dart';
+import 'package:fitness_app/features/exercise/domain/entities/difficulty_level_entity.dart';
 import 'package:fitness_app/features/exercise/domain/entities/exercise_entity.dart';
 import 'package:fitness_app/features/exercise/domain/entities/exercise_result_entity.dart';
 

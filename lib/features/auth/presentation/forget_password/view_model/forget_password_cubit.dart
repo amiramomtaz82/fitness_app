@@ -87,8 +87,9 @@ class ForgetPasswordCubit extends BaseCubit<ForgetPasswordState, BaseUiEvent> {
     final check = await _checkEmailProviderUseCase(email);
     return switch (check) {
       SuccessResponse(:final data) => switch (data) {
-        EmailProviderStatus.registeredWithGoogle =>
-          const SocialAccountFailure(provider: SocialProvider.google),
+        EmailProviderStatus.registeredWithGoogle => const SocialAccountFailure(
+          provider: SocialProvider.google,
+        ),
         EmailProviderStatus.registeredWithFacebook =>
           const SocialAccountFailure(provider: SocialProvider.facebook),
         _ => null,
@@ -164,7 +165,11 @@ class ForgetPasswordCubit extends BaseCubit<ForgetPasswordState, BaseUiEvent> {
 
   void _startResendCountdown() {
     _resendTimer?.cancel();
-    emit(state.copyWith(resendSecondsLeft: ForgetPasswordConfig.resendCooldown.inSeconds));
+    emit(
+      state.copyWith(
+        resendSecondsLeft: ForgetPasswordConfig.resendCooldown.inSeconds,
+      ),
+    );
     _resendTimer = Timer.periodic(const Duration(seconds: 1), (timer) {
       final next = state.resendSecondsLeft - 1;
       emit(state.copyWith(resendSecondsLeft: next < 0 ? 0 : next));

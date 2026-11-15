@@ -1,7 +1,5 @@
-import 'package:fitness_app/app/app_routes.dart';
 import 'package:fitness_app/app/routes_names.dart';
 import 'package:fitness_app/core/contants/app_assets.dart';
-import 'package:fitness_app/core/theme/app_colors.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
@@ -15,6 +13,10 @@ class SplashView extends StatefulWidget {
 
 class _SplashViewState extends State<SplashView>
     with SingleTickerProviderStateMixin {
+  static const Color _splashColor = Color(
+    0xFF1E1E1E,
+  ); // نفس لون الـ native splash
+
   late final AnimationController _animationController;
   late final Animation<double> _scaleAnimation;
 
@@ -47,7 +49,7 @@ class _SplashViewState extends State<SplashView>
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.background,
+      backgroundColor: _splashColor,
       body: Center(
         child: ScaleTransition(
           scale: _scaleAnimation,
