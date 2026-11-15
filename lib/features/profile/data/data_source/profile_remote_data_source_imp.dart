@@ -2,11 +2,14 @@ import 'dart:io';
 
 import 'package:dio/dio.dart';
 import 'package:injectable/injectable.dart';
+
 import '../../../../core/contants/upload_constraints.dart';
 import '../../../../core/error/failures.dart';
 import '../client/profile_client.dart';
 import '../models/profile_request_dto.dart';
 import '../models/profile_response_dto.dart';
+import '../models/change_password_request_dto.dart';
+import '../models/change_password_response_dto.dart';
 import 'profile_remote_data_source.dart';
 
 @Injectable(as: ProfileRemoteDataSource)
@@ -21,6 +24,13 @@ class ProfileRemoteDataSourceImp implements ProfileRemoteDataSource {
   @override
   Future<ProfileResponseDto> editProfile(ProfileRequestDto request) =>
       _client.editProfile(request);
+
+  @override
+  Future<ChangePasswordResponseDto> changePassword(
+    ChangePasswordRequestDto request,
+  ) {
+    return _client.changePassword(request);
+  }
 
   @override
   Future<ProfileResponseDto> uploadPhoto(String photoPath) async {

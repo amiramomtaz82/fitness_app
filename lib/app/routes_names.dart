@@ -21,6 +21,7 @@ class AppRoutes {
 
   static const String foodRecommendationPath = 'food-recommendation';
   static const String foodRecommendation = '$home/$foodRecommendationPath';
+  static const String changePassword = '/profile/change-password';
 
   // Step 1 (You)
   static const String multiStepRegistration = '/multi-step-registration';

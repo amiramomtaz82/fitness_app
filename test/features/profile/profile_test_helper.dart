@@ -11,8 +11,11 @@ import 'package:fitness_app/features/profile/data/data_source/profile_remote_dat
 import 'package:fitness_app/features/profile/data/models/profile_request_dto.dart';
 import 'package:fitness_app/features/profile/data/models/profile_response_dto.dart';
 import 'package:fitness_app/features/profile/data/models/profile_user_dto.dart';
+import 'package:fitness_app/features/profile/data/models/change_password_request_dto.dart';
+import 'package:fitness_app/features/profile/data/models/change_password_response_dto.dart';
 import 'package:fitness_app/features/profile/domain/entities/profile_entity.dart';
 import 'package:fitness_app/features/profile/domain/entities/profile_params.dart';
+import 'package:fitness_app/features/profile/domain/entities/change_password_entity.dart';
 import 'package:fitness_app/features/profile/domain/repo/profile_repo.dart';
 import 'package:fitness_app/features/profile/domain/services/photo_picker.dart';
 import 'package:fitness_app/features/profile/domain/use_cases/edit_profile_use_case.dart';
@@ -20,6 +23,7 @@ import 'package:fitness_app/features/profile/domain/use_cases/get_profile_use_ca
 import 'package:fitness_app/features/profile/domain/use_cases/logout_use_case.dart';
 import 'package:fitness_app/features/profile/domain/use_cases/pick_photo_use_case.dart';
 import 'package:fitness_app/features/profile/domain/use_cases/upload_photo_use_case.dart';
+import 'package:fitness_app/features/profile/domain/use_cases/change_password_use_case.dart';
 import 'package:fitness_app/features/profile/presentation/profile/view_model/profile_cubit.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:image_picker/image_picker.dart';
@@ -41,6 +45,8 @@ class MockUploadPhotoUseCase extends Mock implements UploadPhotoUseCase {}
 
 class MockPickPhotoUseCase extends Mock implements PickPhotoUseCase {}
 
+class MockChangePasswordUseCase extends Mock implements ChangePasswordUseCase {}
+
 class MockLogoutUseCase extends Mock implements LogoutUseCase {}
 
 class MockSecureStorage extends Mock implements SecureStorage {}
@@ -52,6 +58,9 @@ class MockImagePicker extends Mock implements ImagePicker {}
 class MockLocaleService extends Mock implements LocaleService {}
 
 class FakeProfileRequestDto extends Fake implements ProfileRequestDto {}
+
+class FakeChangePasswordRequestDto extends Fake
+    implements ChangePasswordRequestDto {}
 
 class FakeProfileParams extends Fake implements ProfileParams {}
 
@@ -154,8 +163,26 @@ const testProfileEntityEdited = ProfileEntity(
   photo: 'uploads/123/photo.jpg',
 );
 
+// Change Password Test Data
+
+const testChangePasswordRequestDto = ChangePasswordRequestDto(
+  password: 'OldPassword123!',
+  newPassword: 'NewPassword123!',
+);
+
+const testChangePasswordResponse = ChangePasswordResponseDto(
+  message: 'Password changed successfully',
+  token: 'test-token',
+);
+
+const testChangePasswordEntity = ChangePasswordEntity(
+  message: 'Password changed successfully',
+  token: 'test-token',
+);
+
 void registerProfileFallbacks() {
   registerFallbackValue(FakeProfileRequestDto());
+  registerFallbackValue(FakeChangePasswordRequestDto());
   registerFallbackValue(FakeProfileParams());
   registerFallbackValue(FakeMultipartFile());
   registerFallbackValue(FakeXFile());
@@ -173,6 +200,7 @@ Future<LocalePreferences> localePreferencesWith({String? language}) async {
   SharedPreferences.setMockInitialValues(
     language == null ? const {} : {'app_language_code': language},
   );
+
   return LocalePreferences(await SharedPreferences.getInstance());
 }
 

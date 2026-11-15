@@ -22,6 +22,7 @@ import 'package:fitness_app/features/exercise/presentation/work_out/view/work_ou
 import 'package:fitness_app/features/on_bording/views/onboarding_view.dart';
 import 'package:fitness_app/features/splash/presentation/views/splash_view.dart';
 import 'package:flutter/material.dart';
+import 'package:fitness_app/features/profile/presentation/change_password/view/view_model/change_password_cubit.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get_it/get_it.dart';
 import 'package:go_router/go_router.dart';
@@ -33,6 +34,7 @@ import '../core/contants/web_pages.dart';
 import '../core/widgets/web_view/web_view_screen.dart';
 import '../features/profile/presentation/edit_profile/view/screens/edit_profile_screen.dart';
 import '../features/profile/presentation/edit_profile/view_model/edit_profile_cubit.dart';
+import '../features/profile/presentation/change_password/view/screens/change_password_screen.dart';
 import '../features/profile/presentation/profile/view/screens/profile_screen.dart';
 import '../features/profile/presentation/profile/view_model/profile_cubit.dart';
 import '../features/profile/presentation/profile_scope.dart';
@@ -121,9 +123,12 @@ final GoRouter appRouter = GoRouter(
     GoRoute(
       path: AppRoutes.webView,
       name: AppRoutes.webView,
-      builder: (context, state) => WebViewScreen(page: state.extra! as WebPage),
+      builder: (context, state) => WebViewScreen(
+        page: state.extra! as WebPage,
+      ),
     ),
 
+    // Edit Profile
     GoRoute(
       path: AppRoutes.editProfile,
       name: AppRoutes.editProfile,
@@ -136,10 +141,22 @@ final GoRouter appRouter = GoRouter(
       ),
     ),
 
+    // Change Password
+    GoRoute(
+      path: AppRoutes.changePassword,
+      name: AppRoutes.changePassword,
+      builder: (context, state) => BlocProvider(
+        create: (_) => getIt<ChangePasswordCubit>(),
+        child: const ChangePasswordScreen(),
+      ),
+    ),
+
     // Main app with bottom navigation
     StatefulShellRoute.indexedStack(
       builder: (context, state, navigationShell) {
-        return AppBottomNavigationBar(navigationShell: navigationShell);
+        return AppBottomNavigationBar(
+          navigationShell: navigationShell,
+        );
       },
       branches: [
         StatefulShellBranch(
