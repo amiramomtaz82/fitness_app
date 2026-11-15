@@ -6,6 +6,7 @@ import 'package:fitness_app/core/local/locale_cubit.dart';
 import 'package:fitness_app/features/profile/domain/entities/profile_entity.dart';
 import 'package:fitness_app/features/profile/presentation/profile/view/models/profile_menu_item.dart';
 import 'package:fitness_app/features/profile/presentation/profile/view/screens/profile_screen.dart';
+import 'package:fitness_app/features/profile/presentation/profile/view/widgets/logout_confirmation_dialog.dart';
 import 'package:fitness_app/features/profile/presentation/profile/view/widgets/profile_header.dart';
 import 'package:fitness_app/features/profile/presentation/profile/view/widgets/profile_menu_list.dart';
 import 'package:fitness_app/features/profile/presentation/profile/view_model/profile_cubit.dart';
@@ -141,5 +142,18 @@ void main() {
     });
 
     expect(scope.locale.state.language, AppLanguage.arabic);
+  });
+
+  testWidgets('tapping logout menu row shows LogoutConfirmationDialog', (
+    tester,
+  ) async {
+    await openProfileScreen(tester, profile: testProfileEntity);
+
+    final logoutRow = find.byKey(const Key('menu_logout'));
+    await tester.ensureVisible(logoutRow);
+    await tester.tap(logoutRow);
+    await settleUi(tester);
+
+    expect(find.byType(LogoutConfirmationDialog), findsOneWidget);
   });
 }

@@ -5,6 +5,7 @@ import 'package:fitness_app/core/base/ui_events.dart';
 import 'package:fitness_app/core/local/locale_cubit.dart';
 import 'package:fitness_app/core/local/locale_preferences.dart';
 import 'package:fitness_app/core/local/local_service.dart';
+import 'package:fitness_app/core/secure_storage/secure_storage.dart';
 import 'package:fitness_app/features/profile/data/client/profile_client.dart';
 import 'package:fitness_app/features/profile/data/data_source/profile_remote_data_source.dart';
 import 'package:fitness_app/features/profile/data/models/profile_request_dto.dart';
@@ -19,6 +20,7 @@ import 'package:fitness_app/features/profile/domain/repo/profile_repo.dart';
 import 'package:fitness_app/features/profile/domain/services/photo_picker.dart';
 import 'package:fitness_app/features/profile/domain/use_cases/edit_profile_use_case.dart';
 import 'package:fitness_app/features/profile/domain/use_cases/get_profile_use_case.dart';
+import 'package:fitness_app/features/profile/domain/use_cases/logout_use_case.dart';
 import 'package:fitness_app/features/profile/domain/use_cases/pick_photo_use_case.dart';
 import 'package:fitness_app/features/profile/domain/use_cases/upload_photo_use_case.dart';
 import 'package:fitness_app/features/profile/domain/use_cases/change_password_use_case.dart';
@@ -44,6 +46,10 @@ class MockUploadPhotoUseCase extends Mock implements UploadPhotoUseCase {}
 class MockPickPhotoUseCase extends Mock implements PickPhotoUseCase {}
 
 class MockChangePasswordUseCase extends Mock implements ChangePasswordUseCase {}
+
+class MockLogoutUseCase extends Mock implements LogoutUseCase {}
+
+class MockSecureStorage extends Mock implements SecureStorage {}
 
 class MockPhotoPicker extends Mock implements PhotoPicker {}
 
@@ -201,9 +207,15 @@ Future<LocalePreferences> localePreferencesWith({String? language}) async {
 ProfileCubit buildProfileCubit(
   GetProfileUseCase getProfile,
   UploadPhotoUseCase uploadPhoto,
-  PickPhotoUseCase pickPhoto,
-) {
-  return ProfileCubit(getProfile, uploadPhoto, pickPhoto);
+  PickPhotoUseCase pickPhoto, {
+  LogoutUseCase? logout,
+}) {
+  return ProfileCubit(
+    getProfile,
+    uploadPhoto,
+    pickPhoto,
+    logout ?? MockLogoutUseCase(),
+  );
 }
 
 LocaleCubit buildLocaleCubit(

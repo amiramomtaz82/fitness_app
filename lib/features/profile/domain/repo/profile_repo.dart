@@ -14,4 +14,5 @@ abstract interface class ProfileRepo {
     required String password,
     required String newPassword,
   });
+  Future<BaseResponse<void>> logout();
 }
