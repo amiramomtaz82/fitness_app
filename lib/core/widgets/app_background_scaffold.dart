@@ -8,6 +8,7 @@ class AppBackgroundScaffold extends StatelessWidget {
   final PreferredSizeWidget? appBar;
   final String? backgroundImage;
   final Widget? bottomNavigationBar;
+  final Widget? endDrawer;
   final bool resizeToAvoidBottomInset;
   final bool safeArea;
 
@@ -30,11 +31,13 @@ class AppBackgroundScaffold extends StatelessWidget {
     this.overlayOpacity = 0.6,
     this.overlayGradient,
     this.bottomNavigationBar,
+    this.endDrawer,
     this.resizeToAvoidBottomInset = true,
     this.safeArea = true,
     this.showLayoutGrid = false,
     this.gridColor,
-    this.gridColumns = 2, image,
+    this.gridColumns = 2,
+    image,
   });
 
   @override
@@ -43,6 +46,7 @@ class AppBackgroundScaffold extends StatelessWidget {
       appBar: appBar,
       resizeToAvoidBottomInset: resizeToAvoidBottomInset,
       bottomNavigationBar: bottomNavigationBar,
+      endDrawer: endDrawer,
       body: SizedBox.expand(
         child: Stack(
           fit: StackFit.expand,

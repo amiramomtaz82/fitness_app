@@ -43,7 +43,7 @@ class SendSmartCoachMessageUseCase {
     num? userHeight,
   }) async {
     // 1. Guard Token Limit
-    if (currentSessionTokens >= 8000) {
+    if (currentSessionTokens >= TokenStatusEntity.lockThreshold) {
       return ErrorResponse(failure: const ChatTokenLimitFailure());
     }
 
@@ -262,24 +262,8 @@ class SendSmartCoachMessageUseCase {
     }
   }
 
-  TokenStatusEntity _calculateTokenStatus(int totalTokens) {
-    if (totalTokens >= 8000) {
-      return TokenStatusEntity(
-        totalTokens: totalTokens,
-        level: TokenLimitLevel.locked8k,
-      );
-    }
-    if (totalTokens >= 7000) {
-      return TokenStatusEntity(
-        totalTokens: totalTokens,
-        level: TokenLimitLevel.warning7k,
-      );
-    }
-    return TokenStatusEntity(
-      totalTokens: totalTokens,
-      level: TokenLimitLevel.normal,
-    );
-  }
+  TokenStatusEntity _calculateTokenStatus(int totalTokens) =>
+      TokenStatusEntity.fromTotalTokens(totalTokens);
 
   String _formatExerciseBlock(List<ExerciseCardEntity> items) =>
       'CANDIDATE EXERCISES:\n${items.map((e) => 'id=${e.id} | ${e.name} | ${e.muscleGroup ?? '-'}').join('\n')}';

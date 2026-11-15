@@ -37,10 +37,10 @@ packages:
     dependency: transitive
     description:
       name: archive
-      sha256: de5ac590b8155e4e676088d714bd41ea620449a6adc0f7950c5073874b287ddb
+      sha256: "0d58d1fa1fddf6588251ccf2819f3fb3b6d0452c1b2813ac7413a05592bfbefe"
       url: "https://pub.dev"
     source: hosted
-    version: "4.6.0"
+    version: "4.5.2"
   args:
     dependency: transitive
     description:
@@ -325,10 +325,10 @@ packages:
     dependency: transitive
     description:
       name: facebook_auth_desktop
-      sha256: e20eb8832b56c955f1a406c05fd21427d8ad56ba92bb420568de9f61a719187f
+      sha256: "9fcde1146914e9f46497d2b6053ea5865828b576a258be4e0193635f52176712"
       url: "https://pub.dev"
     source: hosted
-    version: "2.3.0"
+    version: "2.1.3"
   fake_async:
     dependency: "direct dev"
     description:
@@ -474,18 +474,18 @@ packages:
     dependency: "direct main"
     description:
       name: flutter_facebook_auth
-      sha256: "655c3646fb1866309a88dbf7f696b47fa1b36c1cd4a5b9789c628f3cd4a2ca7d"
+      sha256: "393c87b4ffa6cc75d2f39239b8d6ebc9095725805016133f80d1d89adb84682d"
       url: "https://pub.dev"
     source: hosted
-    version: "7.3.2"
+    version: "7.2.0"
   flutter_facebook_auth_platform_interface:
     dependency: transitive
     description:
       name: flutter_facebook_auth_platform_interface
-      sha256: "47e75e27505c17c24447a60106cb656edbac7e7cf247fa1c69ea0be04adc1009"
+      sha256: e04b8dbfa77702bea45a79993163ad5d20b2c0084109bec591fdc2b9ee505779
       url: "https://pub.dev"
     source: hosted
-    version: "6.1.3"
+    version: "6.1.2"
   flutter_facebook_auth_web:
     dependency: transitive
     description:
@@ -591,10 +591,10 @@ packages:
     dependency: "direct main"
     description:
       name: flutter_svg
-      sha256: "100c19dcc4ff60083e95a44a6f44f3a1bb887d353c5d86f6a9b688aa3cb46236"
+      sha256: "35882981abcbfb8c15b286f0cd690ff25bac12d95eff3e25ee207f37d4c42e7f"
       url: "https://pub.dev"
     source: hosted
-    version: "2.3.2"
+    version: "2.3.0"
   flutter_test:
     dependency: "direct dev"
     description: flutter
@@ -849,10 +849,10 @@ packages:
     dependency: transitive
     description:
       name: jni
-      sha256: "2e91e6087291affd10b31b6c872f3e3ac7dc5d93b51b5ba485d930c8f08bde6c"
+      sha256: "6b9ca0602fef0230e83149afbe3f9f8227e94f2bbe84a1da4f14d699742f402d"
       url: "https://pub.dev"
     source: hosted
-    version: "1.1.2"
+    version: "1.1.0"
   jni_flutter:
     dependency: transitive
     description:
@@ -1129,10 +1129,10 @@ packages:
     dependency: transitive
     description:
       name: posix
-      sha256: "613646d076944f3acc125830af935b48d4b8a57a388691547bbfd25b434f4d63"
+      sha256: bc1bad54ad2b735816e31f8d4600cfde6c7839975085ddfbca48b6c9f7c4044e
       url: "https://pub.dev"
     source: hosted
-    version: "6.5.4"
+    version: "6.5.2"
   pretty_dio_logger:
     dependency: "direct main"
     description:
@@ -1217,17 +1217,10 @@ packages:
     dependency: "direct main"
     description:
       name: shared_preferences_android
-<<<<<<< HEAD
-      sha256: "33b38b07d9ac7d16aff0426c61418752fd3e7a8c7dc8be786c875d6ce673b002"
-      url: "https://pub.dev"
-    source: hosted
-    version: "2.5.4"
-=======
       sha256: e8d4762b1e2e8578fc4d0fd548cebf24afd24f49719c08974df92834565e2c53
       url: "https://pub.dev"
     source: hosted
     version: "2.4.23"
->>>>>>> a0b9f4d475cf6c49d66504707f68d29d17719863
   shared_preferences_foundation:
     dependency: transitive
     description:
@@ -1421,10 +1414,10 @@ packages:
     dependency: transitive
     description:
       name: synchronized
-      sha256: b3d516dbd3757ff2a458735e4f6cbac9ff261f576f6e87bcb17feabb39e657c5
+      sha256: "0ce4712bd3be1fccfab14458059baebb400ba6c6239b65398e3464945fabbae7"
       url: "https://pub.dev"
     source: hosted
-    version: "3.5.0"
+    version: "3.6.1"
   term_glyph:
     dependency: transitive
     description:
@@ -1501,10 +1494,10 @@ packages:
     dependency: transitive
     description:
       name: url_launcher_linux
-      sha256: "10f86fef4c2c43563fa6c211ff9cf757adf4d3ab762c56bd430664a947d70cd0"
+      sha256: d5e14138b3bc193a0f63c10a53c94b91d399df0512b1f29b94a043db7482384a
       url: "https://pub.dev"
     source: hosted
-    version: "3.2.3"
+    version: "3.2.2"
   url_launcher_macos:
     dependency: transitive
     description:
@@ -1533,10 +1526,10 @@ packages:
     dependency: transitive
     description:
       name: url_launcher_windows
-      sha256: "6c5ad3f22cd4c38e089b81963b3cd7bb83b111b2df5dce008bb066162f42e429"
+      sha256: "712c70ab1b99744ff066053cbe3e80c73332b38d46e5e945c98689b2e66fc15f"
       url: "https://pub.dev"
     source: hosted
-    version: "3.1.6"
+    version: "3.1.5"
   uuid:
     dependency: "direct main"
     description:
@@ -1549,10 +1542,10 @@ packages:
     dependency: transitive
     description:
       name: vector_graphics
-      sha256: "82885f6ac633044e7a4e4d8d745724a67aa0dc50af5d8a81ec29379f63c29035"
+      sha256: "0964703d02677ac8636b4aef95de0b7e816224ff0082908c2c950529cb9a2f5e"
       url: "https://pub.dev"
     source: hosted
-    version: "1.2.6"
+    version: "1.2.4"
   vector_graphics_codec:
     dependency: transitive
     description:
@@ -1565,10 +1558,10 @@ packages:
     dependency: transitive
     description:
       name: vector_graphics_compiler
-      sha256: "4c9d2e7121eea8b4f160e6e435900a0ae7214cfc97c2d6cf84c25532b789b50d"
+      sha256: a8e2c19796144da2f81bcc96dad1bb19c4677b561c452081b97ee737b9faed65
       url: "https://pub.dev"
     source: hosted
-    version: "1.3.4"
+    version: "1.3.2"
   vector_math:
     dependency: transitive
     description:

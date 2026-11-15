@@ -46,16 +46,17 @@ void main() async {
       getDatabasesPath: getDatabasesPath,
     ).ensureInstalled();
 
-    configureDependencies();
+    await configureDependencies();
     // ✅ Assign to a local variable so Dart promotes it to non-nullable String:
-    final ollamaKey = dotenv.env['OLLAMA_API_KEY'];
+    final ollamaKey = dotenv.isInitialized
+        ? dotenv.env['OLLAMA_API_KEY']
+        : null;
     if (ollamaKey != null && ollamaKey.isNotEmpty) {
       await getIt<SecureStorage>().write(
         key: 'OLLAMA_API_KEY',
         value: ollamaKey, // Dart promotes ollamaKey to String
       );
     }
-    await configureDependencies();
   }
 
   // 3. Single runApp call: Renders MyApp or fallback error screen

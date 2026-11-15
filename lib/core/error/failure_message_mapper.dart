@@ -21,6 +21,7 @@ extension FailureMessageMapper on Failure {
         SocialProvider.facebook =>
           LocaleKeys.auth_forgot_password_facebook.tr(),
       },
+      ChatTokenLimitFailure() => LocaleKeys.chat_token_limit_reached.tr(),
       UnknownFailure() => LocaleKeys.errors_something_went_wrong.tr(),
     };
   }

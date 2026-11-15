@@ -34,6 +34,10 @@ abstract interface class ChatRepo {
     num? userHeight,
   });
 
+  Future<BaseResponse<ChatSessionEntity>> createSession(
+    ChatSessionEntity session,
+  );
+
   Future<BaseResponse<void>> saveMessage(
     String sessionId,
     ChatMessageEntity msg,
