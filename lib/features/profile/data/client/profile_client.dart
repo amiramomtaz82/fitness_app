@@ -28,5 +28,4 @@ abstract class ProfileClient {
   Future<ChangePasswordResponseDto> changePassword(
     @Body() ChangePasswordRequestDto body,
   );
- 
 }

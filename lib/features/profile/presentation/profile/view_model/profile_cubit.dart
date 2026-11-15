@@ -110,9 +110,7 @@ class ProfileCubit extends BaseCubit<ProfileState, BaseUiEvent> {
 
     _emit(
       state.copyWith(
-        profileResource: Resource<ProfileEntity>.loading(
-          data: state.profile,
-        ),
+        profileResource: Resource<ProfileEntity>.loading(data: state.profile),
       ),
     );
 

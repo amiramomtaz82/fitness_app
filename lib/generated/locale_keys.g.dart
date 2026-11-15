@@ -156,13 +156,18 @@ abstract class LocaleKeys {
   static const exercises_secondary_items = 'exercises.secondary_items';
   static const exercises_execution = 'exercises.execution';
   static const exercises_posture = 'exercises.posture';
-  static const exercises_single_or_double_arm = 'exercises.single_or_double_arm';
-  static const exercises_continuous_or_alternating_arms = 'exercises.continuous_or_alternating_arms';
+  static const exercises_single_or_double_arm =
+      'exercises.single_or_double_arm';
+  static const exercises_continuous_or_alternating_arms =
+      'exercises.continuous_or_alternating_arms';
   static const exercises_grip = 'exercises.grip';
-  static const exercises_load_position_ending = 'exercises.load_position_ending';
-  static const exercises_continuous_or_alternating_legs = 'exercises.continuous_or_alternating_legs';
+  static const exercises_load_position_ending =
+      'exercises.load_position_ending';
+  static const exercises_continuous_or_alternating_legs =
+      'exercises.continuous_or_alternating_legs';
   static const exercises_foot_elevation = 'exercises.foot_elevation';
-  static const exercises_combination_exercises = 'exercises.combination_exercises';
+  static const exercises_combination_exercises =
+      'exercises.combination_exercises';
   static const exercises_classification = 'exercises.classification';
   static const exercises_movement_patterns = 'exercises.movement_patterns';
   static const exercises_planes_of_motion = 'exercises.planes_of_motion';
@@ -170,7 +175,8 @@ abstract class LocaleKeys {
   static const exercises_force_type = 'exercises.force_type';
   static const exercises_mechanics = 'exercises.mechanics';
   static const exercises_laterality = 'exercises.laterality';
-  static const exercises_primary_exercise_classification = 'exercises.primary_exercise_classification';
+  static const exercises_primary_exercise_classification =
+      'exercises.primary_exercise_classification';
   static const exercises_videos = 'exercises.videos';
   static const exercises_video_demonstration = 'exercises.video_demonstration';
   static const exercises_video_explanation = 'exercises.video_explanation';
@@ -185,6 +191,16 @@ abstract class LocaleKeys {
   static const chat_smart_coach = 'chat.smart_coach';
   static const chat_hello_how_can_i_assist = 'chat.hello_how_can_i_assist';
   static const chat_previous_conversations = 'chat.previous_conversations';
+  static const chat_token_limit_reached = 'chat.token_limit_reached';
+  static const chat_token_limit_warning = 'chat.token_limit_warning';
+  static const chat_type_message_hint = 'chat.type_message_hint';
+  static const chat_new_chat = 'chat.new_chat';
+  static const chat_no_previous_conversations =
+      'chat.no_previous_conversations';
+  static const chat_retry = 'chat.retry';
+  static const chat_send = 'chat.send';
+  static const chat_load_conversation_failed = 'chat.load_conversation_failed';
+  static const chat_back = 'chat.back';
   static const chat = 'chat';
   static const profile_profile = 'profile.profile';
   static const profile_edit_profile = 'profile.edit_profile';

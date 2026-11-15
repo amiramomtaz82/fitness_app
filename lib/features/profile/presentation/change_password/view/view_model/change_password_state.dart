@@ -1,4 +1,3 @@
-
 import 'package:equatable/equatable.dart';
 import 'package:fitness_app/core/resource/resource.dart';
 import 'package:fitness_app/core/validation/validation_errors.dart';

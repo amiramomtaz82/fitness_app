@@ -1,11 +1,16 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:sqflite/sqflite.dart';
 
 import 'core/di/di.dart';
+import 'core/local/dbs_asset_installer.dart';
 import 'app/app_routes.dart';
+import 'core/secure_storage/secure_storage.dart';
 import 'core/local/locale_scope.dart';
 import 'core/theme/app_theme.dart';
 import 'core/widgets/firebase_initialization_error_app.dart';
@@ -33,7 +38,25 @@ void main() async {
     } catch (_) {
       // Optional: local .env file may not exist in production
     }
+
+    // Copy the bundled databases (idempotent, safe on every launch)
+    await DBsAssetInstaller(
+      assetBundle: rootBundle,
+      prefs: await SharedPreferences.getInstance(),
+      getDatabasesPath: getDatabasesPath,
+    ).ensureInstalled();
+
     await configureDependencies();
+    // ✅ Assign to a local variable so Dart promotes it to non-nullable String:
+    final ollamaKey = dotenv.isInitialized
+        ? dotenv.env['OLLAMA_API_KEY']
+        : null;
+    if (ollamaKey != null && ollamaKey.isNotEmpty) {
+      await getIt<SecureStorage>().write(
+        key: 'OLLAMA_API_KEY',
+        value: ollamaKey, // Dart promotes ollamaKey to String
+      );
+    }
   }
 
   // 3. Single runApp call: Renders MyApp or fallback error screen

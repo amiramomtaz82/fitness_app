@@ -1,7 +1,6 @@
 import 'dart:async';
 
 import 'package:fitness_app/core/base_response/base_response.dart';
-import 'package:fitness_app/core/error/failures.dart';
 import 'package:fitness_app/features/profile/domain/entities/change_password_entity.dart';
 import 'package:fitness_app/features/profile/presentation/change_password/view/view_model/change_password_cubit.dart';
 import 'package:fitness_app/features/profile/presentation/change_password/view/view_model/change_password_field.dart';
@@ -127,8 +126,9 @@ void main() {
           newPassword: newPassword,
         ),
       ).thenAnswer(
-        (_) async =>
-            SuccessResponse<ChangePasswordEntity>(testChangePasswordEntity),
+        (_) async => const SuccessResponse<ChangePasswordEntity>(
+          testChangePasswordEntity,
+        ),
       );
 
       enterValidPasswords();
@@ -149,7 +149,6 @@ void main() {
       ).called(1);
     });
 
-   
     test('should not call use case again while request is loading', () async {
       final completer = Completer<BaseResponse<ChangePasswordEntity>>();
 
@@ -177,7 +176,7 @@ void main() {
       ).called(1);
 
       completer.complete(
-        SuccessResponse<ChangePasswordEntity>(testChangePasswordEntity),
+        const SuccessResponse<ChangePasswordEntity>(testChangePasswordEntity),
       );
 
       await Future<void>.delayed(Duration.zero);

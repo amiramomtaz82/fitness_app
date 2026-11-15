@@ -18,4 +18,3 @@ class ChangePasswordResponseDto {
     return ChangePasswordEntity(message: message, token: token);
   }
 }
-
