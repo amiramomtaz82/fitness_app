@@ -12,12 +12,19 @@ class DifficultyLevelModel {
 
   const DifficultyLevelModel({this.id, this.name});
 
-  factory DifficultyLevelModel.fromJson(Map<String, dynamic> json) =>
-      _$DifficultyLevelModelFromJson(json);
+  factory DifficultyLevelModel.fromJson(Map<String, dynamic> json) {
+    return DifficultyLevelModel(
+      id: (json['_id'] ?? json['id']) as String?,
+      name: json['name'] as String?,
+    );
+  }
 
   Map<String, dynamic> toJson() => _$DifficultyLevelModelToJson(this);
 
   DifficultyLevelEntity toDomain() {
     return DifficultyLevelEntity(id: id ?? '', name: name ?? '');
   }
+
+  /// Backwards-compatible alias for the entity mapper.
+  DifficultyLevelEntity toEntity() => toDomain();
 }

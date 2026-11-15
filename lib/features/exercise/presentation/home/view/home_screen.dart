@@ -24,7 +24,8 @@ class _HomeScreenState extends State<HomeScreen>
   @override
   Widget build(BuildContext context) {
     return const AppBackgroundScaffold(
-      image: AppAssets.homee,
-      child: HomeScreenBody());
+      backgroundImage: AppAssets.homee,
+      child: HomeScreenBody(),
+    );
   }
 }

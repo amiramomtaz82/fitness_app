@@ -101,6 +101,14 @@ class ExerciseModel {
   @JsonKey(name: 'in_depth_youtube_explanation_link')
   final String? explanationVideoUrl;
 
+  /// Backwards-compatible aliases for the field names used before the API
+  /// models were merged.
+  String? get exercise => name;
+
+  String? get shortYoutubeDemonstration => demonstrationVideoUrl;
+
+  String? get inDepthYoutubeExplanation => explanationVideoUrl;
+
   const ExerciseModel({
     this.id,
     this.name,

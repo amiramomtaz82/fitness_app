@@ -6,7 +6,6 @@ import 'package:fitness_app/features/exercise/domain/entities/popular_training_e
 import 'package:fitness_app/features/exercise/presentation/home/view/home_view_model/home_state.dart';
 import 'package:fitness_app/features/exercise/presentation/home/view/home_view_model/home_view_model.dart';
 import 'package:fitness_app/features/exercise/presentation/home/view/widgets/home_popular_training.dart';
-import 'package:fitness_app/features/exercise/presentation/home/view/widgets/popular_training_card.dart';
 import 'package:fitness_app/generated/locale_keys.g.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';

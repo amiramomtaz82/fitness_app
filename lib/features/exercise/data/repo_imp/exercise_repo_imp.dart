@@ -6,6 +6,7 @@ import 'package:fitness_app/features/exercise/domain/entities/muscle_group_entit
 import 'package:fitness_app/features/exercise/domain/entities/difficulty_level_entity.dart';
 import 'package:fitness_app/features/exercise/domain/entities/exercise_entity.dart';
 import 'package:fitness_app/features/exercise/domain/repo/exercise_repo.dart';
+import 'package:fitness_app/features/exercise/domain/entities/exercise_result_entity.dart';
 import 'package:injectable/injectable.dart';
 
 @Injectable(as: ExerciseRepo)
@@ -48,14 +49,14 @@ class ExerciseRepoImp implements ExerciseRepo {
     });
   }
 
-  @override
-  Future<BaseResponse<List<DifficultyLevelEntity>>> getDifficultyLevels() {
-    return safeCall<List<DifficultyLevelEntity>>(() async {
-      final response = await _remoteDataSource.getDifficultyLevels();
+  // @override
+  // Future<BaseResponse<List<DifficultyLevelEntity>>> getDifficultyLevels() {
+  //   return safeCall<List<DifficultyLevelEntity>>(() async {
+  //     final response = await _remoteDataSource.getDifficultyLevels();
 
-      return response.levels?.map((level) => level.toDomain()).toList() ?? [];
-    });
-  }
+  //     return response.levels?.map((level) => level.toDomain()).toList() ?? [];
+  //   });
+  // }
 
   @override
   Future<BaseResponse<List<ExerciseEntity>>> getExercisesByMuscleDifficulty({
@@ -72,6 +73,36 @@ class ExerciseRepoImp implements ExerciseRepo {
               ?.map((exercise) => exercise.toEntity())
               .toList() ??
           [];
+    });
+  }
+
+  @override
+  Future<BaseResponse<ExercisesResultEntity>> getExercises({
+    required String muscleId,
+    required String difficultyId,
+    required int page,
+  }) {
+    return safeCall(() async {
+      final response = await _remoteDataSource.getExercises(
+        muscleId: muscleId,
+        difficultyId: difficultyId,
+        page: page,
+      );
+
+      return response.toEntity();
+    });
+  }
+
+  @override
+  Future<BaseResponse<List<DifficultyLevelEntity>>> getDifficultyLevels({
+    required String muscleId,
+  }) {
+    return safeCall(() async {
+      final response = await _remoteDataSource.getDifficultyLevels(
+        muscleId: muscleId,
+      );
+
+      return response.toEntities();
     });
   }
 }

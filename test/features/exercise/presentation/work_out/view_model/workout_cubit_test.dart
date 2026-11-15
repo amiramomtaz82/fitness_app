@@ -1,4 +1,5 @@
 import 'package:bloc_test/bloc_test.dart';
+import 'package:fitness_app/app/routes_names.dart';
 import 'package:fitness_app/core/base/ui_events.dart';
 import 'package:fitness_app/core/base_response/base_response.dart';
 import 'package:fitness_app/core/error/failures.dart';
@@ -223,6 +224,26 @@ void main() {
         expect: () => <WorkoutState>[],
         verify: (_) => verifyZeroInteractions(mockGetMuscles),
       );
+    });
+
+    group('MuscleSelectedIntent', () {
+      test('emits NavigateEvent with the exercise details location', () async {
+        final events = <BaseUiEvent>[];
+        cubit.eventStream.listen(events.add);
+
+        cubit.doIntent(
+          const MuscleSelectedIntent('m_1', muscleName: 'Upper Chest'),
+        );
+        await pumpEventQueue();
+
+        expect(events, [
+          isA<NavigateEvent>().having(
+            (e) => e.route,
+            'route',
+            AppRoutes.exerciseDetailsLocation('m_1', muscleName: 'Upper Chest'),
+          ),
+        ]);
+      });
     });
 
     group('RetryFetchMusclesIntent', () {

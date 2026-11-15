@@ -172,6 +172,16 @@
     "not_available": "غير متاح",
     "no_exercises_found": "لا توجد تمارين"
   },
+  "difficulty_levels": {
+    "beginner": "مبتدئ",
+    "intermediate": "متوسط",
+    "advanced": "متقدم",
+    "cal": "سعرة",
+    "muscle_exercise": "{} تمرين",
+    "list_description": "قم ببناء القوة والعضلات من خلال هذه التمارين. اختر مستواك واتبع الفيديو لكل حركة.",
+    "video_unavailable": "لا يوجد فيديو متاح لهذا التمرين.",
+    "no_exercises": "لا توجد تمارين متاحة لهذا المستوى."
+  },
   "chat": {
     "hi_user": "مرحباً {} ،",
     "i_am_your_smart_coach": "أنا مدربك الذكي",

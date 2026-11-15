@@ -11,7 +11,8 @@ import 'package:fitness_app/features/auth/presentation/register/view/register_fi
 import 'package:fitness_app/features/chat/presentation/view/screens/smart_coach_screen.dart';
 import 'package:fitness_app/features/exercise/domain/entities/exercise_entity.dart';
 import 'package:fitness_app/features/exercise/domain/entities/popular_training_entity.dart';
-import 'package:fitness_app/features/exercise/presentation/exercise/view/exercise_view.dart';
+import 'package:fitness_app/features/exercise/presentation/exercise/view/screen/exercise_screen.dart';
+import 'package:fitness_app/features/exercise/presentation/exercise/view_model/exercise_view_model.dart';
 import 'package:fitness_app/features/exercise/presentation/exercise_video/view/exercise_video_view.dart';
 import 'package:fitness_app/features/exercise/presentation/home/view/home_screen.dart';
 import 'package:fitness_app/features/exercise/presentation/home/view/home_view_model/home_intent.dart';
@@ -38,6 +39,7 @@ import '../features/profile/presentation/change_password/view/screens/change_pas
 import '../features/profile/presentation/profile/view/screens/profile_screen.dart';
 import '../features/profile/presentation/profile/view_model/profile_cubit.dart';
 import '../features/profile/presentation/profile_scope.dart';
+
 final GlobalKey<NavigatorState> rootNavigatorKey = GlobalKey<NavigatorState>();
 
 final GoRouter appRouter = GoRouter(
@@ -92,12 +94,15 @@ final GoRouter appRouter = GoRouter(
       ),
     ),
     GoRoute(
-      path: AppRoutes.exercise,
-      name: AppRoutes.exercise,
-      builder: (context, state) {
-        final muscleId = state.extra as String? ?? '';
-        return ExerciseView(muscleId: muscleId);
-      },
+      path: AppRoutes.exerciseDetails,
+      name: AppRoutes.exerciseDetails,
+      builder: (context, state) => BlocProvider(
+        create: (_) => getIt<ExerciseDetailsCubit>(),
+        child: ExerciseScreen(
+          muscleId: state.pathParameters['muscleId'] ?? '',
+          muscleName: state.uri.queryParameters['muscle'] ?? '',
+        ),
+      ),
     ),
     GoRoute(
       path: AppRoutes.popularTrainingGroup,

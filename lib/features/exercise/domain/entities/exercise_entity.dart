@@ -32,8 +32,18 @@ class ExerciseEntity extends Equatable {
   final String? mechanics;
   final String? laterality;
   final String? primaryExerciseClassification;
+
+  /// Short YouTube demonstration link.
+  ///
+  /// Kept nullable because the API may omit it. Use [shortVideoUrl] when a
+  /// non-null value is needed by the UI.
   final String? demonstrationVideoUrl;
-  final String? explanationVideoUrl;
+
+  /// In-depth YouTube explanation link.
+  ///
+  /// Defaults to an empty string so older UI code can keep treating it as a
+  /// plain [String] while the model itself still stays nullable.
+  final String explanationVideoUrl;
 
   const ExerciseEntity({
     required this.id,
@@ -67,9 +77,14 @@ class ExerciseEntity extends Equatable {
     this.mechanics,
     this.laterality,
     this.primaryExerciseClassification,
-    this.demonstrationVideoUrl,
-    this.explanationVideoUrl,
-  });
+    String? demonstrationVideoUrl,
+    String? shortVideoUrl,
+    String? explanationVideoUrl,
+  }) : demonstrationVideoUrl = demonstrationVideoUrl ?? shortVideoUrl,
+       explanationVideoUrl = explanationVideoUrl ?? '';
+
+  /// Backwards-compatible alias for the short demonstration link.
+  String get shortVideoUrl => demonstrationVideoUrl ?? '';
 
   String? get videoUrl {
     final demonstration = _clean(demonstrationVideoUrl);

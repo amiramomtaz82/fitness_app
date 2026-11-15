@@ -65,7 +65,6 @@ class ThumbnailImage extends StatelessWidget {
           (quality) => YoutubePlayerController.getThumbnail(
             videoId: videoId,
             quality: quality,
-            format: ThumbnailFormat.jpeg,
           ),
         )
         .toList(growable: false);
